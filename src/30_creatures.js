@@ -446,7 +446,7 @@ function updateHerds(sp,t){const ghf=sp.gh;for(const h of sp.herds){const f=h.f;
  for(const x of h.list){const o=x.o;const [la,lo]=herdPos(f,x,t);const [la2,lo2]=herdPos(f,x,t+.4);
   const swim=o.userData.swim;const base=swim?0:ghf(la,lo);const alt=f.alt+(swim?0.3:0)+(f.kind==='jelly'||f.kind==='burner'?Math.sin(t*1.3+x.ph)*2:0);
   dirLL(la,lo,pA).multiplyScalar(R+Math.max(base,0)+alt);dirLL(la2,lo2,pB).multiplyScalar(R+Math.max(swim?0:ghf(la2,lo2),0)+alt);
-  if(o.userData.segs){o.userData.segs.forEach((s,i)=>{const [a,b]=herdPos(f,x,t-i*.22);const [a2,b2]=herdPos(f,x,t-i*.22+.05);const d=dirLL(a,b);const g=ghf(a,b);
+  if(o.userData.segs){/* each segment follows the head's path a body-length behind the one before it, however fast the herd moves */const dts=clamp(f.s*1.9/Math.max(pA.distanceTo(pB)/.4,.01),.08,8);o.userData.segs.forEach((s,i)=>{const [a,b]=herdPos(f,x,t-i*dts);const [a2,b2]=herdPos(f,x,t-i*dts+.05);const d=dirLL(a,b);const g=ghf(a,b);
     s.position.copy(d).multiplyScalar(R+Math.max(g,0)+f.alt+Math.sin(t*3-i*.6)*f.s*.7-f.s*.25);s.scale.setScalar(f.s*1.8);
     const d2=dirLL(a2,b2).multiplyScalar(R+Math.max(ghf(a2,b2),0));const fw=d2.sub(s.position).normalize();const u=d.clone();const sd=fw.clone().cross(u).normalize();const u2=sd.clone().cross(fw);m4.makeBasis(fw,u2,sd);s.quaternion.setFromRotationMatrix(m4)});continue}
   if(o.userData.swarm){const a=o.userData.swarm;tmpO.position.set(0,0,0);dirLL(la,lo,up_);const nr=V3(0,1,0).addScaledVector(up_,-up_.y).normalize();const ea=nr.clone().cross(up_);
