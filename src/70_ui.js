@@ -236,7 +236,10 @@ canvas.addEventListener('pointerup',e=>endPtr(e));canvas.addEventListener('point
 function dragK(){const t=CUR.type;return rig.alt*(t==='planet'?.957:t==='tube'?1.05:1.1)/innerHeight}
 /* the wheel feeds a queue that drains smoothly, so zooming glides instead of stepping */
 const zq={v:0,cx:0,cy:0};
-canvas.addEventListener('wheel',e=>{e.preventDefault();let dy=e.deltaY*(e.deltaMode===1?33:e.deltaMode===2?400:1);zq.v=clamp(zq.v+clamp(dy,-240,240)*.0016,-2.2,2.2);zq.cx=e.clientX;zq.cy=e.clientY;tw=null},{passive:false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();
+ /* a two-finger sideways swipe on a trackpad turns the view, like dragging with the right button */
+ if(!e.ctrlKey&&Math.abs(e.deltaX)>Math.abs(e.deltaY)*1.2){if(!busy){rig.head+=e.deltaX*(e.deltaMode===1?33:1)*.004;tw=null;vel.a=vel.b=0}return}
+ let dy=e.deltaY*(e.deltaMode===1?33:e.deltaMode===2?400:1);zq.v=clamp(zq.v+clamp(dy,-240,240)*.0016,-2.2,2.2);zq.cx=e.clientX;zq.cy=e.clientY;tw=null},{passive:false});
 /* two fingers, handled once per frame from both fingers' latest positions:
    the ground under the fingers' midpoint stays under it while it zooms, pans and (past a small dead zone) turns */
 function pinchStep(){if(!pinch||ptrs.size!==2||busy)return;const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y),ang=Math.atan2(b.y-a.y,b.x-a.x),cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
