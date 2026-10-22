@@ -68,4 +68,51 @@ function tiangongDetail(sp){const E=[8,9,10,11,12],C0=[45,12];const GL='#3a5a7a'
   const P=[[kcy(9.2,9.2,.5,24),'#8a949c',{p:[0,.25,0]}]];for(let i=0;i<14;i++){const t=i*2.4,r=1+((i*37)%70)/10;P.push([kcy(.2,.3,3,5),'#5a4632',{p:[Math.cos(t)*r,1.5,Math.sin(t)*r]}],[ks(1.3,6,4),'#3a8a3a',{p:[Math.cos(t)*r,3.4,Math.sin(t)*r]}])}landmark(sp,a,b,0,P,E,{metal:.1,rough:.8});
   const [c,d]=PL(...C0,-20,-20);landmark(sp,c,d,0,[[tg(hemi(6,20),{}),'#f4f8fa',{}],[kcy(6.2,6.2,.6,20),'#8a949c',{p:[0,.3,0]}],[kb(2.4,2.4,.3),'#3a4a5a',{p:[0,1.2,5.9]}],[kb(1.8,.6,.06),'#c84a3a',{p:[0,2.8,5.95]}]],E,{metal:.2,rough:.5})}}
 
-function rqCityDetail(sp){capitalDetail(sp);silverDetail(sp)}
+/* 翡翠龙之城: the upper district behind its own wall round the palace, the cramped lower district where the white dragons are kept,
+   and the soft-earth ground at the edge where the dead are laid */
+function emeraldDetail(sp){const E=[3],C0=[12,-88];
+ {const P=[];const n=40;for(let i=0;i<n;i++){const t=i/n*6.283;if(i%10===0)continue;P.push([kb(2.6,2.2,.9),'#ffffff',{p:[Math.cos(t)*15,1.1,Math.sin(t)*15],r:[0,-t+Math.PI/2,0]}],[kb(2.8,.4,1.2),'#d8d2c0',{p:[Math.cos(t)*15,2.4,Math.sin(t)*15],r:[0,-t+Math.PI/2,0]}])}
+  for(let k=0;k<4;k++){const t=k*1.5708;const x=Math.cos(t)*15,z=Math.sin(t)*15;P.push([kcy(1.1,1.2,4,8),'#ffffff',{p:[x+Math.sin(t)*1.9,2,z-Math.cos(t)*1.9]}],[kcy(1.1,1.2,4,8),'#ffffff',{p:[x-Math.sin(t)*1.9,2,z+Math.cos(t)*1.9]}],[kc(1.4,1.6,8),'#2d9560',{p:[x+Math.sin(t)*1.9,4.8,z-Math.cos(t)*1.9]}],[kc(1.4,1.6,8),'#2d9560',{p:[x-Math.sin(t)*1.9,4.8,z+Math.cos(t)*1.9]}],[kb(3,.5,1),'#ffffff',{p:[x,3.4,z],r:[0,-t+Math.PI/2,0]}])}
+  landmark(sp,...C0,0,P,E,{metal:0,rough:.9,win:'#ffa040',noCarry:true,mat:detailMat(VC({roughness:.9}),{bump:.6,freq:2})})}
+ {const P=[];for(let i=0;i<34;i++){const x=((i*37)%13-6)*1.5,z=((i*53)%11-5)*1.5;P.push([kb(1.4,1,1.2),'#9a8a70',{p:[x,.5,z],r:[0,(i%5)*.3,0]}],[kb(1.7,.1,1.6),'#6a5a3a',{p:[x,1.1,z],r:[0,(i%5)*.3,.2]}])}
+  for(let i=0;i<8;i++)P.push([kcy(.06,.06,1.6,3),BEAM,{p:[-9+i*2.6,.8,-9]}]);P.push([kb(20,.12,.12),BEAM,{p:[3.6,1.4,-9]}]);
+  const [a,b]=PL(...C0,-26,10);landmark(sp,a,b,.4,P,E,{metal:0,rough:.95,noCarry:true})}
+ {const P=[[tg(new THREE.CylinderGeometry(1,1,.12,24),{s:[9,1,6]}),'#4a3a2a',{p:[0,.06,0]}]];for(let i=0;i<14;i++){const x=((i*29)%15-7)*1.1,z=((i*41)%9-4)*1.1;P.push([tg(new THREE.SphereGeometry(1,10,6,0,6.283,0,1.4),{s:[1.2,.45,.8]}),'#5a4632',{p:[x,0,z]}],[kb(.15,1,.15),'#d8d0c0',{p:[x+1,.5,z]}])}
+  const [a,b]=PL(...C0,28,-22);landmark(sp,a,b,0,P,E,{metal:0,rough:1,noCarry:true,lift:-.05})}}
+/* 白骸龙的城: a hall of stone columns that is their library, pens for the great ostrich-dragons, and a court of history tablets */
+function whiteDetail(sp){const E=[3,4],C0=[4,-112];
+ {const P=[[kb(14,.6,8),'#d8d2c4',{p:[0,.3,0]}],[kb(14,.5,8),'#bab4a6',{p:[0,6.2,0]}],[prism(14.6,1.4,8.8),'#8a8478',{p:[0,7.1,0]}]];for(let i=0;i<7;i++)for(const z of[-3.4,3.4])P.push([kcy(.42,.5,5.4,10),'#ece8dc',{p:[-6+i*2,3.3,z]}]);
+  for(let i=0;i<5;i++)P.push([kb(1.6,2.2,.4),'#a89a78',{p:[-4+i*2,1.7,-1]}],[kb(1.2,.1,.5),'#c8b890',{p:[-4+i*2,2.9,-1]}]);P.push([kb(6,1,4),'#8a6a40',{p:[0,1.1,1.2]}]);
+  const [a,b]=PL(...C0,9,7);landmark(sp,a,b,.5,P,E,{metal:0,rough:.9,noCarry:true})}
+ {const P=[];for(let k=0;k<3;k++){const x=k*6-6;for(let i=0;i<8;i++){const t=i/8*6.283;P.push([kb(1.6,1.1,.12),BEAM,{p:[x+Math.cos(t)*2.5,.55,Math.sin(t)*2.5],r:[0,-t+Math.PI/2,0]}])}
+   for(let j=0;j<2;j++){const bx=x+(j?.8:-.7),bz=j?.6:-.5;P.push([tg(new THREE.SphereGeometry(1,10,8),{s:[.9,.8,.6]}),'#c8b8a0',{p:[bx,1.9,bz]}],[kcy(.12,.15,1.6,6),'#a89880',{p:[bx+.5,3,bz]}],[ks(.3,8,6),'#c8b8a0',{p:[bx+.6,3.8,bz]}],[kcy(.1,.08,1.6,5),'#a89880',{p:[bx+.25,.8,bz]}],[kcy(.1,.08,1.6,5),'#a89880',{p:[bx-.25,.8,bz]}])}
+   P.push([kb(1.4,.5,.6),'#8a6a40',{p:[x,.25,2]}])}
+  const [a,b]=PL(...C0,-10,9);landmark(sp,a,b,-.3,P,E,{metal:0,rough:.9,noCarry:true})}
+ {const P=[[kcy(5,5,.2,16),'#cfc8b8',{p:[0,.1,0]}]];for(let i=0;i<9;i++){const t=i/9*6.283;P.push([kb(1.2,2+(i%3)*.4,.3),'#bab4a6',{p:[Math.cos(t)*3.8,1+(i%3)*.2,Math.sin(t)*3.8],r:[0,-t+Math.PI/2,0]}])}P.push([kb(1.6,3,.5),'#ece8dc',{p:[0,1.5,0]}]);
+  const [a,b]=PL(...C0,-8,-9);landmark(sp,a,b,0,P,E,{metal:0,rough:.9,noCarry:true})}}
+/* 内林城: crooked trees that never grew into houses run right through the streets; after the bombing, a crater in the square
+   with crystal shards in its walls and frightened dragons gathered round the lip */
+function neilinDetail(sp){const E=[8],C0=[24,12];
+ {const P=[];for(let i=0;i<26;i++){const t=i*2.39,d=4+((i*37)%100)/100*16,x=Math.cos(t)*d,z=Math.sin(t)*d;const L=[[kcy(.35,.5,2.2,6),'#5a4632',{p:[x,1.1,z],r:[.3,0,.2]}],[kcy(.25,.35,2,6),'#5a4632',{p:[x+.5,2.8,z+.4],r:[-.4,0,-.5]}],[kcy(.15,.25,1.6,5),'#5a4632',{p:[x+.2,4.3,z+.9],r:[.6,0,.3]}],[ks(1.3,7,5),'#4a7a3a',{p:[x+.3,5.3,z+1.2]}],[ks(.9,6,4),'#5a8a42',{p:[x+1.2,4.6,z+.4]}]];P.push(...L)}
+  landmark(sp,...C0,0,P,E,{metal:0,rough:.9,noCarry:true,mat:VC({roughness:.9})})}
+ {const P=[[kcy(6,4,.4,20),'#2a2622',{p:[0,-.1,0]}],[tg(new THREE.TorusGeometry(6.4,.9,6,20),{r:[Math.PI/2,0,0]}),'#6a5a48',{p:[0,.1,0]}]];for(let i=0;i<10;i++){const t=i*.63;P.push([kc(.35,1.6,4),'#bfeaf4',{p:[Math.cos(t)*5,.6,Math.sin(t)*5],r:[(Math.sin(i)*.5),0,Math.cos(i)*.5]}])}
+  for(let i=0;i<14;i++){const t=i*.45+.2;P.push([kcy(.28,.36,1.2,6),'#3a8a5a',{p:[Math.cos(t)*7.6,.6,Math.sin(t)*7.6]}],[ks(.3,6,4),'#3a8a5a',{p:[Math.cos(t)*7.6,1.4,Math.sin(t)*7.6]}])}
+  const [a,b]=PL(...C0,0,0);landmark(sp,a,b,0,P,E,{metal:0,rough:.9,noCarry:true,mat:VC({roughness:.85}),lift:-.2})}}
+function rqCityDetail(sp){capitalDetail(sp);silverDetail(sp);emeraldDetail(sp);whiteDetail(sp);neilinDetail(sp)}
+
+/* 尔什: 峡风要塞 the nostalgic town (grey brick lanes, low stone houses, a clock tower with a golden bell, a bar),
+   英雄总部 with its arena, the research team's base, statues of the heroes who guard 阿美润根 */
+function erxiCityDetail(sp){
+ {const E=[8,9],C0=[78,-24];const P=[[kb(4,10,4),'#ffffff',{p:[0,5,0]}],[kb(4.6,.5,4.6),'#8a8478',{p:[0,10.2,0]}],...[[-1.6,-1.6],[1.6,-1.6],[-1.6,1.6],[1.6,1.6]].map(([x,z])=>[kb(.4,2.4,.4),'#ffffff',{p:[x,11.6,z]}]),[kc(3,3,4),'#6a5a4a',{p:[0,14.3,0],r:[0,.785,0]}],
+   [tg(new THREE.SphereGeometry(1.1,12,8,0,6.283,0,1.9),{}),'#e8b830',{p:[0,12.4,0]}],[kcy(1.2,1.2,.1,16),'#f4f0e6',{p:[0,7.5,2.04],r:[Math.PI/2,0,0]}],[kb(.1,.9,.06),'#1a1c1e',{p:[0,7.7,2.12]}],door(0,2.04,1.2,2.2)];
+  landmark(sp,...C0,0,P,E,{metal:.1,rough:.9,win:'#ffc070'});
+  const [a,b]=PL(...C0,-8,6);landmark(sp,a,b,.8,[[kb(6,3,4),'#ffffff',{p:[0,1.5,0]}],[prism(6.4,1.2,4.4),'#6a5a4a',{p:[0,3.6,0]}],[kb(1.2,1.8,.1),'#6a4a2a',{p:[0,.9,2.02],r:[0,.4,0]}],[kb(2.4,.7,.1),'#3a2a1e',{p:[0,2.4,2.06]}],[kb(1.8,.3,.06),'#e8b830',{p:[0,2.4,2.12]}],[kcy(.3,.3,.8,8),'#6a4a2a',{p:[2.4,.4,2.4]}],[kcy(.3,.3,.8,8),'#6a4a2a',{p:[1.8,.4,2.6]}]],E,{metal:0,rough:.9,win:'#ffb060'})}
+ {const E=[8,9],C0=[36,-94];const P=[[kb(8,16,8),'#ffffff',{p:[0,8,0]}],...[3,6,9,12].map(y=>[kb(8.06,.5,8.06),'#3a5a7a',{p:[0,y,0]}]),[kb(6,3,6),'#ffffff',{p:[0,17.5,0]}],[ring(4.4,.35,24),'#e8b830',{p:[0,13,0]}],[kcy(2,2,.3,6),'#c83a3a',{p:[0,10,4.1],r:[Math.PI/2,0,0]}],[kc(1.4,1.6,3),'#e8e8e8',{p:[0,10,4.3],r:[Math.PI/2,0,0]}],[kcy(.1,.1,5,4),'#8a949c',{p:[0,21.5,0]}]];
+  const [a,b]=PL(...C0,6,0);landmark(sp,a,b,0,P,E,{metal:.4,rough:.35,win:'#ffe0a0'});
+  const A=[[tg(new THREE.CylinderGeometry(1,1,.3,32),{s:[12,1,8]}),'#9aa4ac',{p:[0,.15,0]}],[tg(new THREE.CylinderGeometry(1,1,.32,32),{s:[9,1,5.5]}),'#c8b890',{p:[0,.17,0]}]];for(let i=0;i<20;i++){const t=i/20*6.283;A.push([kb(3.2,2.4+(i%2)*.6,1.4),'#d8dee4',{p:[Math.cos(t)*11.2,1.2,Math.sin(t)*7.3],r:[0,-t+Math.PI/2,0]}])}
+  const [c,d]=PL(...C0,-12,10);landmark(sp,c,d,0,A,E,{metal:.2,rough:.6,lift:-.1})}
+ {const E=[9],C0=[40,22];const P=[[kcy(10,10,.3,24),'#5a6268',{p:[0,.15,0]}]];for(const [x,z,r] of [[0,0,5],[-7,3,3],[6,-4,3.4]])P.push([tg(hemi(r,18),{}),'#e8ecef',{p:[x,.3,z]}],[ring(r,.12,18),'#3a4a5a',{p:[x,.35,z]}]);
+  for(const [x,z] of [[7,6],[-6,-6]])P.push([kb(.3,12,.3),'#8a949c',{p:[x,6,z]}],[kb(2,.2,.2),'#8a949c',{p:[x,11,z]}],[ks(.3,6,4),'#ff5a4a',{p:[x,12.2,z]}]);for(let i=0;i<24;i++){const t=i/24*6.283;P.push([kb(.1,1.8,2.6),'#8a949c',{p:[Math.cos(t)*10,.9,Math.sin(t)*10],r:[0,-t,0]}])}
+  landmark(sp,...C0,0,P,E,{metal:.4,rough:.4,win:'#cfe6ff'})}
+ {const E=[8,9],C0=[38,-100];for(const [dn,de,h] of [[10,0,0],[-8,8,1],[-6,-10,2]]){const [a,b]=PL(...C0,dn,de);landmark(sp,a,b,h*2.1,[[kb(4,2,4),'#d8d2c4',{p:[0,1,0]}],[kcy(.8,1,4,8),'#e8b830',{p:[0,4,0]}],[ks(.9,10,8),'#e8b830',{p:[0,6.8,0]}],[kcy(.35,.3,3.4,6),'#e8b830',{p:[1.3,4.4,0],r:[0,0,-.4-h*.3]}],[kcy(.35,.3,3.4,6),'#e8b830',{p:[-1.3,4.6,0],r:[0,0,.9]}],[kcy(.4,.35,3.2,6),'#e8b830',{p:[.5,1.6+2,0]}],[kb(2.8,3.6,.12),'#c83a3a',{p:[0,4.4,-1],r:[.15,0,0]}]],E,{metal:.7,rough:.3})}}}
+

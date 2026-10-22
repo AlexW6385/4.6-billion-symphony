@@ -536,7 +536,12 @@ function buildRongqiu(){
   rqGreenPool(sp)}
  // the scorpion-folk city: ten great pyramids in a line, crystal caps flashing in the sun
  {const g=new THREE.Group();const pm=detailMat(VC({roughness:.8}),{bump:.5});const xm=new THREE.MeshStandardMaterial({color:'#bff0ff',emissive:'#3aa6c4',emissiveIntensity:.5,roughness:.08,flatShading:true});
-  for(let i=0;i<10;i++){const p=new THREE.Mesh(geoC('pyr',5),pm);const o=new THREE.Group();o.add(p);p.scale.set(3,4.2,3);{const cr=new THREE.Mesh(pyrCrystals(70+i),xm);cr.scale.copy(p.scale);o.add(cr)}if(i%3===1){const cap=new THREE.Mesh(kc(1.3,2.4,4),xm);cap.position.y=7.6;cap.rotation.y=Math.PI/4;o.add(cap)}frameLL(sp,-12,-80.5+i*.55,0,0,o);g.add(o)}
+  for(let i=0;i<10;i++){const p=new THREE.Mesh(geoC('pyr',5),pm);const o=new THREE.Group();o.add(p);p.scale.set(3,4.2,3);{const cr=new THREE.Mesh(pyrCrystals(70+i),xm);cr.scale.copy(p.scale);o.add(cr)}if(i%3===1){const cap=new THREE.Mesh(kc(1.3,2.4,4),xm);cap.position.y=7.6;cap.rotation.y=Math.PI/4;o.add(cap)}
+   // a stairway up the front, a shrine on the summit and two fire-bowls
+   {const P=[];for(let k=0;k<12;k++){const t=k/11;P.push([kb(1.3,.32,.7),'#a88c60',{p:[0,.2+t*6.3,3.2-t*2.4]}])}P.push([kb(.18,6.8,.18),'#8a7050',{p:[.75,3.4,2],r:[-.36,0,0]}],[kb(.18,6.8,.18),'#8a7050',{p:[-.75,3.4,2],r:[-.36,0,0]}]);
+    if(i%3!==1){P.push([kb(1.4,1.1,1.4),'#c4a878',{p:[0,7.25,0]}],[kc(1.15,1,4),'#8a6a40',{p:[0,8.3,0],r:[0,.785,0]}],[kb(.5,.7,.06),'#2a2018',{p:[0,7.1,.72]}])}
+    for(const x of[-1.4,1.4])P.push([kcy(.25,.12,.5,6),'#5a4a3a',{p:[x,1.2,3.2]}]);o.add(new THREE.Mesh(G(P),VC({roughness:.85})));for(const x of[-1.4,1.4])o.add(at(glowSprite('#ffb050',1.6,.7),x,1.65,3.2))}
+   frameLL(sp,-12,-80.5+i*.55,0,0,o);g.add(o)}
   sp.scene.add(g);addTo(sp,g,[3,4,5,6,7,8,9,10,11,12]);cull(g,dirLL(-12,-78).multiplyScalar(R+gh(-12,-78)),60,1800);
   inst(geoC('pyr',3),VC({roughness:.8}),scatter(80,-12,-78,2.8,93,onLand),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.setScalar(.8+p[3]*1.2)},[3,4,5,6,7,8,9,10,11,12]);
   px('scorpion',dirLL(-12,-78).multiplyScalar(R+gh(-12,-78)+6),30)}

@@ -24,6 +24,14 @@ function buildXimin(){const sp=makePlanet('ximin',{height:ximinH,colors:oneSet(x
   const groups=XK.map(()=>[]);pts.forEach(p=>{const v=Math.floor(h3(p[0]*7.1,p[1]*3.3,ci)*XK.length*.999);groups[p[3]<.68?0:v].push(p)});
   groups.forEach((G2,gi)=>{if(!G2.length)return;const [geo,H0,W0]=XK[gi];inst(geo,tmx,G2,(o,p)=>{const d=angDeg(dirLL(p[0],p[1]),dirLL(la,lo))/(9*k);frameLL(sp,p[0],p[1],0,p[3]*3,o);const h=(2+p[3]*p[3]*18+(1-d)*(1-d)*36*k)*(.25+.75*sm(4.2,9,angDeg(dirLL(p[0],p[1]),JIALE)))*(.15+.85*sm(2.6,8,entNear(p)));const w=(1.2+p[3]*1.6)/W0;o.scale.set(w*(W0>1?1.6:1),h/H0,w*(W0>1?1.6:1))},null,{tint:(p)=>C('#ffffff').offsetHSL(0,0,(p[3]-.5)*.25),far:3400})})});
  const nl=nightPoints(lights.map(p=>dirLL(p[0]+(p[3]-.5)*.1,p[1]+(p[3]-.5)*.1).multiplyScalar(R+p[2]+3+p[3]*14)),'#ffd27a',2,1);nl.material.uniforms.uDay.value=.18;sp.scene.add(nl);sp.nightMats=[nl.userData.night];
+ // traffic: little flying cars streaming round the big cities in lanes at different heights, lit at the nose
+ {const cg=G([[tg(new THREE.SphereGeometry(1,10,6),{s:[1.6,.5,.8]}),'#e8ecef',{}],[tg(new THREE.SphereGeometry(1,10,4,0,6.283,0,1.2),{s:[1,.45,.7]}),'#2a4a6a',{p:[-.2,.2,0]}],[kb(.3,.12,1.7),'#8a949c',{p:[-.6,0,0]}]]);
+  const lanes=[];cent.filter(c=>c[2]>=1.3).forEach(([la,lo,k],ci)=>{for(let j=0;j<5;j++)lanes.push({la,lo,r:(1.6+j*1.3)*k,alt:22+j*9+(ci%2)*5,sp:(j%2?1:-1)*(.012+j*.002)})});
+  const per=26,N=lanes.length*per;const im=new THREE.InstancedMesh(cg,VC({roughness:.3,metalness:.5,emissive:'#202830'}),N);im.frustumCulled=false;sp.scene.add(im);const o=new THREE.Object3D(),q=V3(),q2=V3();
+  const cars=[];lanes.forEach((L,li)=>{for(let i=0;i<per;i++)cars.push({L,ph:i/per*6.283+h3(li,i,3)*.2,dz:(h3(i,li,7)-.5)*3});});
+  const at2=(L,t,dz,out)=>{const la=L.la+Math.cos(t)*L.r,lo=L.lo+Math.sin(t)*L.r/Math.max(.2,Math.cos(L.la*D2R));return dirLL(la,lo,out).multiplyScalar(R+Math.max(sp.gh(la,lo),0)+L.alt+dz)};
+  const nl=nightPoints(cars.map(()=>V3()),'#ffe8b0',2.2,1);nl.frustumCulled=false;sp.scene.add(nl);sp.nightMats.push(nl.userData.night);const np=nl.geometry.attributes.position;
+  anim(sp,null,(T)=>{if(camera.position.length()-R>4200){im.visible=nl.visible=false;return}im.visible=nl.visible=true;cars.forEach((c,i)=>{const t=c.ph+T*c.L.sp;at2(c.L,t,c.dz,q);at2(c.L,t+.01*Math.sign(c.L.sp),c.dz,q2);o.position.copy(q);o.up.copy(q).normalize();o.lookAt(q2);o.rotateY(-Math.PI/2);o.scale.setScalar(1.3);o.updateMatrix();im.setMatrixAt(i,o.matrix);np.setXYZ(i,q.x,q.y,q.z)});im.instanceMatrix.needsUpdate=true;np.needsUpdate=true})}
  // holographic adverts drifting over the city
  {const g=new THREE.Group();const cols=['#5ad8ff','#ff6ab8','#ffd25a','#8aff9a'];for(let i=0;i<40;i++){const pl=new THREE.Mesh(new THREE.PlaneGeometry(6+h3(i,1,1)*8,3+h3(i,2,1)*4),GL(cols[i%4],.55));pl.material.side=THREE.DoubleSide;const la=25+(h3(i,3,1)-.5)*6,lo=24+(h3(i,4,1)-.5)*8;frameLL(sp,la,lo,30+h3(i,5,1)*30,h3(i,6,1)*6,pl);g.add(pl)}
   sp.scene.add(g);cull(g,dirLL(25,24).multiplyScalar(R+40),180,1800);anim(sp,g,t=>g.children.forEach((p,i)=>p.material.opacity=.35+.25*Math.sin(t*2+i)));px('xm_city',dirLL(25,24).multiplyScalar(R+gh(25,24)+20),20)}
@@ -68,8 +76,12 @@ function erxiBiome(d,h,lat,e,W){const al=Math.abs(lat);if(h>80||al>72)return;W.t
 function buildErxi(){const sp=makePlanet('erxi',{height:erxiH,colors:oneSet(erxiC),ocean:{deep:'#0b2c48',shal:'#1f7a8a'},atm:'#7fb8ff',clouds:{cov:.5},sunLon:-20,rock:'#6a5f55'});BSP=sp;const gh=sp.gh;
  makeCover(sp,erxiBiome);
  const mm=new THREE.MeshStandardMaterial({color:'#d8dde2',roughness:.35,metalness:.6});let lights=[];const tme=towerMat({metalness:.5,roughness:.35,win:'#ffe6b0'});sp.towerMats=[tme];
- WIKI.filter(w=>w.m==='erxi'&&w.c==='文明'&&w.ll).forEach((w,k)=>{const pts=scatter(90,w.ll[0],w.ll[1],2.2,400+k,(la,lo,h)=>h>2);lights=lights.concat(pts.map(p=>[p,w.e]));
-  inst(geoC('metalTower'),tme,pts,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*3,o);const h=2+p[3]*p[3]*16;o.scale.set(1+p[3],h,1+p[3])},w.e,{tint:()=>C('#e8ecf0')})});
+ // outskirts of high-rises round each civilised place, kept out of the towns laid out street by street (and away from the old-style fort)
+ const ETOWN=[[45,12,2.8],[32,108,3],[38,-100,2.8],[36,-94,1.7],[32,-84,1.6],[36,16,2],[40,22,1.4],[30,40,1.5],[78,-24,4]];const inTown=(la,lo)=>ETOWN.some(([a,b,r])=>angDeg(dirLL(la,lo),dirLL(a,b))<r);
+ const EK=[[geoC('metalTower'),1,1],...TOWNKIT.future.kits('#3a4a5a').t.map(g=>[g,12,2.6]),...TOWNKIT.future.kits('#4a5a6a').m.map(g=>[g,6,3.2])];
+ WIKI.filter(w=>w.m==='erxi'&&w.c==='文明'&&w.ll&&w.id!=='ex_xiafeng').forEach((w,k)=>{const pts=scatter(90,w.ll[0],w.ll[1],3.2,400+k,(la,lo,h)=>h>2&&!inTown(la,lo));lights=lights.concat(pts.map(p=>[p,w.e]));
+  const gr=EK.map(()=>[]);pts.forEach(p=>gr[Math.floor(p[3]*EK.length*.999)].push(p));
+  gr.forEach((L,gi)=>{if(!L.length)return;const [geo,H0,W0]=EK[gi];inst(geo,tme,L,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*9,o);const h=(2+p[3]*p[3]*16)/H0*(W0>1?1.3:1),w2=(1+p[3])/W0*(W0>1?1.7:1);o.scale.set(w2,h,w2)},w.e,{tint:()=>C('#e8ecf0')})})});
  {const byE={};lights.forEach(([p,e])=>{const k=e.join();(byE[k]=byE[k]||{e,pts:[]}).pts.push(dirLL(p[0]+.2,p[1]).multiplyScalar(R+p[2]+1.6))});sp.nightMats=[];for(const k in byE){const nl=nightPoints(byE[k].pts,'#ffe0a0',1.8,1);addE(nl,byE[k].e);sp.nightMats.push(nl.userData.night)}}
  inst(geoC('broad'),swayMat({roughness:.85},.002),scatter(900,40,30,40,410,(la,lo,h)=>h>3&&h<50),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.9+p[3]*.8)},null,{far:3000});
  inst(geoC('conifer'),swayMat({roughness:.85},.003),scatter(600,38,-98,18,411,(la,lo,h)=>h>3&&h<50),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.9+p[3]*.9)},null,{far:3000});

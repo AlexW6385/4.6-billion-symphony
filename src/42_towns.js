@@ -2,7 +2,8 @@
    towns: streets running out from a square, houses facing them, walls and gates,
    fields outside, smoke from chimneys, lamps at night, people in the streets.
    ================================================================ */
-const prism=(w,h,d)=>{const g=new THREE.CylinderGeometry(h,h,d,3);g.rotateZ(Math.PI/2);g.rotateX(Math.PI/2);g.scale(w/(h*1.73),1,1);return g};
+// a gable roof w wide (ridge along x), d deep, h high, centred on its own mid-height
+const prism=(w,h,d)=>{const g=new THREE.CylinderGeometry(1,1,1,3);g.rotateZ(Math.PI/2);g.rotateX(-Math.PI/2);g.translate(0,.5,0);g.scale(w,h*1.4/1.5,d/1.732);g.translate(0,-h/2,0);return g};
 /* building kits: each style has small (s), medium (m) and tall (t) buildings, several of each, so no street repeats itself.
    Parts tinted '#ffffff' take the wall colour of the instance; everything else keeps its own colour. */
 const WINC='#262a32',DOORC='#3a2a1e',BEAM='#5a4632';
@@ -87,6 +88,47 @@ const TOWNKIT={
 const PERSON=G([[kcy(.32,.42,1.4,6),'#ffffff',{p:[0,.7,0]}],[ki(.32,1),'#ffffff',{p:[0,1.7,0]}],[kc(.12,.4,4),'#ffffff',{p:[.25,1.6,0],r:[0,0,-1.4]}]]);
 const DOCK=G([[kb(9,.25,1.3),'#7a5a3a',{p:[4.5,.1,0]}],...[0,2.5,5,7.5].map(x=>[kcy(.13,.13,2.4,5),'#5a4632',{p:[x,-.6,.6]}]),...[0,2.5,5,7.5].map(x=>[kcy(.13,.13,2.4,5),'#5a4632',{p:[x,-.6,-.6]}]),[kb(.5,.5,.5),'#8a6a40',{p:[7,.5,.3]}]]);
 const BOAT=G([[tg(new THREE.SphereGeometry(1,10,6,0,6.283,1.57,1.57),{s:[2.2,.6,.8]}),'#7a5a3a',{p:[0,.35,0]}],[kcy(.06,.06,3,4),'#5a4632',{p:[0,1.8,0]}],[tg(new THREE.PlaneGeometry(1.6,2.2),{}),'#e8e0c8',{p:[.1,2,0],r:[0,Math.PI/2,0]}]]);
+/* life in the streets: lamps along the roads, carts and vehicles on them, a centrepiece in the square,
+   crates and barrels by the doors, little trees and garden plots in the yards. One set per style. */
+const WHEEL=(x,z,r)=>[tg(new THREE.CylinderGeometry(r||.45,r||.45,.18,10),{r:[Math.PI/2,0,0]}),'#3a2e22',{p:[x,r||.45,z]}];
+const BEAST=(x)=>[[tg(new THREE.SphereGeometry(1,10,8),{s:[1.2,.75,.7]}),'#8a6a4a',{p:[x,1.25,0]}],[tg(new THREE.SphereGeometry(.42,8,6),{}),'#7a5a3a',{p:[x+1.25,1.6,0]}],...[[.6,.35],[.6,-.35],[-.6,.35],[-.6,-.35]].map(([a,b])=>[kcy(.13,.1,.9,5),'#5a4232',{p:[x+a,.45,b]}])];
+const STREETKIT={
+ dragon:{lamp:G([[kcy(.07,.09,2.6,5),BEAM,{p:[0,1.3,0]}],[kb(.5,.08,.08),BEAM,{p:[.2,2.5,0]}],[kb(.24,.34,.24),'#ffcf7a',{p:[.4,2.3,0]}]]),
+  cart:G([[kb(1.6,.5,1.1),'#8a6a40',{p:[0,.85,0]}],[kb(1.7,.35,.08),'#6a5030',{p:[0,1.25,.55]}],[kb(1.7,.35,.08),'#6a5030',{p:[0,1.25,-.55]}],WHEEL(0,.62),WHEEL(0,-.62),[kb(1.6,.08,.08),BEAM,{p:[1.6,.75,.3]}],[kb(1.6,.08,.08),BEAM,{p:[1.6,.75,-.3]}],[kb(.5,.4,.5),'#a08050',{p:[-.3,1.3,.1]}],...BEAST(3.1)]),
+  center:G([[kcy(1.3,1.4,.9,12),'#9a9080',{p:[0,.45,0]}],[kcy(1.05,1.05,.92,12),'#2a3a44',{p:[0,.47,0]}],[kcy(.08,.08,2.4,4),BEAM,{p:[1.1,1.2,0]}],[kcy(.08,.08,2.4,4),BEAM,{p:[-1.1,1.2,0]}],[prism(2.8,.55,1.6),'#5a7a4a',{p:[0,2.6,0],r:[0,Math.PI/2,0]}],[kcy(.06,.06,2.2,4),BEAM,{p:[0,2.1,0],r:[0,0,Math.PI/2]}]]),
+  yard:G([[kcy(.12,.18,1.6,5),'#5a4632',{p:[0,.8,0]}],[ks(.9,7,5),'#4a8a3a',{p:[0,2,0]}],[ks(.6,6,4),'#5a9a42',{p:[.4,2.5,.2]}]]),
+  crate:G([[kb(.7,.7,.7),'#9a7a48',{p:[0,.35,0]}],[kb(.55,.55,.55),'#8a6a40',{p:[.5,.28,.4],r:[0,.4,0]}],[kcy(.3,.3,.8,8),'#7a5a3a',{p:[-.5,.4,.3]}],[kcy(.31,.31,.06,8),'#3a2e22',{p:[-.5,.6,.3]}]]),
+  plot:G([[kb(3,.15,2.2),'#6a4a2a',{p:[0,.07,0]}],...[-1,0,1].map(x=>[kb(.5,.35,2),'#5a9a3a',{p:[x,.25,0]}]),...[-1.5,1.5].map(x=>[kb(.06,.6,2.4),BEAM,{p:[x,.3,0]}])])},
+ white:{lamp:G([[kcy(.12,.16,2.4,6),'#d8d2c4',{p:[0,1.2,0]}],[kb(.4,.4,.4),'#ffcf7a',{p:[0,2.6,0]}],[kc(.34,.35,4),'#8a8478',{p:[0,3,0],r:[0,.785,0]}]]),
+  cart:G([[kb(1.8,.6,1.2),'#c8c0b0',{p:[0,.9,0]}],WHEEL(.4,.66,.5),WHEEL(.4,-.66,.5),[kb(1.8,.1,.1),BEAM,{p:[1.7,.8,0]}],...BEAST(3.2)]),
+  center:G([[kb(2.4,.5,2.4),'#d8d2c4',{p:[0,.25,0]}],[tg(new THREE.CylinderGeometry(.25,.5,5,4),{r:[0,.785,0]}),'#ece8dc',{p:[0,3,0]}],[kc(.3,.6,4),'#c8a860',{p:[0,5.8,0],r:[0,.785,0]}],...[0,1,2,3].map(i=>[kb(.9,1.3,.18),'#bab4a6',{p:[Math.cos(i*1.57)*1.8,.95,Math.sin(i*1.57)*1.8],r:[0,-i*1.57+Math.PI/2,0]}])]),
+  yard:G([[kcy(.12,.16,1.2,5),'#6a5a4a',{p:[0,.6,0]}],[kc(.7,2.2,7),'#4a7a4a',{p:[0,2.2,0]}]]),
+  crate:G([[kb(.8,.5,.5),'#b8b0a0',{p:[0,.25,0]}],[kb(.6,.4,.6),'#a8a090',{p:[.3,.7,0]}],[kcy(.3,.35,.7,8),'#8a7a6a',{p:[-.6,.35,.3]}]]),
+  plot:G([[kb(3.2,.4,.3),'#d8d2c4',{p:[0,.2,1.1]}],[kb(3.2,.4,.3),'#d8d2c4',{p:[0,.2,-1.1]}],[kb(3,.12,2),'#5a4a3a',{p:[0,.06,0]}],...[-1,0,1].map(x=>[ks(.35,6,4),'#7a9a4a',{p:[x,.3,0]}])])},
+ silver:{lamp:G([[kcy(.06,.08,3.2,6),'#9aa4ac',{p:[0,1.6,0]}],[ks(.26,8,6),'#e8f4ff',{p:[0,3.3,0]}],[ring(.34,.04,12),'#9aa4ac',{p:[0,3.3,0]}]]),
+  cart:G([[tg(new THREE.SphereGeometry(1,12,8),{s:[2,.7,.9]}),'#c0c8d0',{p:[0,1.2,0]}],[kb(2.8,.3,1.2),'#7a848c',{p:[0,.6,0]}],WHEEL(1.1,.7,.5),WHEEL(-1.1,.7,.5),WHEEL(1.1,-.7,.5),WHEEL(-1.1,-.7,.5),[kb(.8,.5,.7),'#3a5a7a',{p:[.6,1.75,0]}]]),
+  center:G([[kcy(2.4,2.6,.5,20),'#c0c8d0',{p:[0,.25,0]}],[kcy(2.2,2.2,.52,20),'#4a8aa8',{p:[0,.27,0]}],[kcy(.3,.5,2.4,10),'#d8e0e6',{p:[0,1.5,0]}],[ring(.9,.08,16),'#d8e0e6',{p:[0,2.4,0]}],[ks(.4,10,6),'#cfe6ff',{p:[0,3,0]}]]),
+  yard:G([[kcy(.5,.6,1.4,8),'#5a9a5a',{p:[0,.7,0]}],[ks(.55,8,6),'#6aaa5a',{p:[0,1.5,0]}],[kcy(.25,.3,.9,6),'#4a8a4a',{p:[.6,.45,.3]}],[ks(.3,6,4),'#e86a8a',{p:[0,2.05,0]}]]),
+  crate:G([[kb(.8,.8,.8),'#8a949c',{p:[0,.4,0]}],[kcy(.35,.35,1,10),'#aab4bc',{p:[.7,.5,0]}],[kcy(.36,.36,.08,10),'#5a6268',{p:[.7,.9,0]}]]),
+  plot:G([[kb(3,.12,2.2),'#6a5a3a',{p:[0,.06,0]}],...[-1,0,1].flatMap(x=>[[kcy(.35,.4,.8,8),'#5a9a5a',{p:[x,.45,-.5]}],[ks(.38,8,6),'#6aaa5a',{p:[x,.4,.5]}]])])},
+ grand:{lamp:G([[kcy(.08,.12,3,6),'#c8a860',{p:[0,1.5,0]}],[kcy(.24,.16,.5,6),'#fff0c0',{p:[0,3.2,0]}],[kc(.3,.4,6),'#c8a860',{p:[0,3.65,0]}]]),
+  cart:G([[kb(2,1.2,1.2),'#e8e0cc',{p:[0,1.3,0]}],[tg(hemi(.8,10),{s:[1.3,.6,.8]}),'#d8b050',{p:[0,1.9,0]}],WHEEL(.6,.65,.55),WHEEL(.6,-.65,.55),WHEEL(-.6,.65,.55),WHEEL(-.6,-.65,.55),[kb(1.6,.1,.1),'#c8a860',{p:[1.8,.9,0]}],...BEAST(3.4)]),
+  center:G([[kcy(3,3.2,.6,20),'#e8e2d4',{p:[0,.3,0]}],[kcy(2.8,2.8,.62,20),'#5a9ac8',{p:[0,.32,0]}],[kcy(.7,.9,1.6,10),'#f4f0e6',{p:[0,1.4,0]}],[kcy(.35,.45,1.6,8),'#c8a860',{p:[0,3,0]}],[ks(.45,8,6),'#c8a860',{p:[0,4.1,0]}],[kcy(1.4,1.2,.25,16),'#e8e2d4',{p:[0,2.2,0]}]]),
+  yard:G([[kcy(.1,.14,2.6,5),'#6a5a4a',{p:[0,1.3,0]}],[ks(.8,8,6),'#4a8a3a',{p:[0,2.9,0]}],[kcy(.5,.5,.5,10),'#e8e2d4',{p:[0,.25,0]}]]),
+  crate:G([[kb(.7,.5,.5),'#c8a860',{p:[0,.25,0]}],[kcy(.32,.38,.7,8),'#e8e0cc',{p:[.6,.35,.2]}]]),
+  plot:G([[kcy(1.6,1.6,.3,14),'#e8e2d4',{p:[0,.15,0]}],[kcy(1.45,1.45,.32,14),'#5a4a3a',{p:[0,.17,0]}],...[0,1,2,3,4].map(i=>[ks(.32,6,4),i%2?'#e86a6a':'#f0c050',{p:[Math.cos(i*1.26)*.8,.5,Math.sin(i*1.26)*.8]}])])},
+ forge:{lamp:G([[kb(.18,3.2,.18),'#5a6268',{p:[0,1.6,0]}],[kb(.8,.12,.12),'#5a6268',{p:[.3,3.1,0]}],[kb(.3,.3,.3),'#ffb060',{p:[.65,2.9,0]}]]),
+  cart:G([[kb(2.6,1,1.5),'#7a848a',{p:[0,1.1,0]}],[tg(new THREE.CylinderGeometry(.6,.7,1.6,4),{r:[0,0,Math.PI/2]}),'#5a6268',{p:[0,1.9,0]}],[kcy(.08,.08,1.6,4),'#3a4044',{p:[.9,2.1,0],r:[0,0,Math.PI/2-.2]}],WHEEL(.8,.8,.55),WHEEL(-.8,.8,.55),WHEEL(.8,-.8,.55),WHEEL(-.8,-.8,.55)]),
+  center:G([[kcy(2,2.2,.8,12),'#7a848a',{p:[0,.4,0]}],...gear(1.4,.2).map(([g,c,f])=>[g,'#c8a860',{p:[(f.p||[0,0,0])[0],2.6+(f.p||[0,0,0])[1],0],r:f.r}]),[kcy(.3,.3,1.2,8),'#5a6268',{p:[0,1.2,0]}]]),
+  yard:G([[kb(.15,1.6,.15),'#5a6268',{p:[0,.8,0]}],[kb(1,.12,.12),'#5a6268',{p:[0,1.3,0]}],[ks(.3,6,4),'#7a848a',{p:[0,1.75,0]}],[kb(.9,.6,.15),'#a83a2a',{p:[0,1.6,.1]}]]),
+  crate:G([[kb(.9,.9,.9),'#6a737a',{p:[0,.45,0]}],[kb(.7,.5,.7),'#5a6268',{p:[.2,1.15,0]}],[kcy(.35,.35,1.1,8),'#8a5a3a',{p:[-.8,.55,.2]}],[kb(1.4,.2,.2),'#c8ccd0',{p:[.6,.15,.6],r:[0,.5,0]}]]),
+  plot:G([[kb(3.4,.1,2.4),'#5a5450',{p:[0,.05,0]}],...[-1.1,0,1.1].map(x=>[kb(.8,.6,.8),'#7a848a',{p:[x,.35,-.5]}]),[kb(2.6,.3,.3),'#8a6a40',{p:[0,.15,.6]}]])},
+ future:{lamp:G([[kcy(.05,.07,4,6),'#8a949c',{p:[0,2,0]}],[kb(1.2,.1,.18),'#8a949c',{p:[.5,4,0]}],[kb(.9,.06,.2),'#e8f6ff',{p:[.6,3.94,0]}]]),
+  cart:G([[tg(new THREE.SphereGeometry(1,14,8),{s:[1.5,.55,.8]}),'#ffffff',{p:[0,.75,0]}],[tg(new THREE.SphereGeometry(1,14,6,0,6.283,0,1.1),{s:[1.1,.5,.72]}),'#2a4a6a',{p:[-.1,.95,0]}],[kb(2.6,.15,1.3),'#3a4044',{p:[0,.3,0]}]]),
+  center:G([[kcy(2.6,2.6,.3,24),'#d8dee4',{p:[0,.15,0]}],[kcy(.5,.6,6,12),'#e8ecef',{p:[0,3,0]}],...[2,3.4,4.8].map((y,i)=>[ring(1.2+i*.2,.06,18),'#6ad0ff',{p:[0,y,0]}]),[kb(2.6,1.4,.06),'#ff7ad0',{p:[0,5.4,0]}]]),
+  yard:G([[kcy(.06,.1,2.6,5),'#6a5a4a',{p:[0,1.3,0]}],[ks(.7,8,6),'#3a9a5a',{p:[0,2.8,0]}],[kcy(.8,.8,.3,12),'#c8d0d8',{p:[0,.15,0]}]]),
+  crate:G([[kb(1.4,.9,.9),'#c8d0d8',{p:[0,.45,0]}],[kb(1.1,.4,.06),'#6ad0ff',{p:[0,.6,.46]}],[kcy(.3,.3,1,10),'#3a4a5a',{p:[1,.5,0]}]]),
+  plot:G([[kb(3.4,.1,2.4),'#3a4044',{p:[0,.05,0]}],...[-1.1,0,1.1].map(x=>[kb(.12,.02,2),'#f4f4f4',{p:[x,.11,0]}])])}};
 function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp.ghRaw,gs=sp.gh;const st=TOWNKIT[o.style||'dragon'];const rfs=o.roof?[o.roof]:st.roof.slice(0,2);const KS=rfs.map(c=>{const K=st.kits(c);const L=Array.isArray(K)?[[K[0]],[K[1]],[K[2]]]:[K.s,K.m,K.t];return L});const r=o.r||2;const eras=o.eras||null;
  const tm=towerMat({metalness:o.style==='silver'?.55:.08,roughness:o.style==='silver'?.35:.85,win:o.win||'#ffd890'});sp.towerMats=(sp.towerMats||[]).concat([tm]);
  const cosl=Math.max(.2,Math.cos(la*D2R));const P=(a,d)=>[la+Math.cos(a)*d,lo+Math.sin(a)*d/cosl];
@@ -94,7 +136,7 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
  // houses: rings out from the square, facing it, never on a street or a slope or in the water
  const H=KS.map(K=>K.map(L=>L.map(()=>[]))),people=[],lamps=[],smoke=[];
  for(let i=0,t=0;i<(o.n||100)&&t<(o.n||100)*8;t++){const a=Rn()*Math.PI*2,d=r*(.24+Math.pow(Rn(),.8)*.76);if(onStreet(a,d))continue;const [l2,o2]=P(a,d);const h=gh(l2,o2);if(h<1.6)continue;
-  const e1=gh(l2+.08,o2),e2=gh(l2,o2+.08/cosl);if(Math.abs(e1-h)+Math.abs(e2-h)>3.2)continue;if(nearEnt(o.map||'rongqiu',l2,o2,.12))continue;if(o.keep&&o.keep.some(([dn,de,kr])=>{const q=PL(la,lo,dn,de);return Math.hypot((l2-q[0])*17.45,(o2-q[1])*17.45*cosl)<kr}))continue;
+  const e1=gh(l2+.08,o2),e2=gh(l2,o2+.08/cosl);if(Math.abs(e1-h)+Math.abs(e2-h)>3.2)continue;if(nearEnt(o.map||'rongqiu',l2,o2,.12))continue;if(o.keepRing&&(()=>{const dd=Math.hypot((l2-la)*17.45,(o2-lo)*17.45*cosl);return dd>o.keepRing[0]&&dd<o.keepRing[1]})())continue;if(o.keep&&o.keep.some(([dn,de,kr])=>{const q=PL(la,lo,dn,de);return Math.hypot((l2-q[0])*17.45,(o2-q[1])*17.45*cosl)<kr}))continue;
   const k=d>r*.8&&Rn()<.5?0:Rn()<(o.towers||.08)?2:Rn()<.55?1:0;{const v=(Rn()*KS.length)|0,L=H[v][k];L[(Rn()*L.length)|0].push([l2,o2,h,Rn(),a+Math.PI,Rn()])}i++}
  const tint=(p)=>C(st.wall[(p[5]*st.wall.length)|0]).offsetHSL(0,0,(p[3]-.5)*.08);
  H.forEach((HH,v)=>HH.forEach((LL,k)=>LL.forEach((L,j)=>{if(!L.length)return;inst(KS[v][k][j],tm,L,(ob,p)=>{frameLL(sp,p[0],p[1],-.25,p[4]+Math.PI/2,ob);const s=(o.scale||1)*(.85+p[3]*.4);ob.scale.set(s,s*(k===2?.9+p[3]*.5:1),s)},eras,{tint,far:1500,noCarry:!!o.noCarry})})));
@@ -124,17 +166,30 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
  // people about in the streets
  for(let i=0;i<(o.people||40);i++){const a=stA[(Rn()*nSt)|0]+(Rn()-.5)*.05,d=r*(.15+Rn()*.9);const [l2,o2]=P(a,d);const h=gh(l2,o2);if(h<1)continue;people.push([l2,o2,h,Rn(),a])}
  if(people.length)inst(PERSON,VC({roughness:.7}),people,(ob,p)=>{frameLL(sp,p[0],p[1],0,p[4]+(p[3]-.5)*2,ob);ob.scale.setScalar((o.pScale||1)*(.9+p[3]*.3))},eras,{tint:p=>C(o.pCol||'#8a8070').offsetHSL((p[3]-.5)*.1,0,(p[3]-.5)*.2),far:700,noCarry:!!o.noCarry});
+ // street life (see STREETKIT)
+ {const K=STREETKIT[o.style||'dragon'];const F={far:900,noCarry:!!o.noCarry};const lampP=[],cartP=[],crateP=[],yardP=[],plotP=[];const st2=o.streetLife||1;
+  for(const a of stA){const n=Math.round(r*1.1/.1);for(let i=1;i<n;i++){const d=r*1.1*i/n,side=i%2?1:-1;const [l2,o2]=P(a+side*.085/Math.max(d,.2),d);const h=gh(l2,o2);if(h<1.2)continue;lampP.push([l2,o2,h,Rn(),a]);if(Rn()<.12*st2){const [l3,o3]=P(a,d);if(gh(l3,o3)>1.2)cartP.push([l3,o3,0,Rn(),a+(Rn()<.5?0:Math.PI)])}}}
+  H.flat(2).forEach(L=>L.forEach(p=>{const rr=Rn();if(rr<.25*st2)crateP.push([p[0]+(Rn()-.5)*.06,p[1]+(Rn()-.5)*.06/cosl,0,Rn(),Rn()*6.28]);else if(rr<.45*st2)yardP.push([p[0]+(Rn()-.5)*.09,p[1]+(Rn()-.5)*.09/cosl,0,Rn(),Rn()*6.28]);else if(rr<.52*st2)plotP.push([p[0]+(Rn()-.5)*.1,p[1]+(Rn()-.5)*.1/cosl,0,Rn(),p[4]])}));
+  const ok=q=>{const h=gh(q[0],q[1]);return h>1.4&&!onStreet(...(()=>{const dl=(q[0]-la),dd=(q[1]-lo)*cosl;return [Math.atan2(dd,dl),Math.hypot(dl,dd)]})())};
+  const sm2=VC({roughness:.75});
+  if(lampP.length){inst(K.lamp,sm2,lampP,(ob,p)=>{frameLL(sp,p[0],p[1],-.05,p[4]+Math.PI/2,ob);ob.scale.setScalar(o.scale||1)},eras,F);lamps.push(...lampP.filter((_,i)=>i%2===0).map(p=>[p[0],p[1],p[2]+.9]))}
+  if(cartP.length)inst(K.cart,sm2,cartP,(ob,p)=>{frameLL(sp,p[0],p[1],0,p[4]+Math.PI/2,ob);ob.scale.setScalar((o.scale||1)*.9)},eras,F);
+  const cr=crateP.filter(ok),yd=yardP.filter(ok),pl=plotP.filter(ok);
+  if(cr.length)inst(K.crate,sm2,cr,(ob,p)=>{frameLL(sp,p[0],p[1],0,p[4],ob);ob.scale.setScalar(.9+p[3]*.4)},eras,F);
+  if(yd.length)inst(K.yard,sm2,yd,(ob,p)=>{frameLL(sp,p[0],p[1],-.1,p[4],ob);ob.scale.setScalar(.8+p[3]*.7)},eras,F);
+  if(pl.length)inst(K.plot,sm2,pl,(ob,p)=>{frameLL(sp,p[0],p[1],0,p[4],ob)},eras,F);
+  if(!o.noCenter){const c=new THREE.Mesh(K.center,sm2);frameLL(sp,la,lo,0,0,c);c.scale.setScalar(o.scale||1);addTo(sp,c,eras,!!o.noCarry);cull(c,null,20,1200)}}
  // chimney smoke and lamps that come on at dusk
  smoke.forEach(p=>{const e=emitter({n:26,life:5,speed:1.2,spread:.35,size:3.2,dir:[0,1,0],col:'#d8d4cc',op:.3,add:false,tex:smokeTex,area:[.4,.3,.4],wander:.6});frameLL(sp,p[0],p[1],4,0,e);addTo(sp,e,eras,!!o.noCarry);cull(e,null,20,900)});
  if(lamps.length){const nl=nightPoints(lamps.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+2.2)),o.lamp||'#ffd890',1.6,1);addTo(sp,nl,eras,!!o.noCarry);sp.nightMats.push(nl.userData.night)}
  return{houses:H.flat(2).reduce((s,L)=>s+L.length,0),towers:TW}}
 const TOWN_SITES=[
- [12,-88,{name:'emerald',style:'dragon',wallC:'#ece8dc',lamp:'#ffa040',r:2.3,n:150,eras:[3],noCarry:true,wall:1,fields:10,people:50,pCol:'#3a8a5a',towers:.1,scale:1.1}],
- [4,-112,{name:'white',style:'white',r:1.35,n:90,eras:[3,4],noCarry:true,people:34,pCol:'#e8e4d8',road:'#cfc8b8',towers:.14}],
+ [12,-88,{name:'emerald',style:'dragon',keepRing:[13.5,16.6],keep:[[-26,10,12],[28,-22,11]],noCenter:1,wallC:'#ece8dc',lamp:'#ffa040',r:2.3,n:150,eras:[3],noCarry:true,wall:1,fields:10,people:50,pCol:'#3a8a5a',towers:.1,scale:1.1}],
+ [4,-112,{name:'white',style:'white',keep:[[9,7,9],[-10,9,8],[-8,-9,6]],r:1.35,n:90,eras:[3,4],noCarry:true,people:34,pCol:'#e8e4d8',road:'#cfc8b8',towers:.14}],
  [-4,56,{name:'silver',style:'silver',keep:[[6,-6,9]],r:2.6,n:130,eras:[5,6,7,8,9,10,11,12],people:40,pCol:'#c8d0d8',road:'#b8bcc0',win:'#cfe6ff',lamp:'#cfe6ff',fields:6,towers:.12}],
  [-14,63,{name:'capital',style:'forge',keep:[[-12,9,13],[10,-8,11],[-6,-13,10],[4,14,14],[0,0,9]],r:2.8,n:160,eras:[5,6,7,8,9,10,11,12],people:56,pCol:'#c8a860',road:'#d8ccb0',wall:1,wallC:'#e8e0cc',towers:.12,scale:1.15}],
  [13.2,11.3,{name:'port',style:'dragon',r:1.9,n:100,eras:[5,6,7,8,9,10,11,12],people:40,pCol:'#3a8a5a',port:8,fields:5}],
- [24,12,{name:'neilin',style:'dragon',r:1.2,n:46,eras:[8],noCarry:true,people:20,pCol:'#8a7a60'}],
+ [24,12,{name:'neilin',style:'dragon',keep:[[0,0,9]],noCenter:1,r:1.2,n:46,eras:[8],noCarry:true,people:20,pCol:'#8a7a60'}],
  [-8,49,{name:'v_w',style:'silver',r:.75,n:22,eras:[6,7,8,9,10,11,12],people:8,pCol:'#c8d0d8',fields:4,towers:0}],
  [-19,58,{name:'v_s',style:'grand',r:.75,n:22,eras:[6,7,8,9,10,11,12],people:8,pCol:'#c8a860',fields:4,towers:0}],
  [11.2,9.0,{name:'v_p',style:'dragon',r:.7,n:20,eras:[6,7,8,9,10,11,12],people:8,pCol:'#3a8a5a',fields:5,towers:0}],
