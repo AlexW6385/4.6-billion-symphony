@@ -43,11 +43,12 @@ function sndInit(){if(SND.ctx)return true;const AC=window.AudioContext||window.w
  const L=c.sampleRate*2.6,ir=c.createBuffer(2,L,c.sampleRate);for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);let lp=0;for(let i=0;i<L;i++){lp=lp*.55+(Math.random()*2-1)*.45;d[i]=lp*Math.pow(1-i/L,3.4)*(i<c.sampleRate*.012?i/(c.sampleRate*.012):1)}}
  SND.rev=c.createConvolver();SND.rev.buffer=ir;const rg=c.createGain();rg.gain.value=.55;const rl=c.createBiquadFilter();rl.type='lowpass';rl.frequency.value=5000;SND.rev.connect(rl);rl.connect(rg);rg.connect(SND.master);
  const nb=c.createBuffer(1,c.sampleRate*3,c.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;SND.noise=nb;
- ambInit();
+ // the beds under the music: if anything about them fails on some browser, the music still plays
+ try{ambInit()}catch(e){console.warn('ambience',e);SND.amb=null}
  SND.iv=setInterval(sndTick,100);document.addEventListener('visibilitychange',()=>{if(!SND.ctx)return;if(document.hidden)SND.ctx.suspend();else if(SND.on)SND.ctx.resume()});
  return true}
 function sndUnlock(){if(!SND.on)return;if(!sndInit())return;if(SND.ctx.state!=='running')SND.ctx.resume();const t=sndNow();SND.master.gain.cancelScheduledValues(t);SND.master.gain.setTargetAtTime(.9,t,.6)}
-['pointerdown','keydown','touchend'].forEach(t=>addEventListener(t,sndUnlock,{passive:true}));
+['pointerdown','keydown','touchstart','touchend','click'].forEach(t=>addEventListener(t,sndUnlock,{passive:true,capture:true}));
 /* ---- instruments ---- */
 function vEnv(g,t,a,peak,dec,hold){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);if(hold)g.gain.setValueAtTime(peak,t+a+hold);g.gain.setTargetAtTime(0,t+a+(hold||0),dec/4)}
 // sustained instruments hold for the note's length and then let go; plucked and struck ones just ring out
@@ -143,8 +144,8 @@ function schedule(L,t){const M=L.M,S=L.S,step=60/M.bpm/2,i=L.step%S,bar=Math.flo
  if(M.bub&&Math.random()<M.bub*.25){voice(G,'sine',600+Math.random()*700,t+Math.random()*step,.008,.08,{glide:1.8,pan:(Math.random()-.5)*1.6,rev:.4})}
  if(M.drip&&Math.random()<M.drip*.25)voice(G,'celesta',1800+Math.random()*900,t+Math.random()*step,.008,.6,{pan:(Math.random()-.5)*1.6,rev:.8})
  if(M.shim&&i===0&&bar%2===1)voice(G,'celesta',mtof(note(M,ch+rs(M,4),24)),t+step*2,.006,2.4,{pan:(Math.random()-.5)*1.4,rev:.9})}
-function sndTick(){if(!SND.ctx||!SND.on||(!SND.offline&&SND.ctx.state!=='running'))return;if(!SND.offline)ambTick();const k=moodKey();if(k&&k!==SND.key)setMood(k);const L=SND.layer;if(!L)return;if(SND.paused){L.next=sndNow()+.3;return}const st=60/L.M.bpm/2;
- if(L.next<sndNow())L.next=sndNow()+.05;while(L.next<sndNow()+.3){schedule(L,L.next);L.next+=st;L.step++}}
+function sndTick(){if(!SND.ctx||!SND.on||(!SND.offline&&SND.ctx.state!=='running'))return;if(!SND.offline)try{ambTick()}catch(e){}const k=moodKey();if(k&&k!==SND.key)setMood(k);const L=SND.layer;if(!L)return;if(SND.paused){L.next=sndNow()+.3;return}const st=60/L.M.bpm/2;
+ if(L.next<sndNow())L.next=sndNow()+.05;while(L.next<sndNow()+.8){schedule(L,L.next);L.next+=st;L.step++}}
 /* ---- small sounds ---- */
 function snd(name){if(!SND.on||!SND.ctx||(!SND.offline&&SND.ctx.state!=='running'))return;const c=SND.ctx,t=sndNow()+.01,nw=SND.offline?SND.vt*1000:performance.now();
  const gap={hover:110,tap:60}[name]||140;if(nw-(SND.last[name]||0)<gap)return;if(name!=='hover'&&nw-SND.lastAny<70)return;SND.last[name]=nw;if(name!=='hover')SND.lastAny=nw;
