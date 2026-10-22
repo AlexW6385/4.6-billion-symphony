@@ -5,7 +5,7 @@
 const ERAN=Object.fromEntries(ERAS.map(e=>[e.id,e.n]));
 const ARCGO=['origin','ev_ext1','icesea','landing','naodai','ev_war','canyon','fungus','emeraldcity','creator','ev_snow','cloudsea'];
 const SPECIAL_EGG=new Set(['ghost','soul','maoyu','bbq','spin','ice','moon']);
-const BRAIN=['“琳，没有威胁。”','“翻滚，逃跑。”','“身体疲倦，需要休息。”','“愚钝渺小的生物，快点翻滚去沉睡。”','“天空，水。”','“找到族群通道，前方三米，地面，蕨类之下。”'];let brainI=0;
+const BRAIN=['“琳，没有威胁。”','“翻滚，逃跑。”','“身体疲倦，需要休息。”','“快去翻滚着睡觉，愚钝的小东西。”','“天空，水。”','“族群通道：前方三米，蕨类下面的地里。”'];let brainI=0;
 {const st=document.createElement('style');st.textContent=`#labels{position:fixed;inset:0;pointer-events:none;z-index:2}
 #labels .lab{position:absolute;left:0;top:0;white-space:nowrap;pointer-events:auto;cursor:pointer;font-family:var(--f-d);font-size:13px;letter-spacing:.34em;color:rgba(233,240,234,.66);text-shadow:0 0 8px rgba(0,0,0,.95),0 0 2px #000,0 1px 1px #000;transition:opacity .5s,color .3s;opacity:0}
 #labels .lab.on{opacity:1}#labels .lab:hover{color:var(--gold)}
