@@ -3,6 +3,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;500&display=swap">
+<!-- ZCOOL XiaoWei draws 回 as a filled block in browsers; that one character comes from Noto Serif SC instead -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500&text=%E5%9B%9E&display=swap">
 <style>html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 /* The world is the interface. Nothing sits on screen permanently except a hairline of time at the bottom and a small book in the corner;
    names surface under the cursor, stories surface when something is touched. Dark-only: every place here is a view into space. */
@@ -10,7 +12,7 @@
   --ink:#e9f0ea; --mute:#9aaca6; --faint:rgba(233,240,234,.42);
   --gold:#f0c97a; --chl:#82e2bb; --sky:#a3d2ff; --ember:#ebb492;
   --panel:rgba(7,11,15,.64);
-  --f-d:"ZCOOL XiaoWei","Songti SC","STSong",serif;
+  --f-d:"Noto Serif SC","ZCOOL XiaoWei","Songti SC","STSong",serif;
   --f-b:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   color-scheme:dark;
 }
@@ -84,6 +86,11 @@ button{cursor:pointer;background:none;border:0;padding:0}
 #rd .none{font-size:12.5px;color:var(--mute);margin:6px 0 0}
 #rd ol{list-style:none;margin:6px 0 0;padding:0}#rd ol li{display:flex;gap:10px;align-items:baseline;padding:5px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:#d4e1dc}
 #rd ol li:hover{background:rgba(255,255,255,.06)}#rd ol li.cur{background:rgba(240,201,122,.12);color:#f6e6c0}#rd ol li b{font-weight:400;min-width:44px;font-size:11px;color:var(--mute)}#rd ol li s{text-decoration:none;margin-left:auto;font-size:10px;color:var(--chl)}
+#rd .vtabs{display:flex;gap:6px;margin:10px -20px 4px;position:sticky;top:-18px;z-index:1;padding:8px 20px;background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+#rd .vtabs button{flex:1;height:30px;border-radius:999px;font-size:13px;color:var(--mute);background:rgba(255,255,255,.05)}
+#rd .vtabs button.on{color:#f6e6c0;background:rgba(240,201,122,.16)}
+#rd .rdnav .cnt{font-size:11.5px;color:var(--mute);background:none}
+#rd .rdnav .cnt:hover{color:var(--ink);background:rgba(255,255,255,.08)}
 #rd .qd{display:block;margin-top:16px;padding:10px 14px;border-radius:12px;background:rgba(240,201,122,.12);border:1px solid rgba(240,201,122,.3);color:var(--gold);text-decoration:none;font-size:13.5px;letter-spacing:.06em;text-align:center}
 #rd .qd:hover{background:rgba(240,201,122,.2)}
 #rd .note{font-size:11px;color:var(--mute);line-height:1.7;margin:10px 2px 0}

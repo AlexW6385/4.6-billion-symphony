@@ -122,7 +122,7 @@ function rqCloud(sp){const Rn=rnd(5353);const L3=148.5;
  {const g=new THREE.Group();const mtl=new THREE.SpriteMaterial({map:smokeTex,color:'#4a4458',transparent:true,opacity:.85,depthWrite:false});
   for(let i=0;i<40;i++){const la=-11+(Rn()-.5)*7,lo=77+(Rn()-.5)*8;const s=new THREE.Sprite(mtl);const sz=40+Rn()*50;s.scale.set(sz,sz*.45,1);s.position.copy(dirLL(la,lo).multiplyScalar(R+128+Rn()*10));g.add(s)}
   const fl=glowSprite('#c8d0ff',90,0);fl.position.copy(dirLL(-11,77).multiplyScalar(R+132));g.add(fl);addE(g,[5]);cull(g,dirLL(-11,77).multiplyScalar(R+130),240,3200);
-  anim(sp,g,t=>{const k=Math.max(0,Math.sin(t*2.3)*Math.sin(t*.7+1)-.82)*5;fl.material.opacity=k})}
+  let fv=0,nx=4,f2=-1;anim(sp,g,(t,dt)=>{dt=dt||.016;nx-=dt;if(nx<=0){nx=6+Math.random()*10;fv=1;f2=Math.random()<.4?.16:-1}if(f2>0){f2-=dt;if(f2<=0){fv=Math.max(fv,.6);f2=-1}}fv=Math.max(0,fv-dt*3);fl.material.opacity=fv*fv*.5})}
  // cloud-folk: puffs with two dark eyes, drifting between the layers
  {const folk=[];for(let i=0;i<14;i++){const g=new THREE.Group();const b=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex,color:'#ffffff',transparent:true,opacity:.95,depthWrite:false}));b.scale.set(6,4.5,1);g.add(b);
    for(const x of[-.7,.7]){const e=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),new THREE.MeshBasicMaterial({color:'#2a2a3a'}));e.position.set(x,.3,1.6);g.add(e)}addE(g,[5]);folk.push({g,la:-8+(Rn()-.5)*8,lo:70+(Rn()-.5)*10,alt:118+Rn()*24,ph:Rn()*6})}

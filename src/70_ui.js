@@ -134,7 +134,9 @@ function focusOf(id){const w=W[id];const p=selP&&selP.w.id===id?selP:null;const 
 function ensureClear(id,F){if(CUR.camOv)return;if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}F=F||focusOf(id);if(!F)return;dayFor(F.P);CUT.req={P:F.P,r:F.r,id};
  // small things seen from too far: come closer so they fill a fair part of the view
  const near=o=>{if(CUR.type==='planet'&&F.r<90){const want=clamp(F.r*9,70,900);if(o.alt>want*1.3){const ll=llDir(F.P);o.a=ll[0]-want/260;o.b=ll[1];o.alt=want}}return o};
- if(tw){const fin=tw.to;const to=pickClear(near({a:fin.a,b:fin.b,alt:fin.alt,head:fin.head,y:fin.y}),F.P,F.r);Object.assign(tw.to,to);return}
+ if(tw){const fin=tw.to;const to=pickClear(near({a:fin.a,b:fin.b,alt:fin.alt,head:fin.head,y:fin.y}),F.P,F.r);Object.assign(tw.to,to);
+  // the clear view comes back in plain longitude: keep the short way round from where the flight started
+  if(CUR.type==='planet'||CUR.type==='tube')tw.to.b=tw.from.b+wrap180(tw.to.b-tw.from.b);tw.to.head=tw.from.head+((tw.to.head-tw.from.head+Math.PI*3)%(Math.PI*2)-Math.PI);return}
  const to=pickClear(near({a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y}),F.P,F.r);if(to.a!==rig.a||to.alt!==rig.alt||to.head!==rig.head)flyTo(to.a,to.b,to.alt,1.2,to.y,to.head)}
 /* cutaway: canopy, spires or huts still standing between the camera and a small thing sink into the ground
    while its card is open, and grow back when it closes */
@@ -224,7 +226,7 @@ canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);
 canvas.addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;mouse.in=true;if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
  if(ptrs.size===2&&pinch)return;
  if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;drag.moved+=Math.abs(dx)+Math.abs(dy);
- if(drag.btn===2||e.shiftKey){rig.head+=dx*.006;return}
+ if(drag.btn===2||e.shiftKey){rig.head-=dx*.006;return}
  const k=dragK(),ch=Math.cos(rig.head),sh=Math.sin(rig.head);const dN=(dy*ch-dx*sh)*k,dE=(-dx*ch-dy*sh)*k;const a0=rig.a,b0=rig.b;moveBy(dN,dE);const nw=performance.now(),fr=clamp((nw-(drag.lt||nw-16))/16.7,.5,4);drag.lt=nw;vel.a=lerp(vel.a,(rig.a-a0)/fr,.55);vel.b=lerp(vel.b,(CUR.type==='planet'?wrap180(rig.b-b0):rig.b-b0)/fr,.55)});
 canvas.addEventListener('pointerleave',()=>{mouse.in=false});
 function endPtr(e,cancel){ptrs.delete(e.pointerId);if(ptrs.size===1&&pinch){const r=[...ptrs.values()][0];pinch=null;drag={x:r.x,y:r.y,sx:-999,sy:-999,btn:0,t:0,moved:99,nf:1};vel.a=vel.b=0;return}if(ptrs.size<2)pinch=null;canvas.classList.remove('drag');if(drag&&(drag.nf||drag.lt&&performance.now()-drag.lt>90)){vel.a=vel.b=0}

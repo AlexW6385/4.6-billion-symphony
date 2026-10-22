@@ -76,8 +76,8 @@ function planetStorms(sp){const rain=emitter({n:1400,life:1.1,speed:-55,spread:.
  anim(sp,null,(t,dt)=>{if(CUR!==sp){g.visible=false;veil.style.opacity=0;return}dirLL(rig.a,rig.b,dd);let k=0;for(const z of STORMS){if(!z.e.includes(ERA))continue;const a=angDeg(dd,dirLL(z.ll[0],z.ll[1]));k=Math.max(k,1-sm(z.r*.6,z.r,a))}
   const cyc=sm(.1,.5,Math.sin(t*.045+1.3));k*=cyc*(1-sm(160,320,rig.alt));g.visible=k>.02;sp._stormK=k;veil.style.opacity=String((k*.45*(1-fl*.8)).toFixed(3));if(!g.visible)return;
   frameLL(sp,rig.a,rig.b,0,0,g);rain.material.uniforms.uOp.value=.55*k;cm.opacity=.38*k;
-  next-=dt;if(next<=0&&k>.4){next=3+Math.random()*7;fl=1;const pts=[];let p=V3((Math.random()-.5)*120,95,(Math.random()-.5)*120);flash.position.copy(p);const gy=sp.gh(rig.a,rig.b);for(let i=0;i<9;i++){pts.push(p.clone());p=p.clone().add(V3((Math.random()-.5)*8,-(95)/9,(Math.random()-.5)*8))}pts.push(V3(p.x,0,p.z));boltG.setFromPoints(pts)}
-  fl=Math.max(0,fl-dt*4);flash.material.opacity=fl*.9*k;bolt.material.opacity=fl>.6?1:0})}
+  next-=dt;if(next<=0&&k>.4){next=7+Math.random()*12;fl=1;const pts=[];let p=V3((Math.random()-.5)*120,95,(Math.random()-.5)*120);flash.position.copy(p);const gy=sp.gh(rig.a,rig.b);for(let i=0;i<9;i++){pts.push(p.clone());p=p.clone().add(V3((Math.random()-.5)*8,-(95)/9,(Math.random()-.5)*8))}pts.push(V3(p.x,0,p.z));boltG.setFromPoints(pts)}
+  fl=Math.max(0,fl-dt*3.5);flash.material.opacity=fl*fl*.45*k;bolt.material.opacity=fl>.6?.75:0})}
 
 /* ---------- gulls along the coasts ---------- */
 function bGull(f){const g=new THREE.Group();g.userData.noSkin=1;const b=new THREE.Group();g.add(b);const s=f.s||1;b.scale.setScalar(s);

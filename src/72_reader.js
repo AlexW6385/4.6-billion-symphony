@@ -54,7 +54,12 @@ function cardStep(dir){if(!sel)return;const L=cardList(sel);const i=L.ids.indexO
 function swipeable(el,fn){let s=null;el.addEventListener('pointerdown',e=>{if(e.target.closest('a,button,input'))return;s={x:e.clientX,y:e.clientY,id:e.pointerId}});
  el.addEventListener('pointermove',e=>{if(!s||e.pointerId!==s.id)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.3){el.style.transform=`translateX(${dx*.35}px)`;el.style.opacity=String(1-Math.min(.5,Math.abs(dx)/500))}});
  const end=e=>{if(!s||e.pointerId!==s.id)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;s=null;el.style.transform='';el.style.opacity='';if(Math.abs(dx)>56&&Math.abs(dx)>Math.abs(dy)*1.4)fn(dx<0?1:-1)};
- el.addEventListener('pointerup',end);el.addEventListener('pointercancel',e=>{s=null;el.style.transform='';el.style.opacity=''})}
+ el.addEventListener('pointerup',end);el.addEventListener('pointercancel',e=>{s=null;el.style.transform='';el.style.opacity=''})
+ /* laptop trackpads: a two-finger sideways swipe arrives as horizontal wheel deltas; one gesture (plus its inertia tail) turns one page */
+ let wx=0,wl=false,wt=0;const wr=()=>{wx=0;wl=false;el.style.transform='';el.style.opacity=''};
+ el.addEventListener('wheel',e=>{const ax=Math.abs(e.deltaX);if(ax<=Math.abs(e.deltaY)*1.2&&!wx&&!wl)return;e.preventDefault();clearTimeout(wt);wt=setTimeout(wr,wl?260:180);if(wl)return;
+  wx+=e.deltaX*(e.deltaMode===1?33:1);if(Math.abs(wx)>110){const d=wx>0?1:-1;wl=true;el.style.transform='';el.style.opacity='';fn(d);return}
+  el.style.transform=`translateX(${-wx*.35}px)`;el.style.opacity=String(1-Math.min(.5,Math.abs(wx)/500))},{passive:false})}
 swipeable(cap,d=>{if(cap.dataset.side){const i=SIDES.findIndex(s=>s.id===cap.dataset.side);goSide(SIDES[(i+d+SIDES.length)%SIDES.length].id);return}cardStep(d)});
 
 /* ---------- your own copy of the book: read from a file on this device, kept only in this browser ---------- */
@@ -88,7 +93,14 @@ function cnNum(s){if(/^[0-9]+$/.test(s))return +s;const D={'零':0,'〇':0,'一'
 function origNo(k){if(!NOVEL||!NOVEL.at)return'';const q=NOVEL.at[k];const h=q>=0&&NOVEL.heads[q];if(!h)return'';const m=/^第([零一二三四五六七八九十百千万两〇0-9]+)章/.exec(h.t);if(!m||cnNum(m[1])===CH[k].n)return'';return` · 原文标为“第${esc(m[1])}章”`}
 const rd=$('#rd');let rdK=-1,rdFrom=null;
 let rdToc=false;
-async function openRd(k,from){if(!CH[k])return;rdK=k;if(from!==undefined)rdFrom=from;if(!NOVEL&&!novelTried){if(!rd.classList.contains('on')){rd.innerHTML='<button class="x" aria-label="关闭">×</button><p class="sec">翻开中…</p>';rd.classList.add('on')}await ensureNovel()}if(rdK!==k)return;const c=CH[k];const vl=VOLLEN[c.v];const body=NOVEL?chapterText(k):null;
+/* the table of contents is its own page: one volume at a time, the whole list scrolls, opening at the chapter you came from */
+function openToc(v){if(rdK<0||!CH[rdK])return;const c=CH[rdK];v=v||rdToc||c.v;rdToc=v;
+ const L=[];for(let j=0;j<CH.length;j++){const x=CH[j];if(x.v!==v)continue;L.push(`<li data-rk="${j}" class="${j===rdK?'cur':''}"><b>${x.n}</b>${esc(x.t)}${x.ents&&x.ents.length?'<s>条目</s>':''}</li>`)}
+ rd.innerHTML=`<button class="x" aria-label="关闭">×</button><a class="back" data-tocback>‹ 回到《${esc(c.t)}》</a>
+  <div class="eb">目录 · ${VOLLEN[v]} 章</div><div class="vtabs">${[1,2,3].map(n=>`<button data-tv="${n}" class="${n===v?'on':''}">${VOLN[n]}</button>`).join('')}</div>
+  <ol class="toc">${L.join('')}</ol>`;
+ rd.classList.add('on');rd.classList.remove('read');rd.scrollTop=0;const li=rd.querySelector('li.cur');if(li)rd.scrollTop=Math.max(0,li.offsetTop-rd.clientHeight*.4)}
+async function openRd(k,from){if(!CH[k])return;rdK=k;rdToc=false;if(from!==undefined)rdFrom=from;if(!NOVEL&&!novelTried){if(!rd.classList.contains('on')){rd.innerHTML='<button class="x" aria-label="关闭">×</button><p class="sec">翻开中…</p>';rd.classList.add('on')}await ensureNovel()}if(rdK!==k)return;const c=CH[k];const vl=VOLLEN[c.v];const body=NOVEL?chapterText(k):null;
  const ents=chEnts(k);const pl=CHP[k];let near='';try{localStorage.setItem('rq_lastch',String(k))}catch(e){}
  if(!ents.length){let a=-1,b=-1;for(let j=k-1;j>=0&&j>k-400;j--)if(chEnts(j).length){a=j;break}for(let j=k+1;j<CH.length&&j<k+400;j++)if(chEnts(j).length){b=j;break}
   near=`<p class="none">这一章还没有收录条目。${a>=0||b>=0?'离它最近、收录了条目的章节：':''}</p><div class="chips">${[a,b].filter(x=>x>=0).map(x=>`<a data-rk="${x}">《${esc(CH[x].t)}》<i>第${CH[x].n}章</i></a>`).join('')}</div>`}
@@ -97,10 +109,10 @@ async function openRd(k,from){if(!CH[k])return;rdK=k;if(from!==undefined)rdFrom=
  const toc=[];for(let j=Math.max(0,k-6);j<=Math.min(CH.length-1,k+6);j++){const x=CH[j];toc.push(`<li data-rk="${j}" class="${j===k?'cur':''}"><b>${x.v!==c.v?VOLN[x.v]+' ':''}${x.n}</b>${esc(x.t)}</li>`)}
  rd.innerHTML=`<button class="x" aria-label="关闭">×</button>${rdFrom&&W[rdFrom]?`<a class="back" data-back>‹ 回到「${esc(W[rdFrom].n)}」</a>`:''}
   <div class="eb">${VOLN[c.v]} · 第 ${c.n} 章 · ${ERAN[c.e]}${origNo(k)}${c.dup?' · 目录重复':''}</div><h2>${esc(c.t)}</h2>${body?'':whereH+chipsH}
-  <div class="rdnav"><button data-rs="-1">‹ 上一章</button><span>${c.n} / ${vl}</span><button data-rs="1">下一章 ›</button></div><div class="bar"><i style="width:${(c.n/vl*100).toFixed(1)}%"></i></div>
+  <div class="rdnav"><button data-rs="-1">‹ 上一章</button><button class="cnt" data-toc title="目录">${c.n} / ${vl} · 目录</button><button data-rs="1">下一章 ›</button></div><div class="bar"><i style="width:${(c.n/vl*100).toFixed(1)}%"></i></div>
   ${!ents.length&&!body?near:''}
   ${body?`<div class="txt">${body}</div>${whereH}${chipsH}<div class="rdnav end"><button data-rs="-1">‹ 上一章</button><button data-toc>目录</button><button data-rs="1">下一章 ›</button></div>`:''}
-  ${body&&!rdToc?'':`<div class="sec">前后章节</div><ol>${toc.join('')}</ol>`}
+  ${body?'':`<div class="sec">前后章节</div><ol>${toc.join('')}</ol>`}
   ${NOVEL?(body?'':`<p class="note">在你载入的原文里没有对上这一章的标题。</p>`)+`<p class="note">原文来自你自己设备上的文件，只保存在这个浏览器里，不会随页面分享出去。<a class="lnk" data-unload>移除原文</a></p>`
    +(NOVEL.clean?'':`<label class="qd load">换成整理版原文（全部章节都能对上）<input type="file" accept=".txt,text/plain" data-file hidden></label>`)
    :`<label class="qd load">载入原文 txt，在这里逐章阅读<input type="file" accept=".txt,text/plain" data-file hidden></label>
@@ -109,12 +121,12 @@ async function openRd(k,from){if(!CH[k])return;rdK=k;if(from!==undefined)rdFrom=
  rd.classList.add('on','read');rd.classList.toggle('read',!!body);rd.scrollTop=0}
 function closeRd(){rd.classList.remove('on');rdK=-1}
 rd.addEventListener('change',async e=>{const f=e.target.closest('[data-file]');if(!f||!f.files||!f.files[0])return;const ok=await loadNovelFile(f.files[0]);if(ok)openRd(rdK)});
-rd.addEventListener('click',e=>{if(e.target.closest('.x'))return closeRd();if(e.target.closest('[data-toc]')){rdToc=!rdToc;return openRd(rdK)}if(e.target.closest('[data-unload]')){NOVEL=null;IDB.del('novel');toast('已移除原文','');return openRd(rdK)}
+rd.addEventListener('click',e=>{if(e.target.closest('.x'))return closeRd();if(e.target.closest('[data-toc]'))return openToc();if(e.target.closest('[data-tocback]'))return openRd(rdK);const tv=e.target.closest('[data-tv]');if(tv)return openToc(+tv.dataset.tv);if(e.target.closest('[data-unload]')){NOVEL=null;IDB.del('novel');toast('已移除原文','');return openRd(rdK)}
  const nm=e.target.closest('[data-nm]');if(nm){const id=nm.dataset.nm;rdFrom=null;if(innerWidth<760)closeRd();go(id);return}if(e.target.closest('[data-back]')){const id=rdFrom;closeRd();if(id)open(id);return}
  const s=e.target.closest('[data-rs]');if(s)return openRd(clamp(rdK+ +s.dataset.rs,0,CH.length-1));const r=e.target.closest('[data-rk]');if(r)return openRd(+r.dataset.rk);
  const gp=e.target.closest('[data-gp]');if(gp){if(innerWidth<760)closeRd();goChapterPlace(+gp.dataset.gp);return}
  const en=e.target.closest('[data-re]');if(en){if(innerWidth<760)closeRd();cardCtx={ids:chEnts(rdK).map(x=>x[0]),label:`第${CH[rdK].n}章`};go(en.dataset.re);return}});
-swipeable(rd,d=>{if(rdK>=0)openRd(clamp(rdK+d,0,CH.length-1))});
+swipeable(rd,d=>{if(rdK<0)return;if(rdToc)return openToc(clamp(rdToc+d,1,3));openRd(clamp(rdK+d,0,CH.length-1))});
 /* pull down to leave: once a card or a chapter is scrolled to the very top, keep pulling down and it slides away */
 function pullClose(el,close){let y0=null,dy=0,top=false;const reset=()=>{el.style.transition='transform .22s,opacity .22s';el.style.transform='';el.style.opacity='';setTimeout(()=>{el.style.transition=''},240)};
  el.addEventListener('touchstart',e=>{if(e.touches.length!==1||!el.classList.contains('on'))return;y0=e.touches[0].clientY;dy=0;top=el.scrollTop<=0},{passive:true});

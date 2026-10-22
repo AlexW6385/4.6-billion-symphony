@@ -212,21 +212,21 @@ function rqRocks(sp){const Rn=rnd(3131),gh=sp.ghRaw,d=V3();const kit=[0,1,2].map
 
 /* ---------- fair-weather clouds: heaps of soft puffs, lit by the sun from the side it is on ---------- */
 const puffTex=canvasTex(128,128,(x)=>{const Rn=rnd(77);for(let i=0;i<60;i++){const a=Rn()*6.28,r=Math.pow(Rn(),.7)*34,px=64+Math.cos(a)*r,py=60+Math.sin(a)*r*.75,rr=7+Rn()*14*(1-r/40);const g=x.createRadialGradient(px,py,0,px,py,rr);g.addColorStop(0,'rgba(255,255,255,.34)');g.addColorStop(.7,'rgba(255,255,255,.12)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
- const im=x.getImageData(0,0,128,128),dd=im.data;for(let y=0;y<128;y++)for(let xx=0;xx<128;xx++){const k=(y*128+xx)*4;const r=Math.hypot(xx-64,(y-62)*1.2)/62;dd[k+3]=Math.min(255,dd[k+3]*1.5)*Math.max(0,1-Math.pow(r,3))}x.putImageData(im,0,0)});
+ const im=x.getImageData(0,0,128,128),dd=im.data;for(let y=0;y<128;y++)for(let xx=0;xx<128;xx++){const k=(y*128+xx)*4;const r=Math.hypot(xx-64,(y-62)*1.2)/62;const v=Math.min(1,dd[k+3]/255*1.5);dd[k+3]=255*Math.min(1,Math.max(0,(v-.03)/.72))*Math.max(0,1-Math.pow(r,3))}x.putImageData(im,0,0)});
 function rqCumulus(sp){const Rn=rnd(5150);const pos=[],sz=[],yy=[],d=V3(),up=V3(),ex=V3(),nx=V3();const SEA=dirLL(-12,74);
  for(let c=0,tries=0;c<170&&tries<20000;tries++){d.set(Rn()*2-1,Rn()*2-1,Rn()*2-1);if(d.lengthSq()>1||d.lengthSq()<.02)continue;d.normalize();const lat=Math.asin(d.y)/D2R;if(Math.abs(lat)>68)continue;
   const cf=fbm(d.x*4.5+7,d.y*4.5,d.z*4.5-3,3);if(cf<.52+Rn()*.08)continue;if(angDeg(d,SEA)<16)continue;c++;
   up.copy(d);nx.set(0,1,0).addScaledVector(up,-up.y);if(nx.lengthSq()<1e-6)nx.set(1,0,0);nx.normalize();ex.copy(nx).cross(up);
-  const cr=34+Rn()*60,base=R+38+Rn()*16,np=22+Math.floor(Rn()*26);
-  for(let k=0;k<np;k++){const a=Rn()*6.28,r=Math.sqrt(Rn())*cr,top=(1-r/cr);const y=Math.pow(top,.7)*cr*.42*(.4+.6*Rn())+Rn()*1.5;
-   const q=d.clone().multiplyScalar(base+y).addScaledVector(nx,Math.cos(a)*r).addScaledVector(ex,Math.sin(a)*r*1.3);pos.push(q.x,q.y,q.z);sz.push((55+Rn()*55)*(.6+top*.7));yy.push(clamp(y/(cr*.55+2),0,1))}}
+  const cr=26+Rn()*48,base=R+38+Rn()*16,np=34+Math.floor(Rn()*30);
+  for(let k=0;k<np;k++){const a=Rn()*6.28,r=Math.pow(Rn(),.65)*cr,top=(1-r/cr);const y=Math.pow(top,.9)*cr*.5*(.3+.7*Rn())+Rn()*1.2;
+   const q=d.clone().multiplyScalar(base+y).addScaledVector(nx,Math.cos(a)*r).addScaledVector(ex,Math.sin(a)*r*1.3);pos.push(q.x,q.y,q.z);sz.push((70+Rn()*60)*(.6+top*.7));yy.push(clamp(y/(cr*.55+2),0,1))}}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aS',new THREE.Float32BufferAttribute(sz,1));g.setAttribute('aY',new THREE.Float32BufferAttribute(yy,1));g.computeBoundingSphere();
  const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:false,uniforms:{uScale:PSCALE,uSun:{value:sp.sunDir},uTex:{value:puffTex},uAlt:{value:0}},
   vertexShader:`attribute float aS,aY;uniform float uScale,uAlt;uniform vec3 uSun;varying float vL,vY,vA,vS;void main(){vec4 w=modelMatrix*vec4(position,1.);vec4 mv=viewMatrix*w;float d=-mv.z;
    gl_PointSize=clamp(aS*uScale/max(d,1.),1.,1100.);gl_Position=projectionMatrix*mv;vec3 n=normalize(w.xyz);float sl=dot(n,uSun);vS=sl;vL=smoothstep(-.28,.4,sl);vY=aY;
    vA=smoothstep(30.,140.,d)*(1.-smoothstep(1500.,2300.,d))*(1.-smoothstep(650.,1150.,uAlt));}`,
   fragmentShader:`uniform sampler2D uTex;varying float vL,vY,vA,vS;void main(){vec4 t=texture2D(uTex,gl_PointCoord);if(t.a<.01)discard;
-   vec3 lit=vec3(1.,.99,.96)*(.38+.62*vL);vec3 sh=vec3(.5,.56,.68)*(.25+.6*vL);vec3 c=mix(sh,lit,.25+.75*vY);c=mix(c,vec3(1.,.64,.4)*(.5+.5*vL),(1.-smoothstep(0.,.32,abs(vS-.05)))*.55);
+   vec3 lit=vec3(1.,.99,.96)*(.38+.62*vL);vec3 sh=vec3(.5,.56,.68)*(.25+.6*vL);vec3 c=mix(sh,lit,.45+.55*vY);c=mix(c,vec3(1.,.64,.4)*(.5+.5*vL),(1.-smoothstep(0.,.32,abs(vS-.05)))*.55);
    gl_FragColor=vec4(c,min(1.,t.a*1.05)*vA*.85);}`});
  const pts=new THREE.Points(g,m);pts.renderOrder=5;pts.frustumCulled=false;sp.scene.add(pts);sp.cumulus=pts;anim(sp,null,()=>{m.uniforms.uAlt.value=rig.alt;pts.visible=rig.alt<1200})}
 
@@ -369,7 +369,9 @@ function buildRongqiu(){
   for(let i=0;i<14;i++){const s=new THREE.Sprite(cl);s.scale.set(60+i*3,32,1);s.position.set((h3(i,1,1)-.5)*70,58+h3(i,2,1)*10,(h3(i,3,1)-.5)*40);storm.add(s)}
   const rain=emitter({n:600,life:1.4,speed:-40,spread:.05,size:1.1,dir:[0,1,0],col:'#bcd0e0',op:.55,add:false,area:[80,4,50],fadeIn:.02});rain.position.y=56;storm.add(rain);
   const fl=new THREE.PointLight(0xcfe0ff,0,260);fl.position.y=60;storm.add(fl);addE(storm,[2,3,5,6,7]);
-  anim(sp,storm,(t)=>{const k=(t/90)%1;const la=19+k*12,lo=-14+k*16;frameLL(sp,la,lo,0,.4,storm);storm.visible=!storm.userData.eraHide&&Math.sin(k*Math.PI)>.15;fl.intensity=(Math.sin(t*9.3)>.985)?3:0})}
+  let fv=0,nx=5,f2=-1;anim(sp,storm,(t,dt)=>{const k=(t/90)%1;const la=19+k*12,lo=-14+k*16;frameLL(sp,la,lo,0,.4,storm);storm.visible=!storm.userData.eraHide&&Math.sin(k*Math.PI)>.15;
+   // now and then a flash (sometimes a double flicker), fading out instead of blinking
+   dt=dt||.016;nx-=dt;if(nx<=0){nx=7+Math.random()*12;fv=1;f2=Math.random()<.4?.14:-1}if(f2>0){f2-=dt;if(f2<=0){fv=Math.max(fv,.7);f2=-1}}fv=Math.max(0,fv-dt*3.5);fl.intensity=fv*fv*1.4})}
  // the oasis lake with its ring of tentacle plants
  {lake(27,-11,9,.4,null,[2,3]);const pts=Array.from({length:22},(_,i)=>{const a=i/22*6.28;return[27+Math.cos(a)*.62,-11+Math.sin(a)*.7,0,(i*37%10)/10]});
   const ten=G([[ktube([V3(0,0,0),V3(.2,1.4,0),V3(.8,2.6,.1),V3(1.6,3,.2)],.12,10),'#5a8a3e'],[ktube([V3(0,0,0),V3(-.2,1.2,.2),V3(-.7,2.2,.6),V3(-1.4,2.4,1)],.1,10),'#4f7d36']]);

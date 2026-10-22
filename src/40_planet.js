@@ -120,12 +120,25 @@ void main(){vOP=position;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;vec4 mvPo
  fragmentShader:`uniform float uT,uA,uCov,uSeed;uniform vec3 uSun,uCol;varying vec3 vOP,vW;
 ${GLSL_NOISE}
 #include <fog_pars_fragment>
-void main(){vec3 p=normalize(vOP);vec3 q=p*3.1+vec3(uT*.0035+uSeed,uSeed*.7,uT*.0026);
- float n=fb3(q)*.62+fb3(q*3.3+vec3(4.1))*.3+vn3(q*11.)*.08;float lat=abs(p.y);n+=.06*sin(lat*9.);
- float a=smoothstep(uCov,uCov+.16,n);if(a<.01)discard;
- float sd=dot(p,uSun);float l=smoothstep(-.25,.35,sd);vec3 c=mix(vec3(.08,.1,.16),uCol*.88,l);c=mix(c,vec3(1.,.62,.42),pow(max(0.,1.-abs(sd)*3.),2.)*.55*l);
- c*=.82+.18*smoothstep(uCov,uCov+.4,n);
- gl_FragColor=vec4(c,a*uA*.9*(.28+.72*l));
+float fb2(vec3 p){return vn3(p)*.667+vn3(p*2.03+vec3(1.7,9.2,3.1))*.333;}
+vec3 rotA(vec3 v,vec3 k,float a){float c=cos(a),s=sin(a);return v*c+cross(k,v)*s+k*dot(k,v)*(1.-c);}
+void main(){vec3 p=normalize(vOP);
+ // a few slow cyclones twist the field into spiral arms
+ vec3 c1=normalize(vec3(.55,.62,.2+uSeed*.1)),c2=normalize(vec3(-.4,-.58,.6)),c3=normalize(vec3(-.7,.48,-.5));
+ float d1=distance(p,c1),d2=distance(p,c2),d3=distance(p,c3);vec3 q=p;
+ q=rotA(q,c1,(1.-smoothstep(0.,.42,d1))*3.);q=rotA(q,c2,-(1.-smoothstep(0.,.36,d2))*2.6);q=rotA(q,c3,(1.-smoothstep(0.,.3,d3))*2.2);
+ vec3 b=q*vec3(3.,3.6,3.)+vec3(uT*.0035+uSeed,uSeed*.7,uT*.0026);
+ vec3 w=vec3(fb2(b*1.3),fb2(b*1.3+vec3(5.2,1.3,2.8)),fb2(b*1.3+vec3(9.1,4.7,7.3)))-.5;
+ vec3 bb=b+w*.85;
+ float n=fb3(bb)*.66+fb3(bb*2.6+w*1.4+vec3(4.1))*.26+vn3(bb*9.)*.08;
+ // climate bands: a wet equator, dry subtropics, stormy middle latitudes
+ float lat=p.y,al=abs(lat);n+=.09*exp(-lat*lat/.006)-.07*exp(-(al-.45)*(al-.45)/.02)+.05*exp(-(al-.78)*(al-.78)/.025)+.05*(exp(-d1*d1/.03)+exp(-d2*d2/.025));
+ float a=smoothstep(uCov,uCov+.075,n);if(a<.01)discard;
+ float th=smoothstep(uCov,uCov+.28,n);
+ float sd=dot(p,uSun);float l=smoothstep(-.22,.3,sd);
+ vec3 thin=uCol*vec3(.6,.65,.74),thick=uCol*.97;vec3 c=mix(thin,thick,th)*(.1+.9*l)+vec3(.03,.04,.07)*(1.-l);
+ c=mix(c,vec3(1.,.62,.42)*(.4+.6*th),pow(max(0.,1.-abs(sd)*3.),2.)*.5*l);
+ gl_FragColor=vec4(c,a*uA*(.5+.5*th)*.95*(.3+.7*l));
 #include <tonemapping_fragment>
 #include <encodings_fragment>
 #include <fog_fragment>
