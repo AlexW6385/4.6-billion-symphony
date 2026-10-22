@@ -98,7 +98,63 @@ function neilinDetail(sp){const E=[8],C0=[24,12];
  {const P=[[kcy(6,4,.4,20),'#2a2622',{p:[0,-.1,0]}],[tg(new THREE.TorusGeometry(6.4,.9,6,20),{r:[Math.PI/2,0,0]}),'#6a5a48',{p:[0,.1,0]}]];for(let i=0;i<10;i++){const t=i*.63;P.push([kc(.35,1.6,4),'#bfeaf4',{p:[Math.cos(t)*5,.6,Math.sin(t)*5],r:[(Math.sin(i)*.5),0,Math.cos(i)*.5]}])}
   for(let i=0;i<14;i++){const t=i*.45+.2;P.push([kcy(.28,.36,1.2,6),'#3a8a5a',{p:[Math.cos(t)*7.6,.6,Math.sin(t)*7.6]}],[ks(.3,6,4),'#3a8a5a',{p:[Math.cos(t)*7.6,1.4,Math.sin(t)*7.6]}])}
   const [a,b]=PL(...C0,0,0);landmark(sp,a,b,0,P,E,{metal:0,rough:.9,noCarry:true,mat:VC({roughness:.85}),lift:-.2})}}
-function rqCityDetail(sp){capitalDetail(sp);silverDetail(sp);emeraldDetail(sp);whiteDetail(sp);neilinDetail(sp)}
+/* 翡翠港: the harbour of the new emerald city — the 'ocean research station' that studies everything, its telescope-wood,
+   the little messenger dinosaurs that fly to every ship, warehouses and cranes on the quay, a shipyard, fish drying on racks */
+function jadeportDetail(sp){const E=[5,6,7,8,9,10,11,12],C0=[13,13.1];
+ {const P=[];for(let k=0;k<4;k++){const r=4.2-k*.7,y=k*4.6;P.push([kcy(r,r+.3,4.4,10),'#ffffff',{p:[0,y+2.2,0]}],[kcy(r+.9,r+.9,.3,10),BEAM,{p:[0,y+4.5,0]}]);for(let i=0;i<10;i++){const a=i/10*6.283;P.push([kcy(.04,.04,.8,3),BEAM,{p:[Math.cos(a)*(r+.8),y+4.95,Math.sin(a)*(r+.8)]}])}
+   for(let i=0;i<6;i++){const a=i/6*6.283+k*.4;P.push([kb(.5,.7,.06),WINC,{p:[Math.cos(a)*(r+.02),y+2.4,Math.sin(a)*(r+.02)],r:[0,-a+Math.PI/2,0]}])}}
+  P.push([kc(2.4,2.4,10),'#2f8a5a',{p:[0,20,0]}],[kcy(.2,.35,3.2,6),'#6a4a2a',{p:[1.5,19.4,0],r:[0,0,-1]}],[kcy(.42,.42,.3,8),'#bfe4f4',{p:[2.9,20.3,0],r:[0,0,-1]}],
+   [kcy(.05,.05,3,3),BEAM,{p:[0,22.6,0]}],[kb(1.2,.6,.04),'#e8c040',{p:[.6,23.6,0]}],door(0,4.52,1,1.6));
+  // perches for the messenger dinosaurs and a few of them on it
+  for(let i=0;i<5;i++){const a=i*1.26;P.push([kb(1.6,.12,.12),BEAM,{p:[Math.cos(a)*4.4,9.4,Math.sin(a)*4.4],r:[0,-a,0]}],[tg(new THREE.SphereGeometry(.28,6,5),{s:[1.4,.8,.8]}),'#4aa86a',{p:[Math.cos(a)*5,9.8,Math.sin(a)*5]}],[kc(.16,.5,3),'#3a8a5a',{p:[Math.cos(a)*5.3,9.85,Math.sin(a)*5.3],r:[0,-a,Math.PI/2]}])}
+  const [a,b]=PL(...C0,-3,-4);landmark(sp,a,b,0,P,E,{metal:.05,rough:.85,win:'#ffd890'})}
+ // messengers circling the tower and flying out to sea
+ {const g=new THREE.Group();const bm=VC({roughness:.7});const bird=G([[tg(new THREE.SphereGeometry(.3,6,5),{s:[1.6,.7,.7]}),'#4aa86a',{}],[kb(.1,.03,1.6),'#3a8a5a',{p:[0,.05,0]}],[kc(.1,.4,3),'#3a8a5a',{p:[-.55,0,0],r:[0,0,Math.PI/2]}]]);const fl=[];
+  for(let i=0;i<9;i++){const m=new THREE.Mesh(bird,bm);g.add(m);fl.push({m,r:6+i*1.6,y:8+(i%4)*3,sp:.4+(i%3)*.15,ph:i})}const [a,b]=PL(...C0,-3,-4);frameLL(sp,a,b,0,0,g);addTo(sp,g,E);cull(g,null,30,1200);
+  anim(sp,g,T=>fl.forEach(f=>{const t=T*f.sp+f.ph;f.m.position.set(Math.cos(t)*f.r,f.y+Math.sin(t*2)*.6,Math.sin(t)*f.r);f.m.rotation.set(0,-t-Math.PI/2,Math.sin(T*9+f.ph)*.25)}))}
+ // the quay: warehouses, cranes over stacked crates, a slipway with a hull on it, drying racks
+ {const P=[];for(let i=0;i<4;i++){const x=-12+i*6.5;P.push([kb(5.6,3.2,4),'#c9b896',{p:[x,1.6,0]}],[prism(6,1.2,4.4),'#2f8a5a',{p:[x,3.8,0]}],[kb(2.4,2.2,.1),'#2a2018',{p:[x,1.1,2.02]}]);
+   P.push([kb(.3,6,.3),BEAM,{p:[x+2.2,3,4]}],[kb(4,.25,.25),BEAM,{p:[x+.6,6,4]}],[kcy(.02,.02,2.4,3),'#3a2e22',{p:[x-1,4.8,4]}],[kb(.6,.6,.6),'#9a7a48',{p:[x-1,3.4,4]}]);for(let k=0;k<5;k++)P.push([kb(.8,.8,.8),k%2?'#9a7a48':'#8a6a40',{p:[x-1.6+k*.7,.4+(k%2)*.8,5.4]}])}
+  P.push([kb(3,.2,12),'#8a6a40',{p:[16,.1,0],r:[-.12,0,0]}],[tg(new THREE.SphereGeometry(1,12,6,0,6.283,1.57,1.57),{s:[1.4,1.2,5]}),'#8a6a40',{p:[16,2,0]}],...[-4,-2,0,2,4].map(z=>[tg(new THREE.TorusGeometry(1.4,.07,4,10,Math.PI),{r:[0,0,Math.PI]}),BEAM,{p:[16,2,z]}]));
+  for(let i=0;i<3;i++){P.push([kb(.12,1.8,.12),BEAM,{p:[-14+i*3,.9,-4]}],[kb(.12,1.8,.12),BEAM,{p:[-12+i*3,.9,-4]}],[kb(2.2,.06,.06),BEAM,{p:[-13+i*3,1.7,-4]}]);for(let k=0;k<5;k++)P.push([tg(new THREE.SphereGeometry(.12,5,4),{s:[2.4,.6,.5]}),'#b8c8d0',{p:[-13.8+i*3+k*.4,1.35,-4],r:[0,0,Math.PI/2]}])}
+  const [a,b]=PL(...C0,6,-20);landmark(sp,a,b,1.6,P,E,{metal:0,rough:.85,mat:VC({roughness:.85})})}}
+
+/* small villages: a well, haystacks, a windmill, a little shrine, washing lines, animal pens */
+function villageDetail(sp,la,lo,E,k,style){const P=[];const s=style||'dragon';
+ P.push([kcy(.9,1,.8,10),'#9a9080',{p:[0,.4,0]}],[kcy(.7,.7,.82,10),'#1e2a30',{p:[0,.42,0]}],[kcy(.07,.07,2,4),BEAM,{p:[.8,1,0]}],[kcy(.07,.07,2,4),BEAM,{p:[-.8,1,0]}],[prism(2,.5,1.2),'#6a5a3a',{p:[0,2.2,0],r:[0,Math.PI/2,0]}]);
+ for(let i=0;i<4;i++)P.push([kc(1.1,1.8,8),'#c8b060',{p:[6+i*2.2,.9,4+((i*7)%3)]}],[kcy(1.1,1.1,.6,8),'#b8a050',{p:[6+i*2.2,.3,4+((i*7)%3)]}]);
+ if(s!=='silver'){P.push([kcy(.9,1.4,6,8),'#d8cfb8',{p:[-8,3,-6]}],[kc(1.4,1.6,8),'#6a4a2a',{p:[-8,6.8,-6]}]);for(let i=0;i<4;i++)P.push([kb(.35,4.4,.12),'#e8e0c8',{p:[-8,5.6,-4.7],r:[0,0,i*1.5708+.3]}])}
+ P.push([kb(1.6,1.4,1.4),'#c8c0b0',{p:[-6,.7,6]}],[kc(1.3,1.2,4),'#6a5a3a',{p:[-6,2,6],r:[0,.785,0]}],[ks(.3,6,4),'#ffcf7a',{p:[-6,.9,6.75]}]);
+ for(let i=0;i<10;i++){const a=i/10*6.283;P.push([kb(1.4,.9,.1),BEAM,{p:[9+Math.cos(a)*2.4,.45,-5+Math.sin(a)*2.4],r:[0,-a+Math.PI/2,0]}])}for(let i=0;i<3;i++)P.push([tg(new THREE.SphereGeometry(1,8,6),{s:[.8,.55,.5]}),'#c8b8a0',{p:[8.6+i*.8,.7,-5.2+i*.4]}]);
+ P.push([kcy(.05,.05,2,3),BEAM,{p:[3,1,-7]}],[kcy(.05,.05,2,3),BEAM,{p:[7,1,-7]}],[kb(4,.03,.03),'#3a2e22',{p:[5,1.9,-7]}],...[3.6,4.4,5.2,6].map((x,i)=>[kb(.6,.7,.04),['#c84a3a','#e8e0c8','#3a8aa8','#e8b040'][i],{p:[x,1.5,-7]}]));
+ landmark(sp,la,lo,k||0,P,E,{metal:0,rough:.9,mat:VC({roughness:.9})})}
+
+/* 白骸龙之城, more: the wood-returning altar (a great stack of logs before a stone slab) and the jellyfish-basket landing for the sky crossing */
+function whiteMore(sp){const E=[3,4],C0=[4,-112];
+ {const P=[[kcy(4,4.4,.6,12),'#cfc8b8',{p:[0,.3,0]}],[kb(1.4,3.2,.5),'#ece8dc',{p:[0,1.9,-2.6]}]];for(let i=0;i<5;i++)for(let k=0;k<4-i%2;k++)P.push([tg(new THREE.CylinderGeometry(.22,.24,3.2,7),{r:[0,0,Math.PI/2]}),'#7a5a3a',{p:[0,.85+i*.42,-1+k*.48-((i%2)*.24)],r:[0,(i%2)*1.5708,0]}]);
+  const [a,b]=PL(...C0,0,13);landmark(sp,a,b,0,P,E,{metal:0,rough:.9,noCarry:true})}
+ {const P=[[kb(8,.4,8),'#bab4a6',{p:[0,.2,0]}]];for(const [x,z] of [[-3,-3],[3,-3],[-3,3],[3,3]])P.push([kb(.4,5,.4),'#d8d2c4',{p:[x,2.5,z]}]);P.push([kb(7,.3,.3),'#d8d2c4',{p:[0,5,-3]}],[kb(7,.3,.3),'#d8d2c4',{p:[0,5,3]}]);
+  for(let j=0;j<2;j++){const x=j?1.8:-1.8;P.push([tg(new THREE.SphereGeometry(1.6,12,8,0,6.283,0,1.6),{}),'#bfe4f4',{p:[x,9,0]}],...[0,1,2,3,4,5].map(i=>[kcy(.03,.03,4,3),'#e8f4ff',{p:[x+Math.cos(i)*1.2,6.8,Math.sin(i)*1.2]}]),[kcy(.8,.9,.9,8),'#8a6a40',{p:[x,4.6,0]}])}
+  const [a,b]=PL(...C0,-14,-2);landmark(sp,a,b,.3,P,E,{metal:0,rough:.8,noCarry:true})}}
+
+/* 创造之城, more: the city gate with two armoured gatehouses, and the station where the 通天之道 rail leaves the ground */
+function capitalMore(sp){const E=[5,6,7,8,9,10,11,12],C0=[-14,63],ST='#9aa4ac',DK='#3a4044';
+ {const P=[];for(const x of[-5,5])P.push([kb(4,8,4),ST,{p:[x,4,0]}],[kb(4.6,.6,4.6),DK,{p:[x,8.3,0]}],...[-1.6,0,1.6].map(z=>[kb(.8,.8,.8),ST,{p:[x+1.8*Math.sign(x),9,z]}]),[kb(.6,1.6,.06),'#1a1c1e',{p:[x,5,2.03]}]);
+  P.push([kb(6,2,3),ST,{p:[0,7,0]}],[tg(new THREE.CylinderGeometry(3,3,3,16,1,false,0,Math.PI),{r:[Math.PI/2,0,0]}),'#1a1c1e',{p:[0,3,0]}],[kb(6,3,.4),'#2a2e32',{p:[0,4.5,1.6]}],...[-2,-1,0,1,2].map(x=>[kb(.12,3,.12),DK,{p:[x,1.5,1.7]}]));
+  const [a,b]=PL(...C0,0,-48);landmark(sp,a,b,Math.PI/2,P,E,{metal:.7,rough:.3})}
+ {const P=[[kb(14,3,8),ST,{p:[0,1.5,0]}],[tg(new THREE.CylinderGeometry(4,4,14,16,1,true,0,Math.PI),{r:[0,0,Math.PI/2]}),'#b8c4cc',{p:[0,3,0]}],[kb(14.4,.4,8.4),DK,{p:[0,3.1,0]}],[kb(4,3,.2),'#1a1c1e',{p:[7.1,1.5,0],r:[0,Math.PI/2,0]}],
+   [kb(10,.3,1),'#c8a860',{p:[0,.9,3.2]}],...[-4,-2,0,2,4].map(x=>[kcy(.2,.2,3,6),DK,{p:[x,1.5,3.8]}])];
+  const [a,b]=PL(...C0,0,0);landmark(sp,a,b,.86,P,E,{metal:.7,rough:.3})}}
+
+/* 银之城, more: land-ships rolling along the avenue between the swollen plants */
+function silverMore(sp){const E=[5,6,7,8,9,10,11,12];const shipG=G([[tg(new THREE.SphereGeometry(1,14,8),{s:[3.4,1,1.4]}),'#c0c8d0',{p:[0,1.6,0]}],[kb(5.6,.4,2),'#6a737a',{p:[0,.8,0]}],[kb(1.8,1,1.2),'#9aa4ac',{p:[.8,2.6,0]}],[kcy(.06,.06,2.4,3),'#8a949c',{p:[-1,3.2,0]}],[kb(1.6,1.2,.04),'#cfe6ff',{p:[-1,3.6,0]}],
+  ...[-2,-.7,.7,2].flatMap(x=>[[tg(new THREE.CylinderGeometry(.55,.55,.3,10),{r:[Math.PI/2,0,0]}),'#2a2e32',{p:[x,.55,1.05]}],[tg(new THREE.CylinderGeometry(.55,.55,.3,10),{r:[Math.PI/2,0,0]}),'#2a2e32',{p:[x,.55,-1.05]}]])]);
+ const pts=[];for(let i=0;i<=40;i++){const t=i/40;const la=-4+t*2.2,lo=54+t*2.8;pts.push(dirLL(la,lo).multiplyScalar(R+Math.max(sp.gh(la,lo),0)+.2))}const cv=new THREE.CatmullRomCurve3(pts);
+ const ships=[0,.3,.62].map((u,i)=>{const m=new THREE.Mesh(shipG,VC({metalness:.6,roughness:.3}));addTo(sp,m,E);return{m,u,d:i%2?1:-1}});const p=V3(),q=V3();
+ anim(sp,null,T=>{if(camera.position.distanceTo(pts[20])>1400)return;ships.forEach(s=>{let u=(s.u+T*.004)%1;if(s.d<0)u=1-u;cv.getPointAt(Math.min(.999,u),p);cv.getPointAt(Math.min(1,u+.002*s.d+(s.d<0?.002:0)),q);s.m.position.copy(p);s.m.up.copy(p).normalize();s.m.lookAt(s.d>0?q:p.clone().multiplyScalar(2).sub(q));s.m.rotateY(-Math.PI/2)})})}
+
+function rqCityDetail(sp){capitalDetail(sp);capitalMore(sp);silverDetail(sp);silverMore(sp);emeraldDetail(sp);whiteDetail(sp);whiteMore(sp);neilinDetail(sp);jadeportDetail(sp);
+ villageDetail(sp,...PL(-8,49,9,9),[6,7,8,9,10,11,12],.4,'silver');villageDetail(sp,...PL(-19,58,9,-9),[6,7,8,9,10,11,12],1.2,'grand');villageDetail(sp,...PL(11.2,9,-9,6),[6,7,8,9,10,11,12],2,'dragon');villageDetail(sp,...PL(-49,-28.6,8,8),[6,7,8],.8,'dragon')}
 
 /* 尔什: 峡风要塞 the nostalgic town (grey brick lanes, low stone houses, a clock tower with a golden bell, a bar),
    英雄总部 with its arena, the research team's base, statues of the heroes who guard 阿美润根 */
@@ -148,3 +204,26 @@ function niuyaoDetail(sp){const E=[8,9,10,11,12],C0=[38.5,101],GL='#3a5a7a',DK='
  {const P=[[tg(new THREE.CylinderGeometry(1,1,.3,40),{s:[14,1,10]}),'#5aaa5a',{p:[0,.15,0]}]];for(let i=0;i<32;i++){const a=i/32*6.283;P.push([kb(3.4,5,1.6),'#e8ecef',{p:[Math.cos(a)*15.5,2.5,Math.sin(a)*11.5],r:[0,-a+Math.PI/2,.0]}])}P.push([tg(new THREE.TorusGeometry(1,.06,4,40),{r:[Math.PI/2,0,0],s:[16,11.8,1]}),'#8a949c',{p:[0,5.4,0]}]);
   const [la,lo]=PL(...C0,40,30);landmark(sp,la,lo,.4,P,E,{mat:tm,far:2400})}
  trafficRings(sp,...C0,[[16,40],[28,55],[40,30],[52,70],[64,45]],E)}
+
+/* 尔什, more */
+function erxiCityMore(sp){
+ // 阿美润根: rich on the south-pole trade — a commercial quarter of glass towers, a container yard with cranes, and the famous cheap apples by the crate
+ {const E=[8,9,10,11,12],C0=[38,-100];const P=[];for(let i=0;i<3;i++){const x=-8+i*8;P.push([kb(1,14,1),'#e8b830',{p:[x,7,-6]}],[kb(1,1,12),'#e8b830',{p:[x,14,-1]}],[kb(2,1.4,2),'#5a6268',{p:[x,13,4]}],[kcy(.03,.03,6,3),'#3a4044',{p:[x,10,4]}])}
+  const cc=['#c84a3a','#3a8aa8','#e8b040','#5aa85a','#8a5aa8'];for(let i=0;i<40;i++){const x=-12+(i%10)*2.6,z=-2+Math.floor(i/10)%2*3,y=1+Math.floor(i/20)*2.1;P.push([kb(2.4,2,2.8),cc[(i*7)%5],{p:[x,y,z]}])}
+  for(let i=0;i<12;i++){const x=-12+i*2.2;P.push([kb(1.4,.9,1),'#8a6a40',{p:[x,.45,8]}],...[0,1,2].map(k=>[ks(.25,6,4),'#c83a3a',{p:[x-.4+k*.4,1.05,8]}]))}
+  const [a,b]=PL(...C0,-22,16);landmark(sp,a,b,.5,P,E,{metal:.3,rough:.6,mat:VC({roughness:.6,metalness:.2})})}
+ // 阿特兰 (the memory of the old kingdom): a palace of domes on a terrace, a harbour with the ships that put out to sea
+ {const E=[7],C0=[36,16];const P=[[kb(18,1.6,12),'#c8b8a0',{p:[0,.8,0]}],[kb(10,6,6),'#e8dcc4',{p:[0,4.6,-1]}],[tg(hemi(3.4,16),{}),'#3a8aa8',{p:[0,7.6,-1]}],[kc(.3,2,6),'#e8c040',{p:[0,12,-1]}]];
+  for(const x of[-6,6])P.push([kcy(1.4,1.6,8,10),'#e8dcc4',{p:[x,5.6,-1]}],[tg(hemi(1.6,12),{}),'#3a8aa8',{p:[x,9.6,-1]}]);for(let i=0;i<8;i++)P.push([kcy(.3,.3,4,8),'#f4ecd8',{p:[-7+i*2,3.6,3]}]);P.push([kb(16,.5,1.2),'#c8b8a0',{p:[0,5.8,3]}]);
+  for(let k=0;k<6;k++)P.push([kb(6-k*.5,.4,1.2),'#c8b8a0',{p:[0,1.6-k*.26,6.4+k*1.1]}]);
+  const [a,b]=PL(...C0,8,-6);landmark(sp,a,b,0,P,E,{metal:.1,rough:.7,win:'#ffd890'});
+  const shipG=G([[tg(new THREE.SphereGeometry(1,12,6,0,6.283,1.57,1.57),{s:[4,1.2,1.4]}),'#7a5a3a',{p:[0,1,0]}],[kcy(.12,.12,7,5),'#5a4632',{p:[0,4.4,0]}],[kb(.06,4,3.2),'#e8e0c8',{p:[.3,5,0]}],[kb(1.6,.8,1.6),'#8a6a40',{p:[-2.4,1.5,0]}]]);
+  const sm=VC({roughness:.8});for(let i=0;i<4;i++){const [c,d]=PL(...C0,-26+i*4,24+i*3);const m=new THREE.Mesh(shipG,sm);frameLL(sp,c,d,.2,.6+i*.2,m,false);m.position.setLength(R+.3);addTo(sp,m,E);cull(m,null,12,1400)}}
+ // 能力者: a training ground for the ability-users — climbing walls, a sparring ring, broken dummies, a viewing stand
+ {const E=[7],C0=[30,40];const P=[[kcy(6,6,.4,20),'#c8b890',{p:[0,.2,0]}],[tg(new THREE.TorusGeometry(6,.25,5,24),{r:[Math.PI/2,0,0]}),'#c84a3a',{p:[0,.6,0]}]];for(let i=0;i<6;i++){const a=i/6*6.283;P.push([kcy(.3,.35,1.8,6),'#8a6a40',{p:[Math.cos(a)*3.5,1.3,Math.sin(a)*3.5],r:[(i%2)*.6,0,(i%3)*.3]}])}
+  P.push([kb(8,10,1),'#9aa4ac',{p:[0,5,-10]}],...[0,1,2,3,4,5,6,7].map(i=>[kb(.4,.3,.4),'#e8b040',{p:[-3+i*.9,1+i*1.1,-9.4]}]),[kb(12,3,3),'#d8dee4',{p:[0,1.5,10],r:[-.3,0,0]}]);
+  const [a,b]=PL(...C0,-10,10);landmark(sp,a,b,.3,P,E,{metal:.2,rough:.7,mat:VC({roughness:.7})})}
+ // the clown's base: an old broadcasting tower, its dish aimed at the sky, a single old television flickering in a window
+ {const E=[9],C0=[32,-84];const P=[[kb(3,3,3),'#8a8478',{p:[0,1.5,0]}]];for(let k=0;k<6;k++){const w=2.4-k*.3;P.push([kb(.2,4,.2),'#c84a3a',{p:[w/2,4+k*4,w/2]}],[kb(.2,4,.2),'#c84a3a',{p:[-w/2,4+k*4,w/2]}],[kb(.2,4,.2),'#c84a3a',{p:[w/2,4+k*4,-w/2]}],[kb(.2,4,.2),'#c84a3a',{p:[-w/2,4+k*4,-w/2]}],[kb(w,.15,.15),'#e8e8e8',{p:[0,2+k*4,w/2]}],[kb(w,.15,.15),'#e8e8e8',{p:[0,2+k*4,-w/2]}])}
+  P.push([tg(new THREE.SphereGeometry(1.8,12,6,0,6.283,0,.9),{r:[-.8,0,0]}),'#e8e8e8',{p:[0,22,1.4]}],[kb(1,.8,.1),'#6ad0ff',{p:[0,1.8,1.52]}],[kcy(.05,.05,4,3),'#8a8478',{p:[0,27,0]}],[ks(.2,6,4),'#ff3a3a',{p:[0,29,0]}]);
+  const [a,b]=PL(...C0,8,8);landmark(sp,a,b,0,P,E,{metal:.4,rough:.5})}}

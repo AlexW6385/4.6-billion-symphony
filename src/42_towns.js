@@ -86,6 +86,21 @@ const TOWNKIT={
      G([[kcy(1.2,1.5,11,12),'#ffffff',{p:[0,5.5,0]}],[ring(2.2,.25,20),'#d8dee4',{p:[0,9,0]}],...[0,1,2,3].map(i=>[kb(.15,.15,1.6),'#8a949c',{p:[Math.cos(i*1.57)*1.7,9,Math.sin(i*1.57)*1.7],r:[0,-i*1.57,0]}]),[kc(.5,3,10),'#d8dee4',{p:[0,12.5,0]}],...[3,6].map(y=>[kcy(1.56,1.56,.3,12),'#3a5a7a',{p:[0,y,0]}])]),
      G([[kb(2.4,8,2),'#ffffff',{p:[0,4,0]}],[kb(2.2,3,.1),'#ff7ad0',{p:[0,6,1.06]}],[kb(2.2,1.4,.1),'#6ad0ff',{p:[0,2.6,1.06]}],[kb(2.6,.3,2.2),rf,{p:[0,8.1,0]}]])]})}};
 const PERSON=G([[kcy(.32,.42,1.4,6),'#ffffff',{p:[0,.7,0]}],[ki(.32,1),'#ffffff',{p:[0,1.7,0]}],[kc(.12,.4,4),'#ffffff',{p:[.25,1.6,0],r:[0,0,-1.4]}]]);
+/* townsfolk by kind: dragons walking upright with a tail and a snout, armoured dragons, robed figures, and Erxi people */
+const DRAGONFOLK=(o)=>{o=o||{};const P=[[tg(new THREE.SphereGeometry(1,10,8),{s:[.42,.62,.36]}),'#ffffff',{p:[0,1.25,0],r:[0,0,-.15]}],[tg(new THREE.SphereGeometry(1,8,6),{s:[.26,.22,.22]}),'#ffffff',{p:[.12,1.95,0]}],[tg(new THREE.SphereGeometry(1,8,6),{s:[.24,.12,.15]}),'#ffffff',{p:[.36,1.9,0]}],
+  [kcy(.1,.02,1.1,5),'#ffffff',{p:[-.45,.75,0],r:[0,0,1.1]}],[kcy(.09,.07,.7,5),'#ffffff',{p:[0,.38,.17]}],[kcy(.09,.07,.7,5),'#ffffff',{p:[0,.38,-.17]}],[kcy(.06,.05,.55,4),'#ffffff',{p:[.2,1.3,.3],r:[.4,0,-.6]}],[kcy(.06,.05,.55,4),'#ffffff',{p:[.2,1.3,-.3],r:[-.4,0,-.6]}],
+  [ks(.035,4,3),'#1a1a1a',{p:[.3,2,.12]}],[ks(.035,4,3),'#1a1a1a',{p:[.3,2,-.12]}]];
+ if(o.armour)P.push([tg(new THREE.SphereGeometry(1,10,6,0,6.283,0,1.6),{s:[.46,.5,.4]}),'#c8d0d8',{p:[0,1.35,0]}],[kc(.1,.35,4),'#c84a3a',{p:[.05,2.3,0]}],[kcy(.02,.02,1.6,3),'#d8dce0',{p:[.25,1,.35]}]);
+ if(o.bone)for(let i=0;i<4;i++)P.push([kc(.06,.22,4),'#f4f0e6',{p:[-.12-i*.1,1.75-i*.22,0],r:[0,0,.6]}]);
+ if(o.robe)P.push([kcy(.3,.48,1,8),'#ffffff',{p:[0,.7,0]}],[kb(.5,.08,.62),'#c8a860',{p:[0,1.2,0]}]);
+ if(o.pack)P.push([kb(.3,.35,.3),'#8a6a40',{p:[-.3,1.45,0]}]);return G(P)};
+const ERXIFOLK=G([[kcy(.2,.24,.75,8),'#ffffff',{p:[0,1.15,0]}],[ks(.19,8,6),'#ffffff',{p:[0,1.75,0]}],[kcy(.08,.07,.72,5),'#3a4048',{p:[0,.38,.1]}],[kcy(.08,.07,.72,5),'#3a4048',{p:[0,.38,-.1]}],
+ [kcy(.05,.045,.62,4),'#ffffff',{p:[0,1.15,.27],r:[.2,0,0]}],[kcy(.05,.045,.62,4),'#ffffff',{p:[0,1.15,-.27],r:[-.2,0,0]}],[ks(.12,6,4),'#6a5040',{p:[-.04,1.88,0]}],[kb(.28,.36,.06),'#3a5a7a',{p:[-.2,1.2,0]}]]);
+const FOLK={dragon:[DRAGONFOLK(),DRAGONFOLK({pack:1})],white:[DRAGONFOLK({bone:1}),DRAGONFOLK({bone:1,robe:1})],silver:[DRAGONFOLK({armour:1}),DRAGONFOLK({pack:1})],forge:[DRAGONFOLK({armour:1}),DRAGONFOLK({armour:1,pack:1})],grand:[DRAGONFOLK({robe:1}),DRAGONFOLK({armour:1})],future:[ERXIFOLK]};
+/* every building stands on a low footing that is a little wider than it, so nothing looks dropped on the grass */
+const _plinth=new WeakMap();function withPlinth(g,c){if(_plinth.has(g))return _plinth.get(g);g.computeBoundingBox();const b=g.boundingBox;const w=b.max.x-b.min.x+.35,d=b.max.z-b.min.z+.35;
+ const pl=mergeColored([[tg(new THREE.BoxGeometry(w,.4,d),{p:[(b.max.x+b.min.x)/2,.02,(b.max.z+b.min.z)/2]}),c||'#9a9080'],[tg(new THREE.BoxGeometry(w-.1,.08,d-.1),{p:[(b.max.x+b.min.x)/2,.26,(b.max.z+b.min.z)/2]}),'#7a7064']]);
+ const out=THREE.BufferGeometryUtils.mergeBufferGeometries([g,pl]);_plinth.set(g,out);return out}
 const DOCK=G([[kb(9,.25,1.3),'#7a5a3a',{p:[4.5,.1,0]}],...[0,2.5,5,7.5].map(x=>[kcy(.13,.13,2.4,5),'#5a4632',{p:[x,-.6,.6]}]),...[0,2.5,5,7.5].map(x=>[kcy(.13,.13,2.4,5),'#5a4632',{p:[x,-.6,-.6]}]),[kb(.5,.5,.5),'#8a6a40',{p:[7,.5,.3]}]]);
 const BOAT=G([[tg(new THREE.SphereGeometry(1,10,6,0,6.283,1.57,1.57),{s:[2.2,.6,.8]}),'#7a5a3a',{p:[0,.35,0]}],[kcy(.06,.06,3,4),'#5a4632',{p:[0,1.8,0]}],[tg(new THREE.PlaneGeometry(1.6,2.2),{}),'#e8e0c8',{p:[.1,2,0],r:[0,Math.PI/2,0]}]]);
 /* life in the streets: lamps along the roads, carts and vehicles on them, a centrepiece in the square,
@@ -129,7 +144,7 @@ const STREETKIT={
   yard:G([[kcy(.06,.1,2.6,5),'#6a5a4a',{p:[0,1.3,0]}],[ks(.7,8,6),'#3a9a5a',{p:[0,2.8,0]}],[kcy(.8,.8,.3,12),'#c8d0d8',{p:[0,.15,0]}]]),
   crate:G([[kb(1.4,.9,.9),'#c8d0d8',{p:[0,.45,0]}],[kb(1.1,.4,.06),'#6ad0ff',{p:[0,.6,.46]}],[kcy(.3,.3,1,10),'#3a4a5a',{p:[1,.5,0]}]]),
   plot:G([[kb(3.4,.1,2.4),'#3a4044',{p:[0,.05,0]}],...[-1.1,0,1.1].map(x=>[kb(.12,.02,2),'#f4f4f4',{p:[x,.11,0]}])])}};
-function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp.ghRaw,gs=sp.gh;const st=TOWNKIT[o.style||'dragon'];const rfs=o.roof?[o.roof]:st.roof.slice(0,2);const KS=rfs.map(c=>{const K=st.kits(c);const L=Array.isArray(K)?[[K[0]],[K[1]],[K[2]]]:[K.s,K.m,K.t];return L});const r=o.r||2;const eras=o.eras||null;
+function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp.ghRaw,gs=sp.gh;const st=TOWNKIT[o.style||'dragon'];const rfs=o.roof?[o.roof]:st.roof.slice(0,2);const KS=rfs.map(c=>{const K=st.kits(c);const L=Array.isArray(K)?[[K[0]],[K[1]],[K[2]]]:[K.s,K.m,K.t];return o.noPlinth?L:L.map(LL=>LL.map(g=>withPlinth(g,o.plinthC)))});const r=o.r||2;const eras=o.eras||null;
  const tm=towerMat({metalness:o.style==='silver'?.55:.08,roughness:o.style==='silver'?.35:.85,win:o.win||'#ffd890'});sp.towerMats=(sp.towerMats||[]).concat([tm]);
  const cosl=Math.max(.2,Math.cos(la*D2R));const P=(a,d)=>[la+Math.cos(a)*d,lo+Math.sin(a)*d/cosl];
  const nSt=o.streets||5,stA=Array.from({length:nSt},(_,i)=>i/nSt*Math.PI*2+Rn()*.3);const onStreet=(a,d)=>stA.some(s=>{let x=Math.abs(((a-s+Math.PI*3)%(Math.PI*2))-Math.PI);return x*d<.13});
@@ -165,7 +180,8 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
   inst(DOCK,VC({roughness:.9}),piers,(ob,p)=>{frameLL(sp,p[0],p[1],.4,p[3],ob,false)},eras,{far:1300,noCarry:!!o.noCarry});inst(BOAT,VC({roughness:.8}),boats,(ob,p)=>{frameLL(sp,p[0],p[1],.05,p[3],ob,false)},eras,{far:1300,noCarry:!!o.noCarry})}
  // people about in the streets
  for(let i=0;i<(o.people||40);i++){const a=stA[(Rn()*nSt)|0]+(Rn()-.5)*.05,d=r*(.15+Rn()*.9);const [l2,o2]=P(a,d);const h=gh(l2,o2);if(h<1)continue;people.push([l2,o2,h,Rn(),a])}
- if(people.length)inst(PERSON,VC({roughness:.7}),people,(ob,p)=>{frameLL(sp,p[0],p[1],0,p[4]+(p[3]-.5)*2,ob);ob.scale.setScalar((o.pScale||1)*(.9+p[3]*.3))},eras,{tint:p=>C(o.pCol||'#8a8070').offsetHSL((p[3]-.5)*.1,0,(p[3]-.5)*.2),far:700,noCarry:!!o.noCarry});
+ const FK=FOLK[o.style||'dragon']||[PERSON];const PG=FK.map(()=>[]);people.forEach(p=>PG[(p[3]*FK.length*.999)|0].push(p));
+ PG.forEach((pp,fi)=>{if(pp.length)inst(FK[fi],VC({roughness:.7}),pp,(ob,p)=>{frameLL(sp,p[0],p[1],0,p[4]+(p[3]-.5)*2,ob);ob.scale.setScalar((o.pScale||1)*(.9+p[3]*.3))},eras,{tint:p=>C(o.pCol||'#8a8070').offsetHSL((p[3]-.5)*.1,0,(p[3]-.5)*.2),far:700,noCarry:!!o.noCarry});})
  // street life (see STREETKIT)
  {const K=STREETKIT[o.style||'dragon'];const F={far:900,noCarry:!!o.noCarry};const lampP=[],cartP=[],crateP=[],yardP=[],plotP=[];const st2=o.streetLife||1;
   for(const a of stA){const n=Math.round(r*1.1/.1);for(let i=1;i<n;i++){const d=r*1.1*i/n,side=i%2?1:-1;const [l2,o2]=P(a+side*.085/Math.max(d,.2),d);const h=gh(l2,o2);if(h<1.2)continue;lampP.push([l2,o2,h,Rn(),a]);if(Rn()<.12*st2){const [l3,o3]=P(a,d);if(gh(l3,o3)>1.2)cartP.push([l3,o3,0,Rn(),a+(Rn()<.5?0:Math.PI)])}}}
