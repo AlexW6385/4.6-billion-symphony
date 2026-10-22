@@ -22,6 +22,7 @@
 47_new.js
 48_land.js
 49_sky.js
+49z_eggs.js
 70_ui.js
 71_tour.js
 72_reader.js

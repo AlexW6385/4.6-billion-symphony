@@ -4,7 +4,6 @@
    ================================================================ */
 const ERAN=Object.fromEntries(ERAS.map(e=>[e.id,e.n]));
 const ARCGO=['origin','ev_ext1','icesea','landing','naodai','ev_war','canyon','fungus','emeraldcity','creator','ev_snow','cloudsea'];
-const SPECIAL_EGG=new Set(['ghost','soul','maoyu','bbq','spin','ice','moon']);
 const BRAIN=['“琳，没有威胁。”','“翻滚，逃跑。”','“身体疲倦，需要休息。”','“快去翻滚着睡觉，愚钝的小东西。”','“天空，水。”','“族群通道：前方三米，蕨类下面的地里。”'];let brainI=0;
 {const st=document.createElement('style');st.textContent=`#labels{position:fixed;inset:0;pointer-events:none;z-index:2}
 #labels .lab{position:absolute;left:0;top:0;white-space:nowrap;pointer-events:auto;cursor:pointer;font-family:var(--f-d);font-size:13px;letter-spacing:.34em;color:rgba(233,240,234,.66);text-shadow:0 0 8px rgba(0,0,0,.95),0 0 2px #000,0 1px 1px #000;transition:opacity .5s,color .3s;opacity:0}
@@ -72,7 +71,7 @@ function eraSpot(sp,e){if(sp.id==='void'){const c=e===10&&false?NG_C:SECTORS[e].
  // in a tube, stand at the middle of that era's stretch so the era indicator agrees with where you are
  if(sp.type==='tube'){const ok=MB[sp.id].e;const L=WIKI.filter(w=>mapOf(w)===sp.id&&(w.e.find(x=>ok.includes(x))||w.e[0])===e);if(L.length)h.a=L.reduce((s,w)=>s+(w.z||0),0)/L.length}
  return h}
-function setEra(e){cutNow();if(CUR.type!=='planet'){ERA=e;syncTime();return}ERA=e;store.set('rq_era',e);applyPlanetEra(CUR,e);syncTime();showTitle(MB[CUR.id].n,`${EB[e].n} · ${EB[e].ch}`,3600);if(e===4&&CUR.id==='rongqiu')setTimeout(()=>egg('ice'),1800);if(sel&&!eraOk(W[sel].e))closeCap()}
+function setEra(e){cutNow();if(CUR.type!=='planet'){ERA=e;syncTime();return}ERA=e;store.set('rq_era',e);applyPlanetEra(CUR,e);syncTime();showTitle(MB[CUR.id].n,`${EB[e].n} · ${EB[e].ch}`,3600);if(sel&&!eraOk(W[sel].e))closeCap()}
 
 /* ---------- the story card ---------- */
 let sel=null,selP=null;const cap=$('#cap');
@@ -85,8 +84,6 @@ function open(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;mark
  const away=!(here&&(CUR.type!=='planet'||eraOk(w.e)));const goT=away&&!goL?`<a class="go" data-goto="${id}">前往「${MB[mapOf(w)].n}」看看 →</a>`:'';
  cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb ${CATK(w.c)}">${w.c} · ${placeName(w)}</div><h2>${w.n}</h2><p class="s">${w.s}</p><p class="d">${w.d}</p><div class="meta">${eras}</div>${chapHTML(id)}${rel?`<div class="sec">相关</div><div class="rel">${rel}</div>`:''}${sideHintHTML(id)}${goL}${goT}${cardNavHTML(id)}`;
  cap.classList.add('on');cap.scrollTop=0;
- if(w.egg&&!SPECIAL_EGG.has(w.egg))egg(w.egg,found.has(w.egg));
- if((id==='longqimu'||id==='rqzj')&&CUR.id==='rongqiu'&&dirLL(-4,-86).dot(CUR.sunDir)<-.05)egg('soul');
  selP=CUR.prox.find(p=>p.w.id===id&&!p.side&&(!p.hide||!p.hide()))||CUR.prox.find(p=>p.w.id===id&&!p.side&&eraOk(p.e))||null}
 function closeCap(quiet){cap.classList.remove('on');sel=null;selP=null}
 cap.addEventListener('click',e=>{if(e.target.closest('.x'))return closeCap();const sdh=e.target.closest('[data-sidehint]');if(sdh)return openSide(sdh.dataset.sidehint);const ch=e.target.closest('[data-ch]');if(ch)return openRd(+ch.dataset.ch,sel);const nv=e.target.closest('[data-nav]');if(nv)return cardStep(+nv.dataset.nav);const gt=e.target.closest('[data-goto]');if(gt)return go(gt.dataset.goto);const r=e.target.closest('[data-rel]');if(r)return go(r.dataset.rel);const g=e.target.closest('[data-go]');if(g){const w=W[sel];enterPortal(w)}});
@@ -298,9 +295,9 @@ let tapTO=0;
 function tap(cx,cy,ptype){pickProx.mesh=1;pickProx.touch=ptype==='touch'||ptype==='pen';const p=pickProx(cx,cy);pickProx.mesh=0;pickProx.touch=false;if(p){choose(p);return}
  // empty ground: wait a moment, so a double-click (fly in) doesn't also open the region under it
  clearTimeout(tapTO);tapTO=setTimeout(()=>{if(CUR.type==='planet'){const pl=placeAt(cx,cy);if(pl){go(pl.id);return}}closeCap()},ptype==='mouse'?260:0)}
-function choose(p){const w=p.w;if(p.click)p.click();if(p.only)return;if(p.egg)egg(p.egg);
- if(w.id==='naodai'){toast('脑袋虫',BRAIN[brainI++%BRAIN.length]);egg('brain',true)}
- if((w.id==='moon'||w.id==='moon_bus')&&CUR.id==='rongqiu'){CUR.moonT=CUR.moonT?0:1;if(CUR.moonT){egg('moon');toast('星空翻滚者','“月，与鸣石共鸣。鸣石，让一切升腾。”');clearTimeout(moonTO);moonTO=setTimeout(()=>{if(SP.rongqiu)SP.rongqiu.moonT=0},90000)}open(w.id);return}
+function choose(p){const w=p.w;if(p.click)p.click();if(p.only)return;if(p.egg)egg(p.egg);if(egz_choose(p))return;
+ if(w.id==='naodai'){toast('脑袋虫',BRAIN[brainI++%BRAIN.length]);egz_late('brain')}
+ if((w.id==='moon'||w.id==='moon_bus')&&CUR.id==='rongqiu'){CUR.moonT=CUR.moonT?0:1;if(CUR.moonT){toast('星空翻滚者','“月，与鸣石共鸣。鸣石，让一切升腾。”');egz_late('moon');clearTimeout(moonTO);moonTO=setTimeout(()=>{if(SP.rongqiu)SP.rongqiu.moonT=0},90000)}open(w.id);return}
  if(p.w.go&&CUR.id==='void'){open(w.id);const c=proxCenter(p);flyTo(-c.z,c.x,Math.max(140,p.r*5.5),1.6,clamp(c.y,-400,400));return}
  open(w.id);
  // a member of a moving herd: fly to the one that was clicked and keep it in the middle of the view
@@ -325,7 +322,7 @@ const hoverEl=$('#hover');let hovFrame=0;
 const NOHOVER=matchMedia('(hover: none)').matches;
 function updateHover(){if(!mouse.in||drag||ptrs.size>1||busy||NOHOVER){if(hov||hovPlace){hov=null;hovPlace=null;hoverEl.classList.remove('on');canvas.classList.remove('point')}return}
  if(++hovFrame%2)return;const p=pickProx(mouse.x,mouse.y);let place=null;if(!p&&CUR.type==='planet')place=placeAt(mouse.x,mouse.y);
- if(p!==hov||place!==hovPlace){hov=p;hovPlace=place;maoyuHover=!!(p&&p.mao);if(p&&p.mao&&!found.has('maoyu'))setTimeout(()=>{if(maoyuHover){toast('吱！','白毛玉全都钻进盐里不见了。');egg('maoyu',true)}},380);
+ if(p!==hov||place!==hovPlace){hov=p;hovPlace=place;maoyuHover=!!(p&&p.mao);if(p&&p.mao&&!found.has('maoyu'))setTimeout(()=>{if(maoyuHover)egg('maoyu')},380);
   if(p){hoverEl.className='on';hoverEl.innerHTML=`${esc(p.w.n)}<small>${esc(p.w.c)}</small>`}else if(place){hoverEl.className='on place';hoverEl.innerHTML=esc(place.n)}else hoverEl.className=''}
  canvas.classList.toggle('point',!!(p||place));
  if(p||place){const x=Math.min(mouse.x+16,innerWidth-hoverEl.offsetWidth-8),y=Math.min(mouse.y+14,innerHeight-34);hoverEl.style.transform=place&&!p?`translate(${mouse.x-hoverEl.offsetWidth/2}px,${mouse.y-34}px)`:`translate(${x}px,${y}px)`}}
