@@ -116,3 +116,35 @@ function erxiCityDetail(sp){
   landmark(sp,...C0,0,P,E,{metal:.4,rough:.4,win:'#cfe6ff'})}
  {const E=[8,9],C0=[38,-100];for(const [dn,de,h] of [[10,0,0],[-8,8,1],[-6,-10,2]]){const [a,b]=PL(...C0,dn,de);landmark(sp,a,b,h*2.1,[[kb(4,2,4),'#d8d2c4',{p:[0,1,0]}],[kcy(.8,1,4,8),'#e8b830',{p:[0,4,0]}],[ks(.9,10,8),'#e8b830',{p:[0,6.8,0]}],[kcy(.35,.3,3.4,6),'#e8b830',{p:[1.3,4.4,0],r:[0,0,-.4-h*.3]}],[kcy(.35,.3,3.4,6),'#e8b830',{p:[-1.3,4.6,0],r:[0,0,.9]}],[kcy(.4,.35,3.2,6),'#e8b830',{p:[.5,1.6+2,0]}],[kb(2.8,3.6,.12),'#c83a3a',{p:[0,4.4,-1],r:[.15,0,0]}]],E,{metal:.7,rough:.3})}}}
 
+
+/* flying traffic: little cars streaming round a city in rings at several heights, lights on at night */
+function trafficRings(sp,la,lo,rings,eras){const cg=G([[tg(new THREE.SphereGeometry(1,10,6),{s:[1.6,.5,.8]}),'#e8ecef',{}],[tg(new THREE.SphereGeometry(1,10,4,0,6.283,0,1.2),{s:[1,.45,.7]}),'#2a4a6a',{p:[-.2,.2,0]}]]);
+ const per=30,cars=[];rings.forEach(([r,alt],j)=>{for(let i=0;i<per;i++)cars.push({r,alt,ph:i/per*6.283+h3(j,i,5)*.15,sp:(j%2?1:-1)*(.02+j*.003),dz:(h3(i,j,9)-.5)*2})});
+ const im=new THREE.InstancedMesh(cg,VC({roughness:.3,metalness:.5,emissive:'#202830'}),cars.length);im.frustumCulled=false;addTo(sp,im,eras);const o=new THREE.Object3D(),q=V3(),q2=V3();const cl=Math.max(.2,Math.cos(la*D2R));
+ const at2=(c,t,out)=>{const a=la+Math.cos(t)*c.r/17.45,b=lo+Math.sin(t)*c.r/17.45/cl;return dirLL(a,b,out).multiplyScalar(R+Math.max(sp.gh(a,b),0)+c.alt+c.dz)};
+ const nl=nightPoints(cars.map(()=>V3()),'#ffe8b0',2,1);nl.frustumCulled=false;addTo(sp,nl,eras);sp.nightMats.push(nl.userData.night);const np=nl.geometry.attributes.position;const C0=dirLL(la,lo).multiplyScalar(R);
+ anim(sp,null,T=>{const far=camera.position.distanceTo(C0)>2600;im.visible=nl.visible=!far&&eraOk(eras);if(far)return;cars.forEach((c,i)=>{const t=c.ph+T*c.sp;at2(c,t,q);at2(c,t+.01*Math.sign(c.sp),q2);o.position.copy(q);o.up.copy(q).normalize();o.lookAt(q2);o.rotateY(-Math.PI/2);o.scale.setScalar(1.2);o.updateMatrix();im.setMatrixAt(i,o.matrix);np.setXYZ(i,q.x,q.y,q.z)});im.instanceMatrix.needsUpdate=true;np.needsUpdate=true})}
+
+/* 扭腰城: one of Erxi's most developed cities — a downtown of supertall towers round a central plaza,
+   an elevated rail ring, a stadium, huge screens, and air traffic in every lane */
+function niuyaoDetail(sp){const E=[8,9,10,11,12],C0=[38.5,101],GL='#3a5a7a',DK='#3a4a5a';const tm=towerMat({metalness:.55,roughness:.25,win:'#cfe6ff'});sp.towerMats.push(tm);
+ const TT=TOWNKIT.future.kits('#3a4a5a').t;
+ // downtown: twenty supertalls in two rings; the tallest twisted one at the north side
+ {const pts=[];for(let i=0;i<8;i++)pts.push([12,i/8*6.283+.2,3.2]);for(let i=0;i<12;i++)pts.push([21,i/12*6.283,2.2]);
+  pts.forEach(([d,a,k],i)=>{const [la,lo]=PL(...C0,Math.cos(a)*d,Math.sin(a)*d);const m=new THREE.Mesh(TT[i%TT.length],tm);frameLL(sp,la,lo,-.3,a,m);const h=k*(.8+h3(i,3,1)*.7);m.scale.set(1.6,h,1.6);addTo(sp,m,E);cull(m,null,60,2600)});
+  // the twisting tower: stacked plates each turned a little more
+  {const P=[];for(let k=0;k<40;k++)P.push([kb(5-k*.04,1.6,5-k*.04),k%4===3?GL:'#ffffff',{p:[0,k*1.6+.8,0],r:[0,k*.06,0]}]);P.push([kc(1.4,8,8),'#d8dee4',{p:[0,68,0]}]);const [la,lo]=PL(...C0,-5,2);landmark(sp,la,lo,0,P,E,{mat:tm,far:3000})}}
+ // central plaza: a sunken amphitheatre, a hologram column, screens on four posts
+ {const P=[[kcy(9,9,.3,32),'#d8dee4',{p:[0,.15,0]}],[kcy(6,4,1.4,32),'#9aa4ac',{p:[0,-.5,0]}],[kcy(.6,.8,8,12),'#e8ecef',{p:[0,4,0]}],...[2,4,6].map((y,i)=>[ring(1.6+i*.3,.08,20),'#6ad0ff',{p:[0,y,0]}])];
+  for(let i=0;i<4;i++){const a=i*1.5708+.785;P.push([kb(.4,9,.4),'#8a949c',{p:[Math.cos(a)*8,4.5,Math.sin(a)*8]}],[kb(5,3,.2),i%2?'#ff7ad0':'#6ad0ff',{p:[Math.cos(a)*8,8,Math.sin(a)*8],r:[0,-a+Math.PI/2,0]}])}
+  const [la,lo]=PL(...C0,4,-3);landmark(sp,la,lo,0,P,E,{mat:tm})}
+ // elevated rail ring on columns, with trains running
+ {const pts=[];const Rr=30;for(let i=0;i<=120;i++){const a=i/120*6.283;const [la,lo]=PL(...C0,Math.cos(a)*Rr,Math.sin(a)*Rr);pts.push(dirLL(la,lo).multiplyScalar(R+Math.max(sp.gh(la,lo),0)+12))}
+  const cv=new THREE.CatmullRomCurve3(pts,true);const rail=new THREE.Mesh(new THREE.TubeGeometry(cv,360,.9,5,true),VC({color:'#d8dee4',metalness:.6,roughness:.3}));addTo(sp,rail,E);cull(rail,null,60,2400);
+  const cols=[];for(let i=0;i<40;i++){const a=i/40*6.283;cols.push([...PL(...C0,Math.cos(a)*Rr,Math.sin(a)*Rr),0,0])}inst(kcy(.5,.7,12,6),VC({color:'#9aa4ac',metalness:.4}),cols,(o,p)=>{frameLL(sp,p[0],p[1],5.6,0,o)},E,{far:2000});
+  const tg2=G([[kb(14,1.6,1.8),'#ffffff',{p:[0,1.2,0]}],[kb(14.1,.5,1.84),GL,{p:[0,1.4,0]}]]);const trains=[0,.5].map(u=>{const m=new THREE.Mesh(tg2,VC({metalness:.5,roughness:.3}));addTo(sp,m,E);return{m,u}});const tp=V3(),tq=V3();
+  anim(sp,null,T=>trains.forEach(k=>{const u=(k.u+T*.006)%1;cv.getPointAt(u,tp);cv.getPointAt((u+.002)%1,tq);k.m.position.copy(tp);k.m.up.copy(tp).normalize();k.m.lookAt(tq);k.m.rotateY(Math.PI/2)}))}
+ // stadium
+ {const P=[[tg(new THREE.CylinderGeometry(1,1,.3,40),{s:[14,1,10]}),'#5aaa5a',{p:[0,.15,0]}]];for(let i=0;i<32;i++){const a=i/32*6.283;P.push([kb(3.4,5,1.6),'#e8ecef',{p:[Math.cos(a)*15.5,2.5,Math.sin(a)*11.5],r:[0,-a+Math.PI/2,.0]}])}P.push([tg(new THREE.TorusGeometry(1,.06,4,40),{r:[Math.PI/2,0,0],s:[16,11.8,1]}),'#8a949c',{p:[0,5.4,0]}]);
+  const [la,lo]=PL(...C0,40,30);landmark(sp,la,lo,.4,P,E,{mat:tm,far:2400})}
+ trafficRings(sp,...C0,[[16,40],[28,55],[40,30],[52,70],[64,45]],E)}

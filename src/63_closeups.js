@@ -1,6 +1,6 @@
 /* ---------- close-ups on Erxi and the Ximin homeworld ---------- */
 function erxiClose(sp){const Rn=rnd(6061);const gh=sp.gh;linMark(sp,{8:[47.2,14.2,5],9:[47.2,14.2,5],10:[42.4,2.4,5],11:[42.4,2.4,5],12:[20.4,30.4,6]});
- roadNet(sp,[[[45,12],[40,22]],[[40,22],[36,16]],[[45,12],[52,4]],[[38,-100],[36,-94]],[[36,-94],[32,-84]],[[32,108],[38,118]]],[8,9,10,11,12],{col:'#5a5a60',car:'#c8d0d8',lamp:'#ffe8c0',cars:4,w:1.1,seed:777});
+ roadNet(sp,[[[45,12],[40,22]],[[40,22],[36,16]],[[45,12],[52,4]],[[38,-100],[36,-94]],[[36,-94],[32,-84]],[[38.5,101],[38,118]]],[8,9,10,11,12],{col:'#5a5a60',car:'#c8d0d8',lamp:'#ffe8c0',cars:4,w:1.1,seed:777});
  // 峡风要塞: a new town built to look old — grey brick lanes, low stone houses, a great golden bell
  {const la0=78,lo0=-24;const g=new THREE.Group();frameLL(sp,la0,lo0,0,0,g);const parts=[];
   for(let k=0;k<5;k++){const a=k/5*6.28+.3;for(let j=0;j<10;j++){const d=4+j*2.6;parts.push([new THREE.BoxGeometry(1.6,.08,d>0?2.6:1).translate(0,.05,0).rotateY(-a).translate(Math.cos(a)*d,0,Math.sin(a)*d),'#7a7672'])}}

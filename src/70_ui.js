@@ -117,12 +117,14 @@ const _vcS=[];function visCast(rc,root){const out=[];const st=_vcS;st.length=0;s
 function occCast(L){return L?_crc.intersectObjects(L,false):visCast(_crc,CUR.scene)}
 let _occL=null;
 
+/* the thing being looked at never blocks its own view */
+let _clrId=null;
 function viewClearOf(P,r,skipCut){const cam=camera;const v=P.clone().project(cam);const [tx,ty]=voTarget();const ox=(camera.view&&camera.view.enabled?-camera.view.offsetX:0),oy=(camera.view&&camera.view.enabled?-camera.view.offsetY:0);
  const nx=v.x+2*(tx-ox)/innerWidth,ny=v.y-2*(ty-oy)/innerHeight;if(!(v.z<1&&Math.abs(nx)<.85&&Math.abs(ny)<.85))return 0;
  {const pane=cap.classList.contains('on')?cap:null;if(pane){const R=pane.getBoundingClientRect(),fx=(nx*.5+.5)*innerWidth,fy=(-ny*.5+.5)*innerHeight;if(fx>R.left-20&&fx<R.right+20&&fy>R.top-20&&fy<R.bottom+20)return 0}}
  const dist=cam.position.distanceTo(P);const dir=P.clone().sub(cam.position).normalize();_crc.set(cam.position,dir);_crc.far=Math.max(1,dist-Math.max(r*2.5,10));_crc.camera=cam;_crc.params.Points.threshold=0;_crc.params.Line.threshold=0;
  const hits=occCast(_occL);
- for(const h of hits){const o=h.object;if(!o.isMesh)continue;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)continue;if(!_occL&&!isVis(o))continue;if(skipCut&&dist<700&&cuttable(o,r))continue;return .05+.9*h.distance/dist}
+ for(const h of hits){const o=h.object;if(!o.isMesh)continue;if(_clrId){let v=o,own=false;while(v){if(v.userData&&v.userData.pick===_clrId){own=true;break}v=v.parent}if(own)continue}const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)continue;if(!_occL&&!isVis(o))continue;if(skipCut&&dist<700&&cuttable(o,r))continue;return .05+.9*h.distance/dist}
  return 1}
 function pickClear(to,P,r){if(!P)return to;const save={a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y};let best=null,bs=-1;_occL=occList(P,Math.max(260,r*6));try{
  const heads=[0,.8,-.8,1.6,-1.6,2.6,-2.6],mults=CUR.type==='tube'?[1,.7,1.4,1.9]:[1,1.5,2.2,3,4.5,6.5];
@@ -131,7 +133,7 @@ function pickClear(to,P,r){if(!P)return to;const save={a:rig.a,b:rig.b,alt:rig.a
  }finally{_occL=null}
  Object.assign(rig,save);rigPose();return best||to}
 function focusOf(id){const w=W[id];const p=selP&&selP.w.id===id?selP:null;const P=p?proxCenter(p):posOf(w);const r=p?p.r:Math.max(8,sizeOf(w)*.5);return P?{P:P.clone(),r}:null}
-function ensureClear(id,F){if(CUR.camOv)return;if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}F=F||focusOf(id);if(!F)return;dayFor(F.P);CUT.req={P:F.P,r:F.r,id};
+function ensureClear(id,F){if(CUR.camOv)return;if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}F=F||focusOf(id);if(!F)return;_clrId=id;dayFor(F.P);CUT.req={P:F.P,r:F.r,id};
  // small things seen from too far: come closer so they fill a fair part of the view
  const near=o=>{if(CUR.type==='planet'&&F.r<90){const want=clamp(F.r*9,70,900);if(o.alt>want*1.3){const ll=llDir(F.P);o.a=ll[0]-want/260;o.b=ll[1];o.alt=want}}return o};
  if(tw){const fin=tw.to;const to=pickClear(near({a:fin.a,b:fin.b,alt:fin.alt,head:fin.head,y:fin.y}),F.P,F.r);Object.assign(tw.to,to);
@@ -266,9 +268,13 @@ function zoomAt(f,cx,cy){if(busy)return;tw=null;const mx=altMax(),mn=altMin();
  rigPose();const h1=surfHit(cx,cy);if(h1){const k=CUR.type==='planet'&&rig.alt>2400?.4:1;const da=(h0.a-h1.a)*k,db=(CUR.type==='planet'||CUR.type==='tube'?wrap180(h0.b-h1.b):h0.b-h1.b)*k;
   if(CUR.type==='planet'){rig.a=clamp(rig.a+da,-86,86);rig.b+=db}else if(CUR.type==='tube'){rig.a=clamp(rig.a+da,CUR.zr[0],CUR.zr[1]);rig.b+=db}else{const L=CUR.bound||7000;rig.a=clamp(rig.a+da,-L,L);rig.b=clamp(rig.b+db,-L,L)}}
  checkEnter(f,cx,cy)}
-function checkEnter(f,cx,cy){if(CUR.id!=='void'||f>=1)return;surf(CUR,rig.a,rig.b);const t=S_;for(const P of CUR.portals){const d=Math.hypot(P.pos.x-t.x,P.pos.z-t.z);if(d<P.r*2.6&&rig.alt<P.r*4.2){enterPortal(P.w);return}}
+/* zooming into the void enters a world only when you dive at the world itself, not anywhere in the wide box round it:
+   a long pipe (米德加尔特) counts from its axis and its own girth, so the things floating round it can still be looked at closely */
+function portalCore(P){const w=P.w,kp=w.kp||{};if(w.k==='tube'){const L=(kp.len||600)/2,r=(kp.r||40)*1.4;return{L,r}}return{L:0,r:P.r}}
+function checkEnter(f,cx,cy){if(CUR.id!=='void'||f>=1)return;surf(CUR,rig.a,rig.b);const t=S_;for(const P of CUR.portals){const c=P.core||(P.core=portalCore(P));const dx=Math.max(0,Math.abs(P.pos.x-t.x)-c.L),d=Math.hypot(dx,P.pos.z-t.z);
+  if(d<c.r*(c.L?1.3:2.6)&&rig.alt<c.r*(c.L?2.6:4.2)){if(c.L&&cx!==undefined){const hit=pickProx(cx,cy,true);if(!hit||hit.w!==P.w)continue}enterPortal(P.w);return}}
  // leaning in toward a portal under the cursor pulls the view to it
- const p=pickProx(cx,cy,true);if(p&&rig.alt<p.r*14){const c=proxCenter(p);rig.a=lerp(rig.a,-c.z,.18);rig.b=lerp(rig.b,c.x,.18);rig.y=lerp(rig.y,c.y,.18)}}
+ const p=pickProx(cx,cy,true);const pc=p&&CUR.portals.find(P=>P.w===p.w);const pr=pc?(pc.core||(pc.core=portalCore(pc))).r:p&&p.r;if(p&&rig.alt<pr*(pc&&pc.core.L?5:14)){const c=proxCenter(p);rig.a=lerp(rig.a,-c.z,.18);rig.b=lerp(rig.b,c.x,.18);rig.y=lerp(rig.y,c.y,.18)}}
 /* a touch or a click */
 let tapTO=0;
 function tap(cx,cy,ptype){pickProx.mesh=1;pickProx.touch=ptype==='touch'||ptype==='pen';const p=pickProx(cx,cy);pickProx.mesh=0;pickProx.touch=false;if(p){choose(p);return}
