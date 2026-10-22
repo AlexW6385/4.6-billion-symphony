@@ -2823,8 +2823,9 @@ function spaceLin(sp){const P=LIN_AT[sp.id];if(!P||sp._lin)return;sp._lin=1;cons
  const big=sp.type==='tube'?1:2.2;s.material.fog=s2.material.fog=false;s2.scale.setScalar(8*big);
  anim(sp,null,t=>{const p=at[ERA];g.visible=!!p;if(!p)return;g.position.copy(p);const k=.75+.25*Math.sin(t*1.6);s.material.opacity=.6*k;const dk=Math.max(1,camera.position.distanceTo(p)*(sp.type==='tube'?.08:.2)/(26*big));s.scale.setScalar((26+5*Math.sin(t*1.6))*big*dk);s2.scale.setScalar(8*big*Math.sqrt(dk))});
  prox(sp,'lin',place,sp.type==='tube'?24:40,{maxD:3800,e:Object.keys(at).map(Number),hide:()=>!at[ERA]})}
-/* the little scroll that marks a side story in the world */
-function placeSides(sp){if(sp._sides)return;sp._sides=[];spaceLin(sp);const tex=glowTex;const rollG=new THREE.CylinderGeometry(1.1,1.1,5,12),capG=new THREE.CylinderGeometry(1.4,1.4,.5,12),rollM=new THREE.MeshStandardMaterial({color:'#f4e6c0',emissive:'#ffcf70',emissiveIntensity:.5,roughness:.6}),capM=new THREE.MeshStandardMaterial({color:'#8a5a2a',roughness:.5});const farD=sp.type==='planet'?650:1600;
+/* the little scroll that marked a side story in the world. the stories are now only links (on the entry card they belong to,
+   and in the library), so nothing is hung in the scenes unless placeSides.scrolls is set */
+function placeSides(sp){if(sp._sides)return;sp._sides=[];spaceLin(sp);if(!placeSides.scrolls)return;const tex=glowTex;const rollG=new THREE.CylinderGeometry(1.1,1.1,5,12),capG=new THREE.CylinderGeometry(1.4,1.4,.5,12),rollM=new THREE.MeshStandardMaterial({color:'#f4e6c0',emissive:'#ffcf70',emissiveIntensity:.5,roughness:.6}),capM=new THREE.MeshStandardMaterial({color:'#8a5a2a',roughness:.5});const farD=sp.type==='planet'?650:1600;
  for(const s of SIDES){const w=W[s.at];if(!w||mapOf(w)!==sp.id)continue;const p=sidePos(s,sp);if(!p)continue;const g=new THREE.Group();g.position.copy(p);g.userData.side=s;
   const roll=new THREE.Mesh(rollG,rollM);roll.rotation.z=Math.PI/2;g.add(roll);
   for(const x of[-2.7,2.7]){const c=new THREE.Mesh(capG,capM);c.rotation.z=Math.PI/2;c.position.x=x;g.add(c)}
@@ -2840,28 +2841,19 @@ function openSide(id){const s=SB[id];if(!s)return;const w=W[s.at];const n=!sideF
   <div class="cnav"><button data-sn="-1" aria-label="上一个">‹</button><span>番外　${i+1} / ${SIDES.length}</span><button data-sn="1" aria-label="下一个">›</button></div>`;
  cap.classList.add('on');cap.dataset.side=id}
 /* on an entry's card: a quiet line about the story hanging nearby — its title once read, only a hint before */
-function sideHintHTML(id){const L=SIDES.filter(s=>s.at===id);if(!L.length)return'';const f=L.filter(s=>sideFound.has(s.id));
- const a=f.map(s=>`<a data-sidehint="${s.id}">番外《${esc(s.t)}》</a>`).join('');const u=L.find(s=>!sideFound.has(s.id));
- return`<div class="rel sidehint">${a}${u?`<a data-sidehint="${u.id}">这附近还藏着一个番外卷轴 ✦</a>`:''}</div>`}
-function goSide(id){if(id==='__rand'){const L=SIDES.filter(x=>!sideFound.has(x.id));if(!L.length)hint('番外都读过一遍了，再翻一篇旧的',2600);const P=L.length?L:SIDES;id=P[(Math.random()*P.length)|0].id}const s=SB[id];if(!s)return;const w=W[s.at];const m=mapOf(w);const e=s.e.includes(ERA)?ERA:s.e[0];
+function sideHintHTML(id){const L=SIDES.filter(s=>s.at===id);if(!L.length)return'';
+ return`<div class="rel sidehint">${L.map(s=>`<a data-sidehint="${s.id}">番外《${esc(s.t)}》</a>`).join('')}</div>`}
+function goSide(id){if(id==='__rand'){const L=SIDES.filter(x=>!sideFound.has(x.id));const P=L.length?L:SIDES;id=P[(Math.random()*P.length)|0].id}const s=SB[id];if(!s)return;const w=W[s.at];const m=mapOf(w);const e=s.e.includes(ERA)?ERA:s.e[0];
  const clr=()=>{const P=sidePos(s,CUR);if(P)ensureClear(null,{P,r:10})};
  const after=()=>{if(CUR.type==='planet'&&ERA!==e)setEra(e);flyEntry(w);clr();setTimeout(()=>openSide(id),300)};
  if(m!==CUR.id){enterSpace(m,{era:e,rig:entryRig(w,SP[m]),after:()=>{openSide(id);clr()}});return}after()}
 cap.addEventListener('click',e=>{const b=e.target.closest('[data-sn]');if(!b||!cap.dataset.side)return;e.stopPropagation();const i=SIDES.findIndex(s=>s.id===cap.dataset.side);const s=SIDES[(i+ +b.dataset.sn+SIDES.length)%SIDES.length];goSide(s.id)},true);
 const sideOpen=new Set();
-function sideLibHTML(q){const found=SIDES.filter(s=>sideFound.has(s.id)),left=SIDES.filter(s=>!sideFound.has(s.id));
- if(q){const hit=s=>(s.t+s.d.join('')+(W[s.at]?W[s.at].n:'')).includes(q);const F=found.filter(hit),L=left.filter(hit);
-  const rowq=s=>{const w=W[s.at];return`<button class="arc side f" data-side="${s.id}"><b>${esc(s.t)}<small>${esc(shortN(w.n))} · ${ERAN[s.e[0]]}</small></b><span>${esc(s.d[0].slice(0,48))}…</span></button>`};
-  // ones not yet found keep their secret: only the place is told, so you can go and look
-  const at=[...new Set(L.map(s=>s.at))];
-  return`<div class="count">${F.length+L.length} 篇</div>`+F.map(rowq).join('')+(at.length?`<div class="sub" style="padding-top:12px">还没发现的，藏在这些地方</div>`+at.map(id=>itemHTML(W[id],ERAN[W[id].e[0]])).join(''):'')+(F.length+L.length?'':'<p class="lead">没有找到。</p>')}
- const row=s=>{const w=W[s.at];return`<button class="arc side f" data-side="${s.id}"><b>${esc(s.t)}<small>${esc(shortN(w.n))} · ${ERAN[s.e[0]]}</small></b><span>${esc(s.d[0].slice(0,48))}…</span></button>`};
- // what is still out there, counted by world and told as a hint rather than a list
- const by={};left.forEach(s=>{const m=mapOf(W[s.at]);by[m]=(by[m]||0)+1});
- const hint=Object.keys(by).sort((x,y)=>by[y]-by[x]).map(m=>`<span style="white-space:nowrap;margin-right:12px">${MB[m]?MB[m].n:m} <i style="font-style:normal;color:var(--gold)">${by[m]}</i></span>`).join('');
- return`<p class="lead">为这座展览馆写的番外小故事，挂在世界里对应的地方和时代，是一个个发着光的小卷轴。靠近一个地方、点一下它，就能读。<a data-side="__rand" style="margin-left:.5em;color:var(--gold);cursor:pointer;white-space:nowrap">随手翻一篇 →</a></p>`+
-  `<div class="count">已发现 ${found.length} / ${SIDES.length}</div>`+
-  (found.length<=24?found.map(row).join(''):(()=>{const g={};found.forEach(x=>{const m=mapOf(W[x.at]);(g[m]=g[m]||[]).push(x)});
-    return MAPS.filter(m=>g[m.id]).map(m=>{const o=sideOpen.has(m.id);return`<button class="grp${o?' open':''}" data-sg="${m.id}">${m.n}<small>${g[m.id].length}</small></button>`+(o?g[m.id].map(row).join(''):'')}).join('')})())+
-  (left.length?`<div class="sub" style="padding-top:14px">还藏在各处</div><p class="lead" style="margin-top:4px">${hint}</p>`:'')}
+function sideLibHTML(q){const read=s=>sideFound.has(s.id);
+ const row=s=>{const w=W[s.at];return`<button class="arc side f${read(s)?' read':''}" data-side="${s.id}"><b>${esc(s.t)}<small>${esc(shortN(w.n))} · ${ERAN[s.e[0]]}</small></b><span>${esc(s.d[0].slice(0,48))}…</span></button>`};
+ if(q){const F=SIDES.filter(s=>(s.t+s.d.join('')+(W[s.at]?W[s.at].n:'')).includes(q));return`<div class="count">${F.length} 篇</div>`+F.map(row).join('')+(F.length?'':'<p class="lead">没有找到。</p>')}
+ const g={};SIDES.forEach(x=>{const m=mapOf(W[x.at]);(g[m]=g[m]||[]).push(x)});
+ return`<p class="lead">为这座展览馆写的番外小故事，每一篇都连在它所属的词条上，在词条卡片里也能点开。<a data-side="__rand" style="margin-left:.5em;color:var(--gold);cursor:pointer;white-space:nowrap">随手翻一篇 →</a></p>`+
+  `<div class="count">${SIDES.length} 篇</div>`+
+  MAPS.filter(m=>g[m.id]).map(m=>{const o=sideOpen.has(m.id);return`<button class="grp${o?' open':''}" data-sg="${m.id}">${m.n}<small>${g[m.id].length}</small></button>`+(o?g[m.id].map(row).join(''):'')}).join('')}
 Object.assign(window.__rq,{goSide,openSide,SIDES});

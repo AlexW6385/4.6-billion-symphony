@@ -245,7 +245,11 @@ const LPOOL_K=2,_lw=V3();
 function shadowScan(sp){if(sp.type!=='planet'||!sp.sunL)return;sp.scene.traverse(o=>{if(!o.isMesh||o.userData.shd)return;o.userData.shd=1;const m=Array.isArray(o.material)?o.material[0]:o.material;
  if(!m||m.isShaderMaterial||m.transparent||m.alphaTest>0||!m.depthWrite||!(m.isMeshStandardMaterial||m.isMeshPhongMaterial||m.isMeshLambertMaterial))return;o.receiveShadow=true;if(o===sp.terr||o.userData.noShadow)return;
  const g=o.geometry;if(!g)return;if(!g.boundingSphere)g.computeBoundingSphere();const sc=o.scale?Math.max(o.scale.x,o.scale.y,o.scale.z):1;if(g.boundingSphere.radius*sc<70)o.castShadow=true})}
-function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;shadowScan(sp);
+/* instanced sets and point clouds: three.js tests them against the frustum with the bounds of ONE instance at the
+   set's own origin (or the points as first laid out), so from close up, looking past that origin, a whole set
+   vanished. they are drawn whenever they are visible instead */
+function noStaleCull(sp){sp.scene.traverse(o=>{if((o.isInstancedMesh||o.isPoints)&&o.frustumCulled)o.frustumCulled=false})}
+function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;shadowScan(sp);noStaleCull(sp);
  sp.scene.traverse(o=>{if(!o.isPointLight||o.userData.pool||o.userData.pooled||o.parent===sp.scene)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o)});
  if(lp.L.length&&!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}}
 function poolStep(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==SG_ADDS&&now-lp.t>1500){lp.t=now;poolScan(sp)}if(!lp.P.length)return;

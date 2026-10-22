@@ -89,7 +89,7 @@ function open(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;mark
  if((id==='longqimu'||id==='rqzj')&&CUR.id==='rongqiu'&&dirLL(-4,-86).dot(CUR.sunDir)<-.05)egg('soul');
  selP=CUR.prox.find(p=>p.w.id===id&&!p.side&&(!p.hide||!p.hide()))||CUR.prox.find(p=>p.w.id===id&&!p.side&&eraOk(p.e))||null}
 function closeCap(quiet){cap.classList.remove('on');sel=null;selP=null}
-cap.addEventListener('click',e=>{if(e.target.closest('.x'))return closeCap();const sdh=e.target.closest('[data-sidehint]');if(sdh)return goSide(sdh.dataset.sidehint);const ch=e.target.closest('[data-ch]');if(ch)return openRd(+ch.dataset.ch,sel);const nv=e.target.closest('[data-nav]');if(nv)return cardStep(+nv.dataset.nav);const gt=e.target.closest('[data-goto]');if(gt)return go(gt.dataset.goto);const r=e.target.closest('[data-rel]');if(r)return go(r.dataset.rel);const g=e.target.closest('[data-go]');if(g){const w=W[sel];enterPortal(w)}});
+cap.addEventListener('click',e=>{if(e.target.closest('.x'))return closeCap();const sdh=e.target.closest('[data-sidehint]');if(sdh)return openSide(sdh.dataset.sidehint);const ch=e.target.closest('[data-ch]');if(ch)return openRd(+ch.dataset.ch,sel);const nv=e.target.closest('[data-nav]');if(nv)return cardStep(+nv.dataset.nav);const gt=e.target.closest('[data-goto]');if(gt)return go(gt.dataset.goto);const r=e.target.closest('[data-rel]');if(r)return go(r.dataset.rel);const g=e.target.closest('[data-go]');if(g){const w=W[sel];enterPortal(w)}});
 /* after a jump, make sure the thing is actually in sight: if a wall, a tower or a trunk is in the way,
    or the camera would sit inside something, try going round it or a little higher */
 const _crc=new THREE.Raycaster();
@@ -171,6 +171,7 @@ function stopFollow(){if(CUR)CUR.follow=null}
 ['pointerdown','wheel','keydown'].forEach(t=>addEventListener(t,e=>{if(e.target&&e.target.closest&&e.target.closest('#cap,#lib,#rd,#book,#time,#snd'))return;stopFollow()},{passive:true,capture:true}));
 /* following something that moves: the view keeps pace with it (its speed is measured and fed forward, so a fast flier
    does not trail off the edge), pulls back a little for fast or high-flying things, and rises when something blocks it */
+const _fq=V3(),_fr=V3();
 function followStep(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!==F.id||(F.p.hide&&F.p.hide())){CUR.follow=null;return}const c=proxCenter(F.p);if(!c||!(dt>0))return;
  const ty_=CUR.type,pl=ty_==='planet',flat=!pl&&ty_!=='tube';let ta,tb,ty=0;if(pl){const ll=llDir(c);ta=ll[0];tb=ll[1]}else if(ty_==='tube'){ta=c.z;tb=Math.atan2(-c.x,-c.y)/D2R}else{ta=-c.z;tb=c.x;ty=c.y}
  const dB=x=>flat?x:wrap180(x);
@@ -185,7 +186,10 @@ function followStep(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!
  if(pl){const ll=llDir(c);const h=c.length()-R-Math.max(0,CUR.gh(ll[0],ll[1]));if(h>4)want=Math.max(want,h*2.6)}else if(ty_==='tube'){}
  const cap=Math.min(altMax(),F.alt0*4);if(want>rig.alt&&rig.alt<cap)rig.alt=Math.min(cap,rig.alt*(1+dt*1.1),want);
  // what was set beside it at the start drifts back to the middle, so a mover ends up centred in the free part of the view
- {const dk=Math.exp(-dt*.35);F.off.a*=dk;F.off.b*=dk}
+ // on a planet the view looks at the ground, so a flier would sit above the middle: steer by where it shows on screen instead
+ if(pl){_fq.copy(c).project(camera);_fr.copy(S_).project(camera);const ex=(_fq.x-_fr.x),ey=(_fq.y-_fr.y);if(Math.abs(ex)<3&&Math.abs(ey)<3){const span=rig.alt*.42/(R*D2R),g=Math.min(1,dt*1.6)*span,h=rig.head;
+  F.off.a+=(ey*Math.cos(h)+ex*Math.sin(h))*g;F.off.b+=(-ey*Math.sin(h)+ex*Math.cos(h))*g/cs}}
+ else{const dk=Math.exp(-dt*.35);F.off.a*=dk;F.off.b*=dk}
  const k=1-Math.exp(-dt*3);rig.a+=F.va*dt+(ta+F.off.a-rig.a)*k;rig.b+=F.vb*dt+dB(tb+F.off.b-rig.b)*k;if(flat)rig.y+=F.vy*dt+(ty+F.off.y-rig.y)*k;
  if(pl)rig.a=clamp(rig.a,-86,86);else if(ty_==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1])}
 /* go to an entry wherever it is */
@@ -298,7 +302,9 @@ function choose(p){const w=p.w;if(p.click)p.click();if(p.only)return;if(p.egg)eg
  if(w.id==='naodai'){toast('脑袋虫',BRAIN[brainI++%BRAIN.length]);egg('brain',true)}
  if((w.id==='moon'||w.id==='moon_bus')&&CUR.id==='rongqiu'){CUR.moonT=CUR.moonT?0:1;if(CUR.moonT){egg('moon');toast('星空翻滚者','“月，与鸣石共鸣。鸣石，让一切升腾。”');clearTimeout(moonTO);moonTO=setTimeout(()=>{if(SP.rongqiu)SP.rongqiu.moonT=0},90000)}open(w.id);return}
  if(p.w.go&&CUR.id==='void'){open(w.id);const c=proxCenter(p);flyTo(-c.z,c.x,Math.max(140,p.r*5.5),1.6,clamp(c.y,-400,400));return}
- open(w.id);if(CUR.type==='planet'&&p.herd){return}
+ open(w.id);
+ // a member of a moving herd: fly to the one that was clicked and keep it in the middle of the view
+ if(CUR.type==='planet'&&p.herd){selP=p;const c=proxCenter(p);if(c)flyNear(c,p.r);startFollow(p,w.id);return}
  const c=proxCenter(p);if(!c)return;flyNear(c,p.r);ensureClear(w.id,{P:c.clone(),r:p.r})}
 let moonTO=0;
 function flyNear(c,r,force){const t=CUR.type;if(t==='planet'){const ll=llDir(c);let alt=clamp(r*7,50,900);if(force){const hc=c.length()-R-Math.max(CUR.gh(ll[0],ll[1]),0);if(hc>r)alt=Math.max(alt,hc*1.5+r*3);flyTo(ll[0]-alt/260,ll[1],alt,1.8);return}if(rig.alt<alt*.7&&angDeg(dirLL(rig.a,rig.b),dirLL(ll[0],ll[1]))<1.5)return;flyTo(ll[0]-alt/260,ll[1],Math.min(rig.alt,alt*1.4)>alt?alt:Math.max(alt,Math.min(rig.alt,alt*1.4)),1.6);return}
@@ -341,7 +347,8 @@ const VO={x:0,y:0};
 function voTarget(){let tx=0,ty=0;const W=innerWidth,H=innerHeight;
  const tourP=document.body.classList.contains('touring')&&$('#tour')&&$('#tour').classList.contains('on');
  if(tourP){const r=$('#tour').getBoundingClientRect();return [0,r.top/2-H/2]}
- const pane=cap.classList.contains('on')?cap:($('#rd')&&$('#rd').classList.contains('on')?$('#rd'):null);
+ // an entry card leaves the picture where it is; only the open book makes room
+ const pane=$('#rd')&&$('#rd').classList.contains('on')?$('#rd'):null;
  if(pane){const r=pane.getBoundingClientRect();if(W>760){if(r.left<W*.5)tx=(r.right+W)/2-W/2;else tx=r.left/2-W/2}else{ty=r.top/2-H/2}}return [tx,ty]}
 function updViewOff(dt){const W=innerWidth,H=innerHeight;const [tx,ty]=voTarget();
  const k=1-Math.exp(-dt*5);VO.x+=(tx-VO.x)*k;VO.y+=(ty-VO.y)*k;
@@ -371,7 +378,7 @@ function frameCap(now){const rdOn=$('#rd').classList.contains('on'),libOn=$('#li
 function loop(now){const fc=frameCap(now);
  if(fc===0){last=now;setTimeout(()=>requestAnimationFrame(loop),300);return}
  if(fc<60&&now-last<1000/fc-4){requestAnimationFrame(loop);return}
- const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==SG_ADDS){CUR._sbN=now;try{batchSprites(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=SG_ADDS}
+ const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==SG_ADDS){CUR._sbN=now;try{batchSprites(CUR);noStaleCull(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=SG_ADDS}
  if(tw){tw.t+=dt/tw.dur;const k=Math.min(1,tw.t),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;const hop=Math.pow(Math.sin(k*Math.PI),2)*hopOf()*.8;
   rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1)tw=null}
  else if(!drag&&!pinch){if(Math.abs(vel.a)+Math.abs(vel.b)>1e-5){rig.a+=vel.a*dt*60;rig.b+=vel.b*dt*60;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86);else if(CUR.type==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);else{const L=CUR.bound||7000;rig.a=clamp(rig.a,-L,L);rig.b=clamp(rig.b,-L,L)}const dk=Math.exp(-dt*5.5);vel.a*=dk;vel.b*=dk}}
