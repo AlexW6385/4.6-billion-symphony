@@ -119,7 +119,7 @@ function rqCloud(sp){const Rn=rnd(5353);const L3=148.5;
   const carts=[];for(let i=0;i<6;i++){const c=new THREE.Mesh(new THREE.BoxGeometry(1.4,1,2.2),mt('#c86a4a',{roughness:.5}));c.add(at(glowSprite('#ffe0a0',2,.7),0,.9,0));addE(c,[5]);carts.push({c,u:i/6})}
   const tp=V3(),tq=V3();anim(sp,rl,t=>carts.forEach(k=>{const u=(k.u+t*.01)%1;cv.getPointAt(u,tp);cv.getPointAt((u+.003)%1,tq);k.c.position.copy(tp).addScaledVector(tp.clone().normalize(),.7);k.c.up.copy(tp).normalize();k.c.lookAt(tq.addScaledVector(tq.clone().normalize(),.7))}))}
  // the edge of the dark cloud sea: heavy grey-violet clouds with lightning inside
- {const g=new THREE.Group();const mtl=new THREE.SpriteMaterial({map:smokeTex,color:'#4a4458',transparent:true,opacity:.85,depthWrite:false});
+ {const g=new THREE.Group();const mtl=new THREE.SpriteMaterial({map:smokeTex,color:'#5a5468',transparent:true,opacity:.62,depthWrite:false});
   for(let i=0;i<40;i++){const la=-11+(Rn()-.5)*7,lo=77+(Rn()-.5)*8;const s=new THREE.Sprite(mtl);const sz=40+Rn()*50;s.scale.set(sz,sz*.45,1);s.position.copy(dirLL(la,lo).multiplyScalar(R+128+Rn()*10));g.add(s)}
   const fl=glowSprite('#c8d0ff',90,0);fl.position.copy(dirLL(-11,77).multiplyScalar(R+132));g.add(fl);addE(g,[5]);cull(g,dirLL(-11,77).multiplyScalar(R+130),240,3200);
   let fv=0,nx=4,f2=-1;anim(sp,g,(t,dt)=>{dt=dt||.016;nx-=dt;if(nx<=0){nx=6+Math.random()*10;fv=1;f2=Math.random()<.4?.16:-1}if(f2>0){f2-=dt;if(f2<=0){fv=Math.max(fv,.6);f2=-1}}fv=Math.max(0,fv-dt*3);fl.material.opacity=fv*fv*.5})}

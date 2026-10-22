@@ -111,11 +111,16 @@ float fb3(vec3 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn3(p);p=p*2.03+vec3
 /* ---- shared uniforms / textures ---- */
 const GT={value:0};                       // global time for shaders
 const PSCALE={value:300};                 // point-size scale (viewport height)
-function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);return t}
+/* white (or black) masks drawn with canvas gradients: some browsers dither the colour channels of faint pixels,
+   which shows up as rainbow speckle once many soft sprites stack. Pin the colour to pure white/black and keep only the alpha. */
+function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');draw(x,w,h);
+ try{const im=x.getImageData(0,0,w,h),d=im.data;let wh=true,bk=true,any=false;for(let i=0;i<d.length;i+=4){if(d[i+3]<48)continue;any=true;if(d[i]<235||d[i+1]<235||d[i+2]<235)wh=false;if(d[i]>20||d[i+1]>20||d[i+2]>20)bk=false;if(!wh&&!bk)break}
+  if(any&&(wh||bk)){const v=wh?255:0;for(let i=0;i<d.length;i+=4){d[i]=d[i+1]=d[i+2]=v}x.putImageData(im,0,0)}}catch(e){}
+ const t=new THREE.CanvasTexture(c);return t}
 const dotTex=canvasTex(64,64,(x)=>{const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.35,'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64)});
 const glowTex=canvasTex(128,128,(x)=>{const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(.18,'rgba(255,255,255,.45)');g.addColorStop(.5,'rgba(255,255,255,.12)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128)});
 const ringTex=canvasTex(128,128,(x)=>{x.strokeStyle='rgba(255,255,255,.95)';x.lineWidth=3;x.beginPath();x.arc(64,64,52,0,6.283);x.stroke();x.globalAlpha=.35;x.lineWidth=10;x.beginPath();x.arc(64,64,52,0,6.283);x.stroke()});
-const smokeTex=canvasTex(64,64,(x)=>{for(let i=0;i<14;i++){const px=20+Math.random()*24,py=20+Math.random()*24,r=10+Math.random()*14;const g=x.createRadialGradient(px,py,0,px,py,r);g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64)}});
+const smokeTex=canvasTex(128,128,(x)=>{x.scale(2,2);for(let i=0;i<22;i++){const px=20+Math.random()*24,py=20+Math.random()*24,r=9+Math.random()*13;const g=x.createRadialGradient(px,py,0,px,py,r);g.addColorStop(0,'rgba(255,255,255,.16)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64)}});
 const bumpDummy=new THREE.DataTexture(new Uint8Array([128,128,128,255]),1,1);bumpDummy.needsUpdate=true;
 
 /* ---- renderer & post ---- */
@@ -205,14 +210,18 @@ function surfHit(cx,cy){setRay(cx,cy);const t=CUR.type,o=ray.ray.origin,d=ray.ra
  if(t==='tube'){const A=d.x*d.x+d.y*d.y;if(A<1e-6)return null;const B=2*(o.x*d.x+o.y*d.y),Cq=o.x*o.x+o.y*o.y-CUR.Rt*CUR.Rt;const s=(-B+Math.sqrt(Math.max(0,B*B-4*A*Cq)))/(2*A);_p.copy(o).addScaledVector(d,s);return{a:_p.z,b:Math.atan2(-_p.x,-_p.y)/D2R,p:_p.clone()}}
  if(!ray.ray.intersectPlane(new THREE.Plane(V3(0,1,0),-rig.y),_p))return null;return{a:-_p.z,b:_p.x,p:_p.clone()}}
 function proxCenter(p){return p.c?p.c():p.pos}
-function pickProx(cx,cy,onlyPortals){setRay(cx,cy);const o=ray.ray.origin,d=ray.ray.direction;let best=null,bs=1e18;
+/* every marker can be hit at least this many screen pixels from its centre (more for a finger), whatever the screen size */
+function pickProx(cx,cy,onlyPortals){setRay(cx,cy);const o=ray.ray.origin,d=ray.ray.direction;let best=null,bs=1e18;const pxA=(pickProx.touch?30:18)*camera.fov*D2R/innerHeight,H=[];let bt=0;
  let tPl=Infinity;if(CUR.type==='planet'){if(ray.ray.intersectSphere(new THREE.Sphere(V3(0,0,0),R-2),_p))tPl=_p.distanceTo(o)}
  for(const p of CUR.prox){if(onlyPortals&&!p.w.go)continue;if(p.hide&&p.hide())continue;if(!eraOk(p.e))continue;const c=proxCenter(p);if(!c)continue;
   const ox=c.x-o.x,oy=c.y-o.y,oz=c.z-o.z;const t=ox*d.x+oy*d.y+oz*d.z;if(t<=0)continue;const d2=Math.max(0,ox*ox+oy*oy+oz*oz-t*t);
-  if(p.maxD&&t>p.maxD)continue;const rr=Math.max(p.r,t*.017);if(d2>rr*rr)continue;if(t-p.r>tPl)continue;
+  if(p.maxD&&t>p.maxD)continue;const rr=Math.max(p.r,t*pxA);if(d2>rr*rr)continue;if(t-p.r>tPl)continue;
   // how centrally the ray hits this one, relative to its own size; a story scroll gives way to the entry it hangs beside
-  const sc=Math.sqrt(d2)/rr+t*.00002+(p.side?.25:0);if(sc<bs){bs=sc;best=p}}
- if(!best&&!onlyPortals&&pickProx.mesh)best=meshPick();
+  const sc=Math.sqrt(d2)/rr+t*.00002+(p.side?.25:0);H.push(p,sc,t);if(sc<bs){bs=sc;best=p;bt=t}}
+ // something small hit squarely in front beats a big far thing (the moon behind a creature, a region behind a house)
+ for(let i=0;i<H.length;i+=3)if(H[i]!==best&&H[i+1]<.7&&H[i+2]<bt*.6&&!H[i].side){bt=H[i+2];best=H[i];bs=H[i+1]}
+ // on a tap, the model actually under the pointer wins over a marker that was only grazed
+ if(!onlyPortals&&pickProx.mesh&&(!best||bs>.45)){const m=meshPick();if(m)best=m}
  return best}
 /* a tap that misses every marker: whatever solid thing is under the finger, if it belongs to an entry, that entry is chosen */
 const _mp=new THREE.Raycaster();

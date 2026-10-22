@@ -31,7 +31,12 @@ const VW=+(process.env.VW||1100),VH=+(process.env.VH||700),MOB=!!process.env.TOU
  for(let i=FROM;i<Math.min(ids.length,TO);i++){const id=ids[i];
   const tq=Date.now();try{await p.evaluate(id=>{window.__rq.go(id)},id);
    for(let k=0;k<80;k++){await step(5);const st=await p.evaluate(()=>{const q=window.__rq;return !!q.tw||q.dbg.busy()||!!document.querySelector('#load:not(.done)')});if(!st&&k>3)break}
-   await step(6);if(await p.evaluate(()=>!!window.__rq.CUR.camOv))await step(70);if(process.env.EXTRA)await step(+process.env.EXTRA);const m=await p.evaluate(id=>window.__measure(id),id);m.ms=Date.now()-tq;res.push(m);
+   await step(6);if(await p.evaluate(()=>!!window.__rq.CUR.camOv))await step(70);if(process.env.EXTRA)await step(+process.env.EXTRA);const m=await p.evaluate(id=>window.__measure(id),id);
+   // PICK=1: would a click land on it? try the model's on-screen centre and the marker centre
+   if(process.env.PICK)Object.assign(m,await p.evaluate(id=>{const q=window.__rq,sp=q.CUR,cam=q.cam;const o={};const E=sp.ents&&sp.ents[id];const pk=(x,y)=>{q.pickProx.mesh=1;const r=q.pickProx(x,y);q.pickProx.mesh=0;return r?r.w.id:null};
+    if(E){const bx=new THREE.Box3().setFromObject(E);if(!bx.isEmpty()){const c=bx.getCenter(new THREE.Vector3()).project(cam);if(c.z<1){const X=(c.x*.5+.5)*innerWidth,Y=(-c.y*.5+.5)*innerHeight;o.pkM=pk(X,Y);o.mx=X|0;o.my=Y|0}}}
+    const m=window.__measure(id);if(m.on){o.pkC=pk(m.sx,m.sy);for(const [dx,dy] of [[14,0],[-14,0],[0,14],[0,-14]]){const r=pk(m.sx+dx,m.sy+dy);if(r!==id){o.pkRing=(o.pkRing||0)+1}}}
+    return o},id));m.ms=Date.now()-tq;res.push(m);
    if(process.env.SHOT&&(process.env.SHOTALL||m.occ||!m.on||m.covered||m.px<8||m.sp!==m.want)){await p.evaluate(()=>{window.__noRender=false;window.__step(50);window.__step(50)});fs.mkdirSync(process.env.SHOT,{recursive:true});await p.screenshot({path:process.env.SHOT+'/'+id+'.jpg',type:'jpeg',quality:70});await p.evaluate(()=>{window.__noRender=true})}}catch(e){res.push({id,err:String(e).slice(0,120)})}
   if(i%25===0){fs.writeFileSync(OUT,JSON.stringify(res));console.log(i,ids.length,((Date.now()-t0)/1000|0)+'s')}}
  fs.writeFileSync(OUT,JSON.stringify(res));console.log('done',res.length,errs.slice(0,5).join('|'));await b.close()})();

@@ -230,7 +230,7 @@ canvas.addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;mo
  const k=dragK(),ch=Math.cos(rig.head),sh=Math.sin(rig.head);const dN=(dy*ch-dx*sh)*k,dE=(-dx*ch-dy*sh)*k;const a0=rig.a,b0=rig.b;moveBy(dN,dE);const nw=performance.now(),fr=clamp((nw-(drag.lt||nw-16))/16.7,.5,4);drag.lt=nw;vel.a=lerp(vel.a,(rig.a-a0)/fr,.55);vel.b=lerp(vel.b,(CUR.type==='planet'?wrap180(rig.b-b0):rig.b-b0)/fr,.55)});
 canvas.addEventListener('pointerleave',()=>{mouse.in=false});
 function endPtr(e,cancel){ptrs.delete(e.pointerId);if(ptrs.size===1&&pinch){const r=[...ptrs.values()][0];pinch=null;drag={x:r.x,y:r.y,sx:-999,sy:-999,btn:0,t:0,moved:99,nf:1};vel.a=vel.b=0;return}if(ptrs.size<2)pinch=null;canvas.classList.remove('drag');if(drag&&(drag.nf||drag.lt&&performance.now()-drag.lt>90)){vel.a=vel.b=0}
- if(!cancel&&drag&&drag.moved<6&&performance.now()-drag.t<600)tap(e.clientX,e.clientY,e.pointerType);
+ if(!cancel&&drag&&drag.moved<(e.pointerType==='mouse'?6:14)&&performance.now()-drag.t<600)tap(e.clientX,e.clientY,e.pointerType);
  if(drag&&CUR.type==='planet'&&Math.abs(vel.b)>3.5&&rig.alt>1500){spins++;if(spins>=3)egg('spin')}drag=null}
 canvas.addEventListener('pointerup',e=>endPtr(e));canvas.addEventListener('pointercancel',e=>endPtr(e,true));
 function dragK(){const t=CUR.type;return rig.alt*(t==='planet'?.957:t==='tube'?1.05:1.1)/innerHeight}
@@ -271,7 +271,7 @@ function checkEnter(f,cx,cy){if(CUR.id!=='void'||f>=1)return;surf(CUR,rig.a,rig.
  const p=pickProx(cx,cy,true);if(p&&rig.alt<p.r*14){const c=proxCenter(p);rig.a=lerp(rig.a,-c.z,.18);rig.b=lerp(rig.b,c.x,.18);rig.y=lerp(rig.y,c.y,.18)}}
 /* a touch or a click */
 let tapTO=0;
-function tap(cx,cy,ptype){pickProx.mesh=1;const p=pickProx(cx,cy);pickProx.mesh=0;if(p){choose(p);return}
+function tap(cx,cy,ptype){pickProx.mesh=1;pickProx.touch=ptype==='touch'||ptype==='pen';const p=pickProx(cx,cy);pickProx.mesh=0;pickProx.touch=false;if(p){choose(p);return}
  // empty ground: wait a moment, so a double-click (fly in) doesn't also open the region under it
  clearTimeout(tapTO);tapTO=setTimeout(()=>{if(CUR.type==='planet'){const pl=placeAt(cx,cy);if(pl){go(pl.id);return}}closeCap()},ptype==='mouse'?260:0)}
 function choose(p){const w=p.w;if(p.click)p.click();if(p.only)return;if(p.egg)egg(p.egg);

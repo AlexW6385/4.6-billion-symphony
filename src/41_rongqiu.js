@@ -226,7 +226,7 @@ function rqCumulus(sp){const Rn=rnd(5150);const pos=[],sz=[],yy=[],d=V3(),up=V3(
    gl_PointSize=clamp(aS*uScale/max(d,1.),1.,1100.);gl_Position=projectionMatrix*mv;vec3 n=normalize(w.xyz);float sl=dot(n,uSun);vS=sl;vL=smoothstep(-.28,.4,sl);vY=aY;
    vA=smoothstep(30.,140.,d)*(1.-smoothstep(1500.,2300.,d))*(1.-smoothstep(650.,1150.,uAlt));}`,
   fragmentShader:`uniform sampler2D uTex;varying float vL,vY,vA,vS;void main(){vec4 t=texture2D(uTex,gl_PointCoord);if(t.a<.01)discard;
-   vec3 lit=vec3(1.,.99,.96)*(.38+.62*vL);vec3 sh=vec3(.5,.56,.68)*(.25+.6*vL);vec3 c=mix(sh,lit,.45+.55*vY);c=mix(c,vec3(1.,.64,.4)*(.5+.5*vL),(1.-smoothstep(0.,.32,abs(vS-.05)))*.55);
+   vec3 lit=vec3(1.,.99,.96)*(.38+.62*vL);vec3 sh=vec3(.5,.56,.68)*(.25+.6*vL);vec3 c=mix(sh,lit,.45+.55*vY);c=mix(c,vec3(1.,.72,.52)*(.6+.4*vL),(1.-smoothstep(0.,.3,abs(vS-.05)))*.32);
    gl_FragColor=vec4(c,min(1.,t.a*1.05)*vA*.85);}`});
  const pts=new THREE.Points(g,m);pts.renderOrder=5;pts.frustumCulled=false;sp.scene.add(pts);sp.cumulus=pts;anim(sp,null,()=>{m.uniforms.uAlt.value=rig.alt;pts.visible=rig.alt<1200})}
 
@@ -574,8 +574,8 @@ function buildRongqiu(){
   const nl=nightPoints(pts.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+4)),'#ffe0b0',2,1);addE(nl,[5,6,7,8,9,10,11,12]);sp.nightMats.push(nl.userData.night);px('capital',dirLL(-14,63).multiplyScalar(R+gh(-14,63)+8),20)}
  // the three-layered sea of clouds, sealed water and light-gas you can run across
  {const layers=[110,128,146];layers.forEach((alt,k)=>{const g=new THREE.Group();const mtl=new THREE.SpriteMaterial({map:smokeTex,color:k===2?'#fffaf0':k===1?'#fff0f8':'#ffffff',transparent:true,opacity:.95,depthWrite:false});const mt2=new THREE.SpriteMaterial({map:glowTex,color:k===1?'#ffd8f0':'#fff4e0',transparent:true,opacity:.35,depthWrite:false,blending:THREE.AdditiveBlending});
-   scatter(95,-10,70,11,111+k).forEach((p,i)=>{const s=new THREE.Sprite(i%9===0&&k===1?mt2:mtl);const sz=46+p[3]*50;s.scale.set(sz,sz*.42,1);s.position.copy(dirLL(p[0],p[1]).multiplyScalar(R+alt+p[3]*4));g.add(s)});
-   addE(g,k===0?[5,6,7,8,9,10,11,12]:[5]);cull(g,dirLL(-10,70).multiplyScalar(R+alt),260,7000);const cd=dirLL(-10,70);anim(sp,g,()=>{const dk=sm(-.25,.2,cd.dot(sp.sunDir));mtl.opacity=.9*(1-.55*sm(1100,2000,rig.alt));const LT=k===0?[.74,.8,.95]:k===1?[.97,.9,.96]:[1.04,1,.93];mtl.color.setRGB((.2+.8*dk)*LT[0],(.22+.78*dk)*LT[1],(.3+.7*dk)*LT[2]);mt2.opacity=.35*(1-sm(1100,2000,rig.alt))})});
+   scatter(95,-10,70,11,111+k).forEach((p,i)=>{const s=new THREE.Sprite(i%9===0&&k===1?mt2:mtl);const sz=70+p[3]*70;s.scale.set(sz,sz*.4,1);s.position.copy(dirLL(p[0],p[1]).multiplyScalar(R+alt+p[3]*4));g.add(s)});
+   addE(g,k===0?[5,6,7,8,9,10,11,12]:[5]);cull(g,dirLL(-10,70).multiplyScalar(R+alt),260,7000);const cd=dirLL(-10,70);anim(sp,g,()=>{const dk=sm(-.25,.2,cd.dot(sp.sunDir));mtl.opacity=.72*(1-.55*sm(1100,2000,rig.alt));const LT=k===0?[.74,.8,.95]:k===1?[.97,.9,.96]:[1.04,1,.93];mtl.color.setRGB((.2+.8*dk)*LT[0],(.22+.78*dk)*LT[1],(.3+.7*dk)*LT[2]);mt2.opacity=.35*(1-sm(1100,2000,rig.alt))})});
   const gl=new THREE.Group();for(let i=0;i<12;i++){const s=glowSprite(i%2?'#ffd0f0':'#fff0c0',60,.35);s.position.set((h3(i,1,7)-.5)*300,0,(h3(i,2,7)-.5)*300);gl.add(s)}fr(-9,69,119,0,gl,false);addE(gl,[5]);cull(gl,null,200,3000);
   const huts=scatter(30,-8,69,3,113);inst(new THREE.SphereGeometry(1,10,6,0,6.283,0,1.57),M('#f4f4f0'),huts,(o,p)=>{frameLL(sp,p[0],p[1],148.5,0,o,false);o.scale.setScalar(1.6+p[3])},[5]);
   px('cloudsea',dirLL(-8,68).multiplyScalar(R+130),40,{maxD:3200})}
