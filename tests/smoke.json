@@ -1,0 +1,7 @@
+[{"js":"window.__rq.enterSpace('void')"},{"wait":7000},{"js":"(()=>{const s=window.__rq.CUR;return {id:s.id,prox:s.prox.length,ent:s.prox.filter(p=>p.ent).length,motes:(s.motes||[]).length,boot:s.bootMs|0}})()"},
+{"js":"window.__rq.enterSpace('ximin')"},{"wait":7000},{"js":"(()=>{const s=window.__rq.CUR;return {id:s.id,prox:s.prox.length,ent:s.prox.filter(p=>p.ent).length,motes:(s.motes||[]).length}})()"},
+{"js":"window.__rq.enterSpace('erxi')"},{"wait":7000},{"js":"(()=>{const s=window.__rq.CUR;return {id:s.id,prox:s.prox.length,ent:s.prox.filter(p=>p.ent).length,motes:(s.motes||[]).length}})()"},
+{"js":"window.__rq.enterSpace('dream')"},{"wait":7000},{"js":"(()=>{const s=window.__rq.CUR;return {id:s.id,prox:s.prox.length,ent:s.prox.filter(p=>p.ent).length,motes:(s.motes||[]).length}})()"},
+{"js":"window.__rq.enterSpace('midgard')"},{"wait":7000},{"js":"(()=>{const s=window.__rq.CUR;return {id:s.id,prox:s.prox.length,ent:s.prox.filter(p=>p.ent).length,motes:(s.motes||[]).length}})()"},
+{"js":"window.__rq.enterSpace('tunnel')"},{"wait":7000},{"js":"(()=>{const s=window.__rq.CUR;return {id:s.id,prox:s.prox.length,ent:s.prox.filter(p=>p.ent).length,motes:(s.motes||[]).length}})()"},
+{"js":"window.__rq.enterSpace('buke')"},{"wait":7000},{"js":"(()=>{const s=window.__rq.CUR;return {id:s.id,prox:s.prox.length,ent:s.prox.filter(p=>p.ent).length,motes:(s.motes||[]).length,ml:(s.motes||[]).map(m=>m.userData.w.id)}})()"}]

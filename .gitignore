@@ -1,0 +1,17 @@
+node_modules/
+dist/
+site/
+.cache/
+tests/out/
+tests/fixtures/
+# the novel itself is never committed
+novel.txt
+*.txt
+!scripts/order.txt
+!tools/thin_skip.txt
+*.mp3
+*.mp4
+attic/
+index_prof.html
+.DS_Store
+__pycache__/

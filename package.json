@@ -1,0 +1,20 @@
+{
+  "name": "4.6-billion-symphony",
+  "version": "1.0.0",
+  "private": true,
+  "description": "《进化的四十六亿重奏》3D 互动展览馆（同人项目）",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:min": "node scripts/build.mjs --min",
+    "build:site": "node scripts/build.mjs --site --min",
+    "serve": "node scripts/serve.mjs",
+    "test": "node tests/run.mjs",
+    "test:quick": "node tests/run.mjs --quick"
+  },
+  "devDependencies": {
+    "esbuild": "0.20.2",
+    "playwright": "1.47.2",
+    "three": "0.128.0"
+  }
+}
