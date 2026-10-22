@@ -219,10 +219,16 @@ float sw=sin(uT*1.6+ip.x*.11+ip.z*.13)*.6+sin(uT*2.7+ip.y*.17)*.3+sin(uT*5.3+ip.
   float k=mix(.58,1.16,smoothstep(-.55,.85,ny))*(.86+.28*n)*(.92+.16*n2);diffuseColor.rgb*=mix(1.,k,leaf);
   diffuseColor.rgb+=leaf*smoothstep(.5,1.,ny)*vec3(.04,.05,0.)*(.6+.8*n);diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(1.12,1.,.72),leaf*smoothstep(.82,.98,n2)*.5);}`)};m.customProgramCacheKey=()=>'sway2';return m}
 
+/* the sun's shadow box sits over the spot you look at, sized to how high you are; up high, at night, or when the
+   machine is slow it is parked out in space (an empty box: nothing is shadowed, and nothing has to rebuild its shader) */
+function shadowFollow(sp,sun,sdot){const c=sun.shadow.camera,want=SHD.on&&CUR===sp&&rig.alt<SHD.max&&sdot>-.1;
+ if(want){const h=clamp(rig.alt*1.5,18,240);if(Math.abs(c.right-h)>h*.1){c.left=-h;c.right=h;c.top=h;c.bottom=-h;c.near=h*.5;c.far=h*10;c.updateProjectionMatrix();sun.shadow.normalBias=h*2/SHD.ms*1.4}
+  sun.target.position.copy(S_);sun.position.copy(S_).addScaledVector(sp.sunDir,h*5);sun.userData.pk=false;if(++SHD.f%(SHD.ms>1024?2:3)===0||busy||tw)renderer.shadowMap.needsUpdate=true}
+ else if(!sun.userData.pk){sun.userData.pk=true;sun.target.position.copy(sp.sunDir).multiplyScalar(40000);sun.position.copy(sun.target.position).addScaledVector(sp.sunDir,600);renderer.shadowMap.needsUpdate=true}}
 /* ---------------- the builder ---------------- */
 function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'planet',sc);BSP=sp;sp.culls=[];sp.cfg=cfg;sp.R=R;
  // light
- const sun=new THREE.DirectionalLight(0xfff0d8,cfg.sunI||1.08);sc.add(sun);sc.add(sun.target);
+ const sun=new THREE.DirectionalLight(0xfff0d8,cfg.sunI||1.08);sc.add(sun);sc.add(sun.target);sun.castShadow=true;sun.shadow.mapSize.set(SHD.ms,SHD.ms);sun.shadow.bias=-.0003;
  const moonL=new THREE.DirectionalLight(0x8fb4ff,.0);sc.add(moonL);sc.add(moonL.target);
  const hemi=new THREE.HemisphereLight(cfg.hemiSky||0xa8c8ff,cfg.hemiGnd||0x2c2418,.2);sc.environment=makeEnv(cfg.envTop||'#7aa4d8',cfg.envMid||'#b8c8d4',cfg.envBot||'#3a4034');sp.hemi=hemi;sp.sunL=sun;sc.add(hemi);
  sp.stars=starfield(sc,5200,40000,1.7,1);sp.stars.renderOrder=-12;sp.stars.material.fog=false;
@@ -285,6 +291,7 @@ function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'pla
   const skyA=1-sm(160,1400,alt);
   // low sun: the light turns gold and amber, the shadow side goes blue
   {const lo=1-sm(.04,.5,sdot),w=lo*sm(-.2,.02,sdot);sun.color.setRGB(1,.94-.42*w,.85-.62*w);sun.intensity=(cfg.sunI||1.08)*(1-.25*w);hemi.color.copy(sp._hb||(sp._hb=hemi.color.clone())).lerp(_warmH,w*.45);sp.goldK=w}
+  shadowFollow(sp,sun,sdot);
   tmpc.copy(SK.nh).lerp(SK.hor,day).lerp(SK.set,setK*day*.8);const hor=tmpc.clone();tmpc.copy(SK.nz).lerp(SK.zen,day);const zen=tmpc.clone();
   const su=sky.material.uniforms;su.uSun.value.copy(sp.sunDir);su.uUp.value.copy(cu);su.uZen.value.copy(zen);su.uHor.value.copy(hor);su.uA.value=skyA;su.uDip.value=Math.sqrt(Math.max(0,1-(R/cl)*(R/cl)));sky.visible=skyA>.01;sky.position.copy(camera.position);
   sp.stars.material.opacity=1-skyA*(.15+.85*day);

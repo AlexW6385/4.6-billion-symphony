@@ -23,6 +23,7 @@
 48_land.js
 49_sky.js
 70_ui.js
+71_tour.js
 72_reader.js
 74_sides.js
 76_audio.js

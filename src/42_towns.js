@@ -198,6 +198,9 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
  // chimney smoke and lamps that come on at dusk
  smoke.forEach(p=>{const e=emitter({n:26,life:5,speed:1.2,spread:.35,size:3.2,dir:[0,1,0],col:'#d8d4cc',op:.3,add:false,tex:smokeTex,area:[.4,.3,.4],wander:.6});frameLL(sp,p[0],p[1],4,0,e);addTo(sp,e,eras,!!o.noCarry);cull(e,null,20,900)});
  if(lamps.length){const nl=nightPoints(lamps.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+2.2)),o.lamp||'#ffd890',1.6,1);addTo(sp,nl,eras,!!o.noCarry);sp.nightMats.push(nl.userData.night)}
+ (sp.townPts||(sp.townPts=[])).push({d:dirLL(la,lo),r,eras});
+ // the glow a lit town throws on its own ground at night (one of the world's two real lights takes it when you are near)
+ {const rw=r*R*D2R,g=new THREE.Group();frameLL(sp,la,lo,0,0,g);const L=new THREE.PointLight(new THREE.Color(o.lamp||'#ffc070'),0,rw*2.6,1);L.position.y=rw*.5;g.add(L);addTo(sp,g,eras,!!o.noCarry);anim(sp,g,()=>{L.intensity=(1-sp.dayK)*1.5})}
  return{houses:H.flat(2).reduce((s,L)=>s+L.length,0),towers:TW}}
 const TOWN_SITES=[
  [12,-88,{name:'emerald',style:'dragon',keepRing:[13.5,16.6],keep:[[-26,10,12],[28,-22,11]],noCenter:1,wallC:'#ece8dc',lamp:'#ffa040',r:2.3,n:150,eras:[3],noCarry:true,wall:1,fields:10,people:50,pCol:'#3a8a5a',towers:.1,scale:1.1}],

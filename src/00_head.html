@@ -86,6 +86,28 @@ button{cursor:pointer;background:none;border:0;padding:0}
 #rd .none{font-size:12.5px;color:var(--mute);margin:6px 0 0}
 #rd ol{list-style:none;margin:6px 0 0;padding:0}#rd ol li{display:flex;gap:10px;align-items:baseline;padding:5px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:#d4e1dc}
 #rd ol li:hover{background:rgba(255,255,255,.06)}#rd ol li.cur{background:rgba(240,201,122,.12);color:#f6e6c0}#rd ol li b{font-weight:400;min-width:44px;font-size:11px;color:var(--mute)}#rd ol li s{text-decoration:none;margin-left:auto;font-size:10px;color:var(--chl)}
+#tour{position:fixed;left:50%;transform:translate(-50%,12px);bottom:calc(env(safe-area-inset-bottom,0px) + 66px);z-index:9;width:min(620px,calc(100% - 24px));border-radius:18px;padding:14px 18px 12px;box-sizing:border-box;opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;touch-action:pan-y}
+#tour.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#tour .th{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+#tour .act{font-family:var(--f-d);font-size:17px;letter-spacing:.12em;color:var(--gold)}
+#tour .ch{font-size:10.5px;color:var(--mute);letter-spacing:.08em;white-space:nowrap}
+#tour .ad{margin:8px 0 2px;font-size:12.5px;line-height:1.75;color:#cfd8d4}
+#tour .stop{margin-top:9px;display:flex;flex-direction:column;gap:3px}
+#tour .stop b{font-family:var(--f-d);font-weight:400;font-size:22px;letter-spacing:.06em;color:#f2efe6}
+#tour .stop span{font-size:13.5px;line-height:1.7;color:#e0e6e2}
+#tour .tb{margin-top:10px;display:flex;align-items:center;gap:6px}
+#tour .tb button{min-width:34px;height:30px;border-radius:999px;color:var(--ink);background:rgba(255,255,255,.07);font-size:14px;padding:0 10px}
+#tour .tb button:hover{background:rgba(255,255,255,.15)}
+#tour .dots{display:flex;gap:5px;margin-left:6px}#tour .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18)}#tour .dots i.past{background:rgba(240,201,122,.45)}#tour .dots i.on{background:var(--gold)}
+#tour .n{margin-left:auto;font-size:11px;color:var(--mute)}
+#tour .bar{margin-top:8px;height:2px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}#tour .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--chl),var(--gold));transition:width .2s linear}
+body.touring #cap{opacity:0!important;pointer-events:none!important}
+#libbody .tourall{display:block;width:100%;margin:4px 0 12px;padding:11px 14px;border-radius:12px;background:rgba(240,201,122,.12);border:1px solid rgba(240,201,122,.3);color:var(--gold);font-size:14px;letter-spacing:.1em;text-align:center}
+#libbody .tourall:hover{background:rgba(240,201,122,.2)}
+#libbody .arcw{position:relative}#libbody .arcw .arc{padding-right:44px}
+#libbody .tourb{position:absolute;right:8px;top:10px;width:30px;height:30px;border-radius:50%;background:rgba(240,201,122,.12);color:var(--gold);font-size:12px}
+#libbody .tourb:hover{background:rgba(240,201,122,.25)}
+
 #rd .vtabs{display:flex;gap:6px;margin:10px -20px 4px;position:sticky;top:-18px;z-index:1;padding:8px 20px;background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 #rd .vtabs button{flex:1;height:30px;border-radius:999px;font-size:13px;color:var(--mute);background:rgba(255,255,255,.05)}
 #rd .vtabs button.on{color:#f6e6c0;background:rgba(240,201,122,.16)}

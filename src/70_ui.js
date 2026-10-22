@@ -45,7 +45,7 @@ function enterSpace(id,opt){opt=opt||{};if(busy){pendEnter=[id,opt];pendGo=null;
    if(pendGo){const g=pendGo;pendGo=null;pendEnter=null;setTimeout(()=>goLater(g),60);return}
    if(pendEnter){const [i2,o2]=pendEnter;pendEnter=null;setTimeout(()=>enterSpace(i2,o2),60);return}if(opt.after)setTimeout(opt.after,250)};
   if(first&&id!=='rongqiu'){$('#load').classList.remove('done');$('#load p').textContent=`正在前往「${m.n}」`;setTimeout(run,60)}else run()};
- if(!CUR)go();else setTimeout(go,480)}
+ if(!CUR)go();else setTimeout(go,SP[id]?380:480)}
 function exitToVoid(){const sp=CUR;const pid=PORTAL[sp.id];if(!pid)return;const w=W[pid];const p=posOf(w);const s=sizeOf(w);
  enterSpace('void',{rig:{a:-p.z-s*2.2,b:p.x,alt:Math.max(260,s*7.5),head:0,y:p.y},era:ERA})}
 function enterPortal(w){const id=w.go;enterSpace(id,{era:ERA,portal:1})}
@@ -121,7 +121,7 @@ let _occL=null;
 let _clrId=null;
 function viewClearOf(P,r,skipCut){const cam=camera;const v=P.clone().project(cam);const [tx,ty]=voTarget();const ox=(camera.view&&camera.view.enabled?-camera.view.offsetX:0),oy=(camera.view&&camera.view.enabled?-camera.view.offsetY:0);
  const nx=v.x+2*(tx-ox)/innerWidth,ny=v.y-2*(ty-oy)/innerHeight;if(!(v.z<1&&Math.abs(nx)<.85&&Math.abs(ny)<.85))return 0;
- {const pane=cap.classList.contains('on')?cap:null;if(pane){const R=pane.getBoundingClientRect(),fx=(nx*.5+.5)*innerWidth,fy=(-ny*.5+.5)*innerHeight;if(fx>R.left-20&&fx<R.right+20&&fy>R.top-20&&fy<R.bottom+20)return 0}}
+ {const pane=document.body.classList.contains('touring')?($('#tour').classList.contains('on')?$('#tour'):null):cap.classList.contains('on')?cap:null;if(pane){const R=pane.getBoundingClientRect(),fx=(nx*.5+.5)*innerWidth,fy=(-ny*.5+.5)*innerHeight;if(fx>R.left-20&&fx<R.right+20&&fy>R.top-20&&fy<R.bottom+20)return 0}}
  const dist=cam.position.distanceTo(P);const dir=P.clone().sub(cam.position).normalize();_crc.set(cam.position,dir);_crc.far=Math.max(1,dist-Math.max(r*2.5,10));_crc.camera=cam;_crc.params.Points.threshold=0;_crc.params.Line.threshold=0;
  const hits=occCast(_occL);
  for(const h of hits){const o=h.object;if(!o.isMesh)continue;if(_clrId){let v=o,own=false;while(v){if(v.userData&&v.userData.pick===_clrId){own=true;break}v=v.parent}if(own)continue}const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)continue;if(!_occL&&!isVis(o))continue;if(skipCut&&dist<700&&cuttable(o,r))continue;return .05+.9*h.distance/dist}
@@ -169,11 +169,25 @@ function dayFor(P){const sp=CUR;if(sp.type!=='planet'||sp.sunLon===undefined||!(
 function startFollow(p,id){if(!p||!p.c||CUR.camOv)return;CUR.follow={p,id,off:null}}
 function stopFollow(){if(CUR)CUR.follow=null}
 ['pointerdown','wheel','keydown'].forEach(t=>addEventListener(t,e=>{if(e.target&&e.target.closest&&e.target.closest('#cap,#lib,#rd,#book,#time,#snd'))return;stopFollow()},{passive:true,capture:true}));
-function followStep(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!==F.id||(F.p.hide&&F.p.hide())){CUR.follow=null;return}const c=proxCenter(F.p);if(!c)return;
- let ta,tb;if(CUR.type==='planet'){const ll=llDir(c);ta=ll[0];tb=ll[1]}else if(CUR.type==='tube'){ta=c.z;tb=Math.atan2(-c.x,-c.y)/D2R}else{ta=-c.z;tb=c.x}
- if(!F.off){F.off={a:rig.a-ta,b:CUR.type==='void'||CUR.type==='path'||CUR.type==='space'?rig.b-tb:wrap180(rig.b-tb)};return}
- F.chk=(F.chk||0)+dt;if(F.chk>.35){F.chk=0;F.alt0=F.alt0||rig.alt;F.up=viewClearOf(c,F.p.r||4)<.6}if(F.up&&rig.alt<F.alt0*4)rig.alt=Math.min(altMax(),rig.alt*(1+dt*.9));
- const k=1-Math.exp(-dt*2.5);rig.a+=(ta+F.off.a-rig.a)*k;const db=CUR.type==='planet'||CUR.type==='tube'?wrap180(tb+F.off.b-rig.b):tb+F.off.b-rig.b;rig.b+=db*k;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86)}
+/* following something that moves: the view keeps pace with it (its speed is measured and fed forward, so a fast flier
+   does not trail off the edge), pulls back a little for fast or high-flying things, and rises when something blocks it */
+function followStep(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!==F.id||(F.p.hide&&F.p.hide())){CUR.follow=null;return}const c=proxCenter(F.p);if(!c||!(dt>0))return;
+ const ty_=CUR.type,pl=ty_==='planet',flat=!pl&&ty_!=='tube';let ta,tb,ty=0;if(pl){const ll=llDir(c);ta=ll[0];tb=ll[1]}else if(ty_==='tube'){ta=c.z;tb=Math.atan2(-c.x,-c.y)/D2R}else{ta=-c.z;tb=c.x;ty=c.y}
+ const dB=x=>flat?x:wrap180(x);
+ if(!F.off){F.off={a:rig.a-ta,b:dB(rig.b-tb),y:rig.y-ty};F.pa=ta;F.pb=tb;F.py=ty;F.va=F.vb=F.vy=0;F.alt0=rig.alt;return}
+ // its speed, smoothed; a jump (a respawn, a wrap) is not speed
+ let da=ta-F.pa,db=dB(tb-F.pb),dy=ty-F.py;F.pa=ta;F.pb=tb;F.py=ty;const u=pl?R*D2R:1,cs=pl?Math.max(.15,Math.cos(ta*D2R)):1;
+ const jump=Math.hypot(da*u,db*u*cs,dy)>Math.max(60,rig.alt*1.5);if(jump){da=db=dy=0;F.va=F.vb=F.vy=0}
+ const kv=1-Math.exp(-dt*4);F.va+=(da/dt-F.va)*kv;F.vb+=(db/dt-F.vb)*kv;F.vy+=(dy/dt-F.vy)*kv;
+ F.chk=(F.chk||0)+dt;if(F.chk>.35){F.chk=0;F.up=viewClearOf(c,F.p.r||4)<.6}
+ // how far back to sit: blocked view, fast mover (covers a quarter of the view a second), or high above its ground
+ const spd=Math.hypot(F.va*u,F.vb*u*cs,F.vy);let want=F.up?rig.alt*1.6:0;want=Math.max(want,spd*3.2);
+ if(pl){const ll=llDir(c);const h=c.length()-R-Math.max(0,CUR.gh(ll[0],ll[1]));if(h>4)want=Math.max(want,h*2.6)}else if(ty_==='tube'){}
+ const cap=Math.min(altMax(),F.alt0*4);if(want>rig.alt&&rig.alt<cap)rig.alt=Math.min(cap,rig.alt*(1+dt*1.1),want);
+ // what was set beside it at the start drifts back to the middle, so a mover ends up centred in the free part of the view
+ {const dk=Math.exp(-dt*.35);F.off.a*=dk;F.off.b*=dk}
+ const k=1-Math.exp(-dt*3);rig.a+=F.va*dt+(ta+F.off.a-rig.a)*k;rig.b+=F.vb*dt+dB(tb+F.off.b-rig.b)*k;if(flat)rig.y+=F.vy*dt+(ty+F.off.y-rig.y)*k;
+ if(pl)rig.a=clamp(rig.a,-86,86);else if(ty_==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1])}
 /* go to an entry wherever it is */
 let pendGo=null;function goLater(id){go(id)}
 function go(id){const w=W[id];if(!w)return;if(busy){pendGo=id;pendEnter=null;return}const m=mapOf(w);const be=bestEra(w,m);
@@ -207,9 +221,9 @@ function renderLib(){const body=$('#libbody');const q=$('#q').value.trim();
    return`<button class="grp${opn?' open':''}" data-g="${m.id}">${m.n}<small>${m.sub} · ${L.length}</small></button>${inner}`}).join('');return}
  if(libTab==='ch'){body.innerHTML=chapLibHTML(q);return}
  if(libTab==='side'){body.innerHTML=sideLibHTML(q);return}
- if(libTab==='arc'){body.innerHTML='<div class="vol">卷一 · 卷二　绒球</div>'+ARCS.map((a,i)=>(i===12?'<div class="vol">卷三　虚空</div>':'')+`<button class="arc" data-i="${i}"><b>${esc(a.t)}<small>${esc(a.ch)} · ${ERAN[a.e]}</small></b><span>${esc(a.d)}</span></button>`).join('');return}
+ if(libTab==='arc'){body.innerHTML='<button class="tourall" data-tour="0">▶　按故事顺序导览全书</button><div class="vol">卷一 · 卷二　绒球</div>'+ARCS.map((a,i)=>(i===12?'<div class="vol">卷三　虚空</div>':'')+`<div class="arcw"><button class="arc" data-i="${i}"><b>${esc(a.t)}<small>${esc(a.ch)} · ${ERAN[a.e]}</small></b><span>${esc(a.d)}</span></button><button class="tourb" data-tour="${i}" aria-label="从这里开始导览">▶</button></div>`).join('');return}
  body.innerHTML=`<div class="count">已发现 ${found.size} / ${EGGS.length}</div>`+EGGS.map(g=>`<div class="egg${found.has(g.id)?' f':''}"><i>${found.has(g.id)?'✦':'·'}</i><div><b>${found.has(g.id)?esc(g.n):'未发现'}</b><small>${esc(g.hint)}</small></div></div>`).join('')}
-$('#libbody').addEventListener('click',e=>{const g=e.target.closest('[data-g]');if(g){const id=g.dataset.g;openGroups.has(id)?openGroups.delete(id):openGroups.add(id);renderLib();return}
+$('#libbody').addEventListener('click',e=>{const tb=e.target.closest('[data-tour]');if(tb){const act=+tb.dataset.tour;const k=TOUR.findIndex(s=>s.act===act);tourStart(Math.max(0,k));return}const g=e.target.closest('[data-g]');if(g){const id=g.dataset.g;openGroups.has(id)?openGroups.delete(id):openGroups.add(id);renderLib();return}
  const rc=e.target.closest('[data-rch]');if(rc){$('#lib').classList.remove('on');openRd(+rc.dataset.rch);return}const ce=e.target.closest('[data-ce]');if(ce){const k=+ce.dataset.ce;chOpen.has(k)?chOpen.delete(k):chOpen.add(k);renderLib();return}
  const it=e.target.closest('[data-id]');if(it){cardCtx={ids:[...$('#libbody').querySelectorAll('[data-id]')].map(x=>x.dataset.id),label:'列表'};if(innerWidth<760)$('#lib').classList.remove('on');go(it.dataset.id);setTimeout(renderLib,600);return}
  const sg=e.target.closest('[data-sg]');if(sg){const m=sg.dataset.sg;sideOpen.has(m)?sideOpen.delete(m):sideOpen.add(m);renderLib();return}
@@ -320,17 +334,29 @@ function updateMotes(){const L=CUR.motes;if(L)for(const m of L){if(!m.visible)co
 const perf={t:0,n:0,lvl:0,hold:0};
 function adapt(dt){if(window.__noAdapt)return;perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
  // step down a level when it runs slowly on average, or keeps stuttering
- if((fps<36||slow>=6)&&perf.lvl<3){perf.lvl++;perf.hold=1;if(perf.lvl===1){PR=Math.min(PR,1.25)}else if(perf.lvl===2){PR=1;if(bloomPass)bloomPass.strength=.45}else if(perf.lvl===3){PR=.8;if(bloomPass)bloomPass.enabled=false}resize()}}
+ if((fps<36||slow>=6)&&perf.lvl<3){perf.lvl++;perf.hold=1;if(perf.lvl===1){PR=Math.min(PR,1.25)}else if(perf.lvl===2){PR=1;SHD.on=false;if(bloomPass)bloomPass.strength=.45}else if(perf.lvl===3){PR=.8;if(bloomPass)bloomPass.enabled=false}resize()}}
 
 /* while a card is open, the picture slides so what you chose sits in the free part of the screen, not under the card */
 const VO={x:0,y:0};
 function voTarget(){let tx=0,ty=0;const W=innerWidth,H=innerHeight;
+ const tourP=document.body.classList.contains('touring')&&$('#tour')&&$('#tour').classList.contains('on');
+ if(tourP){const r=$('#tour').getBoundingClientRect();return [0,r.top/2-H/2]}
  const pane=cap.classList.contains('on')?cap:($('#rd')&&$('#rd').classList.contains('on')?$('#rd'):null);
  if(pane){const r=pane.getBoundingClientRect();if(W>760){if(r.left<W*.5)tx=(r.right+W)/2-W/2;else tx=r.left/2-W/2}else{ty=r.top/2-H/2}}return [tx,ty]}
 function updViewOff(dt){const W=innerWidth,H=innerHeight;const [tx,ty]=voTarget();
  const k=1-Math.exp(-dt*5);VO.x+=(tx-VO.x)*k;VO.y+=(ty-VO.y)*k;
  if(Math.abs(VO.x)<.5&&Math.abs(VO.y)<.5){if(camera.view&&camera.view.enabled){camera.clearViewOffset()}return}
  camera.setViewOffset(W,H,-VO.x,-VO.y,W,H)}
+/* the other worlds are built (and their shaders made) ahead of time, one at a time, while a page covers the picture, the
+   tour lingers on a stop, or nobody has touched anything for a few seconds, so going there later is quick. a phone keeps fewer */
+const PRE={coarse:matchMedia('(pointer:coarse)').matches,order:['void','rongqiu','ximin','erxi','midgard','dream','tunnel','buke']};
+function preNext(){const C=[];if(TVS.on){for(let k=1;k<=3;k++){const s=TOUR[TVS.i+k];if(s){const m=mapOf(W[s.id]);if(m)C.push(m)}}}
+ if(CUR.id!=='void')C.push('void');if(!PRE.coarse||TVS.on)C.push(...PRE.order);
+ const built=Object.keys(SP).length;if(PRE.coarse&&built>=4)return null;return C.find(id=>BUILDERS[id]&&!SP[id])||null}
+setInterval(()=>{if(!CUR||busy||tw||drag||pinch||document.hidden||!$('#load').classList.contains('done'))return;const now=performance.now();
+ const page=$('#rd').classList.contains('on')||$('#lib').classList.contains('on');const tourDw=TVS.on&&!TVS.paused&&TVS.phase==='dwell'&&TVS.t>1&&TVS.t<TVS.dwell-1.5;
+ if(!(page||tourDw||(!TVS.on&&now-lastInput>5000)))return;const id=preNext();if(!id)return;
+ try{const sp=getSpace(id);sp.scene.updateMatrixWorld(true);renderer.compile(sp.scene,camera)}catch(e){console.warn('prebuild',id,e)}},1800);
 /* ---------- the loop ---------- */
 let T=0,last=performance.now(),eraTick=0;
 /* saving power: nothing to draw while a chapter or the library covers the phone screen; fewer frames while a panel
@@ -372,4 +398,4 @@ setTimeout(()=>{
   if(firstVisit){const tc=matchMedia('(pointer:coarse)').matches;const H=[[1800,tc?'单指拖动转动世界，双指缩放':'拖动转动世界，滚轮缩放',3400],[9800,'下方的时间轴可以换一个时代看看',3400],[15000,'靠近以后，发光的小点都是词条，点一下',3600],[21000,'右下角是图书馆：词条、故事、原著章节和番外',3800]];H.forEach(([d,t,ms])=>setTimeout(()=>{if(!$('#cap.on')&&CUR&&CUR.id==='rongqiu'&&!$('#lib.on'))hint(t,ms)},d));flyTo(18,-25,2600,7);setTimeout(()=>{$('#time').classList.add('open');setEra(2);setTimeout(()=>$('#time').classList.remove('open'),5200)},3600)}}});
  requestAnimationFrame(t=>{last=t;loop(t)})},30);
 window.__rq={bc:buildCreature,fll:frameLL,cam:camera,ren:renderer,place(a,b,alt,head){tw=null;vel.a=vel.b=0;Object.assign(rig,{a,b,alt,head:head||0})},stop(){tw=null},go,open,setEra,enterSpace,exitToVoid,flyTo,rig,get CUR(){return CUR},get ERA(){return ERA},SP,timeTo,zoomAt,pickProx,egg,get tw(){return tw}};
-Object.assign(window.__rq,{dbg:{selP:()=>selP,posOf,sizeOf,proxCenter,rigPose,flyEntry,busy:()=>busy,pickProx,eraOk,dayFor}});
+Object.assign(window.__rq,{dbg:{selP:()=>selP,posOf,sizeOf,proxCenter,rigPose,flyEntry,busy:()=>busy,pickProx,eraOk,dayFor,SHD,getSpace,sunAt:lon=>{CUR.sunLon=lon-T*360/CUR.dayLen}}});

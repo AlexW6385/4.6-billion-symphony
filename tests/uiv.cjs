@@ -98,6 +98,8 @@ const log=(...a)=>console.log(...a);let nShot=0;
  await p.fill('#q','琳');await wait(600);const nq=await ev(()=>document.querySelectorAll('#libbody [data-id]').length);ok('search finds 琳',nq>0,nq);await shot('lib_search');
  await p.fill('#q','');await wait(300);
  for(const t of['arc','ch','side','egg']){await click(`#lib nav [data-t="${t}"]`);await wait(700);const n=await ev(()=>document.querySelector('#libbody').children.length);ok('lib tab '+t,n>0,n);await shot('lib_'+t)}
+ // tour: start from the story tab, it shows its panel, then stop it and reopen the library
+ await click('#lib nav [data-t="arc"]');await wait(500);await click('#libbody .tourall');await wait(2500);ok('tour starts',await vis('#tour.on'),await ev(()=>window.__rq.TVS.i));await shot('tour');await ev(()=>window.__rq.tourStop());await wait(400);if(!(await vis('#lib.on'))){await click('#book');await wait(700)}
  // chapter tab: expand era and open
  await click('#lib nav [data-t="ch"]');await wait(500);await click('#libbody [data-ce="2"]');await wait(500);
  const row=await p.$('#libbody [data-rch]');if(row){await row.click();await wait(1500);ok('chapter row opens reader',await vis('#rd.on'));await shot('reader_noTxt')}

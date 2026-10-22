@@ -43,6 +43,7 @@ function sndInit(){if(SND.ctx)return true;const AC=window.AudioContext||window.w
  const L=c.sampleRate*2.6,ir=c.createBuffer(2,L,c.sampleRate);for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);let lp=0;for(let i=0;i<L;i++){lp=lp*.55+(Math.random()*2-1)*.45;d[i]=lp*Math.pow(1-i/L,3.4)*(i<c.sampleRate*.012?i/(c.sampleRate*.012):1)}}
  SND.rev=c.createConvolver();SND.rev.buffer=ir;const rg=c.createGain();rg.gain.value=.55;const rl=c.createBiquadFilter();rl.type='lowpass';rl.frequency.value=5000;SND.rev.connect(rl);rl.connect(rg);rg.connect(SND.master);
  const nb=c.createBuffer(1,c.sampleRate*3,c.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;SND.noise=nb;
+ ambInit();
  SND.iv=setInterval(sndTick,100);document.addEventListener('visibilitychange',()=>{if(!SND.ctx)return;if(document.hidden)SND.ctx.suspend();else if(SND.on)SND.ctx.resume()});
  return true}
 function sndUnlock(){if(!SND.on)return;if(!sndInit())return;if(SND.ctx.state!=='running')SND.ctx.resume();const t=sndNow();SND.master.gain.cancelScheduledValues(t);SND.master.gain.setTargetAtTime(.9,t,.6)}
@@ -142,7 +143,7 @@ function schedule(L,t){const M=L.M,S=L.S,step=60/M.bpm/2,i=L.step%S,bar=Math.flo
  if(M.bub&&Math.random()<M.bub*.25){voice(G,'sine',600+Math.random()*700,t+Math.random()*step,.008,.08,{glide:1.8,pan:(Math.random()-.5)*1.6,rev:.4})}
  if(M.drip&&Math.random()<M.drip*.25)voice(G,'celesta',1800+Math.random()*900,t+Math.random()*step,.008,.6,{pan:(Math.random()-.5)*1.6,rev:.8})
  if(M.shim&&i===0&&bar%2===1)voice(G,'celesta',mtof(note(M,ch+rs(M,4),24)),t+step*2,.006,2.4,{pan:(Math.random()-.5)*1.4,rev:.9})}
-function sndTick(){if(!SND.ctx||!SND.on||(!SND.offline&&SND.ctx.state!=='running'))return;const k=moodKey();if(k&&k!==SND.key)setMood(k);const L=SND.layer;if(!L)return;if(SND.paused){L.next=sndNow()+.3;return}const st=60/L.M.bpm/2;
+function sndTick(){if(!SND.ctx||!SND.on||(!SND.offline&&SND.ctx.state!=='running'))return;if(!SND.offline)ambTick();const k=moodKey();if(k&&k!==SND.key)setMood(k);const L=SND.layer;if(!L)return;if(SND.paused){L.next=sndNow()+.3;return}const st=60/L.M.bpm/2;
  if(L.next<sndNow())L.next=sndNow()+.05;while(L.next<sndNow()+.3){schedule(L,L.next);L.next+=st;L.step++}}
 /* ---- small sounds ---- */
 function snd(name){if(!SND.on||!SND.ctx||(!SND.offline&&SND.ctx.state!=='running'))return;const c=SND.ctx,t=sndNow()+.01,nw=SND.offline?SND.vt*1000:performance.now();
@@ -194,4 +195,42 @@ async function sndOffline(dur,plan){const sr=44100;const oc=new OfflineAudioCont
 /* reading the book is quiet: the music fades out while a chapter is open, and comes back after */
 function sndPause(on){if(SND.paused===on)return;SND.paused=on;if(!SND.ctx)return;const t=sndNow();const g=SND.mus.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(on?0:3,t+(on?.8:2.5));if(!on&&SND.layer)SND.layer.next=t+.4}
 {const rdEl=$('#rd');if(rdEl)new MutationObserver(()=>sndPause(rdEl.classList.contains('on'))).observe(rdEl,{attributes:true,attributeFilter:['class']})}
-window.__snd={sndPause,SND,setMood,snd,moodKey,MOODS,sndOffline};
+/* ---- the sound of the place ----
+   under the music, beds of filtered noise that never stop: wind (more of it up high), the sea (when there is sea under
+   or around you), a town's murmur (near one), the void's low hum, the tube's rumble; and small live things, birds by
+   day and insects at night over land, once there is life on land. each bed's loudness follows where you are */
+function ambInit(){const c=SND.ctx;const A=SND.amb={g:c.createGain(),b:{},nx:0,bird:0,bug:0,clink:0,k:{}};A.g.gain.value=.17;A.g.connect(SND.master);
+ // a longer, softer noise for the beds, so their loop is never heard
+ const n=c.sampleRate*9,nb=c.createBuffer(2,n,c.sampleRate);for(let ch=0;ch<2;ch++){const d=nb.getChannelData(ch);let p=0;for(let i=0;i<n;i++){const w=Math.random()*2-1;p=p*.86+w*.14;d[i]=w*.55+p*1.6}}
+ const lfo=(f,depth,dest)=>{const o=c.createOscillator();o.frequency.value=f;const d=c.createGain();d.gain.value=depth;o.connect(d);d.connect(dest);o.start(c.currentTime+Math.random()*2)};
+ const bed=(name,type,f,q,rate,mods,fmod)=>{const s=c.createBufferSource();s.buffer=nb;s.loop=true;s.playbackRate.value=rate;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;
+  const m=c.createGain();m.gain.value=1;const out=c.createGain();out.gain.value=0;s.connect(fl);fl.connect(m);m.connect(out);out.connect(A.g);
+  for(const [lf,dp] of mods||[])lfo(lf,dp,m.gain);if(fmod)lfo(fmod[0],fmod[1],fl.frequency);s.start(c.currentTime,Math.random()*8);A.b[name]=out};
+ bed('wind','bandpass',480,.6,.93,[[.07,.45],[.19,.2]],[.05,200]);
+ bed('wave','lowpass',380,.4,.71,[[.12,.55],[.071,.35]],[.12,120]);
+ bed('city','bandpass',760,.9,1.07,[[2.3,.25],[4.7,.15],[.31,.2]]);
+ bed('rumble','lowpass',95,.9,.83,[[.04,.35]]);
+ // the hum: a few slow-beating low tones
+ {const out=c.createGain();out.gain.value=0;out.connect(A.g);const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=260;lp.connect(out);
+  for(const [f,v] of [[55,.5],[55.35,.4],[82.4,.28],[110.2,.12]]){const o=c.createOscillator();o.type='sine';o.frequency.value=f;const g=c.createGain();g.gain.value=v;lfo(.03+Math.random()*.05,v*.5,g.gain);o.connect(g);g.connect(lp);o.start()}A.b.hum=out}}
+function ambNear(sp){const P=sp.townPts;if(!P||!P.length)return 0;const d=dirLL(rig.a,rig.b);let k=0;for(const t of P){if(t.eras&&!t.eras.includes(ERA))continue;const deg=Math.acos(clamp(d.dot(t.d),-1,1))/D2R;k=Math.max(k,sm(t.r*3.2,t.r*.7,deg))}return k}
+function ambTargets(){const T={wind:0,wave:0,city:0,rumble:0,hum:0},sp=CUR;let life=0,day=1,land=0;if(!sp)return [T,0,1,0];const alt=rig.alt;
+ if(sp.type==='planet'){const orbit=sm(5200,3000,alt);T.wind=(.12+.26*sm(250,2600,alt))*orbit;T.hum=.06*(1-orbit);
+  let sea=0;const la=rig.a,lo=rig.b,cs=Math.max(.2,Math.cos(la*D2R));for(const [x,y] of [[0,0],[1.2,0],[-1.2,0],[0,1.2],[0,-1.2]])if(sp.ghRaw(la+x,lo+y/cs)<0)sea+=.2;
+  T.wave=.34*sea*sm(1100,60,alt)*(.6+.4*sm(.2,1,sea));land=(1-sea)*sm(700,60,alt);
+  T.city=.3*ambNear(sp)*sm(900,40,alt);day=sp.dayK===undefined?1:sp.dayK;
+  life=sp.id==='rongqiu'?(ERA>=3?1:0):1;if(sp.id==='rongqiu'&&ERA===4)life=.3}
+ else if(sp.id==="void"){T.hum=.2;T.wind=.03}
+ else if(sp.type==='tube'){T.rumble=.42;T.hum=.08;T.wind=.04}
+ else{T.hum=.14;T.wind=.06}
+ return [T,life*land,day,T.city]}
+function ambTick(){const A=SND.amb;if(!A)return;const c=SND.ctx,t=sndNow();const [T,lf,day,city]=ambTargets();const q=SND.paused?0:(document.body.classList.contains('touring')?.8:1);
+ for(const k in A.b){const v=(T[k]||0)*q;if(Math.abs((A.k[k]||0)-v)>.004){A.k[k]=v;A.b[k].gain.setTargetAtTime(v,t,1.4)}}
+ if(SND.paused||q===0)return;const fx=SND.fx;
+ // birds by day, insects at night, the odd clink in a town
+ if(lf>.25&&day>.5&&t>A.bird){A.bird=t+2.5+Math.random()*7;const n=2+(Math.random()*4|0),f0=2300+Math.random()*1500,pn=Math.random()*1.6-.8;for(let i=0;i<n;i++){const tt=t+.05+i*(.11+Math.random()*.06);chirp(f0*(1+Math.random()*.15),f0*(1.25+Math.random()*.3),tt,.07+Math.random()*.05,.018*lf,pn)}}
+ if(lf>.25&&day<.35&&t>A.bug){A.bug=t+.5+Math.random()*1.1;const f=4100+Math.random()*700,pn=Math.random()*1.6-.8,n=3+(Math.random()*2|0);for(let i=0;i<n;i++)chirp(f,f*1.01,t+.05+i*.055,.025,.011*lf*(1-day),pn)}
+ if(city>.35&&t>A.clink){A.clink=t+1.5+Math.random()*4;chirp(1900+Math.random()*1400,1900,t+.05,.25,.008*city,Math.random()*1.4-.7,'triangle')}}
+function chirp(f0,f1,t,dur,v,pan,type){const c=SND.ctx,o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+dur*.7);
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+Math.min(.012,dur*.2));g.gain.exponentialRampToValueAtTime(.0001,t+dur);let out=g;if(c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=pan||0;g.connect(p);out=p}o.connect(g);out.connect(SND.master);o.start(t);o.stop(t+dur+.05)}
+window.__ambInit=ambInit;window.__snd={sndPause,SND,setMood,snd,moodKey,MOODS,sndOffline,ambTargets};

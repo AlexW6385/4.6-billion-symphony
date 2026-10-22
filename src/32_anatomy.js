@@ -21,12 +21,26 @@ function loftGeo(spec,o){o=o||{};const pts=spec.map(s=>V3(s[0],s[1],s[2]));const
 const SKINM={};function skinMat(o){o=o||{};const k=(o.rough||.68)+'|'+(o.metal||0)+'|'+(o.em||'');return SKINM[k]||(SKINM[k]=new THREE.MeshStandardMaterial({vertexColors:true,roughness:o.rough||.68,metalness:o.metal||0,emissive:o.em||'#000000',emissiveIntensity:o.em?.35:0}))}
 function loft(spec,o){return new THREE.Mesh(loftGeo(spec,o),skinMat(o))}
 /* a leg that bends at the knee: thigh, knee, shin, ankle and a broad foot; keeps the {knee} hook stdAnim uses */
-function jleg(l1,l2,r,mat,bend,foot){const g=new THREE.Group();const th=new THREE.Mesh(new THREE.CylinderGeometry(r*.8,r,l1,10),mat);th.position.y=-l1/2;g.add(th);const hip=sph(0,r*1.15,r*1.15,r*1.15,10,mat);g.add(hip);
- const k=new THREE.Group();k.position.y=-l1;k.rotation.z=bend||0;g.add(k);const kn=sph(0,r*.85,r*.85,r*.85,10,mat);k.add(kn);const sh=new THREE.Mesh(new THREE.CylinderGeometry(r*.55,r*.78,l2,10),mat);sh.position.y=-l2/2;k.add(sh);
- const ft=new THREE.Group();ft.position.y=-l2;ft.rotation.z=-(bend||0);k.add(ft);const fm=foot&&foot.mat||mat;
- if(foot&&foot.claws){const pad=sph(0,r*1.05,r*.4,r*.8,10,fm);pad.position.set(r*.5,0,0);ft.add(pad);for(let i=-1;i<=1;i++){const c=cone(r*.16,r*.7,M('#e8dcc0'),5);c.position.set(r*1.4,-r*.15,i*r*.42);c.rotation.z=-Math.PI/2-.3;ft.add(c)}}
+/* a muscled segment: a lathe whose radius swells near the top and thins to the joint, hanging down from y=0 */
+const _segC=new Map();function muscle(len,r,prof,seg){const key=len.toFixed(3)+'|'+r.toFixed(3)+'|'+prof.join(',');let g=_segC.get(key);if(!g){const n=prof.length-1;g=new THREE.LatheGeometry(prof.map((k,i)=>new THREE.Vector2(Math.max(.002,k*r),-len*i/n)),seg||12);_segC.set(key,g)}return g}
+const THIGH=[.55,1.05,1.22,1.12,.95,.8,.72],SHIN=[.72,.86,.82,.7,.6,.52,.5],UPARM=[.6,1.05,1.12,.95,.8,.7],FOREARM=[.7,.82,.78,.66,.56,.5];
+function jleg(l1,l2,r,mat,bend,foot){const g=new THREE.Group();const th=new THREE.Mesh(muscle(l1,r,THIGH),mat);g.add(th);const hip=sph(0,r*1.15,r*1.15,r*1.15,10,mat);g.add(hip);
+ const k=new THREE.Group();k.position.y=-l1;k.rotation.z=bend||0;g.add(k);const kn=sph(0,r*.8,r*.8,r*.8,10,mat);k.add(kn);const sh=new THREE.Mesh(muscle(l2,r,SHIN),mat);k.add(sh);
+ // a hint of the calf behind the shin
+ const cf=sph(0,r*.55,r*.85,r*.55,8,mat);cf.position.set(-r*.35,-l2*.28,0);k.add(cf);
+ const ft=new THREE.Group();ft.position.y=-l2;ft.rotation.z=-(bend||0);k.add(ft);const fm=foot&&foot.mat||mat;const CL=M('#e8dcc0',{roughness:.4});
+ if(foot&&foot.claws){const pad=sph(0,r*.9,r*.38,r*.75,10,fm);pad.position.set(r*.45,-r*.05,0);ft.add(pad);
+  for(let i=-1;i<=1;i++){const toe=new THREE.Mesh(muscle(r*1.1,r*.32,[.9,1,.8,.55],6),fm);toe.rotation.z=Math.PI/2+.15;toe.position.set(r*.7,-r*.12,i*r*.42);toe.rotation.y=-i*.25;ft.add(toe);const c=cone(r*.15,r*.55,CL,5);c.position.set(r*1.85,-r*.3,i*r*.5);c.rotation.z=-Math.PI/2-.55;ft.add(c)}
+  const dc=cone(r*.12,r*.4,CL,4);dc.position.set(-r*.45,-r*.05,0);dc.rotation.z=Math.PI/2+.4;ft.add(dc)}
  else{const pad=sph(0,r*1.1,r*.42,r*1.05,10,fm);pad.position.set(r*.25,-r*.1,0);ft.add(pad);for(let i=-1;i<=1;i++){const n=sph(0,r*.25,r*.18,r*.22,6,M('#3a3428'));n.position.set(r*1.15,-r*.2,i*r*.55);ft.add(n)}}
  g.userData.knee=k;g.userData.len=l1+l2;return g}
+/* an arm: upper arm, elbow, forearm, a hand of three clawed fingers and a thumb */
+function jarm(l1,l2,r,mat,bend){const g=new THREE.Group();g.add(new THREE.Mesh(muscle(l1,r,UPARM),mat));g.add(sph(0,r*1.25,r*1.2,r*1.2,10,mat));
+ const k=new THREE.Group();k.position.y=-l1;k.rotation.z=bend||0;g.add(k);k.add(sph(0,r*.8,r*.8,r*.8,8,mat));k.add(new THREE.Mesh(muscle(l2,r,FOREARM),mat));
+ const h=new THREE.Group();h.position.y=-l2;k.add(h);h.add(sph(0,r*.75,r*.55,r*.7,8,mat));const CL=M('#e8dcc0',{roughness:.4});
+ for(let i=-1;i<=1;i++){const f=new THREE.Group();f.position.set(r*.2,-r*.3,i*r*.38);f.rotation.set(i*.25,0,.35);h.add(f);f.add(new THREE.Mesh(muscle(r*1.1,r*.26,[1,.9,.7],5),mat));const c=cone(r*.12,r*.4,CL,4);c.position.y=-r*1.25;c.rotation.z=Math.PI+.4;f.add(c)}
+ const th=new THREE.Group();th.position.set(-r*.3,-r*.2,0);th.rotation.z=-.7;h.add(th);th.add(new THREE.Mesh(muscle(r*.7,r*.26,[1,.85,.6],5),mat));
+ g.userData.knee=k;g.userData.hand=h;return g}
 function mouthEye(g,x,y,z,r,c){for(const s of[-1,1]){const e=sph(0,r,r,r,10,M(c||'#0c0c10',{roughness:.08}));e.position.set(x,y,s*z);g.add(e);const lid=new THREE.Mesh(new THREE.SphereGeometry(r*1.25,10,6,0,Math.PI*2,0,Math.PI*.42),M('#4a4434'));lid.position.set(x,y+r*.15,s*z);lid.rotation.z=-.4;g.add(lid)}}
 
 /* ---------- long-necked giants ---------- */
@@ -89,8 +103,10 @@ function bDragonkin2(f){const g=new THREE.Group();const id=f.w;
  if(P.teeth){const m=sph(0,.12,.04,.12,8,GL('#ffe46a'));m.position.set(.4,-.08,0);hg.add(m)}
  if(P.beak){const bk=cone(.07,.22,M('#e8b040'),5);bk.rotation.z=-Math.PI/2;bk.position.set(.6,-.05,0);hg.add(bk)}
  const tlg=new THREE.Group();tlg.position.set(-.15,1.0,0);g.add(tlg);tlg.add(loft([[0,0,0,.26,.24],[-.5,-.15,0,.17,.15],[-1.05,-.24,0,.09,.09],[-1.55,-.18,0,.03,.03]],Object.assign({n:18},o)));
- const L=[];for(const z of[-1,1]){const l=jleg(.52,.5,.1,mat,.5,{claws:1});l.position.set(-.05,1.0,z*.2);g.add(l);L.push({m:l,ph:z>0?0:Math.PI,a:.9,k:.5})}
- const arms=[];for(const z of[-1,1]){const a=leg2(.36,.32,.055,mat,-.9);a.position.set(.25,1.62,z*.28);g.add(a);const hd=sph(0,.06,.05,.06,8,mat);hd.position.y=-.32;a.userData.knee.add(hd);for(let i=-1;i<=1;i++){const cl=cone(.012,.07,M('#e8dcc0'),4);cl.position.set(.03,-.38,i*.03);cl.rotation.z=Math.PI;a.userData.knee.add(cl)}arms.push(a)}
+ const L=[];for(const z of[-1,1]){const l=jleg(.52,.5,.13,mat,.5,{claws:1});l.position.set(-.05,1.0,z*.21);g.add(l);L.push({m:l,ph:z>0?0:Math.PI,a:.9,k:.5})}
+ // a row of small spines down the back and the tail
+ {const SPN=M(C(col).multiplyScalar(.62).getStyle(),{roughness:.5});for(let i=0;i<9;i++){const t=i/8;const sp2=cone(.03+.025*(1-Math.abs(t-.35)),.12+.1*(1-Math.abs(t-.35)),SPN,4);sp2.position.set(.32-t*1.55,2.0-t*1.15+(t>.45?-(t-.45)*.2:0),0);sp2.rotation.z=.5+t*.6;g.add(sp2)}}
+ const arms=[];for(const z of[-1,1]){const a=jarm(.36,.32,.07,mat,-.9);a.position.set(.25,1.62,z*.29);g.add(a);arms.push(a)}
  if(P.sp||P.staff){const s=cyl(.02,.02,2.1,M('#6a4a2a'),5);s.position.set(.55,1.25,.36);s.rotation.z=P.staff?.1:-.9;g.add(s);const tip=cone(.05,.16,P.staff?GL('#9ff2ff'):M('#8a8a80'),4);tip.position.set(P.staff?.65:1.4,P.staff?2.3:1.75,.36);tip.rotation.z=P.staff?0:-.9;g.add(tip)}
  if(P.pipe){const s=cyl(.015,.015,.7,M('#5a4a2a'),4);s.position.set(.85,1.95,0);s.rotation.z=-1.3;g.add(s)}
  if(P.scarf){const sc=new THREE.Mesh(new THREE.TorusGeometry(.17,.06,6,14),M('#c8302a'));sc.position.set(.26,1.78,0);sc.rotation.y=Math.PI/2;g.add(sc);const tailS=new THREE.Mesh(new THREE.PlaneGeometry(.5,.12),M('#c8302a',{side:THREE.DoubleSide}));tailS.position.set(-.05,1.7,-.1);g.add(tailS);const cr=sph(0,.08,.12,.05,6,EM('#ff5a5a',.8));cr.position.set(.38,1.45,0);g.add(cr)}
@@ -167,9 +183,25 @@ function bLeviathan2(f){const g=new THREE.Group();const col=f.col||'#41606a';con
  const tents=[];for(let i=0;i<8;i++){const a=i/8*6.283;const t=new THREE.Group();const pts=[];for(let j=0;j<=6;j++)pts.push(V3(Math.cos(a)*j*.06,-j*.32,Math.sin(a)*j*.06));t.add(tubeAlong(pts,.04-.003*i%2,skin,12));t.position.set(Math.cos(a)*1.05,-.25,Math.sin(a)*1.05);g.add(t);tents.push(t)}
  // wings that open out of the slits in its sides
  const wings=[];for(const z of[-1,1]){const w=wing(2,1.1,new THREE.MeshStandardMaterial({color:'#8fb8bc',transparent:true,opacity:.78,side:THREE.DoubleSide,roughness:.4}),'bat');w.position.set(0,.05,z*1.45);if(z<0)w.scale.z=-1;g.add(w);wings.push({m:w,s:z,a:.45,f:2.2})}
+ {const arms2=[];for(const z of[-1,1]){const pts=[];for(let j=0;j<=10;j++){const t=j/10;pts.push(V3(1.1+t*1.6,-.3-Math.sin(t*2.6)*.5,z*(.4+t*.25)))}const tg2=new THREE.Group();const arm=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,.09,8,false),skin);tg2.add(arm);
+   const cv=new THREE.CatmullRomCurve3(pts);for(let k=2;k<18;k++){const q=cv.getPointAt(k/19);const su=sph(0,.04,.02,.04,6,M('#d8c8b8',{roughness:.5}));su.position.copy(q).add(V3(0,-.07,0));tg2.add(su)}g.add(tg2);arms2.push(tg2)}
+  const TE=M('#f4ecd8',{roughness:.3});for(let i=0;i<14;i++){const a=i/14*6.283;const t=cone(.035,.16,TE,4);t.position.set(.8+Math.cos(a)*.22,-.34,Math.sin(a)*.22);t.rotation.set(Math.sin(a)*.6,0,Math.PI+Math.cos(a)*.6);g.add(t)}
+  const mo=sph(0,.24,.06,.24,12,M('#3a1a1a',{roughness:.6}));mo.position.set(.8,-.32,0);g.add(mo);
+  for(let i=0;i<4;i++){const a=(i/4-.375)*2.2;const cn=new THREE.Mesh(new THREE.CylinderGeometry(.1,.14,.3,10,1,true),shellM);cn.position.set(Math.cos(a)*.95,.42,Math.sin(a)*.95);cn.rotation.set(Math.sin(a)*.4,0,-Math.cos(a)*.6-.4);g.add(cn);const ins=sph(0,.08,.03,.08,8,EM('#ff9a3a',.6));ins.position.copy(cn.position).add(V3(Math.cos(a)*.08,.12,Math.sin(a)*.08));g.add(ins)}
+  g.userData.arms2=arms2}
  addWings(g,wings);g.userData.noSkin=1;
  g.userData.anim=(t)=>{for(const w of wings)w.m.rotation.x=w.s*Math.sin(t*2.2)*.5;tents.forEach((tt,i)=>{tt.rotation.z=Math.sin(t*1.5+i)*.3;tt.rotation.x=Math.cos(t*1.2+i*.7)*.3});
-  sacs.forEach((s,i)=>s.scale.y=.24*(1+Math.sin(t*1.6+i)*.1));body.rotation.z=Math.sin(t*.7)*.05;lg.material.opacity=.4+Math.sin(t*3)*.15};
+  sacs.forEach((s,i)=>s.scale.y=.24*(1+Math.sin(t*1.6+i)*.1));(g.userData.arms2||[]).forEach((a,i)=>{a.rotation.y=Math.sin(t*.9+i*2)*.15;a.rotation.z=Math.sin(t*1.1+i)*.08});body.rotation.z=Math.sin(t*.7)*.05;lg.material.opacity=.4+Math.sin(t*3)*.15};
  return g}
+/* 大鸵龙: the white dragons' two-legged mount — a big running dinosaur with a hide pad on its back,
+   a rope bridle tied round its head and reins to pull it straight; some carry a rider */
+function bDachuo(f){const g=bRaptor2(Object.assign({},f,{w:'dachuo',col:f.col||'#8a7a5a'}));const HIDE=M('#6a4a30',{roughness:.9}),ROPE=M('#c8b080',{roughness:.9});
+ const pad=new THREE.Mesh(new THREE.SphereGeometry(1,14,8,0,Math.PI*2,0,Math.PI*.32),HIDE);pad.scale.set(.62,.5,.42);pad.position.set(-.05,1.5,0);g.add(pad);
+ for(const z of[-1,1]){const fr=new THREE.Mesh(new THREE.PlaneGeometry(.5,.35),M('#5a3a24',{side:THREE.DoubleSide}));fr.position.set(-.05,1.35,z*.36);fr.rotation.x=z*.25;g.add(fr)}
+ const br=new THREE.Mesh(new THREE.TorusGeometry(.17,.018,4,14),ROPE);br.position.set(1.05,1.72,0);br.rotation.y=Math.PI/2;g.add(br);
+ for(const z of[-1,1])g.add(tubeAlong([V3(1.05,1.72,z*.16),V3(.6,1.75,z*.22),V3(.1,1.62,z*.2)],.012,ROPE,8));
+ if(f.rider!==false){const r=bDragonkin2({w:'baihai',col:'#ece8de'});r.scale.setScalar(.7);r.position.set(-.15,1.0,0);r.userData.anim=null;g.add(r)}
+ return g}
+SPEC.dachuolong=bDachuo;
 (()=>{const sw=new Map([[bBehemoth,bBehemoth2],[bLeviathan,bLeviathan2]]);for(const T of[SPEC,KIND])for(const k in T)if(sw.has(T[k]))T[k]=sw.get(T[k])})();
 bBehemoth=bBehemoth2;bLeviathan=bLeviathan2;

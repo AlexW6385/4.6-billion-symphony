@@ -240,7 +240,12 @@ function fixVC(o){const done=new Set();o.traverse(m=>{if(!m.isMesh||!m.geometry|
 /* point lights: lights hung straight in a world stay as they are (they never come or go); for the ones inside things that show and hide, each world keeps two real lights that never come or go, and every frame hands them to the nearest little lights that are showing.
    the scene's own point lights only say where light should be. a change in how many lights are showing made every lit material rebuild its shader */
 const LPOOL_K=2,_lw=V3();
-function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;
+/* which things cast and catch the near shadows: solid lit meshes; small ones cast (a town, a creature, a tree), the
+   ground and big things only catch */
+function shadowScan(sp){if(sp.type!=='planet'||!sp.sunL)return;sp.scene.traverse(o=>{if(!o.isMesh||o.userData.shd)return;o.userData.shd=1;const m=Array.isArray(o.material)?o.material[0]:o.material;
+ if(!m||m.isShaderMaterial||m.transparent||m.alphaTest>0||!m.depthWrite||!(m.isMeshStandardMaterial||m.isMeshPhongMaterial||m.isMeshLambertMaterial))return;o.receiveShadow=true;if(o===sp.terr||o.userData.noShadow)return;
+ const g=o.geometry;if(!g)return;if(!g.boundingSphere)g.computeBoundingSphere();const sc=o.scale?Math.max(o.scale.x,o.scale.y,o.scale.z):1;if(g.boundingSphere.radius*sc<70)o.castShadow=true})}
+function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;shadowScan(sp);
  sp.scene.traverse(o=>{if(!o.isPointLight||o.userData.pool||o.userData.pooled||o.parent===sp.scene)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o)});
  if(lp.L.length&&!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}}
 function poolStep(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==SG_ADDS&&now-lp.t>1500){lp.t=now;poolScan(sp)}if(!lp.P.length)return;
@@ -248,7 +253,7 @@ function poolStep(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==S
   _lw.copy(L.position).applyMatrix4(L.parent.matrixWorld);const d=_lw.distanceTo(C);if(L.distance>0&&d>L.distance*6+400)continue;pick.push([d,L,_lw.x,_lw.y,_lw.z])}
  pick.sort((a,b)=>a[0]-b[0]);
  for(let i=0;i<lp.P.length;i++){const q=lp.P[i],e=pick[i];if(!e){q.intensity=0;continue}const L=e[1];q.position.set(e[2],e[3],e[4]);q.color.copy(L.color);q.intensity=L.intensity;q.distance=L.distance;q.decay=L.decay}}
-function getSpace(id){if(SP[id])return SP[id];const sp=BUILDERS[id]();envAll(sp.scene);fixVC(sp.scene);poolScan(sp);if(sp.type==='planet')applyPlanetEra(sp,clampEra(sp,ERA));return sp}
+function getSpace(id){if(SP[id])return SP[id];const sp=BUILDERS[id]();envAll(sp.scene);fixVC(sp.scene);poolScan(sp);if(sp.type==='planet')applyPlanetEra(sp,clampEra(sp,ERA));if(CUR&&CUR!==sp&&CUR.type==='planet')BSP=CUR;return sp}
 function clampEra(sp,e){const L=MB[sp.id].e;if(L.includes(e))return e;return L.reduce((a,b)=>Math.abs(b-e)<Math.abs(a-e)?b:a)}
 /* where to stand when arriving in a space */
 const HOME={rongqiu:{a:18,b:-25,alt:2600},ximin:{a:22,b:0,alt:2600},erxi:{a:34,b:-10,alt:2600},under:{a:820,b:0,alt:400,y:0}};

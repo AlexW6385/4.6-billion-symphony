@@ -110,11 +110,35 @@ function bFluff(f){const g=new THREE.Group();const warm=f.w==='rq_piaoliu'?'#f4f
  if(f.w!=='rq_piaoliu'){const gl=glowSprite('#ffe4b0',3.6,.35);g.add(gl)}
  g.userData.anim=(t)=>{hair.rotation.y=t*.15;const s=1+Math.sin(t*1.7)*.03;hair.scale.setScalar(s);core.position.y=Math.sin(t*1.3)*.06};
  return g}
-function brainGeo(){const geo=new THREE.IcosahedronGeometry(1,4);const p=geo.attributes.position,n=p.count,col=new Float32Array(n*3);const lo=C('#a85a6a'),hi=C('#f4b8c2'),tmp=new THREE.Color();
- for(let i=0;i<n;i++){const v=V3(p.getX(i),p.getY(i),p.getZ(i)).normalize();const d=n3(v.x*3.2+7,v.y*3.2,v.z*3.2)*.6+n3(v.x*7,v.y*7+3,v.z*7)*.4;const ridge=1-Math.abs(Math.sin(d*14));
-  let r=1+ridge*.055-.13*Math.exp(-Math.pow(v.z/.07,2))*(v.y>-.3?1:0);v.multiplyScalar(r);p.setXYZ(i,v.x*1.15,v.y*.85,v.z);tmp.copy(lo).lerp(hi,ridge*.9+.1);col.set([tmp.r,tmp.g,tmp.b],i*3)}
+function brainGeo(){let geo=new THREE.IcosahedronGeometry(1,40);geo.deleteAttribute('normal');geo.deleteAttribute('uv');geo=THREE.BufferGeometryUtils.mergeVertices(geo);const p=geo.attributes.position,n=p.count,col=new Float32Array(n*3);const lo=C('#7a2a3a'),hi=C('#e09aa8'),tmp=new THREE.Color();
+ // folds: narrow winding grooves (sulci) between broad rounded ridges, and the deep cleft between the halves
+ for(let i=0;i<n;i++){const v=V3(p.getX(i),p.getY(i),p.getZ(i)).normalize();const d=Math.sin(v.x*14+Math.sin(v.y*9.3)*1.9)+Math.sin(v.y*15.5+Math.sin(v.z*10.1)*1.9)+Math.sin(v.z*14.7+Math.sin(v.x*8.9)*1.9);const gq=Math.abs(d);const sul=1-sm(0,.5,gq);
+  const cleft=Math.exp(-Math.pow(v.z/.06,2))*(v.y>-.35?1:0);const r=1-sul*.07-cleft*.16+.03*(1-gq);v.multiplyScalar(r);p.setXYZ(i,v.x*1.15,v.y*.85,v.z);tmp.copy(hi).lerp(lo,Math.max(sul*.75,cleft*.8));col.set([tmp.r,tmp.g,tmp.b],i*3)}
  geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.computeVertexNormals();return geo}
 let _brain=null;
+/* 脑袋虫 (玛雅): what Lin first sees is a white oval lump about a metre long, soft, with no shell and no limbs; under the
+   skin a layer of muscle (it gets about by squirming, and by rolling over), a few breathing holes, a small mouth pressed
+   flat underneath, small eyes. the brain that makes up most of it is inside, not on show */
+function wormGeo(){let geo=new THREE.IcosahedronGeometry(1,22);geo.deleteAttribute('normal');geo.deleteAttribute('uv');geo=THREE.BufferGeometryUtils.mergeVertices(geo);const p=geo.attributes.position,n=p.count,col=new Float32Array(n*3);
+ const base=C('#f4f0e8'),belly=C('#e4d8cc'),fold=C('#dccfc4'),tmp=new THREE.Color();
+ for(let i=0;i<n;i++){const v=V3(p.getX(i),p.getY(i),p.getZ(i)).normalize();const band=Math.sin(v.x*17+Math.sin(v.z*3)*.6);const lump=Math.sin(v.x*5.1+v.y*3.3)*Math.sin(v.z*4.7+1.3)*.025;
+  const r=1+lump-.012*Math.max(0,-band);let x=v.x*r*1.28,y=v.y*r*.8,z=v.z*r*.94;if(y<-.5)y=-.5+(y+.5)*.3;p.setXYZ(i,x,y,z);
+  tmp.copy(base).lerp(belly,sm(-.1,-.55,v.y)*.8).lerp(fold,Math.max(0,-band)*.35);col.set([tmp.r,tmp.g,tmp.b],i*3)}
+ geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.computeVertexNormals();return geo}
+let _worm=null;
+function bMaya(){const g=new THREE.Group();_worm=_worm||wormGeo();const holder=new THREE.Group();g.add(holder);
+ const b=new THREE.Mesh(_worm,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.42,emissive:'#3a2420',emissiveIntensity:.06}));holder.add(b);
+ // eyes: small, dark and wet, set low on the front
+ for(const s of[1,-1]){const e=sph(0,.085,.085,.085,12,M('#141010',{roughness:.08}));e.position.set(1.17,.2,s*.3);b.add(e);const lid=sph(0,.11,.06,.11,10,M('#e8dfd4',{roughness:.5}));lid.position.set(1.13,.25,s*.3);b.add(lid)}
+ // breathing holes along the back
+ const hg=new THREE.CircleGeometry(.05,10),hm=M('#7a645a',{roughness:.9});[[.45,.62,.32],[.05,.72,.36],[-.4,.64,.3],[.45,.62,-.32],[.05,.72,-.36],[-.4,.64,-.3]].forEach(q=>{const h=new THREE.Mesh(hg,hm);const v=V3(q[0]/1.28,q[1]/.8,q[2]/.94).normalize();h.position.set(v.x*1.28*1.004,v.y*.8*1.004,v.z*.94*1.004);h.lookAt(h.position.clone().multiply(V3(1/1.64,1/.64,1/.88)).add(h.position));b.add(h)});
+ // the mouth: a short line pressed shut on the underside, near the front
+ {const m=new THREE.Mesh(new THREE.TorusGeometry(.09,.012,4,10,Math.PI),M('#9a7a70'));m.position.set(.95,-.46,0);m.rotation.set(Math.PI/2,0,0);b.add(m)}
+ const RA=1.28,RB=.8,lowY=.5;
+ // most of the time it squirms in place, now and then it rolls over a couple of times (that is how it gets anywhere)
+ g.userData.roll=b;g.userData.anim=t=>{const ph=(t*.9)%7;let rot=0;if(ph<1.6){const k=ph/1.6;rot=-(k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2)*Math.PI*2}
+  b.rotation.z=rot;const sn=Math.sin(rot),cs=Math.cos(rot);holder.position.y=Math.sqrt(Math.pow(RA*sn,2)+Math.pow(RB*cs,2))-(RB-lowY)*Math.abs(cs);
+  const sq=ph>=1.6?Math.sin(t*3.1)*.04:0;b.scale.set(1+sq,1-sq*.8,1-sq*.3);holder.rotation.y=ph>=1.6?Math.sin(t*.7)*.25:0};return g}
 function bBrain(f){const g=new THREE.Group();_brain=_brain||brainGeo();const yellow=f.w==='zaonao';
  const b=new THREE.Mesh(_brain,yellow?M('#d8b850',{roughness:.6}):new THREE.MeshStandardMaterial({vertexColors:true,roughness:.55,emissive:'#401018',emissiveIntensity:.2}));
  const holder=new THREE.Group();holder.position.y=yellow?1.3:.95;holder.add(b);if(yellow){b.scale.set(1.3,.9,1.1)}g.add(holder);
@@ -389,7 +413,7 @@ function bMaoyu(f){const n=50;const geo=mergeColored([[new THREE.IcosahedronGeom
  const g=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,flatShading:true}),n);g.userData.maoyu=n;g.userData.free=1;return g}
 function bIsland(f){return bRaft(f)}
 const SPEC={lvtan_beast:bLeviathan,xm_silver:(f)=>{const g=bLeviathan(Object.assign({},f,{col:'#c8d4dc'}));return g},ex_jiaojing:bLeviathan,behemoth:bBehemoth,tianjing:bSkyWhale,xm_huanwu:bFlyShark,
- kongshuimu:bJelly,haikong:bJelly,daqi:bJelly,rongqiu_form:bFluff,rq_piaoliu:bFluff,naodai:bBrain,zaonao:bBrain,
+ kongshuimu:bJelly,haikong:bJelly,daqi:bJelly,rongqiu_form:bFluff,rq_piaoliu:bFluff,naodai:bMaya,zaonao:bBrain,
  gulong:bDragonkin,baihai:bDragonkin,emerald:(f)=>f.kind==='flyer'?bDragon(Object.assign({},f,{col:'#4f9a6a',rider:1})):bDragonkin(f),rq_xuewu:bDragonkin,ex_baixing:bDragonkin,zhuru:bDragonkin,dianzhuru:bDragonkin,huojilong:bDragonkin,banyu:bDragonkin,
  sulong:bRaptor,baojun:bRaptor,yuandinglong:bSauropod,bosaidong:(f)=>bSauropod(Object.assign({},f,{armor:f.e.includes(4)})),jiaolong:bCeratops,duoji:bCeratops,xm_heijiao:bCeratops,
  jingzhui:bShellBeast,dachuolong:bShellBeast,tairong:bQuadSmall,lanxing:bQuadSmall,yunbuchong:bQuadSmall,cishazhe:bChameleon,
