@@ -87,8 +87,8 @@ function bGull(f){const g=new THREE.Group();g.userData.noSkin=1;const b=new THRE
  const ph=Math.random()*6;g.userData.anim=(t)=>{const gl=Math.sin(t*.4+ph)>.3;const a=gl?.08:Math.sin(t*9+ph)*.6;wings.forEach(w=>{w.pv.rotation.x=-w.z*a;w.tp.rotation.x=-w.z*a*.6});b.rotation.z=Math.sin(t*.7+ph)*.08;b.position.y=Math.sin(t*1.1+ph)*.3};return g}
 SPEC.rq_gull=bGull;
 window.FAUNA.push(
- {w:'rq_gull',kind:'flyer',at:[13.6,11.2],n:7,col:'#fff',s:1.1,alt:5,rad:1,e:[3,4,5,6,7,8,9,10,11,12],route:[[14,12.2],[14.8,11],[13.9,9.8],[12.9,10.9]],rsp:.02,spread:.35},
- {w:'rq_gull',kind:'flyer',at:[16,14],n:5,col:'#fff',s:1.1,alt:6,rad:1,e:[2,3,4,5,6,7,8,9,10,11,12],route:[[15.6,13.2],[17,14.6],[16.2,16.4],[15,14.8]],rsp:.018,spread:.4}
+ {w:'rq_gull',kind:'flyer',at:[13.6,11.2],n:7,col:'#fff',s:1.1,alt:5,rad:1,e:[6,7,8,9,10,11,12],route:[[14,12.2],[14.8,11],[13.9,9.8],[12.9,10.9]],rsp:.02,spread:.35},
+ {w:'rq_gull',kind:'flyer',at:[16,14],n:5,col:'#fff',s:1.1,alt:6,rad:1,e:[6,7,8,9,10,11,12],route:[[15.6,13.2],[17,14.6],[16.2,16.4],[15,14.8]],rsp:.018,spread:.4}
 );
 
 /* ---------- 大鸵龙 with a 白骸龙 rider ---------- */
