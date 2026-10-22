@@ -576,7 +576,7 @@ function buildRongqiu(){
   inst(geoC('succ'),VC({roughness:.7}),scatter(500,-10,66,13,103,(la,lo,h)=>h>2&&h<60&&angDeg(dirLL(la,lo),F.dieye)>8.5),(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o);o.scale.setScalar(.7+p[3]*.9)},[5,6,7,8,9,10,11,12],{tint:(p)=>C('#ffffff').offsetHSL((p[3]-.5)*.06,0,(p[3]-.5)*.1)});
   const nl=nightPoints(pts.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+2)),'#cfe6ff',2,1);addE(nl,[5,6,7,8,9,10,11,12]);sp.nightMats.push(nl.userData.night);px('silvercity',dirLL(-4,56).multiplyScalar(R+gh(-4,56)+5),20)}
  // the capital: metal everywhere, geared columns pounding the ground, the rail that climbs into the clouds
- {const pts=scatter(26,-14,63,1.5,102,onLand);const tmz=towerMat({metalness:.7,roughness:.28,win:'#ffe0b0'});sp.towerMats=(sp.towerMats||[]).concat([tmz]);inst(geoC('metalTower'),tmz,pts,(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.set(2,8+p[3]*14,2)},[5,6,7,8,9,10,11,12]);
+ {const pts=scatter(12,-14,63,1.6,102,(la,lo,h)=>h>1.6&&angDeg(dirLL(la,lo),dirLL(-14,63))>.45);const tmz=towerMat({metalness:.7,roughness:.28,win:'#ffe0b0'});sp.towerMats=(sp.towerMats||[]).concat([tmz]);inst(geoC('metalTower'),tmz,pts,(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.set(1.8,6+p[3]*8,1.8)},[5,6,7,8,9,10,11,12]);
   const g=new THREE.Group();const pist=[];for(let i=0;i<6;i++){const c=new THREE.Mesh(kcy(.7,.7,6,10),M('#9aa4ac',{metalness:.8,roughness:.3}));const a=i*1.05;c.position.set(Math.cos(a)*6,3,Math.sin(a)*6);g.add(c);pist.push(c);const gear=new THREE.Mesh(new THREE.TorusGeometry(1.3,.3,4,10),M('#7a8288',{metalness:.8}));gear.position.copy(c.position);gear.position.y=5.4;gear.rotation.x=Math.PI/2;g.add(gear)}
   g.add(emitter({n:80,life:5,speed:3,spread:.4,size:7,dir:[0,1,0],col:'#8a8a8a',op:.3,add:false,tex:smokeTex,area:[14,2,14],wander:1.5}));fr(-14,63,0,0,g);addE(g,[5,6,7,8,9,10,11,12]);cull(g,null,30,1400);
   anim(sp,g,t=>pist.forEach((c,i)=>{c.position.y=3+Math.abs(Math.sin(t*3+i))*2.2}));
@@ -591,12 +591,31 @@ function buildRongqiu(){
   const huts=scatter(30,-8,69,3,113);inst(new THREE.SphereGeometry(1,10,6,0,6.283,0,1.57),M('#f4f4f0'),huts,(o,p)=>{frameLL(sp,p[0],p[1],148.5,0,o,false);o.scale.setScalar(1.6+p[3])},[5]);
   px('cloudsea',dirLL(-8,68).multiplyScalar(R+130),40,{maxD:3200})}
  // the academy of alloy on the mountain that pierces all three layers
- {const g=new THREE.Group();const mm=M('#d4dde3',{metalness:.85,roughness:.25});for(let i=0;i<7;i++){const b=new THREE.Mesh(kb(2.2,2+i%3*1.4,2.2),mm);b.position.set(Math.cos(i)*3.6,1+(i%3)*.7,Math.sin(i)*3.6);g.add(b)}
-  const d=new THREE.Mesh(new THREE.SphereGeometry(2.6,14,7,0,6.283,0,1.57),mm);g.add(d);const ant=new THREE.Mesh(kcy(.08,.12,7,4),mm);ant.position.y=5;g.add(ant);g.add(at(glowSprite('#ff6a6a',3,.9),0,8.6,0));
+ {const g=new THREE.Group();const mm=M('#d4dde3',{metalness:.85,roughness:.25});
+  // a terraced alloy campus: an octagonal deck sunk into the summit, halls and towers round a central rotunda,
+  // a lecture stage where the Head speaks, dishes listening to the whole third layer, bridges between the roofs
+  {const am=towerMat({metalness:.85,roughness:.25,win:'#cfe6ff'});sp.towerMats=(sp.towerMats||[]).concat([am]);const DK='#5a6670',GL='#3a5a7a',P=[];
+   P.push([kcy(10,10,.5,8),'#ffffff',{p:[0,.05,0]}],[kcy(10.2,10.2,.35,8),DK,{p:[0,.33,0]}]);{const sk=new THREE.Mesh(kcy(9.8,13.5,7,8),detailMat(M('#6e665c',{roughness:.95}).clone(),{bump:1,freq:1}));sk.position.y=-3.4;g.add(sk)}
+   for(let i=0;i<16;i++){const t=i/16*6.283;P.push([kcy(.05,.05,.9,3),DK,{p:[Math.cos(t)*10,.95,Math.sin(t)*10]}])}P.push([ring(10,.05,24),DK,{p:[0,1.35,0]}]);
+   P.push([kcy(2.9,2.9,3,16),'#ffffff',{p:[0,1.5,0]}],[ring(3.05,.15,20),DK,{p:[0,3,0]}],...[0,1,2,3,4,5].map(i=>[kb(.5,1.3,.06),GL,{p:[Math.sin(i*1.047)*2.92,1.7,Math.cos(i*1.047)*2.92],r:[0,i*1.047,0]}]));
+   const B=[[-5.6,-2,2.4,5.5,2.4],[-4.6,3.8,3.4,3,2.2],[4.4,-4.2,2.2,7.5,2.2],[0,-6.6,4,2.2,2],[-6.4,-6.2,1.6,9,1.6]];
+   for(const [x,z,w,h,d] of B){P.push([kb(w,h,d),'#ffffff',{p:[x,h/2+.35,z]}],[kb(w+.3,.25,d+.3),DK,{p:[x,h+.48,z]}]);for(let y=1.2;y<h;y+=1.3)P.push([kb(w+.04,.3,d+.04),GL,{p:[x,y+.35,z]}])}
+   P.push([kb(4.8,.3,.9),DK,{p:[-5.1,4.3,.9],r:[0,1.3,0]}],[kb(5.2,.25,.8),DK,{p:[2.2,6.6,-4],r:[0,.2,0]}]);
+   // the lecture stage at the front: a raised disc, four columns, a podium
+   P.push([kcy(2.4,2.6,.8,16),'#ffffff',{p:[0,.75,7.2]}],...[0,1,2,3].map(i=>[kcy(.14,.14,2.6,6),'#ffffff',{p:[Math.cos(i*1.57+.785)*2,2.45,7.2+Math.sin(i*1.57+.785)*2]}]),[kcy(2.5,2.5,.18,16),DK,{p:[0,3.8,7.2]}],[kb(.8,1.1,.5),DK,{p:[0,1.7,6.2]}]);
+   // listening dishes
+   for(const [x,z,a] of [[7.6,-1.6,.6],[6.4,-6,1.4]]){P.push([kcy(.15,.2,2.6,6),DK,{p:[x,1.6,z]}],[tg(new THREE.SphereGeometry(1.4,14,6,0,6.283,0,.9),{r:[2.4,a,0]}),'#ffffff',{p:[x,3.2,z]}],[kcy(.03,.03,1,3),DK,{p:[x,3.6,z],r:[2.4,a,0]}])}
+   const cm=new THREE.Mesh(G(P),am);g.add(cm)}
+  const d=new THREE.Mesh(new THREE.SphereGeometry(2.9,16,8,0,6.283,0,1.57),mm);d.position.y=3;g.add(d);const ant=new THREE.Mesh(kcy(.08,.12,7,4),mm);ant.position.y=8.2;g.add(ant);g.add(at(glowSprite('#ff6a6a',3,.9),0,11.8,0));
   const lab=new THREE.Mesh(new THREE.SphereGeometry(3,14,8,0,6.283,0,1.57),M('#f6f4f0',{roughness:.9}));lab.position.set(7,0,5);g.add(lab);
   const spi=new THREE.Group();const sb=new THREE.Mesh(sgeo(10),mm);sb.scale.set(1,.7,1);spi.add(sb);for(let i=0;i<8;i++){const l=leg2(1.2,1.3,.08,mm,.8);l.position.set(0,0,0);l.rotation.y=i/8*6.28;l.rotation.x=.8;spi.add(l)}spi.position.set(7,4.2,5);g.add(spi);
   fr(-6,73,0,0,g);addE(g,[5,6,7,8,9,10,11,12]);cull(g,null,20,2400);px('cloudpeak',g.position.clone().add(g.position.clone().normalize().multiplyScalar(5)),12);
-  g.updateMatrixWorld();px('rq_lab3',g.localToWorld(V3(7,3,5)),6);px('jiaozhang',g.position.clone().add(g.position.clone().normalize().multiplyScalar(9)),4)}
+  g.updateMatrixWorld();px('rq_lab3',g.localToWorld(V3(7,3,5)),6);px('jiaozhang',g.position.clone().add(g.position.clone().normalize().multiplyScalar(9)),4)
+  // rails along the cliffs: two tracks winding down the peak from the deck, with a car on each
+  {const rm=M('#b8c4cc',{metalness:.8,roughness:.25});const cars=[];for(const [ph,dir] of [[0,1],[3.1,-1]]){const pts=[];for(let i=0;i<=90;i++){const t=i/90,an=ph+dir*t*9.5,dd=.55+t*2.6;const la=-6+Math.cos(an)*dd,lo=73+Math.sin(an)*dd/Math.cos(6*D2R);pts.push(dirLL(la,lo).multiplyScalar(R+gh(la,lo)+1.6))}
+    const cv=new THREE.CatmullRomCurve3(pts);const tb=new THREE.Mesh(new THREE.TubeGeometry(cv,240,.28,4,false),rm);addE(tb,[5,6,7,8,9,10,11,12]);cull(tb,pts[45],80,2200);
+    const car=new THREE.Mesh(G([[kb(2.4,1.2,1.2),'#e8ecef',{p:[0,.9,0]}],[kb(2.2,.5,1.24),'#3a5a7a',{p:[0,1.1,0]}]]),VC({metalness:.6,roughness:.3}));addE(car,[5,6,7,8,9,10,11,12]);cull(car,pts[45],80,1600);cars.push({car,cv,ph})}
+   const tp=V3(),tq=V3();anim(sp,null,t=>cars.forEach(k=>{const u=(Math.sin(t*.05+k.ph)*.5+.5)*.98;k.cv.getPointAt(u,tp);k.cv.getPointAt(Math.min(1,u+.01),tq);k.car.position.copy(tp);k.car.up.copy(tp).normalize();k.car.lookAt(tq);k.car.rotateY(Math.PI/2)}))}}
  // the eye of the earth: an oasis lake in a ring of jungle and blood-trees
  {inst(geoC('rain'),swayMat({roughness:.85},.002),scatter(140,-17,75,4.6,104,(la,lo,h)=>h>1.5&&angDeg(dirLL(la,lo),F.dieye)>2.4&&angDeg(dirLL(la,lo),F.dieye)<5),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.6+p[3]*.5)},[5,6,7,8,9,10,11,12]);
   inst(geoC('blood'),VC({roughness:.4}),scatter(240,-17,76,8.2,104,(la,lo,h)=>Math.abs(angDeg(dirLL(la,lo),F.dieye)-7.6)<.7&&h>1),(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o);o.scale.setScalar(1.1+p[3]*.8)},[5,6,7,8,9,10,11,12]);

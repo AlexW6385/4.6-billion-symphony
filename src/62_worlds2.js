@@ -40,15 +40,15 @@ function ximinMore(sp){const gh=sp.gh;const Rn=rnd(9393);const land=(la,lo,h)=>h
   inst(g,VC({metalness:.7,roughness:.35}),scatter(9,28,26,9,991),(o,p)=>{frameLL(sp,p[0],p[1],140+p[3]*160,p[3]*6,o,false);o.scale.setScalar(26+p[3]*30)},[6],{tint:()=>C('#4a4c54'),far:4000})}}
 
 function erxiMore(sp){const gh=sp.gh;const Rn=rnd(4242);sp.entClr=sp.entClr||[];sp.nightMats=sp.nightMats||[];
- const T=[[45,12,{name:'tiangong',style:'grand',r:2.6,n:170,eras:[8,9,10,11,12],wall:0,fields:8,people:50,pCol:'#c8b090',road:'#d8ccb0',towers:.16,scale:1.15}],
-  [32,108,{name:'niuyao',style:'silver',r:2.8,n:170,eras:[8,9,10,11,12],people:50,pCol:'#a8b0b8',road:'#b8bcc0',win:'#cfe6ff',lamp:'#cfe6ff',fields:6,towers:.14}],
-  [38,-100,{name:'ameirun',style:'grand',r:2.6,n:150,eras:[8,9,10,11,12],people:46,pCol:'#c8a860',road:'#d8ccb0',fields:8,towers:.14}],
+ const T=[[45,12,{name:'tiangong',style:'future',keep:[[18,0,15],[36,0,18],[0,-24,15],[2,24,11],[-20,-20,8]],r:2.6,n:170,eras:[8,9,10,11,12],wall:0,fields:8,people:50,pCol:'#c8b090',road:'#d8ccb0',towers:.16,scale:1.15}],
+  [32,108,{name:'niuyao',style:'future',r:2.8,n:170,eras:[8,9,10,11,12],people:50,pCol:'#a8b0b8',road:'#b8bcc0',win:'#cfe6ff',lamp:'#cfe6ff',fields:6,towers:.14}],
+  [38,-100,{name:'ameirun',style:'future',r:2.6,n:150,eras:[8,9,10,11,12],people:46,pCol:'#c8a860',road:'#d8ccb0',fields:8,towers:.14}],
   [36,-94,{name:'hero',style:'silver',r:1.5,n:70,eras:[8,9],people:24,towers:.2}],
   [32,-84,{name:'clown',style:'white',r:1.4,n:60,eras:[9],people:20}],
   [36,16,{name:'atlan',style:'dragon',r:1.8,n:80,eras:[7],wall:1,wallC:'#a89a88',fields:10,people:36,pCol:'#8a6a4a'}],
-  [40,22,{name:'yanjiu',style:'grand',r:1.2,n:50,eras:[9],people:16}],
+  [40,22,{name:'yanjiu',style:'future',r:1.2,n:50,eras:[9],people:16}],
   [30,40,{name:'nengli',style:'white',r:1.3,n:56,eras:[7],people:20}]];
- for(const [la,lo,o] of T){o.map='erxi';const deg=o.r*.92;sp.entClr.push({d:dirLL(la,lo),deg,cs:Math.cos(deg*D2R),eras:o.eras});town(sp,la,lo,o)}
+ for(const [la,lo,o] of T){o.map='erxi';const deg=o.r*.92;sp.entClr.push({d:dirLL(la,lo),deg,cs:Math.cos(deg*D2R),eras:o.eras});town(sp,la,lo,o)}tiangongDetail(sp);
  // woods in patches over the warm lands, conifers on the cold ones
  const wf=d=>sm(.46,.62,fbm(d.x*9+3,d.y*9,d.z*9,4));const pts={broad:[],conifer:[],palm:[]};const d=V3();
  for(let i=0;i<260000&&(pts.broad.length+pts.conifer.length)<14000;i++){d.set(Rn()*2-1,Rn()*2-1,Rn()*2-1);if(d.lengthSq()>1||d.lengthSq()<.02)continue;d.normalize();const la=Math.asin(d.y)/D2R,lo=Math.atan2(d.x,d.z)/D2R;const h=sp.ghRaw(la,lo);if(h<3||h>70)continue;

@@ -180,8 +180,8 @@ function towerMat(o){o=Object.assign({},o||{});const wc=o.win||'#ffd27a';delete 
  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);sh.vertexShader='varying vec3 vWP;varying vec3 vWN;\n'+sh.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n#ifdef USE_INSTANCING\nvWP=(modelMatrix*instanceMatrix*vec4(transformed,1.)).xyz;vWN=normalize(mat3(modelMatrix*instanceMatrix)*objectNormal);\n#else\nvWP=(modelMatrix*vec4(transformed,1.)).xyz;vWN=normalize(mat3(modelMatrix)*objectNormal);\n#endif');
   sh.fragmentShader='uniform float uNight;uniform vec3 uWin;varying vec3 vWP;varying vec3 vWN;\n'+sh.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
  {vec3 up=normalize(vWP);float side=1.-abs(dot(normalize(vWN),up));vec3 q=vWP*1.25;vec3 cell=floor(q);vec3 f=fract(q);float h=fract(sin(dot(cell,vec3(12.9898,78.233,37.719)))*43758.5453);
-  float win=step(.25,f.x)*step(f.x,.75)*step(.3,f.y)*step(f.y,.8)+step(.25,f.z)*step(f.z,.75)*step(.3,f.y)*step(f.y,.8);win=clamp(win,0.,1.)*step(.42,h)*smoothstep(.55,.9,side);
-  totalEmissiveRadiance+=uWin*win*(.12+.95*uNight)*(.6+.4*h);}`)};
+  float win=step(.3,f.x)*step(f.x,.7)*step(.38,f.y)*step(f.y,.74)+step(.3,f.z)*step(f.z,.7)*step(.38,f.y)*step(f.y,.74);win=clamp(win,0.,1.)*step(.58,h)*smoothstep(.55,.9,side);
+  totalEmissiveRadiance+=uWin*win*(.08+.75*uNight)*(.55+.45*h);}`)};
  m.customProgramCacheKey=()=>'tower';return m}
 /* ---------------- build-time helpers (BSP = the planet being built) ---------------- */
 let BSP=null;

@@ -6,6 +6,7 @@
 40_planet.js
 41_rongqiu.js
 42_towns.js
+42b_cities.js
 43_wilds.js
 44_life.js
 43_canon.js
