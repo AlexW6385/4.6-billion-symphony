@@ -51,7 +51,7 @@ function bFig(o){o=Object.assign({skin:'#d8b89a',cloth:'#5a6a8a',cloth2:'#3a4258
  if(o.book){const bk=new THREE.Mesh(kb(H*.2,H*.26,H*.05),M('#8a3a2a'));bk.position.set(H*.3,H*1.2,H*.15);g.add(bk)}
  if(o.tail){g.add(tubeAlong([V3(-H*.15,H*.95,0),V3(-H*.5,H*.7,0),V3(-H*.8,H*.5,0)],H*.06,sk,8))}
  g.add(shadow(H*.45));
- addLegs(g,legs);g.userData.anim=(t)=>{tor.scale.y=1+Math.sin(t*1.8)*.02;arms.forEach((a,i)=>a.rotation.z=-.1+Math.sin(t*1.2+i*1.7)*.12);head.rotation.z=Math.sin(t*.7)*.06;if(g.userData.capeM)g.userData.capeM.rotation.z=Math.sin(t*1.3)*.08};
+ addLegs(g,legs);const torY=tor.scale.y;g.userData.anim=(t)=>{tor.scale.y=torY*(1+Math.sin(t*1.8)*.02);arms.forEach((a,i)=>a.rotation.z=-.1+Math.sin(t*1.2+i*1.7)*.12);head.rotation.z=Math.sin(t*.7)*.06;if(g.userData.capeM)g.userData.capeM.rotation.z=Math.sin(t*1.3)*.08};
  return g}
 
 /* ---------- dragon-folk with their trappings ---------- */
