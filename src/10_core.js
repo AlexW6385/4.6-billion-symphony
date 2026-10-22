@@ -194,7 +194,7 @@ function rigPose(){const sp=CUR;const tilt=tiltOf(sp.type,rig.alt);surf(sp,rig.a
  camera.position.copy(TG).add(OFF);camera.up.copy(UP).multiplyScalar(Math.sin(tilt)).addScaledVector(BK,-Math.cos(tilt)).normalize();camera.lookAt(TG);
  if(sp.type==='planet'){const ll=llDir(camera.position);const minR=R+Math.max(sp.gh(ll[0],ll[1]),0)+5;if(camera.position.length()<minR){camera.position.setLength(minR);camera.lookAt(TG)}}
  if(sp.type==='tube'){const r=Math.hypot(camera.position.x,camera.position.y),mx=sp.Rt*.86;let fix=false;if(r>mx){camera.position.x*=mx/r;camera.position.y*=mx/r;fix=true}
-  const cz=clamp(camera.position.z,sp.zc[0],sp.zc[1]);if(cz!==camera.position.z){camera.position.z=cz;fix=true}if(fix)camera.lookAt(TG)}if(sp.camOv&&sp.moon)moonCam(sp);else if(window.__view){camera.position.copy(window.__view.p);if(CUR.type==='planet')camera.up.copy(window.__view.p).normalize();else camera.up.set(0,1,0);camera.lookAt(window.__view.l)}camera.updateMatrixWorld()}
+  const cz=clamp(camera.position.z,sp.zc[0],sp.zc[1]);if(cz!==camera.position.z){camera.position.z=cz;fix=true}if(fix)camera.lookAt(TG)}if(sp.type!=='planet'&&sp.type!=='tube'&&window.__solidPush)window.__solidPush(sp);if(sp.camOv&&sp.moon)moonCam(sp);else if(window.__view){camera.position.copy(window.__view.p);if(CUR.type==='planet')camera.up.copy(window.__view.p).normalize();else camera.up.set(0,1,0);camera.lookAt(window.__view.l)}camera.updateMatrixWorld()}
 function moveBy(dN,dE){const t=CUR.type;
  if(t==='planet'){rig.a=clamp(rig.a+dN/(R*D2R),-86,86);rig.b+=dE/(R*D2R*Math.max(.2,Math.cos(rig.a*D2R)))}
  else if(t==='tube'){rig.a=clamp(rig.a+dN,CUR.zr[0],CUR.zr[1]);rig.b+=dE/(CUR.Rt*D2R)}

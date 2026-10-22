@@ -249,6 +249,12 @@ function shadowScan(sp){if(sp.type!=='planet'||!sp.sunL)return;sp.scene.traverse
    set's own origin (or the points as first laid out), so from close up, looking past that origin, a whole set
    vanished. they are drawn whenever they are visible instead */
 function noStaleCull(sp){sp.scene.traverse(o=>{if((o.isInstancedMesh||o.isPoints)&&o.frustumCulled)o.frustumCulled=false})}
+/* off a planet, zooming in on a world or a star could carry the camera inside it, where its surface faces away and
+   it seemed to shrink and vanish: the camera stops just outside any solid body instead */
+const _sv=V3();
+window.__solidPush=sp=>{let L=sp._solids;if(L===undefined){L=sp._solids=[];for(const w of WIKI){if(mapOf(w)!==sp.id||!w.k||!SOLID[w.k])continue;const r=(w.kp&&w.kp.r)||sizeOf(w);if(r>4)L.push({w,r})}}
+ if(!L.length)return;let moved=false;for(const s of L){if(s.w.e&&!s.w.e.includes(ERA))continue;const c=s.c||(s.c=posOf(s.w));_sv.copy(camera.position).sub(c);const d=_sv.length(),m=s.r*1.12;if(d<m){camera.position.copy(c).addScaledVector(d>1e-3?_sv.divideScalar(d):V3(0,1,0),m);moved=true}}
+ if(moved)camera.lookAt(TG)};
 function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;shadowScan(sp);noStaleCull(sp);
  sp.scene.traverse(o=>{if(!o.isPointLight||o.userData.pool||o.userData.pooled||o.parent===sp.scene)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o)});
  if(lp.L.length&&!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}}

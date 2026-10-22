@@ -13,7 +13,7 @@ function ximinMore(sp){const gh=sp.gh;const Rn=rnd(9393);const land=(la,lo,h)=>h
  const cent=[[27,34,1.6],[-6,-86,1.8],[32,18,1.4],[25,24,1.3],[44,-40,1],[-34,40,1],[20,80,1],[10,-20,1],[-12,110,.9],[56,100,.9]];
  const tm=towerMat({metalness:.65,roughness:.28,win:'#ffe2a8'});sp.towerMats.push(tm);const kits=SKY();
  // skyscrapers: densest and tallest in the middle of each great city
- cent.forEach(([la,lo,k],ci)=>{const R0=6*k;const pts=scatter(Math.round(520*k),la,lo,R0,700+ci,land).filter(p=>!nearEnt('ximin',p[0],p[1],.9));const by=[[],[],[],[]];pts.forEach(p=>by[(p[3]*37|0)%4].push(p));
+ cent.forEach(([la,lo,k],ci)=>{const R0=6*k;const JL=dirLL(32,18);const pts=scatter(Math.round(520*k),la,lo,R0,700+ci,land).filter(p=>!nearEnt('ximin',p[0],p[1],.9)&&angDeg(dirLL(p[0],p[1]),JL)>3.4);/* the space egg of Jiale and its ring stay clear */const by=[[],[],[],[]];pts.forEach(p=>by[(p[3]*37|0)%4].push(p));
   by.forEach((L,kk)=>inst(kits[kk],tm,L,(o,p)=>{const d=angDeg(dirLL(p[0],p[1]),dirLL(la,lo))/R0;frameLL(sp,p[0],p[1],-.2,Math.round(p[3]*4)*1.5708,o);const w=2.2+p[3]*3;const h=(4+Math.pow(1-d,2.2)*60*k+p[3]*p[3]*20)*(kk===3?.35:1);o.scale.set(w,h,w*(.8+((p[3]*7)%1)*.5))},null,{tint:p=>C(['#d8e0e8','#b8c4d0','#e8e4dc','#9aa8b4'][(p[3]*11|0)%4]),far:2600}))});
  // the city grid: seams in the metal shine at night, brightest in the cities
  {const pts=[];for(const [la,lo,k] of cent){const Rg=14*k;for(let a=-Rg;a<=Rg;a+=.22){for(const [l1,o1] of[[Math.round((la+a)/2.2)*2.2,null],[null,Math.round((lo+a)/2.2)*2.2]]){}}
