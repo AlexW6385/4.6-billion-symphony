@@ -50,7 +50,10 @@ const selRing=new THREE.Sprite(new THREE.SpriteMaterial({map:ringTex,color:'#f0c
    and drawn as camera-facing quads in a single draw; colour and opacity still follow the original material. */
 const SB_VS=`attribute vec3 aC;attribute vec2 aS;attribute vec2 aK;attribute float aR;attribute vec4 aCol;varying vec2 vU;varying vec4 vCol;
 #include <fog_pars_vertex>
-void main(){vU=aK+.5;vCol=aCol;vec4 mvPosition=modelViewMatrix*vec4(aC,1.);float c=cos(aR),s=sin(aR);vec2 k=aK*aS;mvPosition.xy+=vec2(c*k.x-s*k.y,s*k.x+c*k.y);gl_Position=projectionMatrix*mvPosition;
+void main(){vU=aK+.5;vCol=aCol;vec4 mvPosition=modelViewMatrix*vec4(aC,1.);
+ // a soft sprite the camera is almost inside would fill the screen with one flat smear: let it fade away instead
+ {float sz=max(aS.x,aS.y);vCol.a*=smoothstep(sz*.12,sz*.5,-mvPosition.z);}
+float c=cos(aR),s=sin(aR);vec2 k=aK*aS;mvPosition.xy+=vec2(c*k.x-s*k.y,s*k.x+c*k.y);gl_Position=projectionMatrix*mvPosition;
 #include <fog_vertex>
 }`;
 const SB_FS=`uniform sampler2D map;uniform float uHasMap;varying vec2 vU;varying vec4 vCol;

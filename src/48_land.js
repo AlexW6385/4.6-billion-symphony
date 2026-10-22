@@ -29,7 +29,7 @@ function rqLand(sp){const G=sp.G,gh=sp.gh,Rn=rnd(5150);const up=V3(),q=new THREE
   const ph=Rn()*9;anim(sp,g,t=>{const f=.8+.2*Math.sin(t*11+ph)*Math.sin(t*7.3+ph);fl.scale.setScalar(2.6*f);fl.material.opacity=.7+.25*f;fl2.material.opacity=.18+.1*f});
   (sp._dbgC=sp._dbgC||[]).push(g.position.clone());addE(g,eras,true);cull(g,g.position.clone(),6,700)}
  // ---- cairns: small piles of stones on hilltops and beside the town roads ----
- {const parts=[];const st=new THREE.IcosahedronGeometry(1,0);const cairnAt=[];for(const [la,lo,o] of TOWN_SITES)for(let k=0;k<5;k++){const a=Rn()*6.28,dd=o.r*(1.2+Rn()*.6);cairnAt.push([la+Math.cos(a)*dd,lo+Math.sin(a)*dd/Math.cos(la*D2R),o.eras||[5]])}
+ {const parts=[];const st=lumpRock(1,9);const cairnAt=[];for(const [la,lo,o] of TOWN_SITES)for(let k=0;k<5;k++){const a=Rn()*6.28,dd=o.r*(1.2+Rn()*.6);cairnAt.push([la+Math.cos(a)*dd,lo+Math.sin(a)*dd/Math.cos(la*D2R),o.eras||[5]])}
   for(let k=0;k<40;k++){const la=(Rn()-.5)*80,lo=(Rn()-.5)*300;const h=gh(la,lo);if(h>25&&h<90)cairnAt.push([la,lo,[3,5,6,7,8,9,10,11,12]])}
   for(const [la,lo,eras] of cairnAt){if(gh(la,lo)<1.5||cyLL(la,lo)>.3)continue;const g=new THREE.Group();frameLL(sp,la,lo,-.1,Rn()*6,g);const P=[];let y=0;for(let j=0;j<4;j++){const s=.55-j*.11;P.push([st.clone().scale(s,s*.7,s).rotateY(j*1.3).translate((Rn()-.5)*.1,y+s*.6,(Rn()-.5)*.1),['#8a8478','#9a948a','#7a7468','#a8a298'][j]]);y+=s*1.1}
    g.add(new THREE.Mesh(mergeColored(P),VC({roughness:.95,flatShading:true})));g.scale.setScalar(1.4);addE(g,eras,true);cull(g,g.position.clone(),4,500)}}

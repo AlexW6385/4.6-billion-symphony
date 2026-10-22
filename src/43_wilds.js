@@ -108,7 +108,7 @@ function rqSpires(sp){const Rn=rnd(1515);const kits=[spireGeo(11,false),spireGeo
  const pts=scatter(300,15,-1,3,7,onLand);const by=[[],[],[],[]];pts.forEach((p,i)=>by[i%4].push(p));
  by.forEach((L,k)=>inst(kits[k],mat,L,(o,p)=>{frameLL(sp,p[0],p[1],-1,p[3]*6.28,o);const c=1-Math.min(1,angDeg(dirLL(p[0],p[1]),dirLL(15,-1))/3);const s=.5+Math.pow(p[3],1.4)*.8+c*.45;o.scale.set(s,s*(.8+((p[3]*7)%1)*.5),s*(.85+((p[3]*9)%1)*.3))},[2,3],{far:2200}));
  // moss and fallen stone between them, mist low in the gaps
- const deb=scatter(260,15,-1,3,8,onLand);inst(new THREE.DodecahedronGeometry(1,0),detailMat(VC({roughness:.95,flatShading:true}),{bump:.8}),deb,(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.set(.8+p[3]*1.6,.5+p[3],.8+p[3]*1.4)},[2,3],{tint:p=>C(p[3]>.6?'#5a7a40':'#7a746a'),far:1200});
+ const deb=scatter(260,15,-1,3,8,onLand);inst(lumpRock(1,3),detailMat(VC({roughness:.95,flatShading:true}),{bump:.8}),deb,(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.set(.8+p[3]*1.6,.5+p[3],.8+p[3]*1.4)},[2,3],{tint:p=>C(p[3]>.6?'#5a7a40':'#7a746a'),far:1200});
  fogBank(15,-1,2.4,10,5,'#dfe8e4',.35,1516,[2,3],14)}
 
 /* ---------- the dead giant on the ice river: three hundred metres of frozen wood ---------- */
@@ -140,7 +140,7 @@ function rqEcho(sp){const g=new THREE.Group();const hull=loft([[11,0,0,.4,.4],[8
  px('echo',g.position.clone().add(g.position.clone().normalize().multiplyScalar(6)),20)}
 
 /* ---------- mountains: scree, forest on the lower flanks, snow on the crowns ---------- */
-function rqMountains(sp){const peaks=[[22,-94,9],[36,15,10],[-6,73,9]];const kitC=geoC('conifer'),kitR=new THREE.DodecahedronGeometry(1,0);
+function rqMountains(sp){const peaks=[[22,-94,9],[36,15,10],[-6,73,9]];const kitC=geoC('conifer'),kitR=lumpRock(1,5);
  for(const [la,lo,r] of peaks){const T=scatter(520,la,lo,r,hashStr('m'+la),(a,b,h)=>h>8&&h<70&&angDeg(dirLL(a,b),dirLL(36.6,14.2))>2.2);inst(kitC,VC({roughness:.85}),T,(o,p)=>{frameLL(sp,p[0],p[1],-.3,p[3]*6,o);o.scale.setScalar(.7+p[3]*.6)},[2,3,4,5,6,7,8,9,10,11,12],{tint:p=>C(p[2]>55?'#8a9a7a':'#ffffff').offsetHSL(0,0,(p[3]-.5)*.12),far:1600});
   const S=scatter(220,la,lo,r*.7,hashStr('s'+la),(a,b,h)=>h>40);inst(kitR,detailMat(VC({roughness:.95,flatShading:true}),{bump:.8}),S,(o,p)=>{frameLL(sp,p[0],p[1],-.3,p[3]*6,o);o.scale.set(1+p[3]*2.4,.6+p[3]*1.4,1+p[3]*2)},[2,3,4,5,6,7,8,9,10,11,12],{tint:p=>C(p[2]>85?'#f4f6f8':'#b8b0a2').offsetHSL(0,0,(p[3]-.5)*.1),far:1600})}}
 
@@ -157,7 +157,7 @@ function rqGreenPool(sp){const g=new THREE.Group();const Rn=rnd(1288);const eras
  const ru=[];const stone=['#a8b8a0','#98a890','#b8c4b0'];
  for(let i=0;i<26;i++){const a=i/26*Math.PI*2+Rn()*.15,d=19+Rn()*6;const h=1+Rn()*4.5;ru.push([tg(new THREE.BoxGeometry(2.4+Rn()*2,h,1.2),{p:[Math.cos(a)*d,h/2-.3,Math.sin(a)*d],r:[(Rn()-.5)*.15,-a,(Rn()-.5)*.15]}),stone[i%3]])}
  for(let i=0;i<10;i++){const a=Rn()*6.28,d=24+Rn()*14;const up=Rn()<.4;const L=4+Rn()*6;ru.push([tg(new THREE.CylinderGeometry(.7,.8,L,10),{p:[Math.cos(a)*d,up?L/2:.6,Math.sin(a)*d],r:up?[0,0,0]:[Math.PI/2,Rn()*3,0]}),'#c0ccb8'])}
- for(let i=0;i<40;i++){const a=Rn()*6.28,d=17+Rn()*22;const s=.5+Rn()*1.3;ru.push([tg(new THREE.DodecahedronGeometry(s,0),{p:[Math.cos(a)*d,s*.3,Math.sin(a)*d]}),Rn()<.5?'#8aa080':'#a0a898'])}
+ for(let i=0;i<40;i++){const a=Rn()*6.28,d=17+Rn()*22;const s=.5+Rn()*1.3;ru.push([tg(lumpRock(s,i%4+1).clone(),{p:[Math.cos(a)*d,s*.3,Math.sin(a)*d]}),Rn()<.5?'#8aa080':'#a0a898'])}
  g.add(new THREE.Mesh(mergeColored(ru),detailMat(VC({roughness:.95}),{bump:.8,freq:2})));
  // reeds round the edge, lily pads, glowing spores and a low mist on the water
  const rd=[];for(let i=0;i<180;i++){const a=Rn()*6.28,d=15+Rn()*3;const L=1.5+Rn()*2.5;rd.push([tg(new THREE.ConeGeometry(.08,L,3),{p:[Math.cos(a)*d,L/2,Math.sin(a)*d],r:[(Rn()-.5)*.3,0,(Rn()-.5)*.3]}),Rn()<.5?'#5a8a3a':'#7a9a4a'])}

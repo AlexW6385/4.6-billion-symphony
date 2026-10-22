@@ -113,6 +113,13 @@ const GT={value:0};                       // global time for shaders
 const PSCALE={value:300};                 // point-size scale (viewport height)
 /* white (or black) masks drawn with canvas gradients: some browsers dither the colour channels of faint pixels,
    which shows up as rainbow speckle once many soft sprites stack. Pin the colour to pure white/black and keep only the alpha. */
+/* the same for ordinary sprites */
+{const L=THREE.ShaderLib.sprite;L.vertexShader=L.vertexShader.replace('#include <fog_pars_vertex>','#include <fog_pars_vertex>\nvarying float vNearFade;').replace('gl_Position = projectionMatrix * mvPosition;','{float sz=max(scale.x,scale.y);vNearFade=smoothstep(sz*.12,sz*.5,-(modelViewMatrix*vec4(0.,0.,0.,1.)).z);}\n\tgl_Position = projectionMatrix * mvPosition;');
+ L.fragmentShader=L.fragmentShader.replace('#include <fog_pars_fragment>','#include <fog_pars_fragment>\nvarying float vNearFade;').replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );','gl_FragColor = vec4( outgoingLight, diffuseColor.a*vNearFade );')}
+/* a stone: a lumpy, slightly flattened ball with facets, instead of a perfect dodecahedron */
+const _rockC={};function lumpRock(r,seed){r=r||1;seed=seed||1;const key=r+'|'+seed;if(_rockC[key])return _rockC[key];const g=new THREE.IcosahedronGeometry(1,1);const a=g.attributes.position;
+ for(let i=0;i<a.count;i++){const x=a.getX(i),y=a.getY(i),z=a.getZ(i);const k=1+(n3(x*1.6+seed*3.1,y*1.6,z*1.6)-.5)*.6+(n3(x*4.2,y*4.2+seed,z*4.2)-.5)*.22;a.setXYZ(i,x*k*r,y*k*r*(y<0?.72:.92),z*k*r)}
+ g.computeVertexNormals();return _rockC[key]=g}
 function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');draw(x,w,h);
  try{const im=x.getImageData(0,0,w,h),d=im.data;let wh=true,bk=true,any=false;for(let i=0;i<d.length;i+=4){if(d[i+3]<48)continue;any=true;if(d[i]<235||d[i+1]<235||d[i+2]<235)wh=false;if(d[i]>20||d[i+1]>20||d[i+2]>20)bk=false;if(!wh&&!bk)break}
   if(any&&(wh||bk)){const v=wh?255:0;for(let i=0;i<d.length;i+=4){d[i]=d[i+1]=d[i+2]=v}x.putImageData(im,0,0)}}catch(e){}

@@ -327,7 +327,19 @@ function updViewOff(dt){const W=innerWidth,H=innerHeight;const [tx,ty]=voTarget(
  camera.setViewOffset(W,H,-VO.x,-VO.y,W,H)}
 /* ---------- the loop ---------- */
 let T=0,last=performance.now(),eraTick=0;
-function loop(now){const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==SG_ADDS){CUR._sbN=now;try{batchSprites(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=SG_ADDS}
+/* saving power: nothing to draw while a chapter or the library covers the phone screen; fewer frames while a panel
+   covers part of a big screen, or when nobody has touched anything for a while and nothing is moving */
+let lastInput=performance.now();['pointerdown','pointermove','wheel','keydown','touchstart'].forEach(t=>addEventListener(t,()=>{lastInput=performance.now()},{passive:true,capture:true}));
+function frameCap(now){const rdOn=$('#rd').classList.contains('on'),libOn=$('#lib').classList.contains('on');
+ if(busy||tw||drag||pinch||fadeK>.01&&fadeTo<fadeK)return 60;
+ if((rdOn||libOn)&&innerWidth<760)return 0;
+ if(rdOn||libOn)return 24;
+ const moving=Math.abs(vel.a)+Math.abs(vel.b)>1e-4||Math.abs(zq.v)>1e-3||(CUR&&CUR.follow);
+ if(!moving&&now-lastInput>15000)return 30;return 60}
+function loop(now){const fc=frameCap(now);
+ if(fc===0){last=now;setTimeout(()=>requestAnimationFrame(loop),300);return}
+ if(fc<60&&now-last<1000/fc-4){requestAnimationFrame(loop);return}
+ const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==SG_ADDS){CUR._sbN=now;try{batchSprites(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=SG_ADDS}
  if(tw){tw.t+=dt/tw.dur;const k=Math.min(1,tw.t),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;const hop=Math.pow(Math.sin(k*Math.PI),2)*hopOf()*.8;
   rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1)tw=null}
  else if(!drag&&!pinch){if(Math.abs(vel.a)+Math.abs(vel.b)>1e-5){rig.a+=vel.a*dt*60;rig.b+=vel.b*dt*60;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86);else if(CUR.type==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);else{const L=CUR.bound||7000;rig.a=clamp(rig.a,-L,L);rig.b=clamp(rig.b,-L,L)}const dk=Math.exp(-dt*5.5);vel.a*=dk;vel.b*=dk}}
@@ -342,7 +354,8 @@ function loop(now){const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;M
  if(CUR.type!=='planet'&&CUR.eraAt&&++eraTick%20===0){const e=CUR.eraAt(S_);if(e&&e!==ERA){ERA=e;syncTime()}}
  fadeK+=(fadeTo-fadeK)*Math.min(1,dt*(fadeTo>fadeK?7:3.2));setFade(fadeK);if(finalPass)finalPass.uniforms.uTime.value=T;
  if(composer&&POST.on)composer.render();else renderer.render(CUR.scene,camera);
- if(rawDt<1)adapt(rawDt);requestAnimationFrame(loop)}
+ // quality only adapts to frames that were not held back on purpose
+ if(rawDt<1&&fc===60&&loop.pf===60)adapt(rawDt);else{perf.t=0;perf.n=0;perf.slow=0}loop.pf=fc;requestAnimationFrame(loop)}
 
 /* ---------- start ---------- */
 initPost();resize();addEventListener('resize',resize);

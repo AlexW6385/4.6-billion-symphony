@@ -15,6 +15,11 @@ const F={peak:PT(36,15),cpeak:PT(-6,73),atmount:PT(22,-94),crater:PT(20,-13),sal
 function landMaskB(p,BL){let m=-1;for(const b of BL){const a=angDeg(p,b.d),t=a/b.r;m=Math.max(m,b.dome?.5*(1-t*t)+.05:1-t)}return m}
 /* ridged noise: sharp crests, broad valleys, the shape real mountain ranges have */
 function ridgeN(x,y,z,f,o){let s=0,a=.55,w=1,t=0;for(let i=0;i<o;i++){let v=1-Math.abs(n3(x*f+i*7.1,y*f,z*f)*2-1);v*=v;v*=w;s+=v*a;t+=a;w=clamp(v*1.6,0,1);a*=.5;f*=2.07}return s/t}
+/* a mountain, not a dome: ridges and gullies down its flanks, a sharper summit */
+/* long straight features (the rift, the canyon, the lava channel) wander a little instead of running ruler-straight */
+const _wg=V3();function wig(p){return _wg.set(p.x+(n3(p.x*14+3,p.y*14,p.z*14)-.5)*.026,p.y+(n3(p.x*14,p.y*14+7,p.z*14)-.5)*.026,p.z+(n3(p.x*14,p.y*14,p.z*14+11)-.5)*.026).normalize()}
+function crag(p,a,sig,H,seed){const g=Math.exp(-(a*a)/(2*sig*sig));if(g<.003)return 0;const rg=ridgeN(p.x+seed,p.y-seed*.7,p.z+seed*.3,22,3);
+ return H*g*lerp(1,.5+.75*rg,sm(0,sig*.45,a))+H*.28*Math.exp(-(a*a)/(2*(sig*.32)*(sig*.32)))}
 function rqH0(p){
  const n=fbm(p.x*3.2+5,p.y*3.2,p.z*3.2,5);const nc=fbm(p.x*11+2,p.y*11,p.z*11,4);let m=landMaskB(p,BLOBS)+(n-.5)*.55+(nc-.5)*.13;let h;
  if(m<0)h=Math.max(-70,m*150)-2+(nc-.5)*6*sm(-.02,-.25,m);else{const r=fbm(p.x*9,p.y*9,p.z*9,4);h=2+m*28+Math.pow(r,2.4)*55*Math.min(1,m*3);
@@ -28,16 +33,16 @@ function rqH0(p){
   // the small western-sea islands: low green domes with beaches, not mountains
   let dz=0;for(const b of BLOBS)if(b.dome)dz=Math.max(dz,1-sm(1.1,1.6,angDeg(p,b.d)/b.r));if(dz>0)h=lerp(h,1.6+m*24+(fbm(p.x*30,p.y*30,p.z*30,3)-.5)*7,dz)}
  let a;
- a=angDeg(p,F.peak);h+=92*Math.exp(-(a*a)/(2*4.3*4.3));
+ a=angDeg(p,F.peak);h+=crag(p,a,4.3,78,3.1);
  a=angDeg(p,F.plake);if(a<1.7)h=lerp(h,h-34,1-sm(.7,1.7,a));
- a=angDeg(p,F.cpeak);h+=118*Math.exp(-(a*a)/(2*3.6*3.6));h+=52*Math.exp(-(a*a)/(2*9*9))*(m>0);
- a=angDeg(p,F.atmount);h+=70*Math.exp(-(a*a)/(2*3.8*3.8));
+ a=angDeg(p,F.cpeak);h+=crag(p,a,3.6,104,7.7);h+=52*Math.exp(-(a*a)/(2*9*9))*(m>0);
+ a=angDeg(p,F.atmount);h+=crag(p,a,3.8,60,1.9);
  a=angDeg(p,F.crater);if(a<3&&m>0){h=lerp(h,-3,1-sm(1.1,2.3,a));h+=Math.exp(-Math.pow((a-2.45)/.35,2))*10}
  a=angDeg(p,PT(12,-88));if(a<1.2&&m>0)h=lerp(h,45,1-sm(.55,1.15,a));
  a=angDeg(p,F.salt);if(a<6&&m>0)h=lerp(h,3+n,1-sm(3,5.5,a));
  a=angDeg(p,F.oasis);if(a<1.3&&m>0)h=lerp(h,-2,1-sm(.55,1.3,a));
  a=angDeg(p,F.dieye);if(a<3&&m>0)h=lerp(h,-6,1-sm(1,2.2,a));
- a=segAng(p,F.riftA,F.riftB);if(m>0)h=lerp(h,.6,1-sm(.5,1.4,a));
+ a=segAng(wig(p),F.riftA,F.riftB);if(m>0)h=lerp(h,.6,1-sm(.5,1.4,a));
  a=segAng(p,F.lavA,F.lavB);if(m>0)h=lerp(h,Math.min(h,3),1-sm(.45,.95,a));
  a=segAng(p,F.abyA,F.abyB);if(m<0)h-=40*Math.exp(-(a*a)/.5);
  a=Math.min(angDeg(p,F.twin1),angDeg(p,F.twin2));if(a<2.4)h=Math.max(h,lerp(18,0,a/2.2));
@@ -212,7 +217,7 @@ function rqRocks(sp){const Rn=rnd(3131),gh=sp.ghRaw,d=V3();const kit=[0,1,2].map
 
 /* ---------- fair-weather clouds: heaps of soft puffs, lit by the sun from the side it is on ---------- */
 const puffTex=canvasTex(128,128,(x)=>{const Rn=rnd(77);for(let i=0;i<60;i++){const a=Rn()*6.28,r=Math.pow(Rn(),.7)*34,px=64+Math.cos(a)*r,py=60+Math.sin(a)*r*.75,rr=7+Rn()*14*(1-r/40);const g=x.createRadialGradient(px,py,0,px,py,rr);g.addColorStop(0,'rgba(255,255,255,.34)');g.addColorStop(.7,'rgba(255,255,255,.12)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
- const im=x.getImageData(0,0,128,128),dd=im.data;for(let y=0;y<128;y++)for(let xx=0;xx<128;xx++){const k=(y*128+xx)*4;const r=Math.hypot(xx-64,(y-62)*1.2)/62;const v=Math.min(1,dd[k+3]/255*1.5);dd[k+3]=255*Math.min(1,Math.max(0,(v-.03)/.72))*Math.max(0,1-Math.pow(r,3))}x.putImageData(im,0,0)});
+ const im=x.getImageData(0,0,128,128),dd=im.data;for(let y=0;y<128;y++)for(let xx=0;xx<128;xx++){const k=(y*128+xx)*4;const r=Math.hypot(xx-64,(y-62)*1.2)/62;const v=Math.min(1,dd[k+3]/255*1.5),f=Math.max(0,1-r*r);dd[k+3]=255*Math.min(1,Math.pow(v,1.15)*1.1)*f*f}x.putImageData(im,0,0)});
 function rqCumulus(sp){const Rn=rnd(5150);const pos=[],sz=[],yy=[],d=V3(),up=V3(),ex=V3(),nx=V3();const SEA=dirLL(-12,74);
  for(let c=0,tries=0;c<170&&tries<20000;tries++){d.set(Rn()*2-1,Rn()*2-1,Rn()*2-1);if(d.lengthSq()>1||d.lengthSq()<.02)continue;d.normalize();const lat=Math.asin(d.y)/D2R;if(Math.abs(lat)>68)continue;
   const cf=fbm(d.x*4.5+7,d.y*4.5,d.z*4.5-3,3);if(cf<.52+Rn()*.08)continue;if(angDeg(d,SEA)<16)continue;c++;
@@ -224,11 +229,11 @@ function rqCumulus(sp){const Rn=rnd(5150);const pos=[],sz=[],yy=[],d=V3(),up=V3(
  const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:false,uniforms:{uScale:PSCALE,uSun:{value:sp.sunDir},uTex:{value:puffTex},uAlt:{value:0}},
   vertexShader:`attribute float aS,aY;uniform float uScale,uAlt;uniform vec3 uSun;varying float vL,vY,vA,vS;void main(){vec4 w=modelMatrix*vec4(position,1.);vec4 mv=viewMatrix*w;float d=-mv.z;
    gl_PointSize=clamp(aS*uScale/max(d,1.),1.,1100.);gl_Position=projectionMatrix*mv;vec3 n=normalize(w.xyz);float sl=dot(n,uSun);vS=sl;vL=smoothstep(-.28,.4,sl);vY=aY;
-   vA=smoothstep(30.,140.,d)*(1.-smoothstep(1500.,2300.,d))*(1.-smoothstep(650.,1150.,uAlt));}`,
+   vA=smoothstep(30.,140.,d)*(1.-smoothstep(1500.,2300.,d))*(1.-smoothstep(420.,820.,uAlt));}`,
   fragmentShader:`uniform sampler2D uTex;varying float vL,vY,vA,vS;void main(){vec4 t=texture2D(uTex,gl_PointCoord);if(t.a<.01)discard;
    vec3 lit=vec3(1.,.99,.96)*(.38+.62*vL);vec3 sh=vec3(.5,.56,.68)*(.25+.6*vL);vec3 c=mix(sh,lit,.45+.55*vY);c=mix(c,vec3(1.,.72,.52)*(.6+.4*vL),(1.-smoothstep(0.,.3,abs(vS-.05)))*.32);
    gl_FragColor=vec4(c,min(1.,t.a*1.05)*vA*.85);}`});
- const pts=new THREE.Points(g,m);pts.renderOrder=5;pts.frustumCulled=false;sp.scene.add(pts);sp.cumulus=pts;anim(sp,null,()=>{m.uniforms.uAlt.value=rig.alt;pts.visible=rig.alt<1200})}
+ const pts=new THREE.Points(g,m);pts.renderOrder=5;pts.frustumCulled=false;sp.scene.add(pts);sp.cumulus=pts;anim(sp,null,()=>{m.uniforms.uAlt.value=rig.alt;pts.visible=rig.alt<850})}
 
 /* ---------- flocks wheeling over the land ---------- */
 function rqFlocks(sp){const F=[[34,6],[28,14],[10,-70],[-4,-82],[14,-92],[2,-64],[-10,66],[-16,80],[-2,60],[40,-4],[20,2],[8,-102],[-24,70],[24,-78]];const per=16,n=F.length*per;
@@ -253,7 +258,7 @@ const ki=(r,d)=>new THREE.IcosahedronGeometry(r,d||0);
 const kiS=(r)=>{const g=new THREE.IcosahedronGeometry(r,0);const p=g.attributes.position,n=g.attributes.normal,v=V3();for(let i=0;i<p.count;i++){v.set(p.getX(i),p.getY(i),p.getZ(i)).normalize();n.setXYZ(i,v.x,v.y,v.z)}return g};
 const ko=(r)=>new THREE.OctahedronGeometry(r,0);
 const kb=(x,y,z)=>new THREE.BoxGeometry(x,y,z);
-const kd=(r)=>new THREE.DodecahedronGeometry(r,0);
+const kd=(r)=>lumpRock(r,7);
 function ktube(pts,r,seg,rs){return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),seg||20,r,rs||5,false)}
 function spiralPts(ph,h,r0,r1,turns,n){const pts=[];n=n||12;for(let i=0;i<=n;i++){const t=i/n,a=ph+t*Math.PI*2*turns;const r=lerp(r0,r1,t);pts.push(V3(Math.cos(a)*r,t*h,Math.sin(a)*r))}return pts}
 function vcolY(geo,fn){geo=geo.index?geo.toNonIndexed():geo;const p=geo.attributes.position,n=p.count,c=new Float32Array(n*3),t=new THREE.Color();for(let i=0;i<n;i++){fn(p.getX(i),p.getY(i),p.getZ(i),t);c[i*3]=t.r;c[i*3+1]=t.g;c[i*3+2]=t.b}geo.setAttribute('color',new THREE.BufferAttribute(c,3));if(geo.attributes.uv)geo.deleteAttribute('uv');return geo}
@@ -324,8 +329,8 @@ function buildRongqiu(){
  cap(66,[1,2,3,5,6,7,8,9,10,11,12]);cap(36,[4]);cap(70,[1,2,3,4,5,6,7,8,9,10,11,12],true);
  // ---------- era 1: the sea of origins ----------
  {const g=new THREE.Group();const beam=new THREE.Mesh(new THREE.CylinderGeometry(3,14,520,24,1,true),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,uniforms:{uT:GT},
-   vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-   fragmentShader:'uniform float uT;varying vec2 vU;void main(){float a=smoothstep(0.,.25,vU.y)*(1.-smoothstep(.6,1.,vU.y))*(.55+.45*sin(vU.x*40.+uT*2.))*(.6+.4*sin(vU.y*30.-uT*4.));gl_FragColor=vec4(vec3(1.,.86,.48)*a*.55,1.);}'}));
+   vertexShader:'varying vec2 vU;varying float vF,vD;void main(){vU=uv;vec4 mv=modelViewMatrix*vec4(position,1.);vF=abs(dot(normalize(normalMatrix*normal),normalize(-mv.xyz)));vD=-mv.z;gl_Position=projectionMatrix*mv;}',
+   fragmentShader:'uniform float uT;varying vec2 vU;varying float vF,vD;void main(){float a=smoothstep(0.,.25,vU.y)*(1.-smoothstep(.6,1.,vU.y))*(.55+.45*sin(vU.x*40.+uT*2.))*(.6+.4*sin(vU.y*30.-uT*4.));a*=(.35+.65*vF)*smoothstep(20.,90.,vD);gl_FragColor=vec4(vec3(1.,.86,.48)*a*.55,1.);}'}));
   beam.position.y=260;g.add(beam);g.add(at(glowSprite('#ffe6a0',90,.9),0,8,0));g.add(at(glowSprite('#fff4d0',26,1),0,4,0));
   g.add(emitter({n:260,life:6,speed:-14,spread:.25,size:2.4,dir:[0,1,0],col:'#ffe9a8',col2:'#fff8e8',op:.9,area:[30,10,30],fadeIn:.05}));at(g.children[g.children.length-1],0,90,0);
   const rip=new THREE.Mesh(new THREE.RingGeometry(10,13,48),GL('#fff0c0',.5));rip.rotation.x=-Math.PI/2;rip.position.y=.6;g.add(rip);
@@ -352,7 +357,13 @@ function buildRongqiu(){
   g.add(sparkles(Array.from({length:120},()=>V3((Rn()-.5)*50,Rn()*80,(Rn()-.5)*50)),'#e8fdff',1.6,1));g.add(at(glowSprite('#bff4ff',120,.35),0,40,0));
   fr(71,34,0,0,g,false);g.position.setLength(R+1);addE(g);cull(g,null,90,3200);px('jjzs',g.position.clone().add(g.position.clone().normalize().multiplyScalar(40)),40)}
  // holes in the ice where the ice-crystal beasts hunt
- {const pts=scatter(26,74,24,6,12);const hm=new THREE.MeshStandardMaterial({color:'#0f3a52',roughness:.1,metalness:.2});inst(new THREE.CircleGeometry(1,16),hm,pts,(o,p)=>{frameLL(sp,p[0],p[1],0,0,o,false);o.position.setLength(R+1.6);o.rotateX(-Math.PI/2);o.scale.setScalar(2.5+p[3]*4)},[1,2,3,5,6,7,8,9,10,11,12])}
+ {const pts=scatter(26,74,24,6,12);
+  // ragged open water with a lip of broken, lighter ice, not a clean black disc
+  const hole=new THREE.CircleGeometry(1,22);{const a=hole.attributes.position;for(let i=1;i<a.count;i++){const x=a.getX(i),y=a.getY(i),t=Math.atan2(y,x),k=1+.16*Math.sin(t*3+1.3)+.09*Math.sin(t*7+.4)+.05*Math.sin(t*13);a.setXY(i,x*k,y*k)}}
+  const lip=new THREE.RingGeometry(.96,1.32,22,1);{const a=lip.attributes.position;for(let i=0;i<a.count;i++){const x=a.getX(i),y=a.getY(i),t=Math.atan2(y,x),r=Math.hypot(x,y),k=1+.16*Math.sin(t*3+1.3)+.09*Math.sin(t*7+.4)+.05*Math.sin(t*13);const rr=r<1.1?r*k:r*k*(1+.12*Math.sin(t*9+2));a.setXYZ(i,Math.cos(t)*rr,Math.sin(t)*rr,r<1.1?.12:.02)}lip.computeVertexNormals()}
+  const hm=new THREE.MeshStandardMaterial({color:'#1f6a84',roughness:.06,metalness:.1,emissive:'#06202c'}),lm=new THREE.MeshStandardMaterial({color:'#e4f2fa',roughness:.5});
+  const place=(o,p)=>{frameLL(sp,p[0],p[1],0,0,o,false);o.position.setLength(R+1.6);o.rotateX(-Math.PI/2);o.rotateZ(p[3]*9);o.scale.setScalar(2.5+p[3]*4)};
+  inst(hole,hm,pts,place,[1,2,3,5,6,7,8,9,10,11,12]);inst(lip,lm,pts,place,[1,2,3,5,6,7,8,9,10,11,12])}
 
  // ---------- north continent ----------
  // the cliffs of the landing: picked-clean bones and sea mist
@@ -574,8 +585,8 @@ function buildRongqiu(){
   const nl=nightPoints(pts.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+4)),'#ffe0b0',2,1);addE(nl,[5,6,7,8,9,10,11,12]);sp.nightMats.push(nl.userData.night);px('capital',dirLL(-14,63).multiplyScalar(R+gh(-14,63)+8),20)}
  // the three-layered sea of clouds, sealed water and light-gas you can run across
  {const layers=[110,128,146];layers.forEach((alt,k)=>{const g=new THREE.Group();const mtl=new THREE.SpriteMaterial({map:smokeTex,color:k===2?'#fffaf0':k===1?'#fff0f8':'#ffffff',transparent:true,opacity:.95,depthWrite:false});const mt2=new THREE.SpriteMaterial({map:glowTex,color:k===1?'#ffd8f0':'#fff4e0',transparent:true,opacity:.35,depthWrite:false,blending:THREE.AdditiveBlending});
-   scatter(95,-10,70,11,111+k).forEach((p,i)=>{const s=new THREE.Sprite(i%9===0&&k===1?mt2:mtl);const sz=70+p[3]*70;s.scale.set(sz,sz*.4,1);s.position.copy(dirLL(p[0],p[1]).multiplyScalar(R+alt+p[3]*4));g.add(s)});
-   addE(g,k===0?[5,6,7,8,9,10,11,12]:[5]);cull(g,dirLL(-10,70).multiplyScalar(R+alt),260,7000);const cd=dirLL(-10,70);anim(sp,g,()=>{const dk=sm(-.25,.2,cd.dot(sp.sunDir));mtl.opacity=.72*(1-.55*sm(1100,2000,rig.alt));const LT=k===0?[.74,.8,.95]:k===1?[.97,.9,.96]:[1.04,1,.93];mtl.color.setRGB((.2+.8*dk)*LT[0],(.22+.78*dk)*LT[1],(.3+.7*dk)*LT[2]);mt2.opacity=.35*(1-sm(1100,2000,rig.alt))})});
+   scatter(95,-10,70,11,111+k).forEach((p,i)=>{const s=new THREE.Sprite(i%9===0&&k===1?mt2:mtl);const sz=52+p[3]*55;s.scale.set(sz,sz*.38,1);s.position.copy(dirLL(p[0],p[1]).multiplyScalar(R+alt+p[3]*4));g.add(s)});
+   addE(g,k===0?[5,6,7,8,9,10,11,12]:[5]);cull(g,dirLL(-10,70).multiplyScalar(R+alt),260,7000);const cd=dirLL(-10,70);anim(sp,g,()=>{const dk=sm(-.25,.2,cd.dot(sp.sunDir));mtl.opacity=.55*(1-.55*sm(1100,2000,rig.alt))*(.45+.55*sm(140,600,rig.alt));const LT=k===0?[.74,.8,.95]:k===1?[.97,.9,.96]:[1.04,1,.93];mtl.color.setRGB((.2+.8*dk)*LT[0],(.22+.78*dk)*LT[1],(.3+.7*dk)*LT[2]);mt2.opacity=.35*(1-sm(1100,2000,rig.alt))})});
   const gl=new THREE.Group();for(let i=0;i<12;i++){const s=glowSprite(i%2?'#ffd0f0':'#fff0c0',60,.35);s.position.set((h3(i,1,7)-.5)*300,0,(h3(i,2,7)-.5)*300);gl.add(s)}fr(-9,69,119,0,gl,false);addE(gl,[5]);cull(gl,null,200,3000);
   const huts=scatter(30,-8,69,3,113);inst(new THREE.SphereGeometry(1,10,6,0,6.283,0,1.57),M('#f4f4f0'),huts,(o,p)=>{frameLL(sp,p[0],p[1],148.5,0,o,false);o.scale.setScalar(1.6+p[3])},[5]);
   px('cloudsea',dirLL(-8,68).multiplyScalar(R+130),40,{maxD:3200})}

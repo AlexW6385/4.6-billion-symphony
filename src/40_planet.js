@@ -292,7 +292,7 @@ function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'pla
   // haze close to the ground
   const fz=sm(1500,250,alt);if(fz>0){sc.fog.color.copy(hor);sc.fog.near=lerp(4000,80+alt*.8,fz)*(1-.45*sp.goldK);sc.fog.far=lerp(9e4,900+alt*5,fz)*(1-.4*sp.goldK)}else{sc.fog.near=1e6;sc.fog.far=2e6}
   A.U.uK.value=sm(40,420,alt)*(cfg.atmK||1);atI.visible=alt>60;
-  if(clouds){clouds.material.uniforms.uA.value=sm(90,420,alt);clouds.visible=clouds.material.uniforms.uA.value>.01}
+  if(clouds){clouds.material.uniforms.uA.value=sm(150,560,alt);clouds.visible=clouds.material.uniforms.uA.value>.01}
   moonL.intensity=.2;
   if(sp.cover)sp.cover.update();
   const CL=sp.culls;for(let ci=0,cn=CL.length;ci<cn;ci++){const c=CL[ci];if(c.o.userData.eraHide){c.o.visible=false;continue}const d=camera.position.distanceTo(c.c)-c.r;let v=d<c.far&&!(c.near&&d<c.near);
@@ -315,7 +315,7 @@ function coverGeos(){
  const fern=[];for(let i=0;i<7;i++){const a=i/7*6.28;const l=new THREE.ConeGeometry(.16,1.3,4,1);l.translate(0,.65,0);l.scale(1,1,.25);l.rotateX(1.05);fern.push([l,i%2?'#3f7d45':'#4f9150',{r:[0,a,0]}])}
  fern.push([new THREE.CylinderGeometry(.04,.06,.3,4),'#4a3a28',{p:[0,.15,0]}]);
  const flower=[[blade(.55,.03,0),'#5f8f3e'],[new THREE.SphereGeometry(.13,6,4),'#ffffff',{p:[0,.58,0],s:[1,.55,1]}],[blade(.45,.03,.4),'#6a9a44',{p:[.06,0,0]}],[new THREE.SphereGeometry(.1,6,4),'#ffffff',{p:[.2,.45,0],s:[1,.55,1]}]];
- const rock=[[new THREE.DodecahedronGeometry(.5,0),'#8a8478',{s:[1,.55,.8]}],[new THREE.DodecahedronGeometry(.25,0),'#7a7468',{p:[.5,0,.2],s:[1,.6,1]}]];
+ const rock=[[lumpRock(.5,2).clone(),'#8a8478',{s:[1,.55,.8]}],[lumpRock(.25,4).clone(),'#7a7468',{p:[.5,0,.2],s:[1,.6,1]}]];
  const shroom=[[new THREE.CylinderGeometry(.05,.07,.4,5),'#e8e0d0',{p:[0,.2,0]}],[new THREE.SphereGeometry(.22,8,4,0,6.283,0,1.6),'#ffffff',{p:[0,.38,0],s:[1,.6,1]}],[new THREE.CylinderGeometry(.03,.05,.25,5),'#e8e0d0',{p:[.25,.12,.1]}],[new THREE.SphereGeometry(.13,8,4,0,6.283,0,1.6),'#ffffff',{p:[.25,.24,.1],s:[1,.6,1]}]];
  const succ=[[new THREE.CylinderGeometry(.22,.26,.9,7),'#6f9a6a',{p:[0,.45,0]}],[new THREE.SphereGeometry(.24,7,5),'#7fa878',{p:[0,.92,0],s:[1,.7,1]}],[new THREE.SphereGeometry(.3,7,5),'#86a86f',{p:[.38,.25,.1]}],[new THREE.CylinderGeometry(.12,.15,.55,6),'#6a9268',{p:[-.3,.28,-.15]}]];
  const reed=[];for(let i=0;i<6;i++){const a=i*2.1;reed.push([blade(1.8+(i%3)*.4,.035,.08*Math.cos(a)),'#6a7a48',{p:[Math.cos(a)*.15,0,Math.sin(a)*.15]}]);reed.push([new THREE.CylinderGeometry(.06,.06,.28,5),'#5a3a22',{p:[Math.cos(a)*.15,1.75+(i%3)*.4,Math.sin(a)*.15]}])}

@@ -89,8 +89,9 @@ function rqSky(sp){const Rn=rnd(4949);const U={uT:GT,uSun:{value:sp.sunDir}};
 
  // ---------- light falling between the layers of the cloud sea ----------
  {const shM=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,uniforms:{uT:GT,uK:{value:0}},
-   vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-   fragmentShader:'uniform float uT;uniform float uK;varying vec2 vU;void main(){float a=smoothstep(0.,.35,vU.y)*smoothstep(1.,.75,vU.y)*(.6+.4*sin(vU.x*6.283*3.+uT*.4));gl_FragColor=vec4(vec3(1.,.92,.75)*a*uK*.22,1.);}'});
+   // a column of light, not a lit tube: walls seen edge-on fade out, and so does the whole shaft once the camera is close or inside it
+   vertexShader:'varying vec2 vU;varying float vF,vD;void main(){vU=uv;vec4 mv=modelViewMatrix*vec4(position,1.);vF=abs(dot(normalize(normalMatrix*normal),normalize(-mv.xyz)));vD=-mv.z;gl_Position=projectionMatrix*mv;}',
+   fragmentShader:'uniform float uT;uniform float uK;varying vec2 vU;varying float vF,vD;void main(){float a=smoothstep(0.,.35,vU.y)*smoothstep(1.,.75,vU.y)*(.6+.4*sin(vU.x*6.283*3.+uT*.4));a*=pow(vF,1.5)*smoothstep(25.,110.,vD);gl_FragColor=vec4(vec3(1.,.92,.75)*a*uK*.2,1.);}'});
   const sh=new THREE.Group();for(let i=0;i<22;i++){const la=-10+(Rn()-.5)*16,lo=70+(Rn()-.5)*18;const d=dirLL(la,lo);const h=34+Rn()*10;
    const m=new THREE.Mesh(new THREE.CylinderGeometry(5+Rn()*5,9+Rn()*8,h,16,1,true),shM);m.position.copy(d).multiplyScalar(R+110+h/2+2);m.quaternion.setFromUnitVectors(UP_Y,d);sh.add(m)}
   addE(sh,[5],true);const cc=dirLL(-10,70);anim(sp,sh,()=>{shM.uniforms.uK.value=sm(-.05,.35,cc.dot(sp.sunDir))*(1-sm(900,1800,camera.position.length()-R))})}

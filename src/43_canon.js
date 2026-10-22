@@ -63,7 +63,7 @@ function rqCanon(sp){const gh=sp.gh;const Rn=rnd(5150);
   const cap=(sp.towns||[]).find(x=>x.name==='capital');if(cap&&cap.towers){const bal=G([[kb(.5,.5,3.4),'#c8ccd0',{p:[0,.3,0]}],[tg(new THREE.TorusGeometry(1.6,.12,4,12,Math.PI),{r:[Math.PI/2,0,0]}),'#9aa0a6',{p:[0,.5,1.1]}],[kcy(.05,.05,3.4,3),'#e8e0c8',{p:[0,.7,.2],r:[Math.PI/2,0,0]}]]);
    inst(bal,VC({metalness:.6,roughness:.3}),cap.towers,(o,p)=>{frameLL(sp,p[0],p[1],5.6,p[3]+Math.PI,o);o.scale.setScalar(1.4)},[5,6,7,8,9,10,11,12],{far:1200})}}
  // the eye of the earth: rings of colour round the lake, like an iris seen from the sky
- {const ring=(r0,r1,n,col,seed,s)=>inst(new THREE.IcosahedronGeometry(1,0),VC({roughness:.9,flatShading:true}),scatter(n,-17,75,r1,seed,(la,lo,h)=>{const d=angDeg(dirLL(la,lo),F.dieye);return h>1&&d>r0&&d<r1}),(o,p)=>{frameLL(sp,p[0],p[1],-.3,p[3]*6,o);o.scale.set(s*(1+p[3]),s*.5,s*(1+p[3]))},[5,6,7,8,9,10,11,12],{tint:()=>C(col),far:1600});
+ {const ring=(r0,r1,n,col,seed,s)=>inst(lumpRock(1,seed%5+1),VC({roughness:.9,flatShading:true}),scatter(n,-17,75,r1,seed,(la,lo,h)=>{const d=angDeg(dirLL(la,lo),F.dieye);return h>1&&d>r0&&d<r1}),(o,p)=>{frameLL(sp,p[0],p[1],-.3,p[3]*6,o);o.scale.set(s*(1+p[3]),s*.5,s*(1+p[3]))},[5,6,7,8,9,10,11,12],{tint:()=>C(col),far:1600});
   ring(2.1,2.6,500,'#7ab84a',1601,1.4);ring(5,5.8,600,'#a8a050',1602,1.2);
   inst(geoC('rain'),swayMat({roughness:.85},.002),scatter(420,-17,75,5.2,1603,(la,lo,h)=>h>1.5&&angDeg(dirLL(la,lo),F.dieye)>2.6&&angDeg(dirLL(la,lo),F.dieye)<5),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.55+p[3]*.5)},[5,6,7,8,9,10,11,12],{far:1800})}
  // the moss plain beyond the blood-trees: pure moss, no grass, that stands against the desert storms
@@ -119,7 +119,7 @@ function rqCanon3(sp){const gh=sp.gh,Rn=rnd(7373);
  // the white bone-dragons' great circles: ring inside ring of huge stones hauled across the wild, the dead dragged to a pile beside
  {const g=new THREE.Group();const sm2=detailMat(VC({roughness:.95,flatShading:true}),{bump:.8});const P=[];
   for(let r=0;r<3;r++){const R2=26-r*8,n=Math.round(R2*1.6);for(let i=0;i<n;i++){const a=i/n*6.283+r*.2;if(r===0&&i%9===0)continue;const s=1.6+Rn()*1.4;P.push([tg(new THREE.DodecahedronGeometry(s,0),{p:[Math.cos(a)*R2,s*.8+(r===2?Rn()*2:0),Math.sin(a)*R2],s:[1,1.3+Rn()*.8,1]}),Rn()<.5?'#a8a090':'#8a8274'])}}
-  for(let i=0;i<14;i++)P.push([tg(new THREE.DodecahedronGeometry(1.4+Rn(),0),{p:[34+Rn()*6,.8,-8+Rn()*6]}),'#9a9282']);
+  for(let i=0;i<14;i++)P.push([tg(lumpRock(1,i%4+2).clone().scale(1.4+Rn(),1.4+Rn(),1.4+Rn()),{p:[34+Rn()*6,.8,-8+Rn()*6]}),'#9a9282']);
   g.add(new THREE.Mesh(mergeColored(P),sm2));const bones=[];for(let i=0;i<20;i++)bones.push([tg(new THREE.CylinderGeometry(.15,.15,2.6,5),{p:[-36+Rn()*5,.3+i*.05,6+Rn()*5],r:[Math.PI/2,Rn()*3,0]}),'#ece4d0']);g.add(new THREE.Mesh(mergeColored(bones),VC()));
   fr(-1.5,-66,-.6,.3,g);addE(g,[3]);cull(g,null,50,1600)}
  // the emerald dragons' flying machines: three olive-shaped hulls of wood and bone side by side, the middle one ten metres, a spinning wheel at each nose, two riders pedalling

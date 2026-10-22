@@ -1,7 +1,7 @@
 /* ---------- the void, lived in: rubble belts, bus lanes, comets, cracks ---------- */
 function voidLife(sp){const sc=sp.scene;const Rn=rnd(4242);const ids=Object.keys(SECTORS).map(Number);
  // a slow belt of rubble round every sector
- const rockG=new THREE.IcosahedronGeometry(1,0);
+ const rockG=lumpRock(1,11);
  ids.forEach(s=>{const c=V3(...SECTORS[s].c);const tint=C(SECCOL[s]).lerp(C('#6a6a70'),.75);const n=s===12?420:240;
   const im=new THREE.InstancedMesh(rockG,new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.95,flatShading:true,emissive:SECCOL[s],emissiveIntensity:.06}),n);const o=new THREE.Object3D();
   const r0=s===12?380:560,r1=s===12?900:700;for(let i=0;i<n;i++){const a=Rn()*6.28,d=r0+(r1-r0)*Rn();o.position.set(Math.cos(a)*d,(Rn()-.5)*40,Math.sin(a)*d);o.rotation.set(Rn()*3,Rn()*3,Rn()*3);const z=3+Rn()*Rn()*16;o.scale.set(z,z*(.6+Rn()*.5),z*(.7+Rn()*.4));o.updateMatrix();im.setMatrixAt(i,o.matrix);im.setColorAt(i,tint.clone().multiplyScalar(.6+Rn()*.6))}
@@ -54,7 +54,7 @@ function ningMore(sp){const sc=sp.scene,Rn=rnd(909);const c=V3(...NG_C);
  // frozen bursts: a blast stopped a moment after it began
  for(let b=0;b<6;b++){const o=c.clone().add(V3((Rn()-.5)*1600,(Rn()-.5)*500,(Rn()-.5)*1600));for(let i=0;i<34;i++){const d=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();const r=30+Rn()*160;const s=2+Rn()*7;const g=sh.clone().scale(s*.5,s*.5,s*2.6);const m4=new THREE.Matrix4().lookAt(V3(0,0,0),d,V3(0,1,0));g.applyMatrix4(m4);g.translate(o.x+d.x*r,o.y+d.y*r,o.z+d.z*r);parts.push([g,Rn()<.5?'#c8ccd8':'#8a8e9a'])}}
  // things that stopped where they were: a stone in mid-fall, a ring of debris, a wave of dust
- for(let i=0;i<60;i++){const p=c.clone().add(V3((Rn()-.5)*2200,(Rn()-.5)*700,(Rn()-.5)*2200));const s=4+Rn()*Rn()*30;parts.push([new THREE.DodecahedronGeometry(s,0).rotateX(Rn()*3).rotateY(Rn()*3).translate(p.x,p.y,p.z),'#9a9ea8'])}
+ for(let i=0;i<60;i++){const p=c.clone().add(V3((Rn()-.5)*2200,(Rn()-.5)*700,(Rn()-.5)*2200));const s=4+Rn()*Rn()*30;parts.push([lumpRock(1,i%5+1).clone().scale(s,s,s).rotateX(Rn()*3).rotateY(Rn()*3).translate(p.x,p.y,p.z),'#9a9ea8'])}
  if(parts.length){const m=new THREE.Mesh(mergeColored(parts),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.6,metalness:.2,flatShading:true,emissive:'#3a3e48',emissiveIntensity:.35}));sc.add(m)}
  // lightning that never finished striking
  {const pos=[];for(let k=0;k<7;k++){let p=c.clone().add(V3((Rn()-.5)*1800,200+Rn()*200,(Rn()-.5)*1800));for(let i=0;i<18;i++){const q=p.clone().add(V3((Rn()-.5)*50,-25-Rn()*30,(Rn()-.5)*50));pos.push(p.x,p.y,p.z,q.x,q.y,q.z);p=q}}
