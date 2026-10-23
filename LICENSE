@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The written content of this project (entry texts in data/, side stories in
-src/74_sides.js, and docs/) is licensed separately under Creative Commons
-Attribution-NonCommercial 4.0 International (CC BY-NC 4.0):
-https://creativecommons.org/licenses/by-nc/4.0/
-
-Neither license covers the original novel, whose copyright belongs to its
-author and Qidian (起点中文网). This repository does not contain the novel's text.

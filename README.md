@@ -72,5 +72,5 @@ docs/       说明文档
 ## 许可
 
 - 代码：[MIT](LICENSE)。
-- 词条文字、番外等原创内容：[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans)（署名、非商业）。
+- 词条文字、番外等原创内容：[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans)（署名、非商业），范围见 [LICENSE-CONTENT](LICENSE-CONTENT)。
 - 这两项许可只针对本项目自己写的部分，不涉及原著。
