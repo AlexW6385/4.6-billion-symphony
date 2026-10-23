@@ -27,6 +27,7 @@
 49e_fixC.js
 49f_fixD.js
 49g_fixE.js
+49h_fixF.js
 49z_eggs.js
 70_ui.js
 71_tour.js
