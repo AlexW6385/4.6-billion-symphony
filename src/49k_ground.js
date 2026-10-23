@@ -280,9 +280,9 @@ function q2_cls(c){const s=c[0]+c[1]+c[2]+.001,mx=Math.max(c[0],c[1],c[2]),mn=Ma
  const veg=sm(.352,.392,c[1]/s)*sm(.06,.16,sat),sand=sm(.1,.24,c[0]-c[2])*sm(.4,.58,lum)*(1-veg),snow=sm(.64,.8,lum)*(1-sm(.1,.22,sat));Q2C[0]=veg;Q2C[1]=sand;Q2C[2]=snow;return Q2C}
 const _q2d=V3(),_q2c=[0,0,0];
 function q2_jobStep(J){const P=J.P,sp=P.sp,B=J.B,n=J.n,Gd=sp.G,GN=Gd.N,M=Gd.M,H=Gd.H,CY=Gd.CY,cy=J.cy,NR=sp.terr.geometry.attributes.normal.array,QQ=sp.q2Q;
- if(J.stage===0){const rows=Math.max(1,Math.ceil(1600/(n+1)));const j1=Math.min(n+1,J.row+rows);const d=_q2d,c3=_q2c;const Rp=J.Rp,rin=J.rin;
+ if(J.stage===0){let j1=n+1;const d=_q2d,c3=_q2c;const Rp=J.Rp,rin=J.rin;const t0=q5s_now(),lim=q5s_slice();// (49p_stable: rows until the slice's time is used)
   const hv=k=>H[k]-(CY?CY[k]*cy:0);
-  for(let j=J.row;j<j1;j++){const v=j/n*2-1,gy=Rp*(Q2GA*v+(1-Q2GA)*v*v*v);for(let i=0;i<=n;i++){const u=i/n*2-1,gx=Rp*(Q2GA*u+(1-Q2GA)*u*u*u);const vi=j*(n+1)+i;
+  for(let j=J.row;j<j1;j++){if(j>J.row&&q5s_now()-t0>lim){j1=j;break}const v=j/n*2-1,gy=Rp*(Q2GA*v+(1-Q2GA)*v*v*v);for(let i=0;i<=n;i++){const u=i/n*2-1,gx=Rp*(Q2GA*u+(1-Q2GA)*u*u*u);const vi=j*(n+1)+i;
    d.copy(J.C).multiplyScalar(R).addScaledVector(J.E,gx).addScaledVector(J.N,gy).normalize();const dist=Math.acos(Math.min(1,d.dot(J.C)))*R;
    const fi=faceOf(d),f=FACES[fi],dn=d.dot(f.n);const a=Math.atan(d.dot(f.u)/dn)*1.2732395,b=Math.atan(d.dot(f.v)/dn)*1.2732395;
    const x=clamp((a+1)*.5*GN,0,GN-1e-4),y=clamp((b+1)*.5*GN,0,GN-1e-4);const ci=x|0,cj=y|0,fx=x-ci,fy=y-cj;const k=fi*M*M+cj*M+ci,k1=k+1,k2=k+M,k3=k+M+1;
@@ -315,11 +315,11 @@ function q2_jobStep(J){const P=J.P,sp=P.sp,B=J.B,n=J.n,Gd=sp.G,GN=Gd.N,M=Gd.M,H=
    // where grass may grow: green ground, not too steep, not on the rim of the water, sparse on sand
    if(wE0>0||dist<J.rg){const bi=q2_bio(J,gx,gy);B.gw[vi]=bi.t*(veg+sand*.22)*(1-sm(.1,.22,sl))*(1-snow)*(1-.5*fo)*(1-we*.7)*(J._g===undefined?1:J._g)}else B.gw[vi]=0}}
   J.row=j1;if(J.row>n){J.stage=1;J.row=0}return false}
- if(J.stage===1){// normals from the patch itself, blended back to the sphere's own toward the rim
-  const W=n+1,p=B.pos,ax=V3(),ay=V3();for(let j=0;j<=n;j++)for(let i=0;i<=n;i++){const vi=j*W+i;let x=B.nb[vi*3],y=B.nb[vi*3+1],z=B.nb[vi*3+2];const w=B.wE[vi];
+ if(J.stage===1){// normals from the patch itself, blended back to the sphere's own toward the rim (a few rows a frame)
+  const W=n+1,p=B.pos,ax=V3(),ay=V3();const t0=q5s_now(),lim=q5s_slice();let j=J.row1||0;for(;j<=n;j++){if(j>(J.row1||0)&&q5s_now()-t0>lim){J.row1=j;return false}for(let i=0;i<=n;i++){const vi=j*W+i;let x=B.nb[vi*3],y=B.nb[vi*3+1],z=B.nb[vi*3+2];const w=B.wE[vi];
    if(w>0&&i>0&&i<n&&j>0&&j<n){ax.set(p[(vi+1)*3]-p[(vi-1)*3],p[(vi+1)*3+1]-p[(vi-1)*3+1],p[(vi+1)*3+2]-p[(vi-1)*3+2]);ay.set(p[(vi+W)*3]-p[(vi-W)*3],p[(vi+W)*3+1]-p[(vi-W)*3+1],p[(vi+W)*3+2]-p[(vi-W)*3+2]);
     ay.cross(ax).normalize();x+=(ay.x-x)*w;y+=(ay.y-y)*w;z+=(ay.z-z)*w;const l=Math.hypot(x,y,z)||1;x/=l;y/=l;z/=l}
-   B.nrm[vi*3]=x;B.nrm[vi*3+1]=y;B.nrm[vi*3+2]=z}
+   B.nrm[vi*3]=x;B.nrm[vi*3+1]=y;B.nrm[vi*3+2]=z}}
   J.stage=P.grass?2:4;return false}
  if(J.stage===2){if(q2_grassJob(J))J.stage=3;return false}
  if(J.stage===3){if(q2_grassFill(J))J.stage=4;return false}
@@ -414,9 +414,9 @@ function q2_grassJob(J){const P=J.P,B=J.B;
   let any=0;for(let i=0;i<B.gw.length;i+=3)if(B.gw[i]>.02){any=1;break}if(!any)J.gs.lv=Q2GL.length}
  const S=J.gs;if(S.lv>=Q2GL.length)return true;const sL=Q2GL[S.lv].s*S.lam,rr=S.rs[S.lv],rp=S.lv?S.rs[S.lv-1]:0;
  if(!S.row){const fi=S.faces[S.fq],f=FACES[fi],dn=J.C.dot(f.n);const a=Math.atan(J.C.dot(f.u)/dn)*1.2732395,b=Math.atan(J.C.dot(f.v)/dn)*1.2732395;
-  const step=sL/(R*Math.PI/4),ext=rr/(R*Math.PI/4)*1.2;S.row={fi,f,step,ia0:Math.floor((a-ext)/step),ia1:Math.ceil((a+ext)/step),ib:Math.floor((b-ext)/step),ib1:Math.ceil((b+ext)/step)}}
- const Rw=S.row,f=Rw.f,d=_q2d,out=S.out,W=J.n+1;let pts=0;
- for(;Rw.ib<=Rw.ib1&&pts<9000;Rw.ib++,pts+=Rw.ia1-Rw.ia0+1){const ib=Rw.ib;for(let ia=Rw.ia0;ia<=Rw.ia1;ia++){
+  const step=sL/(R*Math.PI/4),ext=rr/(R*Math.PI/4)*1.2;S.row={fi,f,step,ia0:Math.floor((a-ext)/step),ia1:Math.ceil((a+ext)/step),ib:Math.floor((b-ext)/step),ib0:Math.floor((b-ext)/step),ib1:Math.ceil((b+ext)/step)}}
+ const Rw=S.row,f=Rw.f,d=_q2d,out=S.out,W=J.n+1;const t0=q5s_now(),lim=q5s_slice();
+ for(;Rw.ib<=Rw.ib1;Rw.ib++,Rw.ia=undefined){const ib=Rw.ib;for(let ia=Rw.ia===undefined?Rw.ia0:Rw.ia;ia<=Rw.ia1;ia++){if((ia&63)===0&&(ia>Rw.ia0||ib>Rw.ib0)&&q5s_now()-t0>lim){Rw.ia=ia;return false}
    const sd=Rw.fi*13.7+S.lv*5.3;const a=(ia+q2h(ia*.0131,ib*.0173,sd)*.92)*Rw.step,b=(ib+q2h(ib*.0119+3.3,ia*.0147,sd)*.92)*Rw.step;if(a<-1||a>1||b<-1||b>1)continue;
    d.copy(f.n).addScaledVector(f.u,Math.tan(a*Math.PI/4)).addScaledVector(f.v,Math.tan(b*Math.PI/4)).normalize();if(faceOf(d)!==Rw.fi)continue;
    const dist=Math.acos(Math.min(1,d.dot(J.C)))*R;if(dist>rr||dist<rp*.8)continue;
@@ -433,7 +433,7 @@ function q2_grassFill(J){const P=J.P,B=J.B,S=J.gs,out=S.out,W=J.n+1,bk=1-P.ga;co
  const L=(arr,v,fx,fy,q,st)=>(arr[v*st+q]*(1-fx)+arr[(v+1)*st+q]*fx)*(1-fy)+(arr[(v+W)*st+q]*(1-fx)+arr[(v+W+1)*st+q]*fx)*fy;
  // visit the points in a scattered order, so a budget that runs out thins the whole field evenly instead of dropping its last rows
  if(S.P===undefined){let P=7919;const g=(a,b)=>b?g(b,a%b):a;while(g(P,Math.max(1,S.cnt))!==1)P+=2;S.P=P}
- let n=0;for(;S.t<S.cnt&&S.g<S.max&&n<2000;S.t+=S.step,n++){const k=((Math.floor(S.t)*S.P)%S.cnt)*6;const v=out[k],fx=out[k+1],fy=out[k+2],ia=out[k+3],ib=out[k+4],sd=out[k+5],lv=sd%8;
+ const t0=q5s_now(),lim=q5s_slice();for(let n=0;S.t<S.cnt&&S.g<S.max&&(n<200||q5s_now()-t0<lim);S.t+=S.step,n++){const k=((Math.floor(S.t)*S.P)%S.cnt)*6;const v=out[k],fx=out[k+1],fy=out[k+2],ia=out[k+3],ib=out[k+4],sd=out[k+5],lv=sd%8;
   // the point on the patch surface (bilinear over the small cell), its normal, and a frame turned by a fixed random yaw
   const px=L(B.pos,v,fx,fy,0,3),py=L(B.pos,v,fx,fy,1,3),pz=L(B.pos,v,fx,fy,2,3),pl=Math.hypot(px,py,pz);
   let ux=px/pl,uy=py/pl,uz=pz/pl;ux+=(L(B.nrm,v,fx,fy,0,3)-ux)*.3;uy+=(L(B.nrm,v,fx,fy,1,3)-uy)*.3;uz+=(L(B.nrm,v,fx,fy,2,3)-uz)*.3;const ul=Math.hypot(ux,uy,uz);ux/=ul;uy/=ul;uz/=ul;
