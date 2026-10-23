@@ -7,11 +7,11 @@ const BLOBS=[
  [-12,70,16],[-4,58,10],[-20,82,11],[-6,86,9],[-24,66,8],
  [-52,-18,13],[-60,2,10],[-46,-34,8],
  [4,-112,3.6],[6,-110,2.2],[30,-104,2.4],[27,-100,1.8],[33,-99,1.6],[34,-106,1.5],[26,-106,1.4],
- [1,-46.6,2.2],[1,-43.6,2.0],[8,-33,1.5,1],[10,-28,1.4,1],[12,-44,1.7,1],[20,30,1.1,1]
+ [1,-46.6,1.2,1],[1,-43.6,1.2,1],[12,-44,1.7,1],[20,30,1.1,1]
 ].map(b=>({d:dirLL(b[0],b[1]),r:b[2],dome:!!b[3]}));
 const PT=(a,b)=>dirLL(a,b);
 const F={peak:PT(36,15),cpeak:PT(-6,73),atmount:PT(22,-94),crater:PT(20,-13),salt:PT(4,-72),dieye:PT(-17,75),
- riftA:PT(25,-58),riftB:PT(3,-64),canA:PT(14,6),canB:PT(47,6),abyA:PT(-20,30),abyB:PT(-32,42),twin1:PT(1,-46.6),twin2:PT(1,-43.6),oasis:PT(27,-11),plake:PT(36.6,14.2),lavA:PT(20,4),lavB:PT(22,14)};
+ riftA:PT(25,-58),riftB:PT(3,-64),canA:PT(1.5,6),canB:PT(50.5,6),abyA:PT(-20,30),abyB:PT(-32,42),twin1:PT(1,-46.6),twin2:PT(1,-43.6),oasis:PT(27,-11),plake:PT(36.6,14.2),lavA:PT(20,4),lavB:PT(22,14)};
 function landMaskB(p,BL){let m=-1;for(const b of BL){const a=angDeg(p,b.d),t=a/b.r;m=Math.max(m,b.dome?.5*(1-t*t)+.05:1-t)}return m}
 /* ridged noise: sharp crests, broad valleys, the shape real mountain ranges have */
 function ridgeN(x,y,z,f,o){let s=0,a=.55,w=1,t=0;for(let i=0;i<o;i++){let v=1-Math.abs(n3(x*f+i*7.1,y*f,z*f)*2-1);v*=v;v*=w;s+=v*a;t+=a;w=clamp(v*1.6,0,1);a*=.5;f*=2.07}return s/t}
@@ -20,7 +20,7 @@ function ridgeN(x,y,z,f,o){let s=0,a=.55,w=1,t=0;for(let i=0;i<o;i++){let v=1-Ma
 const _wg=V3();function wig(p){return _wg.set(p.x+(n3(p.x*14+3,p.y*14,p.z*14)-.5)*.026,p.y+(n3(p.x*14,p.y*14+7,p.z*14)-.5)*.026,p.z+(n3(p.x*14,p.y*14,p.z*14+11)-.5)*.026).normalize()}
 function crag(p,a,sig,H,seed){const g=Math.exp(-(a*a)/(2*sig*sig));if(g<.003)return 0;const rg=ridgeN(p.x+seed,p.y-seed*.7,p.z+seed*.3,22,3);
  return H*g*lerp(1,.5+.75*rg,sm(0,sig*.45,a))+H*.28*Math.exp(-(a*a)/(2*(sig*.32)*(sig*.32)))}
-function rqH0(p){
+function rqH0(p,noLava){
  const n=fbm(p.x*3.2+5,p.y*3.2,p.z*3.2,5);const nc=fbm(p.x*11+2,p.y*11,p.z*11,4);let m=landMaskB(p,BLOBS)+(n-.5)*.55+(nc-.5)*.13;let h;
  if(m<0)h=Math.max(-70,m*150)-2+(nc-.5)*6*sm(-.02,-.25,m);else{const r=fbm(p.x*9,p.y*9,p.z*9,4);h=2+m*28+Math.pow(r,2.4)*55*Math.min(1,m*3);
   // mountain ranges where a slow field says so, kept off the shore
@@ -43,10 +43,10 @@ function rqH0(p){
  a=angDeg(p,F.oasis);if(a<1.3&&m>0)h=lerp(h,-2,1-sm(.55,1.3,a));
  a=angDeg(p,F.dieye);if(a<3&&m>0)h=lerp(h,-6,1-sm(1,2.2,a));
  a=segAng(wig(p),F.riftA,F.riftB);if(m>0)h=lerp(h,.6,1-sm(.5,1.4,a));
- a=segAng(p,F.lavA,F.lavB);if(m>0)h=lerp(h,Math.min(h,3),1-sm(.45,.95,a));
+ // (the lava rift lies underground, see 61_under; the old surface trench is kept only for tracing the rivers as before)
+ if(!noLava){a=segAng(p,F.lavA,F.lavB);if(m>0)h=lerp(h,Math.min(h,3),1-sm(.45,.95,a))}
  a=segAng(p,F.abyA,F.abyB);if(m<0)h-=40*Math.exp(-(a*a)/.5);
- a=Math.min(angDeg(p,F.twin1),angDeg(p,F.twin2));if(a<2.4)h=Math.max(h,lerp(18,0,a/2.2));
- return h}
+ return fxG_isles(p,h)}
 /* ---------- rivers: traced downhill from high ground to the sea, then cut into the land ---------- */
 const RIVERS=(()=>{const Rn=rnd(4711),out=[],src=[];const d=V3(),e=V3(),nn=V3();
  // where rivers begin: high, wet ground, spaced apart (deserts and salt flats get none)
@@ -72,7 +72,7 @@ const _rv=V3();
 function riverAt(p){const H=RIVERS.H;const cx=Math.round(p.x*22),cy=Math.round(p.y*22),cz=Math.round(p.z*22);let best=null,bd=1e9;
  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)for(let k=-1;k<=1;k++){const L=H[(cx+i)+','+(cy+j)+','+(cz+k)];if(!L)continue;for(const s of L){let u=((p.x-s.a.x)*s.ab.x+(p.y-s.a.y)*s.ab.y+(p.z-s.a.z)*s.ab.z)/s.l2;u=u<0?0:u>1?1:u;const dx=p.x-s.a.x-s.ab.x*u,dy=p.y-s.a.y-s.ab.y*u,dz=p.z-s.a.z-s.ab.z*u;const a=Math.sqrt(dx*dx+dy*dy+dz*dz)/D2R;if(a<bd){bd=a;best=s}}}
  if(!best)return null;const w=.1+best.t*.32;if(bd>w*3.2)return null;return{d:bd,w,t:best.t,k:1-sm(w*.55,w*1.15,bd),bank:1-sm(w,w*3.2,bd)}}
-function rqHeight(p){let h=rqH0(p);if(h<-4)return h;const r=riverAt(p);if(r){const depth=2.2+r.t*3.2;h-=depth*r.k+r.bank*Math.min(4,Math.max(0,h-2))*.35}return h}
+function rqHeight(p){let h=rqH0(p,1);if(h<-4)return fxG_post(p,h);const r=riverAt(p);if(r){const depth=2.2+r.t*3.2;h-=depth*r.k+r.bank*Math.min(4,Math.max(0,h-2))*.35}return fxG_post(p,h)}
 function rqCanyon(p,h){const a=segAng(p,F.canA,F.canB);const k=1-sm(.4,1.3,a);return k>0?Math.max(0,(h+16))*k:0}
 
 /* ---------- colours ---------- */
@@ -80,8 +80,8 @@ const PC={deep:C('#0a2233'),shelf:C('#1e4d5a'),sand:C('#d8c08a'),dune:C('#d49b5e
  green:C('#4f8a46'),lush:C('#2f7a43'),teal:C('#1f5a4a'),moss:C('#47b39a'),spire:C('#7a8670'),tundra:C('#7c8a72'),salt:C('#efede4'),emer:C('#2d9560'),crys:C('#9fd6e0'),
  savanna:C('#a1a052'),succ:C('#7fa98a'),blood:C('#8a2b2b'),dark:C('#283c2e'),snow:C('#eef4f8'),fung:C('#b9a9c9'),south:C('#6f7a6a'),mud:C('#4a4436'),scorch:C('#3a3430')};
 const NR=(lat,lon,r0,r1,col,k)=>({d:dirLL(lat,lon),r0,r1,col,k:k===undefined?1:k});
-const LUSH=[NR(25,-6,7,13,PC.dune),NR(20,-13,1,3,PC.dune),NR(15,-1,1.5,3.5,PC.spire),NR(33,11,6,11,PC.teal),NR(29,8,1,2.5,PC.moss),NR(9,2,1,3,PC.rock,.7),
- NR(6,-76,4,26,PC.lush,.6),NR(4,-72,3,5.5,PC.salt),NR(12,-88,2,5,PC.emer),NR(10,-100,2,5,PC.crys,.8),NR(-12,-78,2,6,PC.savanna,.8),NR(-6,-80,2,5,PC.savanna,.5),NR(26,-66,2,6,PC.dark,.7),
+const LUSH=[NR(25,-6,7,13,PC.dune),NR(20,-13,1,3,PC.dune),NR(15,-1,1.5,3.5,PC.spire),NR(33,11,6,11,PC.teal),NR(29,8,1,2.5,PC.moss),NR(4.6,-3.6,0,3,PC.rock,.75),NR(4.7,1,0,3.2,PC.rock,.8),NR(4.6,5.4,0,2.6,PC.rock,.7),
+ NR(6,-76,4,26,PC.lush,.6),NR(4,-72,3,5.5,PC.salt),NR(12,-88,2,5,PC.emer),NR(10,-100,2,5,PC.barren,.85),NR(-12,-78,2,6,PC.savanna,.8),NR(-6,-80,2,5,PC.savanna,.5),NR(26,-66,2,6,PC.dark,.7),
  NR(30,-103,0,5,PC.fung),NR(4,-111,0,4,PC.tundra,.4),NR(-12,70,4,22,PC.succ,.6),NR(-17,76,3,7,PC.dune),NR(-22,83,1,4,PC.moss,.7),NR(-10,88,2,5,PC.dark),NR(-52,-18,4,20,PC.south,.7),NR(14,-60,.3,1.2,PC.mud,.8)];
 const _nt=V3();
 function nearD(p,d,r0,r1){return 1-sm(r0,r1,angDeg(p,d))}
@@ -108,14 +108,14 @@ function coastColor(p,h,out){const rk=sm(.6,.72,fbm(p.x*6.5-7,p.y*6.5+1,p.z*6.5,
 function barrenColor(p,h,out){if(h<0){out.copy(PC.shelf).lerp(PC.deep,sm(-2,-40,h));return}if(h<2.2){out.copy(PC.sand);return}
  out.copy(PC.barren).lerp(PC.barren2,n3(p.x*20,p.y*20,p.z*20));if(h>60)out.lerp(PC.ash,sm(60,120,h))}
 const SOUTHW=dirLL(-56,-14),WSNOW=dirLL(6,-80);
-function rqColors(Gd){const n=Gd.n,P=Gd.P,H=Gd.H;const b=new Float32Array(n*3),l=new Float32Array(n*3),s=new Float32Array(n*3),w=new Float32Array(n*3);const p=V3(),c=new THREE.Color(),c2=new THREE.Color();
- const BANK=C('#3d6b3a'),MUD=C('#5a5040'),LAVAC=C('#1c1816');
+function rqColors(Gd){const n=Gd.n,P=Gd.P,H=Gd.H;const b=new Float32Array(n*3),l=new Float32Array(n*3),s=new Float32Array(n*3),w=new Float32Array(n*3),pk=new Float32Array(n*3);const p=V3(),c=new THREE.Color(),c2=new THREE.Color();
+ const BANK=C('#3d6b3a'),MUD=C('#5a5040');
  for(let k=0;k<n;k++){p.set(P[k*3],P[k*3+1],P[k*3+2]);const h=H[k],lat=Math.asin(p.y)/D2R;
-  lushColor(p,h,lat,c);{const la2=segAng(p,F.lavA,F.lavB);if(la2<.8)c.lerp(LAVAC,(1-sm(.4,.75,la2))*.95)}const rv=h>-1?riverAt(p):null;if(rv){c.lerp(BANK,rv.bank*.45);c.lerp(MUD,rv.k*.6)}l[k*3]=c.r;l[k*3+1]=c.g;l[k*3+2]=c.b;
+  lushColor(p,h,lat,c);const rv=h>-1?riverAt(p):null;if(rv){c.lerp(BANK,rv.bank*.45);c.lerp(MUD,rv.k*.6)}l[k*3]=c.r;l[k*3+1]=c.g;l[k*3+2]=c.b;fxG_scorch(p,h,c,c2);pk[k*3]=c2.r;pk[k*3+1]=c2.g;pk[k*3+2]=c2.b;
   const sw=h>2?Math.max(nearD(p,SOUTHW,6,22),sm(-48,-62,lat))*.92:0;c2.copy(c).lerp(PC.snow,sw);w[k*3]=c2.r;w[k*3+1]=c2.g;w[k*3+2]=c2.b;
   const snowK=h>2?Math.max(sm(18,40,lat+(n3(p.x*30,p.y*30,p.z*30)-.5)*14),nearD(p,WSNOW,8,30)*.85,sm(-40,-58,lat)):0;c2.copy(c).lerp(PC.snow,snowK);s[k*3]=c2.r;s[k*3+1]=c2.g;s[k*3+2]=c2.b;
   barrenColor(p,h,c);if(rv)c.lerp(MUD,rv.k*.5);b[k*3]=c.r;b[k*3+1]=c.g;b[k*3+2]=c.b}
- return{b,l,s,w}}
+ return{b,l,s,w,p:pk}}
 
 /* ---------- what grows where (ground cover) ---------- */
 const BZ={jungle:dirLL(33,11),glow:dirLL(29,8),desert:dirLL(25,-6),spires:dirLL(15,-1),salt:dirLL(4,-72),grass:dirLL(-8,-80),emer:dirLL(12,-88),crys:dirLL(10,-100),fung:dirLL(30,-103),
@@ -123,6 +123,7 @@ const BZ={jungle:dirLL(33,11),glow:dirLL(29,8),desert:dirLL(25,-6),spires:dirLL(
 function rqBiome(d,h,lat,e,W){if(e===1)return;const al=Math.abs(lat);
  const snowy=e===4?Math.max(sm(18,40,lat),nearD(d,WSNOW,8,30)*.85,sm(-40,-58,lat)):0;if(e>=6&&(lat<-48||nearD(d,SOUTHW,6,22)>.5))return;
  if(h>120||al>62)return;
+ if((e===2||e===3)&&angDeg(d,fxG_K().PK)<5.4){W.rock=.08;W.rockC='#3a3632';W.tuft=.14;W.tuftC='#2e2a26';return}
  if(h<2.4&&h>-.3){W.rock=.1;W.rockC='#7a746a';W.tuft=.14;W.tuftC='#c8c08a';return}
  const desert=Math.max(nearD(d,BZ.desert,6,12),nearD(d,BZ.dieye,2.5,6.5));const salt=nearD(d,BZ.salt,3,5.5);
  if(snowy>.5){W.rock=.06;return}
@@ -135,7 +136,7 @@ function rqBiome(d,h,lat,e,W){if(e===1)return;const al=Math.abs(lat);
  if(gl>.2){W.shroom=.35*gl;W.shroomC='#b8fff0';W.tuftC='#9fe8c8';W.flower=.02}
  if(rf>.2){W.fern=.6*rf;W.tuft=.35;W.flower=.08}
  if(gr>.2&&rf<.3){W.tall=.75*gr;W.tuft=.3;W.tuftC='#c8c070';W.flower=.03}
- if(cr>.2){W.tuft=.25;W.rock=.15;W.rockC='#bfe8f0'}
+ if(cr>.2){W.tuft=0;W.flower=0;W.fern=0;W.rock=.22;W.rockC='#8a8274'}
  if(fu>.2){W.shroom=.45*fu;W.shroomC=['#e8d8f4','#c8a8e0','#f4f0f8'][(h*5|0)%3];W.tuft=.2;W.tuftC='#b0a0c0'}
  if(ea>.3&&desert<.3){W.succ=.12*ea;W.tuft=.35;W.tall=0;if(mo>.2){W.tuft=.8;W.tuftC='#6fc0a0';W.succ=0}}
  if(sw>.2){W.reed=.6*sw;W.tuft=.4}
@@ -178,12 +179,12 @@ function rqForests(sp){const Rn=rnd(9091);const gh=sp.ghRaw;const d=V3();
   palm:G([[ktube([V3(0,0,0),V3(.4,2.6,0),V3(.9,5,.2)],.16,10,6),'#7a6a4e'],[ki(.32,1),'#6a5a3a',{p:[.9,4.9,.2]}],...Array.from({length:9},(_,i)=>{const a=i/9*6.28;return[tg(new THREE.SphereGeometry(1,8,4),{s:[1.5,.06,.32]}),i%2?'#ffffff':'#e0e0e0',{p:[.9+Math.cos(a)*1.3,4.75-.25*(i%3),.2+Math.sin(a)*1.3],r:[0,-a,-.35]}]})]),
   dead:G([[kcy(.12,.22,3.8,7),'#5a4e40',{p:[0,1.9,0]}],[kcy(.04,.08,1.8,5),'#5a4e40',{p:[.45,3.4,0],r:[0,0,-.9]}],[kcy(.04,.08,1.5,5),'#5a4e40',{p:[-.4,2.9,.2],r:[0,0,.9]}],[kcy(.03,.06,1.2,4),'#5a4e40',{p:[.1,3.9,-.4],r:[.8,0,0]}],[kcy(.03,.05,1,4),'#5a4e40',{p:[-.1,3.6,.5],r:[-.9,0,.2]}]])};
  const Z={desert:dirLL(25,-6),dieye:dirLL(-17,75),salt:dirLL(4,-72),spires:dirLL(15,-1),jungle:dirLL(33,11),crater:dirLL(20,-13),grass:dirLL(-8,-80),rift:dirLL(14,-60),fung:dirLL(30,-103),lava:dirLL(21,9),crys:dirLL(10,-100)};
- const WEST=dirLL(6,-76),EAST=dirLL(-12,70),NORTH=dirLL(30,2),SOUTH=dirLL(-52,-18);
+ const WEST=dirLL(6,-76),EAST=dirLL(-12,70),NORTH=dirLL(30,2),SOUTH=dirLL(-52,-18),htD=dirLL(...fxG_HT),eastC=dirLL(-12,66);// no trees on the east coast: only inland round the old forest of heaven
  const pick={};const add=(kind,eras,p)=>{const key=kind+'|'+eras.join()+'|'+Math.round(p[0]/4)+','+Math.round(p[1]/4);(pick[key]=pick[key]||{kind,eras,pts:[]}).pts.push(p)};
  const ERAS_A=[2,3,5,6,7,8,9,10,11,12],ERAS_S=[2,3,5];
  for(let i=0;i<520000;i++){d.set(Rn()*2-1,Rn()*2-1,Rn()*2-1);const l2=d.lengthSq();if(l2>1||l2<.02)continue;d.normalize();const lat=Math.asin(d.y)/D2R,lon=Math.atan2(d.x,d.z)/D2R;
   const h=gh(lat,lon);if(h<3||h>105)continue;if(Math.abs(lat)>64)continue;
-  if(angDeg(d,Z.desert)<12||angDeg(d,Z.dieye)<6.5||angDeg(d,Z.salt)<6||angDeg(d,Z.spires)<3.5||angDeg(d,Z.jungle)<9||angDeg(d,Z.crater)<3.2||angDeg(d,Z.fung)<5||angDeg(d,Z.lava)<2||angDeg(d,Z.crys)<4||TOWNC.some(t=>angDeg(d,t[0])<t[1])||segAng(d,F.lavA,F.lavB)<1)continue;
+  if(angDeg(d,Z.desert)<12||angDeg(d,Z.dieye)<6.5||angDeg(d,Z.salt)<6||angDeg(d,Z.spires)<3.5||angDeg(d,Z.jungle)<9||angDeg(d,Z.crater)<3.2||angDeg(d,Z.fung)<5||angDeg(d,Z.crys)<4||TOWNC.some(t=>angDeg(d,t[0])<t[1])||angDeg(d,htD)<2.4||angDeg(d,eastC)<17)continue;
   // patches with clearings, thinner on high ground and in grassland
   const pf2=n3(d.x*60,d.y*60,d.z*60);let dens=(forestF(d)*.9+.04)*(.55+.45*pf2)*(1-sm(55,100,h));
   if(angDeg(d,Z.grass)<7)dens*=.2;if(angDeg(d,Z.rift)<3)dens*=.3;if(dens<Rn()*.95)continue;
@@ -191,7 +192,7 @@ function rqForests(sp){const Rn=rnd(9091);const gh=sp.ghRaw;const d=V3();
   const e1=gh(lat+.25,lon),e2=gh(lat,lon+.25/Math.max(.3,Math.cos(lat*D2R)));if(Math.abs(e1-h)+Math.abs(e2-h)>5.5)continue;
   if(nearEnt('rongqiu',lat,lon,.35))continue;
   const r4=Rn();const p=[lat,lon,h,r4];const ws=angDeg(d,WEST)<26,ea=angDeg(d,EAST)<24,so=angDeg(d,SOUTH)<22,coast=h<7;
-  const cold=Math.abs(lat)>44||so||h>70;const eras=so||lat<-44?ERAS_S:ERAS_A;
+  const cold=Math.abs(lat)>44||so||h>70;let eras=so||lat<-44?ERAS_S:ERAS_A;if(lat>2.6&&lat<6.8&&lon>-6.5&&lon<8.6)eras=eras.filter(e=>e>4);// the bare rock plain above the landing cliffif(angDeg(d,fxG_K().PK)<5.8)eras=eras.filter(e=>e>3);
   let kind=cold?'conifer':coast&&r4<.55&&Math.abs(lat)<30?'palm':(ea&&r4<.35?'conifer':'broad');p.push(ws?1:ea?2:0);add(kind,eras,p);
   // the long winter: the same woods stand bare or heavy with snow
   if(!so)add(kind==='broad'||kind==='palm'?'dead':'conifer',[4],p.concat(['snow']))}
@@ -315,12 +316,12 @@ function fogBank(la,lo,r,n,alt,col,op,seed,eras,size){const g=new THREE.Group();
 
 let RQ=null;
 function buildRongqiu(){
- const sp=makePlanet('rongqiu',{N:224,height:rqHeight,canyon:rqCanyon,colors:rqColors,colorKey:e=>e===1?'b':e===4?'s':e>=6?'w':'l',canyonOf:e=>e>=3?1:0,
+ const sp=makePlanet('rongqiu',{N:224,height:rqHeight,canyon:rqCanyon,colors:rqColors,colorKey:e=>e===1?'b':e===4?'s':e>=6?'w':e===2||e===3?'p':'l',canyonOf:e=>e>=3?1:0,
   ocean:{deep:'#0b2f4a',shal:'#1d7f8c',foam:'#eef6f2',sky:'#9cc8f0'},atm:'#5fa8ff',rock:'#6e6458',sunLon:-30});
  RQ=sp;
  const gh=sp.gh,ghR=sp.ghRaw;
  makeCover(sp,rqBiome);
- rqRivers(sp);rqTowns(sp);rqHomeTree(sp);rqJungle(sp);rqEcho(sp);rqMountains(sp);rqLife(sp);planetMeteors(sp);planetStorms(sp);rqJumpers(sp);rqCanon(sp);rqCanon2(sp);rqCanon3(sp);rqLand(sp);rqSky(sp);rqEarly(sp);rqCloud(sp);rqSeabed(sp);rqIceWake(sp);rqLinMark(sp);rqForests(sp);rqRocks(sp);rqCumulus(sp);rqFlocks(sp);
+ rqRivers(sp);rqTowns(sp);rqHomeTree(sp);rqJungle(sp);rqMountains(sp);rqLife(sp);planetMeteors(sp);planetStorms(sp);rqJumpers(sp);rqCanon(sp);rqCanon2(sp);rqCanon3(sp);rqLand(sp);rqSky(sp);rqEarly(sp);rqCloud(sp);rqSeabed(sp);rqIceWake(sp);rqLinMark(sp);rqForests(sp);rqRocks(sp);rqCumulus(sp);rqFlocks(sp);
  // ---------- ice ----------
  const iceMat=detailMat(new THREE.MeshStandardMaterial({color:'#dfeef5',roughness:.42,metalness:.05,transparent:true,opacity:.95,vertexColors:true}),{bump:.7,mott:1.4,freq:.6});
  // the ice turns blue-green where the crystal mountain's light comes up through it
@@ -340,10 +341,10 @@ function buildRongqiu(){
  {const pts=scatter(2200,-8,40,7,11,(la,lo,h)=>ghR(la,lo)<-1&&ghR(la,lo)>-34);const m=new THREE.MeshStandardMaterial({color:'#3fbf6a',emissive:'#1f8a46',emissiveIntensity:.3,roughness:.6,alphaMap:glowTex,transparent:true,depthWrite:false});
   inst(new THREE.CircleGeometry(1,16),m,pts,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o,false);o.position.setLength(R+ghR(p[0],p[1])+.9);o.rotateX(-Math.PI/2);o.scale.setScalar(2.6+p[3]*3.4)},[1,2],{tint:p=>C('#ffffff').offsetHSL((p[3]-.5)*.06,0,(p[3]-.5)*.2)});
   px('lvtan',dirLL(-8,40).multiplyScalar(R-6),60,{maxD:2600})}
- // the first base: a cluster of breeding pods on the sea floor
- {const g=new THREE.Group();const pm=new THREE.MeshStandardMaterial({color:'#9fd88a',emissive:'#4a9a5a',emissiveIntensity:.5,roughness:.4,transparent:true,opacity:.9});
-  for(let i=0;i<9;i++){const s=new THREE.Mesh(sgeo(12),pm);const a=i*2.4,r=i?2+i*.6:0;s.position.set(Math.cos(a)*r,1.4+(i%3)*.5,Math.sin(a)*r);s.scale.set(1.6,1.2+(i%2)*.4,1.6);g.add(s)}
-  fr(-5,45.5,0,0,g,false);g.position.setLength(R+ghR(-5,45.5)+.2);addE(g,[1]);cull(g,null,30,1600);px('fanzhi',g.position,8);anim(sp,g,t=>g.children.forEach((s,i)=>s.scale.y=1.2+Math.sin(t*1.5+i)*.2))}
+ // the first base, on top of a big rock: flat armoured tentacles outermost, needle tentacles inside them, oval organ sacs,
+ // and in the middle a great sphere in hard armour with huge tentacles
+ {const g=new THREE.Group();const sw=fxG_seaBase(g);
+  fr(-5,45.5,0,0,g,false);g.position.setLength(R+ghR(-5,45.5)+.2);addE(g,[1]);cull(g,null,30,1600);px('fanzhi',g.position.clone().add(g.position.clone().normalize().multiplyScalar(6)),9);anim(sp,g,sw)}
  // the abyss: glowing lava seams, black smokers
  glowArc([-20,30],[-32,42],3,'#ff4a2a',[1,2,3,4,5,6,7,8,9,10,11,12],.8,.75,true);
  {const g=new THREE.Group();for(let i=0;i<5;i++){const c=new THREE.Mesh(kc(1.6,7,7),M('#1c1816',{roughness:.9}));c.position.set(i*5-10,3.5,Math.sin(i)*4);g.add(c)}
@@ -367,9 +368,9 @@ function buildRongqiu(){
 
  // ---------- north continent ----------
  // the cliffs of the landing: picked-clean bones and sea mist
- {const pts=scatter(60,9.2,2,2.4,21,onLand);const bone=G([[ktube([V3(-1.6,0,0),V3(-1,1.4,0),V3(0,1.9,0),V3(1,1.4,0),V3(1.6,0,0)],.09,12),'#ece4d0'],[kcy(.08,.08,3.4,4),'#e2dac6',{p:[0,.1,0],r:[0,0,Math.PI/2]}]]);
+ {const pts=scatter(60,4.7,2,1.7,21,onLand);const bone=G([[ktube([V3(-1.6,0,0),V3(-1,1.4,0),V3(0,1.9,0),V3(1,1.4,0),V3(1.6,0,0)],.09,12),'#ece4d0'],[kcy(.08,.08,3.4,4),'#e2dac6',{p:[0,.1,0],r:[0,0,Math.PI/2]}]]);
   inst(bone,VC({roughness:.6}),pts,(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.6+p[3]*.8)},[2,3,4,5,6,7,8,9,10,11,12])}
- fogBank(8.6,2,2.2,16,6,'#e4ecee',.4,22,[2,3]);
+ fogBank(4.4,2,2.2,16,6,'#e4ecee',.4,22,[1,2,3]);
  // spires: moss-covered hollow stone, thick as a forest
  {rqSpires(sp);
   px('mtzm',()=>dirLL(15,-1).multiplyScalar(R+gh(15,-1)+18),7);px('spires',dirLL(15,-1).multiplyScalar(R+gh(15,-1)+10),40,{maxD:1800})}
@@ -396,11 +397,7 @@ function buildRongqiu(){
   wh.rotation.x=-Math.PI/2;wh.position.y=2.15;g.add(wh);
   const fall=emitter({n:160,life:2.2,speed:2,spread:.4,size:2.4,dir:[-1,-.2,0],grav:5,col:'#cfeaf4',op:.5,add:false,tex:smokeTex,area:[3,1,3]});fall.position.set(36,9,0);g.add(fall);
   fr(20,-13,0,0,g,false);g.position.setLength(R-1.8);addE(g,[2,3,4,5,6,7,8,9,10,11,12]);cull(g,null,60,2200);px('inca_pit',g.position.clone().add(g.position.clone().normalize().multiplyScalar(8)),36)}
- // the lava rift: a river of red light, and Lin's cone-shaped bases standing like rocks
- glowArc([20,4],[22,14],2.4,'#ff6a2a',[2,3],.7,.95);
- {const pts=scatter(26,21,9,3.2,41,onLand);inst(geoC('spire'),VC({roughness:.85}),pts,(o,p)=>{frameLL(sp,p[0],p[1],-.4,p[3]*6,o);o.scale.set(1.6,5+p[3]*6,1.6)},[2,3],{tint:()=>C('#8a7a6a')});
-  const g=new THREE.Group();const em=emitter({n:220,life:3,speed:4,spread:.6,size:1.6,dir:[0,1,0],col:'#ffb060',col2:'#ff3010',op:.9,area:[160,2,24],wander:1});g.add(em);g.add(at(glowSprite('#ff5a2a',160,.25),0,4,0));
-  fr(21,9,1,1.2,g);addE(g,[2,3]);cull(g,null,120,1800);px('lavarift',g.position,26)}
+ // the lava rift is underground (61_under): a black, long-cold floor, not a river of fire on the surface
  const cracks=glowArc([23,-7],[25,-2],1.1,'#ff7d3b',[2],.5,.9);
  // the glowing woods and the dark plain, split by a river
  {const L=scatter(1400,29,8,2.4,9,onLand).filter(p=>p[1]>7.4);const pts=L.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+.5));const sp2=sparkles(pts,'#8affdd',1.1,.85,1);addE(sp2,[2,3,5,6,7,8,9,10,11,12]);cull(sp2,dirLL(29,8.5).multiplyScalar(R),60,2000);
@@ -428,10 +425,10 @@ function buildRongqiu(){
  {lake(36.6,14.2,14,R?0:0,'#2a7a9a',[2,3,4,5,6,7,8,9,10,11,12]).position.setLength(R+gh(36.6,14.2)+.8);
   const g=new THREE.Group();g.add(emitter({n:120,life:5,speed:3,spread:.5,size:6,dir:[0,1,0],col:'#f4f6f8',op:.3,add:false,tex:smokeTex,area:[16,1,16],wander:1.4}));
   g.add(sparkles(Array.from({length:50},(_,i)=>V3((h3(i,1,9)-.5)*20,.3,(h3(i,2,9)-.5)*20)),'#9fe8ff',1.4,1));fr(36.6,14.2,0,0,g);addE(g,[2,3,4,5,6,7,8,9,10,11,12]);cull(g,null,30,1600);
-  px('peak',dirLL(36,15).multiplyScalar(R+gh(36,15)+6),26,{maxD:2600})}
+  px('peak',dirLL(36,15).multiplyScalar(R+gh(36,15)+6),26,{maxD:2600});fxG_peak(sp)}
  // floating isles of singing stone, with whole forests hanging upside down beneath them
  const isles=new THREE.Group();sp.scene.add(isles);
- [[34,10,52,9],[32.5,8,44,5],[35.5,12.6,60,6],[33,13.5,40,4],[36,9,48,4],[34.6,11.4,66,3]].forEach(([la,lo,alt,r],k)=>{const g=new THREE.Group();
+ [[34,10,52,9],[31.4,10.8,44,5],[35.5,12.6,60,6],[33,13.5,40,4],[36,9,48,4],[34.6,11.4,66,3]].forEach(([la,lo,alt,r],k)=>{const g=new THREE.Group();
   const rk=detailMat(new THREE.MeshStandardMaterial({color:'#7d7262',roughness:.95,flatShading:true}),{bump:.8});const rock=new THREE.Mesh(new THREE.ConeGeometry(r,r*1.4,9,3),rk);rock.rotation.x=Math.PI;rock.position.y=-r*.7;g.add(rock);
   const top=new THREE.Mesh(kcy(r*1.02,r,1,9),M('#4f8a4f'));g.add(top);
   const Rn=rnd(40+k);const tw=geoC('twist');const tm=VC({roughness:.85});for(let i=0;i<r*1.2;i++){const a=Rn()*6.28,d=Rn()*r*.7;const t=new THREE.Mesh(tw,tm);t.rotation.x=Math.PI;t.rotation.z=(Rn()-.5)*.5;t.position.set(Math.cos(a)*d,-r*.9,Math.sin(a)*d);t.scale.setScalar(.25+Rn()*.18);g.add(t)}
@@ -443,14 +440,14 @@ function buildRongqiu(){
  const stonePts=scatter(90,28,3,12,13,onLand);const stoneIM=new THREE.InstancedMesh(kd(1),detailMat(new THREE.MeshStandardMaterial({color:'#8d8270',roughness:.9,flatShading:true}),{bump:.5}),stonePts.length);stoneIM.frustumCulled=false;sp.scene.add(stoneIM);
  px('mingshi',()=>dirLL(26,4).multiplyScalar(R+gh(26,4)+4+sp.moonK*40),8);
  // the Inca airship of singing stone
- const airship=new THREE.Group();{const sk=detailMat(new THREE.MeshStandardMaterial({color:'#9b8a6a',roughness:.9,flatShading:true}),{bump:.7});const b=new THREE.Mesh(new THREE.SphereGeometry(1,18,10),sk);b.scale.set(15,3.4,4.4);airship.add(b);
-  for(let i=-3;i<=3;i++){const w=new THREE.Mesh(new THREE.TorusGeometry(3.6,.45,5,12),M('#6a5a44'));w.rotation.y=Math.PI/2;w.position.x=i*3.8;airship.add(w)}
-  for(let i=0;i<4;i++){const wo=new THREE.Group();const seg=[];for(let j=0;j<5;j++){const s=new THREE.Mesh(sgeo(8),M('#b98b5c'));s.position.set(0,j*.8,0);s.scale.setScalar(.7-j*.08);wo.add(s);seg.push(s)}wo.position.set(-8+i*5,3,0);airship.add(wo);airship.userData['w'+i]=seg}
-  airship.add(at(emitter({n:80,life:2,speed:3,spread:.5,size:2.5,dir:[0,1,0],col:'#d8b888',op:.5,add:false,tex:smokeTex,area:[20,1,3]}),0,4,0));
+ // one great boulder, a rock nest that lifted off: cave mouths all over it, the ones at the back and underneath glowing red with thrust
+ const airship=new THREE.Group();{fxG_airRock(airship);
+  for(let i=0;i<4;i++){const wo=new THREE.Group();const seg=[];for(let j=0;j<5;j++){const s=new THREE.Mesh(sgeo(8),M('#b98b5c'));s.position.set(0,j*.8,0);s.scale.setScalar(.7-j*.08);wo.add(s);seg.push(s)}wo.position.set(-8+i*5,4.6,0);airship.add(wo);airship.userData['w'+i]=seg}
+  airship.add(at(emitter({n:80,life:2,speed:3,spread:.5,size:2.5,dir:[0,1,0],col:'#d8b888',op:.5,add:false,tex:smokeTex,area:[20,1,3]}),0,5.4,0));
   sp.scene.add(airship);px('mingshikt',()=>airship.position,16,{hide:()=>!airship.visible})}
  // canyon sea: in the snow, Lin roofs it over with clear chitin and the dragons winter inside
- {const g=new THREE.Group();const A=dirLL(15,6),B=dirLL(46,6);const n=24;const rm=new THREE.MeshStandardMaterial({color:'#dff4ff',transparent:true,opacity:.32,roughness:.05,metalness:.2,side:THREE.DoubleSide,depthWrite:false});
-  for(let i=0;i<n;i++){const t=(i+.5)/n;const p=A.clone().lerp(B,t).normalize();const ll=llDir(p);const s=new THREE.Mesh(new THREE.CylinderGeometry(16,16,R*D2R*31/n*1.08,16,1,true,0,Math.PI),rm);const o=new THREE.Group();o.add(s);s.rotation.z=Math.PI/2;
+ {const g=new THREE.Group();const A=dirLL(3.4,6),B=dirLL(35.4,6);const n=26;const rm=new THREE.MeshStandardMaterial({color:'#dff4ff',transparent:true,opacity:.32,roughness:.05,metalness:.2,side:THREE.DoubleSide,depthWrite:false});
+  for(let i=0;i<n;i++){const t=(i+.5)/n;const p=A.clone().lerp(B,t).normalize();const ll=llDir(p);const s=new THREE.Mesh(new THREE.CylinderGeometry(16,16,R*D2R*32/n*1.08,16,1,true,0,Math.PI),rm);const o=new THREE.Group();o.add(s);s.rotation.z=Math.PI/2;
    frameLL(sp,ll[0],ll[1],2,0,o,false);o.position.setLength(R+2);g.add(o)}
   const lp=scatter(80,30,6,14,51,(la,lo,h)=>Math.abs(lo-6)<.6).map(p=>dirLL(p[0],p[1]).multiplyScalar(R+1.5));g.add(sparkles(lp,'#ffd090',1.6,1,.5));
   addE(g,[4,5]);cull(g,dirLL(30,6).multiplyScalar(R),300,3000);px('canyon',dirLL(30,6).multiplyScalar(R+4),30,{maxD:2600})}
@@ -477,24 +474,18 @@ function buildRongqiu(){
  const mist=fogBank(12,-22,6,40,8,'#e8eef0',.42,71,[2,3,4,5,6,7,8,9,10,11,12],60);
  fogBank(11,-22,11,70,4,'#dfe6ea',.55,72,[8],80);
  // ghost fires on the fog sea: floating stones with a torch burning in the middle, seen only at night
- const ghosts=new THREE.Group();{const pts=scatter(40,11,-24,6,61,inSea);pts.forEach(p=>{const g=new THREE.Group();const st=new THREE.Mesh(kd(1.2+p[3]*1.2),M('#6e6a64',{flatShading:true}));st.scale.y=.4;g.add(st);
-  g.add(at(emitter({n:30,life:.9,speed:2.4,spread:.3,size:1.6,dir:[0,1,0],col:'#ffc060',col2:'#ff5010',op:.9,area:[.4,.2,.4]}),0,.6,0));g.add(at(glowSprite('#ffb04a',6,.8),0,1.2,0));frameLL(sp,p[0],p[1],.4,0,g,false);ghosts.add(g)});
+ const ghosts=new THREE.Group();{const pts=scatter(40,11,-24,6,61,inSea);pts.forEach(p=>{const g=new THREE.Group();const st=new THREE.Mesh(kd(1.2+p[3]*1.2),M('#6e6a64',{flatShading:true}));st.scale.y=.4;g.add(st);g.add(at(new THREE.Mesh(kcy(.22,.34,1.8,6),M('#5e5a54',{flatShading:true})),0,.9,0));g.add(at(new THREE.Mesh(kcy(.34,.24,.25,6),M('#4a4640')),0,1.85,0));
+  for(let k=0;k<5;k++){const b=new THREE.Mesh(kcy(.05,.05,.9,4),M('#e8e0cc'));b.position.set(Math.cos(k*1.3)*(.8+p[3]*.6),.35,Math.sin(k*1.3)*(.8+p[3]*.6));b.rotation.set(Math.PI/2,k,.3);g.add(b)}
+  g.add(at(emitter({n:30,life:.9,speed:2.4,spread:.3,size:1.6,dir:[0,1,0],col:'#ffc060',col2:'#ff5010',op:.9,area:[.3,.2,.3]}),0,2,0));g.add(at(glowSprite('#ffb04a',6,.8),0,2.5,0));frameLL(sp,p[0],p[1],.4,0,g,false);ghosts.add(g)});
   ghosts.visible=false;sp.scene.add(ghosts)}
- // skull island: a beast's skeleton under unmoving fog, an oxygen ball breathing into its tail
- {const g=new THREE.Group(),bm=M('#f0e8d4',{roughness:.6});for(let i=0;i<8;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(5.5-i*.4,.5,6,16,Math.PI),bm);r.position.set(0,0,-8+i*2.6);g.add(r)}
-  const spn=new THREE.Mesh(ktube([V3(0,4.5,-12),V3(0,5.2,-2),V3(0,4.4,8),V3(0,2,16),V3(0,.5,22)],.55,24),bm);g.add(spn);
-  const hd=new THREE.Mesh(sgeo(14),bm);hd.position.set(0,2.6,-14);hd.scale.set(3.6,2.8,4.6);g.add(hd);for(const s of[-1,1]){const e=new THREE.Mesh(sgeo(8),M('#141010'));e.position.set(s*1.6,3.4,-17.6);e.scale.setScalar(1);g.add(e)}
-  const ob=new THREE.Mesh(sgeo(16),detailMat(M('#5aa86c').clone(),{bump:1.2,freq:3}));ob.position.set(0,18,10);ob.scale.setScalar(2.6);g.add(ob);g.add(new THREE.Mesh(ktube([V3(0,16,10),V3(0,10,16),V3(0,3,21)],.3,12),M('#4a7a4a')));
-  fr(8,-33,0,.4,g);addE(g,[3,4,5,6,7,8,9,10,11,12]);cull(g,null,30,1800);px('skull',g.position.clone().add(g.position.clone().normalize().multiplyScalar(8)),18);anim(sp,ob,t=>ob.scale.setScalar(2.6+Math.sin(t*1.2)*.25));
-  fogBank(8,-33,.9,10,3,'#e8eef0',.5,73,[3,4,5,6,7,8,9,10,11,12],22);
-  inst(geoC('twist'),VC(),scatter(40,8,-33,1.1,74,onLand),(o,p)=>{frameLL(sp,p[0],p[1],-.4,p[3]*6,o);o.scale.setScalar(.3+p[3]*.2)},[5,6,7,8,9,10,11,12])}
- // echo island, and the island of only bones
- inst(geoC('broad'),VC(),scatter(40,10,-28,1,75,onLand),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.6+p[3]*.4)},[3,4,5,6,7,8,9,10,11,12]);
+ // skull island, which is also echo island: built in 49i_fixG
+ fxG_skull(sp);fxG_grave(sp);
+ // the island of only bones
  {const bone=G([[kcy(.18,.18,1,5),'#ede6d2'],[ks(.3,6,4),'#ede6d2',{p:[0,.5,0]}],[ks(.3,6,4),'#ede6d2',{p:[0,-.5,0]}]]);inst(bone,VC(),scatter(70,12,-44,1.3,71,onLand),(o,p)=>{frameLL(sp,p[0],p[1],.3,p[3]*6,o);o.rotateZ(1.3);o.scale.set(1,2+p[3]*4,1)},[3]);
   const spk=G([[ks(1,8,6),'#5a7a3a'],...Array.from({length:10},(_,i)=>{const v=V3(h3(i,1,3)-.5,h3(i,2,3)-.2,h3(i,3,3)-.5).normalize();return[kc(.18,1.2,4),'#d8d0a0',{p:[v.x*1.2,v.y*1.2,v.z*1.2],r:[Math.atan2(v.z,v.y),0,-Math.atan2(v.x,v.y)]}]})]);
   inst(spk,VC(),scatter(18,12.6,-44,.6,76,onLand),(o,p)=>{frameLL(sp,p[0],p[1],.8,p[3]*6,o);o.scale.setScalar(.8)},[3])}
- // the twin isles: rock peaks, tunnels, and the brain-bugs' boats on the beach
- {inst(kc(1,1,7),detailMat(new THREE.MeshStandardMaterial({color:'#8a7a68',roughness:.9,flatShading:true}),{bump:.8}),scatter(30,1,-45,2.6,91,onLand),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.translateY(4);o.scale.set(2.5,8+p[3]*6,2.5)},[3,4,5,6,7,8,9,10,11,12]);
+ // the twin isles: two low domes; the brain-bugs' boats on the beach
+ {inst(lumpRock(1,4),detailMat(new THREE.MeshStandardMaterial({color:'#8a7a68',roughness:.9,flatShading:true}),{bump:.8}),scatter(26,1,-45,2.6,91,(la,lo,h)=>h>2.5),(o,p)=>{frameLL(sp,p[0],p[1],-.4,p[3]*6,o);o.scale.set(1.4+p[3]*2,.8+p[3]*1.2,1.2+p[3]*1.8)},[3,4,5,6,7,8,9,10,11,12]);
   const boat=G([[new THREE.SphereGeometry(1,10,6,0,6.283,1.57,1.57),'#7a5a3a',{s:[2.4,.8,1]}],[kcy(.06,.06,3.4,4),'#5a4030',{p:[0,1.6,0]}],[new THREE.PlaneGeometry(1.8,2.2),'#e8dcc0',{p:[.2,1.9,0],r:[0,Math.PI/2,0]}]]);
   inst(boat,VC({side:THREE.DoubleSide}),scatter(12,.2,-44.6,.8,92,(la,lo,h)=>h>0&&h<3),(o,p)=>{frameLL(sp,p[0],p[1],.3,p[3]*6,o);o.scale.setScalar(1.1)},[3,4,5])}
  // the fungus isles of the plague
@@ -546,7 +537,7 @@ function buildRongqiu(){
   inst(geoC('pyr',3),VC({roughness:.8}),scatter(80,-12,-78,2.8,93,onLand),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.setScalar(.8+p[3]*1.2)},[3,4,5,6,7,8,9,10,11,12]);
   px('scorpion',dirLL(-12,-78).multiplyScalar(R+gh(-12,-78)+6),30)}
  // crystal woods that cry out when bitten
- {const pts=scatter(260,10,-100,4.4,94,onLand);inst(geoC('crystal'),VC({roughness:.1,metalness:.1,emissive:'#2a8aa8',emissiveIntensity:.45,flatShading:true}),pts.filter((p,i)=>i%5===0),(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*4,o);o.scale.setScalar(.5+p[3]*.6)},[3]);
+ {const pts=scatter(260,10,-100,4.4,94,onLand);// (the trees themselves, green-leaved with crystal bark, are in 43_canon)
   const s=sparkles(pts.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+4+p[3]*5)),'#dffaff',2,1,1);addE(s,[3]);cull(s,dirLL(10,-100).multiplyScalar(R),90,1600);px('crystalwood',dirLL(10,-100).multiplyScalar(R+gh(10,-100)+5),34)}
  // Yate's mountain: a river pouring from a great cave in its flank
  {const g=new THREE.Group();const cave=new THREE.Mesh(new THREE.CircleGeometry(6,20),M('#0a0806'));cave.position.set(0,5,0);cave.rotation.y=Math.PI/2;g.add(cave);
@@ -563,23 +554,23 @@ function buildRongqiu(){
   inst(new THREE.SphereGeometry(1,12,6,0,6.283,0,1.57),new THREE.MeshStandardMaterial({color:'#cfe0d8',transparent:true,opacity:.75,roughness:.15}),scatter(16,4.5,-115.5,1.2,95),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o,false);o.position.setLength(R+ghR(p[0],p[1])+.2);o.scale.setScalar(1.6+p[3]*1.6)},[3,4]);
   const ru=new THREE.Group();for(let i=0;i<9;i++){const a=i/9*6.28;const t=new THREE.Mesh(kcy(.8,1,2+h3(i,1,1)*5,8),wm);t.position.set(Math.cos(a)*11,1,Math.sin(a)*11);t.rotation.z=(h3(i,2,1)-.5)*.4;ru.add(t)}
   for(let i=0;i<30;i++){const r=new THREE.Mesh(kd(.5+h3(i,3,1)),wm);r.position.set((h3(i,4,1)-.5)*24,.3,(h3(i,5,1)-.5)*24);ru.add(r)}fr(3.5,-111,0,0,ru);addE(ru,[6]);cull(ru,null,30,1600);px('rq_whiteruin',ru.position.clone().add(ru.position.clone().normalize().multiplyScalar(4)),16)}
- // the creator: a vast root-tree whose brain wakes beneath the continent
+ // the creator: a vast root-tree whose brain wakes beneath the continent; it rises out of the broken emerald city
  const creatorTree=new THREE.Group();{const rm=detailMat(new THREE.MeshStandardMaterial({color:'#5b4a3a',roughness:.9}),{bump:1.4,freq:2});
   for(let k=0;k<9;k++){const pts=[];for(let i=0;i<=12;i++){const t=i/12,a=k*.7+t*4.2;const r=(1-t)*18+2;pts.push(V3(Math.cos(a)*r,t*62,Math.sin(a)*r))}creatorTree.add(new THREE.Mesh(ktube(pts,2.2-k*.12,30,6),rm))}
-  for(let k=0;k<7;k++){const a=k/7*6.28;const pts=[V3(Math.cos(a)*16,2,Math.sin(a)*16)];for(let i=1;i<=6;i++)pts.push(V3(Math.cos(a+i*.12)*(16+i*14),-.5+Math.sin(i)*1.2,Math.sin(a+i*.12)*(16+i*14)));creatorTree.add(new THREE.Mesh(ktube(pts,1.6,24,5),rm))}
-  const br=new THREE.Mesh(brainGeo(),new THREE.MeshStandardMaterial({vertexColors:true,emissive:'#a24467',emissiveIntensity:.4,roughness:.55}));br.position.y=68;br.scale.setScalar(7);creatorTree.add(br);creatorTree.add(at(glowSprite('#ff8ab0',40,.35),0,68,0));
-  for(let k=0;k<6;k++){const lf=new THREE.Mesh(new THREE.SphereGeometry(9,10,4,0,Math.PI*2,0,Math.PI/3),M('#3d8a4a',{side:THREE.DoubleSide}));lf.position.y=60;lf.rotation.set(.9,k*1.05,0,'YXZ');creatorTree.add(lf)}
-  fr(6,-84,0,0,creatorTree);addE(creatorTree,[3]);cull(creatorTree,null,90,2600);px('creator',creatorTree.position.clone().add(creatorTree.position.clone().normalize().multiplyScalar(60)),30);
-  anim(sp,br,t=>{br.material.emissiveIntensity=.3+Math.sin(t*2)*.18;br.scale.setScalar(7+Math.sin(t*2)*.15)})}
+  for(let k=0;k<7;k++){const a=k/7*6.28;const pts=[V3(Math.cos(a)*16,2,Math.sin(a)*16)];for(let i=1;i<=6;i++)pts.push(V3(Math.cos(a+i*.12)*(16+i*9),-.5+Math.sin(i)*1.2,Math.sin(a+i*.12)*(16+i*9)));creatorTree.add(new THREE.Mesh(ktube(pts,1.6,24,5),rm))}
+  const br=fxG_creatorTop(creatorTree,new THREE.MeshStandardMaterial({color:'#5b4a3a',roughness:.9,side:THREE.DoubleSide}),64);
+  for(let k=0;k<6;k++){const lf=new THREE.Mesh(new THREE.SphereGeometry(9,10,4,0,Math.PI*2,0,Math.PI/3),M('#3d8a4a',{side:THREE.DoubleSide}));lf.position.set(Math.cos(k*1.05)*7,50,Math.sin(k*1.05)*7);lf.rotation.set(.9,k*1.05,0,'YXZ');creatorTree.add(lf)}
+  {const [la,lo]=PL(...fxG_CR);fr(la,lo,-1,0,creatorTree);fxG_creatorRuins(sp,la,lo)}addE(creatorTree,[3]);cull(creatorTree,null,90,2600);px('creator',creatorTree.position.clone().add(creatorTree.position.clone().normalize().multiplyScalar(60)),30);
+  anim(sp,br,t=>{const k=Math.sin(t*1.1);br.scale.set(7+k*.25,7-k*.18,7+Math.sin(t*.8)*.2)})}
  // tall-grass savanna between the salt and the dragon woods comes from the ground cover; here a few lone trees
  inst(geoC('broad'),VC(),scatter(40,-8,-80,4,131,onLand),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.6+p[3]*.5)},[3,4,5,6,7,8,9,10,11,12],{tint:()=>C('#d8e0a0')});
 
  // ---------- the eastern continent and the sky above it ----------
  // silver city: an avenue for land-ships, lined with swollen water-plants and not a single tree
- {const pts=scatter(18,-4,56,1.4,101,onLand);inst(geoC('dome'),VC({metalness:.85,roughness:.22}),pts,(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.setScalar(2.4+p[3]*2.4)},[5,6,7,8,9,10,11,12]);
+ {const pts=scatter(18,-4,56,1.4,101,onLand);inst(G([[kc(1,.75,16).translate(0,.375,0),'#d6dee4'],[kcy(1.02,1.02,.12,16),'#a8b4bc',{p:[0,.06,0]}]]),VC({metalness:.85,roughness:.22}),pts,(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.setScalar(2.4+p[3]*2.4)},[5,6,7,8,9,10,11,12]);
   const av=[];for(let i=0;i<40;i++){const t=i/40;av.push([-4+t*2.2+(i%2?.12:-.12),54+t*2.8,0,h3(i,1,1)])}inst(geoC('succ'),VC({roughness:.7}),av,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o);o.scale.setScalar(.8+p[3]*.6)},[5,6,7,8,9,10,11,12]);
   inst(geoC('succ'),VC({roughness:.7}),scatter(500,-10,66,13,103,(la,lo,h)=>h>2&&h<60&&angDeg(dirLL(la,lo),F.dieye)>8.5),(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o);o.scale.setScalar(.7+p[3]*.9)},[5,6,7,8,9,10,11,12],{tint:(p)=>C('#ffffff').offsetHSL((p[3]-.5)*.06,0,(p[3]-.5)*.1)});
-  const nl=nightPoints(pts.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+2)),'#cfe6ff',2,1);addE(nl,[5,6,7,8,9,10,11,12]);sp.nightMats.push(nl.userData.night);px('silvercity',dirLL(-4,56).multiplyScalar(R+gh(-4,56)+5),20)}
+  const nl=nightPoints(pts.map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+2)),'#cfe6ff',2,1);addE(nl,[5,6,7,8,9,10,11,12]);sp.nightMats.push(nl.userData.night);px('silvercity',dirLL(-4,56).multiplyScalar(R+gh(-4,56)+5),20);fxG_silver(sp)}
  // the capital: metal everywhere, geared columns pounding the ground, the rail that climbs into the clouds
  {const pts=scatter(12,-14,63,1.6,102,(la,lo,h)=>h>1.6&&angDeg(dirLL(la,lo),dirLL(-14,63))>.45);const tmz=towerMat({metalness:.7,roughness:.28,win:'#ffe0b0'});sp.towerMats=(sp.towerMats||[]).concat([tmz]);inst(geoC('metalTower'),tmz,pts,(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.set(1.8,6+p[3]*8,1.8)},[5,6,7,8,9,10,11,12]);
   const g=new THREE.Group();const pist=[];for(let i=0;i<6;i++){const c=new THREE.Mesh(kcy(.7,.7,6,10),M('#9aa4ac',{metalness:.8,roughness:.3}));const a=i*1.05;c.position.set(Math.cos(a)*6,3,Math.sin(a)*6);g.add(c);pist.push(c);const gear=new THREE.Mesh(new THREE.TorusGeometry(1.3,.3,4,10),M('#7a8288',{metalness:.8}));gear.position.copy(c.position);gear.position.y=5.4;gear.rotation.x=Math.PI/2;g.add(gear)}
@@ -595,7 +586,7 @@ function buildRongqiu(){
   const gl=new THREE.Group();for(let i=0;i<12;i++){const s=glowSprite(i%2?'#ffd0f0':'#fff0c0',60,.35);s.position.set((h3(i,1,7)-.5)*300,0,(h3(i,2,7)-.5)*300);gl.add(s)}fr(-9,69,119,0,gl,false);addE(gl,[5]);cull(gl,null,200,3000);
   const huts=scatter(30,-8,69,3,113);inst(new THREE.SphereGeometry(1,10,6,0,6.283,0,1.57),M('#f4f4f0'),huts,(o,p)=>{frameLL(sp,p[0],p[1],148.5,0,o,false);o.scale.setScalar(1.6+p[3])},[5]);
   px('cloudsea',dirLL(-8,68).multiplyScalar(R+130),40,{maxD:3200})}
- // the academy of alloy on the mountain that pierces all three layers
+ // the academy of alloy, on its own mountain beside the great peak, the top just clearing the third layer (the great peak itself is bare rock with a path cut up it)
  {const g=new THREE.Group();const mm=M('#d4dde3',{metalness:.85,roughness:.25});
   // a terraced alloy campus: an octagonal deck sunk into the summit, halls and towers round a central rotunda,
   // a lecture stage where the Head speaks, dishes listening to the whole third layer, bridges between the roofs
@@ -606,6 +597,7 @@ function buildRongqiu(){
    const B=[[-5.6,-2,2.4,5.5,2.4],[-4.6,3.8,3.4,3,2.2],[4.4,-4.2,2.2,7.5,2.2],[0,-6.6,4,2.2,2],[-6.4,-6.2,1.6,9,1.6]];
    for(const [x,z,w,h,d] of B){P.push([kb(w,h,d),'#ffffff',{p:[x,h/2+.35,z]}],[kb(w+.3,.25,d+.3),DK,{p:[x,h+.48,z]}]);for(let y=1.2;y<h;y+=1.3)P.push([kb(w+.04,.3,d+.04),GL,{p:[x,y+.35,z]}])}
    P.push([kb(4.8,.3,.9),DK,{p:[-5.1,4.3,.9],r:[0,1.3,0]}],[kb(5.2,.25,.8),DK,{p:[2.2,6.6,-4],r:[0,.2,0]}]);
+   fxG_acadLinks(P,B,DK,GL);
    // the lecture stage at the front: a raised disc, four columns, a podium
    P.push([kcy(2.4,2.6,.8,16),'#ffffff',{p:[0,.75,7.2]}],...[0,1,2,3].map(i=>[kcy(.14,.14,2.6,6),'#ffffff',{p:[Math.cos(i*1.57+.785)*2,2.45,7.2+Math.sin(i*1.57+.785)*2]}]),[kcy(2.5,2.5,.18,16),DK,{p:[0,3.8,7.2]}],[kb(.8,1.1,.5),DK,{p:[0,1.7,6.2]}]);
    // listening dishes
@@ -614,13 +606,13 @@ function buildRongqiu(){
   const d=new THREE.Mesh(new THREE.SphereGeometry(2.9,16,8,0,6.283,0,1.57),mm);d.position.y=3;g.add(d);const ant=new THREE.Mesh(kcy(.08,.12,7,4),mm);ant.position.y=8.2;g.add(ant);g.add(at(glowSprite('#ff6a6a',3,.9),0,11.8,0));
   const lab=new THREE.Mesh(new THREE.SphereGeometry(3,14,8,0,6.283,0,1.57),M('#f6f4f0',{roughness:.9}));lab.position.set(7,0,5);g.add(lab);
   const spi=new THREE.Group();const sb=new THREE.Mesh(sgeo(10),mm);sb.scale.set(1,.7,1);spi.add(sb);for(let i=0;i<8;i++){const l=leg2(1.2,1.3,.08,mm,.8);l.position.set(0,0,0);l.rotation.y=i/8*6.28;l.rotation.x=.8;spi.add(l)}spi.position.set(7,4.2,5);g.add(spi);
-  fr(-6,73,0,0,g);addE(g,[5,6,7,8,9,10,11,12]);cull(g,null,20,2400);px('cloudpeak',g.position.clone().add(g.position.clone().normalize().multiplyScalar(5)),12);
+  fr(...fxG_ACAD,0,0,g);addE(g,[5,6,7,8,9,10,11,12]);cull(g,null,20,2400);px('cloudpeak',g.position.clone().add(g.position.clone().normalize().multiplyScalar(5)),12);
   g.updateMatrixWorld();px('rq_lab3',g.localToWorld(V3(7,3,5)),6);px('jiaozhang',g.position.clone().add(g.position.clone().normalize().multiplyScalar(9)),4)
   // rails along the cliffs: two tracks winding down the peak from the deck, with a car on each
-  {const rm=M('#b8c4cc',{metalness:.8,roughness:.25});const cars=[];for(const [ph,dir] of [[0,1],[3.1,-1]]){const pts=[];for(let i=0;i<=90;i++){const t=i/90,an=ph+dir*t*9.5,dd=.55+t*2.6;const la=-6+Math.cos(an)*dd,lo=73+Math.sin(an)*dd/Math.cos(6*D2R);pts.push(dirLL(la,lo).multiplyScalar(R+gh(la,lo)+1.6))}
+  {const rm=M('#b8c4cc',{metalness:.8,roughness:.25});const cars=[];for(const [ph,dir] of [[0,1],[3.1,-1]]){const pts=[];for(let i=0;i<=90;i++){const t=i/90,an=ph+dir*t*9.5,dd=.55+t*2.2;const la=fxG_ACAD[0]+Math.cos(an)*dd,lo=fxG_ACAD[1]+Math.sin(an)*dd/Math.cos(6*D2R);pts.push(dirLL(la,lo).multiplyScalar(R+gh(la,lo)+1.6))}
     const cv=new THREE.CatmullRomCurve3(pts);const tb=new THREE.Mesh(new THREE.TubeGeometry(cv,240,.28,4,false),rm);addE(tb,[5,6,7,8,9,10,11,12]);cull(tb,pts[45],80,2200);
     const car=new THREE.Mesh(G([[kb(2.4,1.2,1.2),'#e8ecef',{p:[0,.9,0]}],[kb(2.2,.5,1.24),'#3a5a7a',{p:[0,1.1,0]}]]),VC({metalness:.6,roughness:.3}));addE(car,[5,6,7,8,9,10,11,12]);cull(car,pts[45],80,1600);cars.push({car,cv,ph})}
-   const tp=V3(),tq=V3();anim(sp,null,t=>cars.forEach(k=>{const u=(Math.sin(t*.05+k.ph)*.5+.5)*.98;k.cv.getPointAt(u,tp);k.cv.getPointAt(Math.min(1,u+.01),tq);k.car.position.copy(tp);k.car.up.copy(tp).normalize();k.car.lookAt(tq);k.car.rotateY(Math.PI/2)}))}}
+   fxG_peakPath(sp);const tp=V3(),tq=V3();anim(sp,null,t=>cars.forEach(k=>{const u=(Math.sin(t*.05+k.ph)*.5+.5)*.98;k.cv.getPointAt(u,tp);k.cv.getPointAt(Math.min(1,u+.01),tq);k.car.position.copy(tp);k.car.up.copy(tp).normalize();k.car.lookAt(tq);k.car.rotateY(Math.PI/2)}))}}
  // the eye of the earth: an oasis lake in a ring of jungle and blood-trees
  {inst(geoC('rain'),swayMat({roughness:.85},.002),scatter(140,-17,75,4.6,104,(la,lo,h)=>h>1.5&&angDeg(dirLL(la,lo),F.dieye)>2.4&&angDeg(dirLL(la,lo),F.dieye)<5),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.6+p[3]*.5)},[5,6,7,8,9,10,11,12]);
   inst(geoC('blood'),VC({roughness:.4}),scatter(240,-17,76,8.2,104,(la,lo,h)=>Math.abs(angDeg(dirLL(la,lo),F.dieye)-7.6)<.7&&h>1),(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o);o.scale.setScalar(1.1+p[3]*.8)},[5,6,7,8,9,10,11,12]);

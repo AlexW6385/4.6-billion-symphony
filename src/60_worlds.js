@@ -62,7 +62,7 @@ function buildXimin(){const sp=makePlanet('ximin',{height:ximinH,colors:oneSet(x
  // the cult's statue, made in their own likeness
  {const g=new THREE.Group();const b=new THREE.Mesh(kcy(4,5,3,10),mm);g.add(b);const st=new THREE.Mesh(sgeo(16),mt('#1a1a1e',{metalness:.8,roughness:.2}));st.position.y=9;st.scale.set(3,6,3);g.add(st);g.add(at(glowSprite('#ff4a4a',8,.6),0,15,0));fr(24,28,0,0,g);addE(g,[6]);cull(g,null,20,1600);px('xm_cult',g.position.clone().add(g.position.clone().normalize().multiplyScalar(10)),10)}
  // the farm sea, the deep city under glass, the green oasis that is the last clean land
- instDomes();function instDomes(){inst(new THREE.SphereGeometry(1,16,8,0,6.283,0,1.57),mt('#9ad8e8',{transparent:true,opacity:.5,roughness:.1,metalness:.3}),scatter(16,2,152,2.2,321),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o,false);o.position.setLength(R+sp.ghRaw(p[0],p[1])+.5);o.scale.setScalar(3+p[3]*4)},[7]);
+ instDomes();function instDomes(){fxG_deepNet(sp);// the deep city: a network of glass tubes on the sea floor (49i_fixG)
   inst(kb(1,1,1),mt('#6a8a70'),scatter(120,-2,140,5,322),(o,p)=>{frameLL(sp,p[0],p[1],.4,0,o,false);o.scale.set(3,.4,3)},null)}
  inst(geoC('conifer'),swayMat({roughness:.85},.003),scatter(240,-16,-70,4,323,(la,lo,h)=>h>2),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.setScalar(.8+p[3]*.9)},null);
  inst(kb(1,1.4,.4),mt('#5a5a54'),scatter(40,-16,-70,3.4,324,(la,lo,h)=>h>2),(o,p)=>{frameLL(sp,p[0],p[1],.4,p[3]*6,o);o.scale.set(3+p[3]*3,2+p[3]*4,1);o.rotateZ((p[3]-.5)*.5)},null);
@@ -90,19 +90,8 @@ function buildErxi(){const sp=makePlanet('erxi',{height:erxiH,colors:oneSet(erxi
  inst(geoC('broad'),swayMat({roughness:.85},.002),scatter(900,40,30,40,410,(la,lo,h)=>h>3&&h<50),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.9+p[3]*.8)},null,{far:3000});
  inst(geoC('conifer'),swayMat({roughness:.85},.003),scatter(600,38,-98,18,411,(la,lo,h)=>h>3&&h<50),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.9+p[3]*.9)},null,{far:3000});
  inst(geoC('conifer'),swayMat({roughness:.85},.003),scatter(400,52,90,14,412,(la,lo,h)=>h>3&&h<60),(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6,o);o.scale.setScalar(.8+p[3]*.9)},null,{far:3000});
- // the floating academy of Tiangong: in the book the academy is a great disc-shaped building; here that disc rides a floating island
+ // the academy of Tiangong: a great disc-shaped building standing in the city streets (the sky above the city is full of small floating clouds: 49i_fixG)
  {const g=new THREE.Group();const DK='#3a4a5a',GL='#3a5a7a',WH='#ffffff';
-  // the island: a jagged underside of layered rock with hanging roots and crystals, a grassy rim with trees, waterfalls spilling off the edge
-  {const geo=new THREE.ConeGeometry(18,30,24,8,true);const pa=geo.attributes.position;for(let k=0;k<pa.count;k++){const x=pa.getX(k),y=pa.getY(k),z=pa.getZ(k);const a=Math.atan2(z,x),t=(y+15)/30;const n=1+.18*Math.sin(a*5+y*.4)+.12*Math.sin(a*11-y*.9)+.08*Math.sin(y*2.3);pa.setXYZ(k,x*n,y,z*n)}geo.computeVertexNormals();
-   const rock=new THREE.Mesh(geo,detailMat(mt('#7a6e62',{flatShading:true,side:THREE.DoubleSide}),{bump:1.2,freq:.5}));rock.rotation.x=Math.PI;rock.position.y=-15;g.add(rock);
-   const top=new THREE.Mesh(new THREE.CylinderGeometry(18.6,18,2,24),detailMat(mt('#6a5a48',{flatShading:true}),{bump:.8}));top.position.y=-.8;g.add(top);const grass=new THREE.Mesh(new THREE.CylinderGeometry(18.4,18.4,.3,24),mt('#5a9a4a'));grass.position.y=.15;g.add(grass)}
-  {const P=[];for(let k=0;k<9;k++){const a=k*.71,r=6+(k*37%60)/10;P.push([kc(1.4+(k%3)*.5,6+(k%4)*2.5,6),'#6a5e52',{p:[Math.cos(a)*r,-30-(k%4)*2.5,Math.sin(a)*r],r:[Math.PI,0,0]}])}
-   for(let k=0;k<26;k++){const a=k*.24,r=15.5+(k%3);P.push([kcy(.08,.03,4+(k%5)*1.6,4),'#5a4632',{p:[Math.cos(a)*r,-2.5-(k%5),Math.sin(a)*r]}])}
-   for(let k=0;k<7;k++){const a=k*.9+.3,r=9+k;P.push([kc(.7,3,4),'#8ae8ff',{p:[Math.cos(a)*r,-8-k*1.6,Math.sin(a)*r],r:[2.6,a,0]}])}
-   g.add(new THREE.Mesh(G(P),VC({roughness:.6,flatShading:true})))}
-  for(let i=0;i<22;i++){const t=new THREE.Mesh(geoC('broad'),VC());const a=i/22*6.283+.1;t.position.set(Math.cos(a)*16.3,0,Math.sin(a)*16.3);t.scale.setScalar(.5+(i%3)*.12);g.add(t)}
-  for(const a of[.4,2.6,4.4]){const wm=new THREE.Mesh(new THREE.PlaneGeometry(2.4,34),new THREE.MeshBasicMaterial({color:'#e8f6ff',transparent:true,opacity:.45,depthWrite:false,side:THREE.DoubleSide}));wm.position.set(Math.cos(a)*18.7,-17,Math.sin(a)*18.7);wm.rotation.y=-a+Math.PI/2;g.add(wm);
-   g.add(at(emitter({n:50,life:4,speed:4,spread:.15,size:3.5,dir:[0,-1,0],col:'#e8f4ff',op:.35,add:false,tex:smokeTex,area:[1.6,.5,1.6]}),Math.cos(a)*18.8,-1,Math.sin(a)*18.8))}
   // the academy: a broad disc on a ring of columns, two tiers, a glass band of windows all the way round, the name over the gate
   const tm=towerMat({metalness:.45,roughness:.35,win:'#ffe8c0'});sp.towerMats.push(tm);
   {const P=[[kcy(11,11.6,1.2,40),'#d8dee4',{p:[0,.9,0]}],[kcy(10.2,10.6,3.6,40),WH,{p:[0,3.3,0]}],[kcy(10.24,10.24,1.1,40),GL,{p:[0,3.3,0]}],[kcy(11.2,10.4,.6,40),'#d8dee4',{p:[0,5.4,0]}],
@@ -120,11 +109,7 @@ function buildErxi(){const sp=makePlanet('erxi',{height:erxiH,colors:oneSet(erxi
    for(let k=0;k<6;k++)P.push([kb(1.2,.35,.4),'#8a6a40',{p:[-6+k*.2,.55,11.6+k*1.1],r:[0,.5,0]}]);
    const ac=new THREE.Mesh(G(P),tm);g.add(ac)}
   g.add(at(glowSprite('#bfe8ff',8,.8),0,19.2,0));
-  // small rocks orbiting the island, one carrying a garden pavilion
-  {const sat=[];for(let k=0;k<5;k++){const s=new THREE.Group();const r=new THREE.Mesh(lumpRock(1,k+2),detailMat(mt('#7a6e62',{flatShading:true}),{bump:.8}));r.scale.set(2.4+k%2,1.6,2.4+k%2);r.position.y=-1;s.add(r);const gr=new THREE.Mesh(new THREE.CylinderGeometry(2.2+k%2,2.2+k%2,.25,10),mt('#5a9a4a'));gr.position.y=.4;s.add(gr);
-    if(k===1){s.add(at(new THREE.Mesh(G([[kcy(1.4,1.4,.2,8),'#d8dee4',{p:[0,0,0]}],...[0,1,2,3,4,5].map(i=>[kcy(.08,.08,1.6,5),'#f4f4f4',{p:[Math.cos(i*1.047)*1.2,.8,Math.sin(i*1.047)*1.2]}]),[kc(1.7,1,8),'#3a4a5a',{p:[0,2.1,0]}]]),VC()),0,.5,0))}else{const t=new THREE.Mesh(geoC('broad'),VC());t.position.y=.5;t.scale.setScalar(.5);s.add(t)}g.add(s);sat.push({s,a:k*1.26,r:26+k*3,y:-4+k*2.6,sp:.05+k*.01})}
-   anim(sp,g,t=>sat.forEach(o=>{o.s.position.set(Math.cos(o.a+t*o.sp)*o.r,o.y+Math.sin(t*.5+o.a)*1.2,Math.sin(o.a+t*o.sp)*o.r)}))}
-  frameLL(sp,45,12,70,0,g);addE(g,[8,9,10,11,12]);cull(g,null,30,2600);const tgc=V3();g.userData.pick='ex_tiangong';px('ex_tiangong',()=>tgc.copy(g.position).addScaledVector(g.position.clone().normalize(),6),26);anim(sp,g,t=>{frameLL(sp,45+Math.sin(t*.03)*.35,12+Math.cos(t*.03)*.5,70+Math.sin(t*.4)*2,t*.02,g)})}
+  {const [a,b]=PL(45,12,18,0);frameLL(sp,a,b,-.3,Math.PI,g)}addE(g,[8,9,10,11,12]);cull(g,null,30,2600);g.userData.pick='ex_tiangong';px('ex_tiangong',g.position.clone().addScaledVector(g.position.clone().normalize(),10),24)}
  // the moon of Erxi, and the bridge it stretches down
  const mo=new THREE.Mesh(new THREE.SphereGeometry(120,64,40),detailMat(mt('#c8ccd4',{roughness:.9}),{bump:.8,freq:.15}));sp.scene.add(mo);sp.moon=mo;sp.moonPos=mo.position;px('ex_moon',()=>mo.position,120,{});
  const mb=new THREE.Group();for(let i=0;i<12;i++){const b=new THREE.Mesh(kb(14,18,14),mt('#9aa0a8',{metalness:.4}));const v=V3(h3(i,1,9)-.5,h3(i,2,9)-.5,h3(i,3,9)-.5).normalize();b.position.copy(v).multiplyScalar(124);b.lookAt(0,0,0);mb.add(b)}mo.add(mb);addTo(sp,mb,[9]);
@@ -136,7 +121,8 @@ function buildErxi(){const sp=makePlanet('erxi',{height:erxiH,colors:oneSet(erxi
  // poles: the old ice still on the south, a hole into the deep, a fortress in the gorge winds
  {const ice=detailMat(mt('#e4eef4',{roughness:.4,transparent:true,opacity:.94}),{bump:.7,mott:1.4,freq:.6});const cap=new THREE.Mesh(new THREE.SphereGeometry(R+1.4,96,16,0,Math.PI*2,0,16*D2R),ice);cap.rotation.x=Math.PI;cap.renderOrder=1;sp.scene.add(cap);
   const hole=new THREE.Mesh(new THREE.CircleGeometry(14,24),new THREE.MeshBasicMaterial({color:'#020202'}));const hg=new THREE.Group();hole.rotation.x=-Math.PI/2;hole.position.y=.6;hg.add(hole);fr(-80,40,0,0,hg);sp.scene.add(hg);
-  const fort=new THREE.Group();for(let i=0;i<6;i++){const t=new THREE.Mesh(geoC('tower','#b8b0a0','#5a4a3a'),VC());t.position.set(Math.cos(i)*8,0,Math.sin(i)*8);t.scale.setScalar(2);fort.add(t)}fort.add(new THREE.Mesh(kb(10,6,10),mt('#a89a88')));fr(78,-24,0,0,fort);addE(fort,[8,9]);cull(fort,null,30,1800);px('ex_xiafeng',fort.position.clone().add(fort.position.clone().normalize().multiplyScalar(6)),14);
+  // 峡风要塞 is a small old town of low stone houses round its clock tower (62_worlds2, 42b_cities), no fortress
+  px('ex_xiafeng',dirLL(78,-24).multiplyScalar(R+sp.gh(78,-24)+8),14);
   const nj=sparkles(scatter(400,80,20,9,451).map(p=>dirLL(p[0],p[1]).multiplyScalar(R+p[2]+.8)),'#7affc8',1.8,.9,1);sp.scene.add(nj)}
  // Atlan of old: a castle and mammoths
  {const g=new THREE.Group();const wm=detailMat(mt('#a89a88'),{bump:.6});for(let i=0;i<8;i++){const t=new THREE.Mesh(geoC('tower','#a89a88','#6a3a2a'),VC());t.position.set(Math.cos(i*.785)*9,0,Math.sin(i*.785)*9);t.scale.setScalar(1.6);g.add(t)}g.add(at(new THREE.Mesh(kb(8,7,8),wm),0,3.5,0));fr(36,16,0,0,g);addE(g,[7]);cull(g,null,30,1800);px('ex_atlan',g.position.clone().add(g.position.clone().normalize().multiplyScalar(6)),14)}

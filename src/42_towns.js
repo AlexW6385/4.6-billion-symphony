@@ -39,14 +39,14 @@ const TOWNKIT={
   t:[G([[kcy(.9,1,6,10),'#ffffff',{p:[0,3,0]}],[kc(1.1,2.6,10),rf,{p:[0,7.3,0]}],...[2,3.6,5].map(y=>[kb(.35,.5,.06),WINC,{p:[0,y,1.0]}])]),
      G([[kb(2.6,6,2.6),'#ffffff',{p:[0,3,0]}],[kb(3,.5,3),'#ffffff',{p:[0,6.2,0]}],...[-1.2,0,1.2].flatMap(x=>[[kb(.6,.6,.6),'#ffffff',{p:[x,6.75,1.2]}],[kb(.6,.6,.6),'#ffffff',{p:[x,6.75,-1.2]}],[kb(.6,.6,.6),'#ffffff',{p:[1.2,6.75,x]}],[kb(.6,.6,.6),'#ffffff',{p:[-1.2,6.75,x]}]]),...fac(2.6,6,2.6,0,3,2),door(0,1.32)]),
      G([[kb(3.6,2.4,2),'#ffffff',{p:[0,1.2,0]}],[kcy(.8,.9,5.6,10),'#ffffff',{p:[-1.6,2.8,0]}],[kcy(.8,.9,5.6,10),'#ffffff',{p:[1.6,2.8,0]}],[kc(1,1.8,10),rf,{p:[-1.6,6.5,0]}],[kc(1,1.8,10),rf,{p:[1.6,6.5,0]}],door(0,1.02,1,1.5),[kb(1.6,.3,.3),'#c8c2b4',{p:[0,4,0]}]])]})},
- // 银甲龙: polished metal, domes and rings
+ // 银甲龙: polished metal; the houses are mostly low silver cones, wheels and gears worked into their sides
  silver:{roof:['#c8d4dc','#aab8c4','#d8e0e6'],wall:['#c0c8d0','#b0bac4','#d0d8de'],kits:(rf)=>({
-  s:[G([[kcy(1.6,1.7,1.6,14),'#ffffff',{p:[0,.8,0]}],[tg(hemi(1.65,14),{}),'#e0e0e0',{p:[0,1.6,0]}],door(0,1.66,.7,1.1,'#3a4048'),[ring(1.7,.08),'#8a949c',{p:[0,1.6,0]}]]),
-     G([[tg(new THREE.CylinderGeometry(1,1,3,12),{r:[0,0,Math.PI/2]}),'#ffffff',{p:[0,1.1,0]}],[tg(new THREE.SphereGeometry(1,12,8),{s:[.4,1,1]}),'#e0e0e0',{p:[1.5,1.1,0]}],[tg(new THREE.SphereGeometry(1,12,8),{s:[.4,1,1]}),'#e0e0e0',{p:[-1.5,1.1,0]}],[kb(2.6,.2,1.6),'#7a848c',{p:[0,.1,0]}],[kb(.5,.5,.1),WINC,{p:[.6,1.3,1]}],[kb(.5,.5,.1),WINC,{p:[-.6,1.3,1]}]]),
-     G([[kcy(1.3,1.3,1.8,6),'#ffffff',{p:[0,.9,0]}],[kc(1.4,.9,6),'#e0e0e0',{p:[0,2.25,0]}],[kcy(.05,.05,1.4,4),'#8a949c',{p:[0,3.3,0]}],[ks(.12,6,4),'#cfe6ff',{p:[0,4,0]}],door(0,1.13,.6,1.1,'#3a4048')])],
-  m:[G([[kb(2.8,3.8,2.8),'#ffffff',{p:[0,1.9,0]}],[tg(hemi(1.2),{}),'#e0e0e0',{p:[0,3.8,0]}],[kcy(.06,.06,2.2,4),'#ffffff',{p:[0,5.6,0]}],...fac(2.8,3.8,2.8,0,2,2)]),
-     G([[tg(new THREE.CylinderGeometry(1.8,1.8,4.4,14,1,false,0,Math.PI),{r:[0,0,Math.PI/2]}),'#ffffff',{}],[kb(.1,1.9,2.4),'#2e343c',{p:[2.22,.95,0]}],...[-1.4,0,1.4].map(x=>[tg(new THREE.TorusGeometry(1.84,.07,5,14,Math.PI),{r:[0,Math.PI/2,0]}),'#8a949c',{p:[x,0,0]}])]),
-     G([[kb(3,2,2.4),'#ffffff',{p:[0,1,0]}],[kb(2,1.6,1.8),'#ffffff',{p:[-.3,2.8,-.1]}],[kcy(.18,.18,3,6),'#8a949c',{p:[1.3,2.2,-.9]}],[kcy(.18,.18,3,6),'#8a949c',{p:[1.3,2.2,-.4]}],[tg(new THREE.TorusGeometry(.4,.1,5,10,Math.PI),{}),'#8a949c',{p:[1.3,3.7,-.65],r:[0,Math.PI/2,0]}],...fac(3,2,2.4,0,1,3,{front:1}),door(-.9,1.22,.7,1.2,'#3a4048')])],
+  s:[G([[kc(1.9,1.7,16),'#ffffff',{p:[0,.85,0]}],[ring(1.9,.07),'#8a949c',{p:[0,.05,0]}],door(0,1.45,.55,.8,'#3a4048')]),
+     G([[kc(1.5,2.1,14),'#ffffff',{p:[0,1.05,0]}],[kcy(1.55,1.6,.3,14),'#9aa4ac',{p:[0,.15,0]}],...gear(.42,.06).map(([g,c,f])=>[g,c,{p:[(f.p||[0,0,0])[0]+.75,(f.p||[0,0,0])[1]+.75,.95],r:f.r}]),door(-.3,1.1,.5,.7,'#3a4048')]),
+     G([[kc(1.6,1.5,14),'#ffffff',{p:[-.8,.75,0]}],[kc(1.2,1.2,12),'#e8e8e8',{p:[1.1,.6,.3]}],[kb(1.4,.6,1),'#ffffff',{p:[.2,.3,.1]}],door(-.8,1.3,.5,.7,'#3a4048')])],
+  m:[G([[kc(2.7,2.4,18),'#ffffff',{p:[0,1.2,0]}],[ring(2.7,.09,20),'#8a949c',{p:[0,.06,0]}],[ring(1.6,.07,16),'#8a949c',{p:[0,1,0]}],[kcy(.06,.06,1,4),'#8a949c',{p:[0,2.8,0]}],door(0,2.15,.7,1,'#3a4048')]),
+     G([[kcy(2.3,2.4,1,16),'#ffffff',{p:[0,.5,0]}],[kc(2.3,1.9,16),'#e8e8e8',{p:[0,1.95,0]}],...gear(.7,.09).map(([g,c,f])=>[g,c,{p:[(f.p||[0,0,0])[0],(f.p||[0,0,0])[1]+1.1,2.45],r:f.r}]),door(1.2,2.05,.6,.9,'#3a4048')]),
+     G([[kc(2.2,2.8,16),'#ffffff',{p:[0,1.4,0]}],[tg(new THREE.TorusGeometry(.8,.12,5,12),{}),'#8a949c',{p:[1.3,.85,1.1],r:[0,-.9,0]}],[kcy(.08,.08,.5,5),'#5a6268',{p:[1.3,.85,1.1],r:[Math.PI/2,0,.9]}],door(-.4,1.8,.6,.9,'#3a4048')])],
   t:[G([[kcy(.8,1.3,8,8),'#ffffff',{p:[0,4,0]}],[kc(.9,3,8),'#e8e8e8',{p:[0,9.5,0]}],[ring(1.1,.12),'#ffffff',{p:[0,6,0]}]]),
      G([[kcy(.7,.9,9,10),'#ffffff',{p:[0,4.5,0]}],...[3,5.5,8].map((y,i)=>[kcy(1.8-i*.35,1.8-i*.35,.25,16),'#d8e0e6',{p:[0,y,0]}]),[kcy(.04,.04,2.4,4),'#8a949c',{p:[0,10.2,0]}],[ks(.18,6,4),'#ff6a5a',{p:[0,11.4,0]}]]),
      G([[kb(2.4,2,2.4),'#ffffff',{p:[0,1,0]}],...[[-.6,-.6,7],[.6,-.5,8.5],[0,.6,6]].map(([x,z,h])=>[kcy(.35,.45,h,8),'#9aa4ac',{p:[x,h/2,z]}]),...[[-.6,-.6,7],[.6,-.5,8.5],[0,.6,6]].map(([x,z,h])=>[kcy(.5,.5,.25,8),'#5a6268',{p:[x,h,z]}])])]})},
@@ -203,7 +203,7 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
  {const rw=r*R*D2R,g=new THREE.Group();frameLL(sp,la,lo,0,0,g);const L=new THREE.PointLight(new THREE.Color(o.lamp||'#ffc070'),0,rw*2.6,1);L.position.y=rw*.5;g.add(L);addTo(sp,g,eras,!!o.noCarry);anim(sp,g,()=>{L.intensity=(1-sp.dayK)*1.5})}
  return{houses:H.flat(2).reduce((s,L)=>s+L.length,0),towers:TW}}
 const TOWN_SITES=[
- [12,-88,{name:'emerald',style:'dragon',keepRing:[13.5,16.6],keep:[[-26,10,12],[28,-22,11]],noCenter:1,wallC:'#ece8dc',lamp:'#ffa040',r:2.3,n:150,eras:[3],noCarry:true,wall:1,fields:10,people:50,pCol:'#3a8a5a',towers:.1,scale:1.1}],
+ [12,-88,{name:'emerald',style:'dragon',keepRing:[13.5,16.6],keep:[[-26,10,12],[28,-22,11],[18,12,26]],noCenter:1,wallC:'#ece8dc',lamp:'#ffa040',r:2.3,n:150,eras:[3],noCarry:true,wall:1,fields:10,people:50,pCol:'#3a8a5a',towers:.1,scale:1.1}],
  [4,-112,{name:'white',style:'white',keep:[[9,7,9],[-10,9,8],[-8,-9,6]],r:1.35,n:90,eras:[3,4],noCarry:true,people:34,pCol:'#e8e4d8',road:'#cfc8b8',towers:.14}],
  [-4,56,{name:'silver',style:'silver',keep:[[6,-6,9]],r:2.6,n:130,eras:[5,6,7,8,9,10,11,12],people:40,pCol:'#c8d0d8',road:'#b8bcc0',win:'#cfe6ff',lamp:'#cfe6ff',fields:6,towers:.12}],
  [-14,63,{name:'capital',style:'forge',keep:[[-12,9,13],[10,-8,11],[-6,-13,10],[4,14,14],[0,0,9]],r:2.8,n:160,eras:[5,6,7,8,9,10,11,12],people:56,pCol:'#c8a860',road:'#d8ccb0',wall:1,wallC:'#e8e0cc',towers:.12,scale:1.15}],

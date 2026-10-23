@@ -39,22 +39,19 @@ function capitalDetail(sp){const E=[5,6,7,8,9,10,11,12],C0=[-14,63];const ST='#9
 
 /* 银之城: the city of merchants — awnings and stalls crowd the streets, and the library keeps its records of the sky-beast */
 function silverDetail(sp){const E=[5,6,7,8,9,10,11,12],C0=[-4,56];
- {const P=[[kcy(7,7.4,.6,20),'#c8d0d6',{p:[0,.3,0]}],[kcy(5.4,5.4,4.6,20),'#ffffff',{p:[0,2.9,0]}],[tg(hemi(5.6,20),{}),'#d8e0e6',{p:[0,5.2,0]}],[ring(5.7,.18,20),'#8a949c',{p:[0,5.2,0]}],[kcy(.6,.6,1.2,10),'#d8e0e6',{p:[0,11,0]}],[kc(.7,1.6,10),'#cfe6ff',{p:[0,12.4,0]}]];
-  for(let i=0;i<16;i++){const t=i/16*6.283;P.push([kcy(.28,.32,4.6,8),'#e8ecef',{p:[Math.cos(t)*6.3,2.9,Math.sin(t)*6.3]}])}P.push([kb(2.4,3,.3),'#2e343c',{p:[0,1.5,5.45]}],[kb(3.4,.4,1.4),'#c8d0d6',{p:[0,.7,6.6]}]);
+ // the big square halls at the heart of the city (the library among them)
+ {const P=[[kb(14,.6,14),'#c8d0d6',{p:[0,.3,0]}],[kb(9,6,9),'#ffffff',{p:[-1.5,3.6,-1.5]}],[kb(9.4,.4,9.4),'#8a949c',{p:[-1.5,6.8,-1.5]}],[kb(5,4,5),'#ffffff',{p:[4.2,2.6,3.8]}],[kb(5.3,.3,5.3),'#8a949c',{p:[4.2,4.75,3.8]}],[kb(4,3,6),'#e8ecef',{p:[-4.4,2.1,4.4]}],
+   ...gear(1.3,.16).map(([g,c,f])=>[g,c,{p:[(f.p||[0,0,0])[0]-1.5,(f.p||[0,0,0])[1]+4.2,3.05],r:f.r}]),[kb(2.4,3,.3),'#2e343c',{p:[-1.5,2.1,3.05]}]];
   const [a,b]=PL(...C0,6,-6);landmark(sp,a,b,0,P,E,{metal:.8,rough:.25,win:'#cfe6ff'})}
  // market stalls with coloured awnings round the square
  {const cols=['#c84a3a','#e8b040','#3a8aa8','#7aa848','#a85aa8','#e87a3a'];const P=[];for(let i=0;i<20;i++){const t=i/20*6.283+.1,R0=7.2,x=Math.cos(t)*R0,z=Math.sin(t)*R0,c=cols[i%cols.length];const ox=Math.cos(t),oz=Math.sin(t);
    P.push([kb(1.4,.9,1),'#8a6a40',{p:[x,.45,z],r:[0,-t,0]}],[kb(1.8,.08,1.5),c,{p:[x-ox*.35,1.9,z-oz*.35],r:[0,-t,.25]}],[kcy(.04,.04,1.9,3),BEAM,{p:[x-ox*1.05,.95,z-oz*1.05]}]);if(i%3===0)P.push([ks(.25,6,4),'#e8a040',{p:[x,1.05,z]}],[ks(.22,6,4),'#7ab040',{p:[x+oz*.4,1.02,z-ox*.4]}])}
   landmark(sp,...C0,0,P,E,{metal:.1,rough:.8})}}
 
-/* 天宫市 · 天宫学院 (尔什): a campus — the main hall under a clock tower, two dormitory wings,
+/* 天宫市 · 天宫学院 (尔什): a campus — the great disc of the academy (60_worlds), two dormitory wings,
    a glass dome for training, a playing field with a running track, and the white dome of the polar simulator (not open yet) */
 function tiangongDetail(sp){const E=[8,9,10,11,12],C0=[45,12];const GL='#3a5a7a';
- {const P=[[kb(22,5,6),'#ffffff',{p:[0,2.5,0]}],[kb(22.6,.5,6.6),'#3a4a5a',{p:[0,5.25,0]}],...[1.6,3.3].map(y=>[kb(22.06,.5,6.06),GL,{p:[0,y,0]}]),
-   [kb(4,9,4),'#ffffff',{p:[0,9,0]}],[kb(4.4,.4,4.4),'#3a4a5a',{p:[0,13.6,0]}],[kc(2.6,3.6,4),'#3a4a5a',{p:[0,15.6,0],r:[0,.785,0]}],[kcy(1.4,1.4,.2,20),'#f4f0e6',{p:[0,11,2.05],r:[Math.PI/2,0,0]}],[kb(.12,1.1,.06),'#1a1c1e',{p:[0,11.3,2.18]}],[kb(.8,.12,.06),'#1a1c1e',{p:[.3,11,2.18]}],
-   [kb(6,3.4,.3),'#2a3038',{p:[0,1.7,3.05]}],[kb(9,.3,3),'#d8dee4',{p:[0,.15,4.6]}],...[-3,-1,1,3].map(x=>[kcy(.25,.25,3.6,8),'#f4f0e6',{p:[x,1.8,4.2]}])];
-  for(const s of[-1,1])P.push([kb(5,9,5),'#ffffff',{p:[s*13.5,4.5,-1]}],...[2,4,6,8].map(y=>[kb(5.06,.5,5.06),GL,{p:[s*13.5,y-.6,-1]}]),[kb(5.4,.4,5.4),'#3a4a5a',{p:[s*13.5,9.2,-1]}]);
-  const [a,b]=PL(...C0,18,0);landmark(sp,a,b,Math.PI,P,E,{metal:.3,rough:.4,win:'#ffe8c0'})}
+ // (the main hall here is the great disc of the academy itself, built in 60_worlds)
  // dormitories in two rows, sky bridges between the pairs
  {const P=[];for(let i=0;i<4;i++){const x=-12+i*8;P.push([kb(5,7,3),'#ffffff',{p:[x,3.5,-4]}],[kb(5,7,3),'#ffffff',{p:[x,3.5,4]}],[kb(1.2,.9,5),GL,{p:[x,5.2,0]}],...[1.4,2.8,4.2,5.6].flatMap(y=>[[kb(5.06,.4,3.06),GL,{p:[x,y,-4]}],[kb(5.06,.4,3.06),GL,{p:[x,y,4]}]]),[kb(5.3,.3,3.3),'#3a4a5a',{p:[x,7.15,-4]}],[kb(5.3,.3,3.3),'#3a4a5a',{p:[x,7.15,4]}])}
   const [a,b]=PL(...C0,36,0);landmark(sp,a,b,0,P,E,{metal:.3,rough:.45,win:'#ffe8c0'})}

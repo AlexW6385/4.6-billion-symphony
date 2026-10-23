@@ -13,6 +13,7 @@ function buildUnder(){const id='under';const sc=new THREE.Scene();const sp=newSp
   let d=n*60+(1-fl)*(1-ce)*90*n;// rough walls, bulging
   d+=fl*(18+n2*14+zn.rock*Math.pow(n2,3)*30);// floor: gentle hills, rockier in the dry zone
   d+=ce*Math.pow(fbm(Math.cos(a)*14+z/40,Math.sin(a)*14,z/50,2),4)*80;// roof: knobs and drips
+  d-=fxG_udTrench(z,a)*64;// the lava rift (49i_fixG)
   return d};
  sp.wallD=(z,a)=>wallD(z,a*D2R);sp.wallR=sp.wallD;
  const geo=new THREE.CylinderGeometry(Rt,Rt,L,150,Math.round(L/24),true);geo.rotateX(Math.PI/2);geo.rotateZ(Math.PI);geo.translate(0,0,(z0+z1)/2);
@@ -20,7 +21,7 @@ function buildUnder(){const id='under';const sc=new THREE.Scene();const sp=newSp
  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const a=Math.atan2(-x,-y);// a=0 at the floor (y=-Rt), same sense as tubePt
   const d=wallD(z,a);const r=Rt-d;p.setX(i,x/Rt*r);p.setY(i,y/Rt*r);const c=Math.cos(a);const fl=sm(.2,.75,c),ce=sm(.1,.7,-c);const zn=zone(z);const n=fbm(x*.01+z*.004,y*.01,z*.006,3);
   col.set('#2a2622').lerp(C('#3e362c'),n).lerp(C('#14120f'),ce*.8);
-  col.lerp(C('#3a4a2a').lerp(C('#2a3a22'),n),fl*zn.fern*.9);col.lerp(C('#5a4a38').lerp(C('#7a6650'),n),fl*zn.rock*.9);col.lerp(C('#3a3426'),fl*zn.tree*.7);
+  col.lerp(C('#3a4a2a').lerp(C('#2a3a22'),n),fl*zn.fern*.9);col.lerp(C('#5a4a38').lerp(C('#7a6650'),n),fl*zn.rock*.9);col.lerp(C('#3a3426'),fl*zn.tree*.7);col.lerp(C('#15120f'),fxG_udTrench(z,a));
   cs.push(col.r,col.g,col.b)}
  geo.setAttribute('color',new THREE.Float32BufferAttribute(cs,3));geo.computeVertexNormals();
  {const P2=geo.attributes.position,Nn=geo.attributes.normal,mp=new Map();for(let i=0;i<P2.count;i++){const k=Math.round(P2.getX(i)*10)+','+Math.round(P2.getY(i)*10)+','+Math.round(P2.getZ(i)*10);let L2=mp.get(k);if(!L2)mp.set(k,L2=[]);L2.push(i)}for(const L2 of mp.values()){if(L2.length<2)continue;const v=V3(0,0,0);L2.forEach(i=>v.add(V3(Nn.getX(i),Nn.getY(i),Nn.getZ(i))));v.normalize();L2.forEach(i=>Nn.setXYZ(i,v.x,v.y,v.z))}}
@@ -64,7 +65,7 @@ function buildUnder(){const id='under';const sc=new THREE.Scene();const sp=newSp
    o.position.copy(wp(z,a,-1));o.quaternion.setFromUnitVectors(V3(0,1,0),upAt(a));o.rotateX((Math.random()-.5)*.6-.25);o.rotateZ((Math.random()-.5)*.4);o.scale.set(s*.3,hgt,s*.3);o.translateY(hgt*.48);o.updateMatrix();im.setMatrixAt(i,o.matrix);im.setColorAt(i,C('#ffffff').offsetHSL(0,0,(Math.random()-.5)*.25))}
   im.frustumCulled=false;im.userData.pick='ud_spikes';sc.add(im);const red=[];for(let i=0;i<500;i++)red.push(wp(2860+(Math.random()-.5)*90,(Math.random()-.5)*2.8,10+Math.random()*120));sc.add(sparkles(red,'#ff6a4a',4,.9,.6))}
  // home trees, three hundred metres and more, from the floor into the roof
- const trees=[[3500,-120],[3800,140],[4100,-30],[4400,110],[3650,40]];
+ const trees=[[3500,-120],[3800,140],[4100,-30],[4400,110],[3650,40],[2200,140],[2620,-170],[3300,200]];// the last three stand in the dry rock land
  trees.forEach(([z,x],k)=>{const yb=-Math.sqrt(Rt*Rt-x*x)+wallD(z,Math.atan2(-x,Math.sqrt(Rt*Rt-x*x)))-8,yt=-yb-30;const H=yt-yb;const g=new THREE.Group();g.userData.pick='ud_tree';
   const parts=[trunkGeo({h:H,r:[[0,46],[.05,30],[.2,24],[.5,22],[.8,26],[.95,34],[1,48]],ridges:16,twist:1.4,amp:.2,seg:40,rings:44,col:'#5a4a38',col2:'#241a12',moss:'#3a5a32',mossT:.25,ph:k})];
   for(let i=0;i<10;i++){const a=i/10*Math.PI*2+k;const ca=Math.cos(a),sa=Math.sin(a),Lr=50+Rn()*40;parts.push(loftGeo([[ca*20,24,sa*20,16,6],[ca*(30+Lr*.3),10,sa*(30+Lr*.3),11,4],[ca*(30+Lr*.7),2,sa*(30+Lr*.7),5,2.4],[ca*(30+Lr),-4,sa*(30+Lr),1.5,1.2]],{n:24,r:10,back:'#5e4c3a',belly:'#2a2016'}));
@@ -93,6 +94,7 @@ function buildUnder(){const id='under';const sc=new THREE.Scene();const sp=newSp
    vertexShader:'uniform float uT,uS;attribute vec2 ph;attribute float by;varying float vA;void main(){float k=fract(uT*ph.y+ph.x);float f=k*k;vec3 p=position;p.y=mix(position.y,by,f);vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;float d=-mv.z;vA=smoothstep(0.,.08,k)*(1.-smoothstep(.85,1.,k))*(1.-smoothstep(500.,1100.,d));gl_PointSize=clamp(uS*4./d,1.5,6.);}',
    fragmentShader:'varying float vA;void main(){vec2 c=gl_PointCoord-.5;c.y*=.55;float a=smoothstep(.5,.0,length(c));gl_FragColor=vec4(vec3(.55,1.,.8)*a*vA,1.);}'});
   const pts=new THREE.Points(g,m);pts.frustumCulled=false;pts.renderOrder=3;sc.add(pts)}
+ fxG_underRift(sp,sc,wp,upAt,Rt);
  placeEntries(sp);
  const eras=eraCentroids(sp,w=>w.z);sp.eraAt=()=>2;
  return sp}

@@ -103,4 +103,5 @@ function bOstrichRider(f){const g=new THREE.Group();g.userData.noSkin=0;const s=
  const sp2=cyl(.015,.015,1.5,M('#6a4a2a'),4);sp2.position.set(.3,.6,-.2);sp2.rotation.z=-.5;rd.add(sp2);
  addLegs(body,L);stdAnim(body,{fq:7,amp:.55});const a0=body.userData.anim;g.userData.anim=t=>{a0&&a0(t);tor.position.y=2.1+Math.abs(Math.sin(t*7))*.06;rd.position.y=2.45+Math.abs(Math.sin(t*7))*.08};return g}
 SPEC.baihai_rider=bOstrichRider;
-window.FAUNA.push({w:'baihai_rider',kind:'quad',at:[4.6,-110.6],n:4,col:'#b8a07a',s:1,alt:0,rad:.7,e:[3,4]});
+// only the leader rides one
+window.FAUNA.push({w:'baihai_rider',kind:'quad',at:[4.6,-110.6],n:1,col:'#b8a07a',s:1,alt:0,rad:.7,e:[3,4]});

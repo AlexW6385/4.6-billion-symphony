@@ -77,14 +77,6 @@ function landShipGeo(){const P=[[tg(new THREE.SphereGeometry(1,16,8),{s:[5,1.4,1
   [kb(2.2,1.6,2),'#d8dee2',{p:[-2.4,3.5,0]}],[kcy(.12,.12,5,5),'#8a7a5a',{p:[.6,5.2,0]}],[tg(new THREE.PlaneGeometry(3.4,3),{}),'#f0ece0',{p:[.6,5.4,.05]}]];
  for(let i=0;i<6;i++)for(const s of[-1,1])P.push([tg(new THREE.SphereGeometry(.32,8,6),{s:[1.6,.7,.8]}),'#1a1e22',{p:[-3+i*1.2,.5,s*1.45]}]);return G(P)}
 function rqCanon2(sp){const gh=sp.gh,Rn=rnd(6262);
- {sp.entClr=sp.entClr||[];for(let t=0;t<=1.001;t+=.04){const d=dirLL(20,4).lerp(dirLL(22,14),t).normalize();sp.entClr.push({d,deg:.8,cs:Math.cos(.8*D2R),eras:[2,3]})}}
- // the lava rift: a black crust of set lava on its floor, and lava spiders asleep by day on single threads down its walls
- {const A=dirLL(20,4),B=dirLL(22,14);const crust=[],spd=[],thr=[];for(let i=0;i<420;i++){const t=Rn();const c=A.clone().lerp(B,t).normalize();const ll=llDir(c);const side=V3(0,1,0).cross(c).normalize();
-   const q=c.clone().addScaledVector(side,(Rn()-.5)*.8*D2R).normalize();const l2=llDir(q);crust.push([l2[0],l2[1],0,Rn()]);
-   if(i%9===0){const s=Rn()<.5?-1:1;const e=c.clone().addScaledVector(side,s*.62*D2R).normalize();const le=llDir(e);const top=gh(le[0],le[1])+2;const L=6+Rn()*10;spd.push([le[0],le[1],top-L,Rn()]);const p=dirLL(le[0],le[1]);thr.push(p.clone().multiplyScalar(R+top),p.clone().multiplyScalar(R+top-L+1))}}
-  inst(new THREE.CylinderGeometry(1,1.2,.3,7),detailMat(VC({roughness:.6,metalness:.2}),{bump:1}),crust,(o,p)=>{frameLL(sp,p[0],p[1],.1,p[3]*6,o);o.scale.set(2+p[3]*3,1,2+p[3]*2.5)},[2,3],{tint:()=>C('#1a1614'),far:1400});
-  inst(spiderGeo(),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.5,emissive:'#ff4a10',emissiveIntensity:.35}),spd,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o,false);o.position.setLength(R+p[2]);o.scale.setScalar(1.6+p[3]*1.4)},[2,3],{far:1200});
-  const tl=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(thr),new THREE.LineBasicMaterial({color:'#e8e0d0',transparent:true,opacity:.6}));addE(tl,[2,3]);cull(tl,dirLL(21,9).multiplyScalar(R),140,900)}
  // the crystal woods: ordinary trees except that the bark has turned to crystal; flames dance in the air; rib-centipedes lie like bones
  {const k=crysTreeGeo();const pts=scatter(420,10,-100,4.4,1901,onLand);const set=(o,p)=>{frameLL(sp,p[0],p[1],-.2,p[3]*6.28,o);o.scale.setScalar(.85+p[3]*.9)};
   inst(k.trunk,new THREE.MeshStandardMaterial({vertexColors:true,color:'#bff0ff',roughness:.06,metalness:.1,emissive:'#2a9ac0',emissiveIntensity:.5,flatShading:true}),pts,set,[3],{far:1800});
