@@ -57,6 +57,7 @@ let MW_ALL=true,MW_TICK=0,SG_ADDS=0;
  if(!c||c[0]!==p.x||c[1]!==p.y||c[2]!==p.z||c[3]!==q.x||c[4]!==q.y||c[5]!==q.z||c[6]!==q.w||c[7]!==s.x||c[8]!==s.y||c[9]!==s.z){_um.call(this);if(!c)c=this._mc=new Float64Array(10);c[0]=p.x;c[1]=p.y;c[2]=p.z;c[3]=q.x;c[4]=q.y;c[5]=q.z;c[6]=q.w;c[7]=s.x;c[8]=s.y;c[9]=s.z}}
  if(this.matrixWorldNeedsUpdate||force){if(this.parent===null)this.matrixWorld.copy(this.matrix);else this.matrixWorld.multiplyMatrices(this.parent.matrixWorld,this.matrix);this.matrixWorldNeedsUpdate=false;force=true}
  const ch=this.children;if(this.parent===null&&!MW_ALL){const t=MW_TICK%30;for(let i=0,l=ch.length;i<l;i++){MW_ALL=i%30===t;ch[i].updateMatrixWorld(force)}MW_ALL=false}else for(let i=0,l=ch.length;i<l;i++)ch[i].updateMatrixWorld(force)}}
+q4b_geoBoost();// (49n_soften: more sides on round primitives, bevelled boxes; hoisted)
 /* ================================================================
    core: data prep, math, renderer + post, spaces, rig, input
    ================================================================ */
