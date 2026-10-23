@@ -1346,8 +1346,8 @@ window.FAUNA.push(
  {w:'ex_baixing', kind:'quad', at:[76,32], n:2, col:'#f4f8ff', s:1.3, alt:0, rad:2, e:[8,9], m:'erxi', biped:1, glow:1},
  {w:'ex_jiaojing', kind:'leviathan', at:[-12,-142], n:2, col:'#5a6a7a', s:5, alt:0, rad:4, e:[9], m:'erxi', swim:1},
  {w:'ex_fleet', kind:'ship', at:[20,-50], n:5, col:'#c8ccd0', s:3.2, alt:70, rad:6, e:[8,9], m:'erxi'},
- {w:'ex_hero', kind:'flyer', at:[36,-94], n:3, col:'#d84a3a', s:1.2, alt:20, rad:3, e:[8,9], m:'erxi'},
- {w:'ex_birds', kind:'flyer', at:[42,22], n:6, col:'#f4f0e8', s:.9, alt:6, rad:2, e:[9], m:'erxi'}
+ {w:'ex_hero', kind:'flyer', at:[36,-94], n:3, col:'#d84a3a', s:1.2, alt:0, rad:3, e:[8,9], m:'erxi'},
+ {w:'ex_birds', kind:'flyer', at:[42,22], n:6, col:'#f4f0e8', s:.9, alt:0, rad:2, e:[9], m:'erxi'}
 );
 
 /* 卷三：米德加尔特（管道内部）与白色通道 —— z 为沿管道的位置，ang 为绕轴角度（0=脚下），h 为离壁高度 */

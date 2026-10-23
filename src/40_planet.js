@@ -202,7 +202,8 @@ function inst(geo,mat,pts,setter,eras,opt){opt=opt||{};const n=Math.max(1,pts.le
 function cull(o,c,r,far){BSP.culls.push({o,c:c||o.position,r:r||40,far:far||2600})}
 function px(id,pos,r,extra){return prox(BSP,id,pos,r,extra)}
 /* merged multi-part models with vertex colors: one draw per kind */
-function G(parts){return mergeColored(parts.map(([g,c,f])=>[f?tg(g,f):g,c]))}
+/* parts are copied before they are moved, so a shared cached shape (sgeo) is never bent for everyone else */
+function G(parts){return mergeColored(parts.map(([g,c,f])=>[f?tg(g.clone(),f):g,c]))}
 const VC=(o)=>new THREE.MeshStandardMaterial(Object.assign({vertexColors:true,roughness:.85},o||{}));
 function swayMat(o,k){const m=VC(o);const U={uT:GT,uSw:{value:k||.02}};m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);sh.vertexShader='uniform float uT,uSw;\n'+sh.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
 #ifdef USE_INSTANCING
