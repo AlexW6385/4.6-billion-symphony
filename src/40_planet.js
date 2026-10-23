@@ -60,13 +60,13 @@ function heightTex(G,W2,H2){const data=new Uint8Array(W2*H2*4);const d=V3();
 
 const LL_GLSL=`vec2 llUV(vec3 p){return vec2(atan(p.x,p.z)/6.2831853+.5,asin(clamp(p.y,-1.,1.))/3.14159265+.5);}`;
 function oceanMat(ht,o){return new THREE.ShaderMaterial({transparent:true,fog:true,depthWrite:false,
- uniforms:Object.assign(THREE.UniformsUtils.clone(THREE.UniformsLib.fog),{uHT:{value:ht},uT:GT,uCanyon:{value:0},uSun:{value:V3(1,0,0)},uMoon:{value:V3(0,1,0)},uDeep:{value:C(o.deep)},uShal:{value:C(o.shal)},uFoamC:{value:C(o.foam||'#eef6f4')},uSky:{value:C(o.sky||'#9cc8f0')},uWave:{value:o.wave||1}}),
+ uniforms:Object.assign(THREE.UniformsUtils.clone(THREE.UniformsLib.fog),{uHT:{value:ht},uT:GT,uCanyon:{value:0},uSun:{value:V3(1,0,0)},uMoon:{value:V3(0,1,0)},uDeep:{value:C(o.deep)},uShal:{value:C(o.shal)},uFoamC:{value:C(o.foam||'#eef6f4')},uSky:{value:C(o.sky||'#9cc8f0')},uSkyZ:{value:C('#3b78d0')},uSkyLive:{value:0},uWave:{value:o.wave||1}}),
  vertexShader:`varying vec3 vOP,vW;
 #include <fog_pars_vertex>
 void main(){vOP=position;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;vec4 mvPosition=viewMatrix*w;gl_Position=projectionMatrix*mvPosition;
 #include <fog_vertex>
 }`,
- fragmentShader:`uniform sampler2D uHT;uniform float uT,uCanyon,uWave;uniform vec3 uSun,uMoon,uDeep,uShal,uFoamC,uSky;varying vec3 vOP,vW;
+ fragmentShader:`uniform sampler2D uHT;uniform float uT,uCanyon,uWave,uSkyLive;uniform vec3 uSun,uMoon,uDeep,uShal,uFoamC,uSky,uSkyZ;varying vec3 vOP,vW;
 ${GLSL_NOISE}${LL_GLSL}
 #include <fog_pars_fragment>
 void main(){vec3 p=normalize(vOP);vec4 t=texture2D(uHT,llUV(p));float h=t.r*90.-70.-t.g*40.*uCanyon;float depth=-h;if(depth<-1.2)discard;depth=max(depth,0.);
@@ -74,13 +74,19 @@ void main(){vec3 p=normalize(vOP);vec4 t=texture2D(uHT,llUV(p));float h=t.r*90.-
  vec3 q=vOP*.05+vec3(uT*.21,uT*.05,uT*.16);float e=.35;
  vec3 g=vec3(vn3(q+vec3(e,0,0))-vn3(q-vec3(e,0,0)),vn3(q+vec3(0,e,0))-vn3(q-vec3(0,e,0)),vn3(q+vec3(0,0,e))-vn3(q-vec3(0,0,e)));
  vec3 q2=vOP*.19-vec3(uT*.33,uT*.1,uT*.27);g+=.5*vec3(vn3(q2+vec3(e,0,0))-vn3(q2-vec3(e,0,0)),vn3(q2+vec3(0,e,0))-vn3(q2-vec3(0,e,0)),vn3(q2+vec3(0,0,e))-vn3(q2-vec3(0,0,e)));
- vec3 N=normalize(p-(g-dot(g,p)*p)*(.55*nk+.08));
+ vec3 q3=vOP*.9+vec3(uT*.7,-uT*.4,uT*.55);float n3k=1.-smoothstep(40.,420.,dist);g+=.28*n3k*vec3(vn3(q3+vec3(e,0,0))-vn3(q3-vec3(e,0,0)),vn3(q3+vec3(0,e,0))-vn3(q3-vec3(0,e,0)),vn3(q3+vec3(0,0,e))-vn3(q3-vec3(0,0,e)));
+ vec3 N=normalize(p-(g-dot(g,p)*p)*(.42*nk+.08));
  float sunUp=dot(p,uSun);float ndl=max(dot(N,uSun),0.);float day=smoothstep(-.18,.22,sunUp);
  vec3 water=mix(uShal,uDeep,smoothstep(0.,34.,depth));
  vec3 col=water*(.06+.94*ndl*day)+water*.05;
  float fres=.03+.97*pow(1.-max(dot(N,V),0.),5.);
- float gold=smoothstep(.38,.02,sunUp)*smoothstep(-.16,.0,sunUp);vec3 sky=mix(uSky,vec3(1.,.62,.36),gold*.55)*(.08+.92*day);col=mix(col,sky,fres*.55);
- vec3 Hh=normalize(uSun+V);float shp=mix(900.,200.,nk)*(1.-gold*.6);col+=mix(vec3(1.,.93,.78),vec3(1.,.55,.22),gold)*pow(max(dot(N,Hh),0.),shp)*mix(.55,2.2,nk)*(day+gold*.6);
+ float gold=smoothstep(.38,.02,sunUp)*smoothstep(-.16,.0,sunUp);
+ // the sky seen in the water: horizon colour at grazing angles, zenith colour looking down, warmer on the sun's side
+ vec3 Rf=reflect(-V,N);float re=dot(Rf,p);vec3 skyL=mix(uSky,uSkyZ,pow(smoothstep(-.05,.85,re),.5));vec3 skyD=mix(uSky,vec3(1.,.62,.36),gold*.55)*(.08+.92*day);
+ vec3 sky=mix(skyD,skyL*mix(vec3(1.),vec3(1.,.7,.5),gold*pow(max(dot(Rf,uSun),0.)*.5+.5,3.)),uSkyLive);col=mix(col,sky,fres*mix(.55,.8,uSkyLive));
+ // light through the near side of a wave
+ col+=uShal*.18*pow(1.-max(dot(N,V),0.),3.)*day*(.4+.6*ndl);
+ vec3 Hh=normalize(uSun+V);float shp=mix(1600.,650.,nk)*(1.-gold*.5);col+=mix(vec3(1.,.93,.78),vec3(1.,.55,.22),gold)*pow(max(dot(N,Hh),0.),shp)*mix(.7,1.7,nk)*(day+gold*.6);
  vec3 Hm=normalize(uMoon+V);{float md=max(dot(N,Hm),0.);float mup=step(0.,dot(p,uMoon));col+=vec3(.55,.75,1.)*(pow(md,160.)*.6+pow(md,28.)*.16)*(1.-day)*mup;col+=vec3(.7,.85,1.)*pow(md,600.)*1.4*(1.-day)*mup;}
  float fz=vn3(vOP*.33+vec3(0.,uT*.3,0.));float foam=(1.-smoothstep(.1,1.9,depth))*(.5+.5*sin(depth*5.-uT*1.5+fz*7.));
  foam=clamp(foam+(1.-smoothstep(0.,.5,depth))*.6,0.,1.)*(.4+.6*nk);
@@ -147,9 +153,23 @@ void main(){vec3 p=normalize(vOP);
 function skyMat(){return new THREE.ShaderMaterial({depthWrite:false,depthTest:false,side:THREE.BackSide,fog:false,
  uniforms:{uSun:{value:V3(1,0,0)},uUp:{value:V3(0,1,0)},uZen:{value:C('#3b78d0')},uHor:{value:C('#a8cff0')},uSunC:{value:C('#fff2d8')},uA:{value:1},uDip:{value:0}},
  vertexShader:'varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+ // each world keeps its own palette (zenith and horizon, already mixed for day, dusk and night); on top of it the light
+ // behaves like air: a bright hazy band at the horizon, sky brighter towards the sun and a halo round it, at sunrise and
+ // sunset an orange glow on the sun's side and a pink band with the earth's blue shadow under it on the far side
  fragmentShader:`uniform vec3 uSun,uUp,uZen,uHor,uSunC;uniform float uA,uDip;varying vec3 vD;void main(){vec3 d=normalize(vD);float e=(dot(d,uUp)+uDip)/(1.+uDip);
- vec3 c=mix(uHor,uZen,pow(smoothstep(-.02,.75,e),.55));float s=max(dot(d,uSun),0.);c+=uSunC*(pow(s,10.)*.32+pow(s,90.)*.5);
- c=mix(c,uHor*.55,smoothstep(.0,-.3,e));gl_FragColor=vec4(c*uA,1.);
+ float mu=dot(d,uSun),se=dot(uUp,uSun);float ep=max(e,0.);
+ vec3 c=mix(uHor,uZen,pow(smoothstep(-.02,.95,e),.48));
+ float hz=exp(-ep*8.);c=mix(c,mix(uHor,vec3(dot(uHor,vec3(.333))),.3)*1.1,hz*.32);
+ c*=.9+.2*mu*mu;
+ float low=smoothstep(.32,.0,se)*smoothstep(-.2,-.03,se);float side=pow(mu*.5+.5,3.);float anti=pow(max(-mu,0.),1.5);
+ c=mix(c,c*.55+vec3(1.,.48,.2)*.78,low*hz*side*.92);
+ c+=vec3(.42,.2,.3)*low*anti*exp(-abs(e-.07)*16.)*.55;
+ c*=1.-low*anti*exp(-ep*28.)*.28;
+ float m=max(mu,0.);float dayS=.35+.65*smoothstep(-.12,.2,se);
+ c+=uSunC*(pow(m,6.)*.22+pow(m,48.)*.42+pow(m,700.)*2.2)*dayS*mix(vec3(1.),vec3(1.,.7,.45),low);
+ c=mix(c,uHor*.5,smoothstep(.0,-.3,e));
+ c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.;
+ gl_FragColor=vec4(c*uA,1.);
 #include <tonemapping_fragment>
 #include <encodings_fragment>
 }`})}
@@ -294,7 +314,7 @@ function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'pla
   {const lo=1-sm(.04,.5,sdot),w=lo*sm(-.2,.02,sdot);sun.color.setRGB(1,.94-.42*w,.85-.62*w);sun.intensity=(cfg.sunI||1.08)*(1-.25*w);hemi.color.copy(sp._hb||(sp._hb=hemi.color.clone())).lerp(_warmH,w*.45);sp.goldK=w}
   shadowFollow(sp,sun,sdot);
   tmpc.copy(SK.nh).lerp(SK.hor,day).lerp(SK.set,setK*day*.8);const hor=tmpc.clone();tmpc.copy(SK.nz).lerp(SK.zen,day);const zen=tmpc.clone();
-  const su=sky.material.uniforms;su.uSun.value.copy(sp.sunDir);su.uUp.value.copy(cu);su.uZen.value.copy(zen);su.uHor.value.copy(hor);su.uA.value=skyA;su.uDip.value=Math.sqrt(Math.max(0,1-(R/cl)*(R/cl)));sky.visible=skyA>.01;sky.position.copy(camera.position);
+  const su=sky.material.uniforms;su.uSun.value.copy(sp.sunDir);su.uUp.value.copy(cu);su.uZen.value.copy(zen);su.uHor.value.copy(hor);om.uniforms.uSky.value.copy(hor);om.uniforms.uSkyZ.value.copy(zen);om.uniforms.uSkyLive.value=1;su.uA.value=skyA;su.uDip.value=Math.sqrt(Math.max(0,1-(R/cl)*(R/cl)));sky.visible=skyA>.01;sky.position.copy(camera.position);
   sp.stars.material.opacity=1-skyA*(.15+.85*day);
   sunS.material.opacity=.55+.45*skyA;sunC.material.opacity=.9;
   // haze close to the ground

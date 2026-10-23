@@ -337,7 +337,7 @@ function updateMotes(){const L=CUR.motes;if(L)for(const m of L){if(!m.visible)co
 const perf={t:0,n:0,lvl:0,hold:0};
 function adapt(dt){if(window.__noAdapt)return;perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
  // step down a level when it runs slowly on average, or keeps stuttering
- if((fps<36||slow>=6)&&perf.lvl<3){perf.lvl++;perf.hold=1;if(perf.lvl===1){PR=Math.min(PR,1.25)}else if(perf.lvl===2){PR=1;SHD.on=false;if(bloomPass)bloomPass.strength=.45}else if(perf.lvl===3){PR=.8;if(bloomPass)bloomPass.enabled=false}resize()}}
+ if((fps<36||slow>=6)&&perf.lvl<3){perf.lvl++;perf.hold=1;if(perf.lvl===1){PR=Math.min(PR,PR>1.5?1.5:1.25)}else if(perf.lvl===2){PR=1;SHD.on=false;if(bloomPass)bloomPass.strength=.45}else if(perf.lvl===3){PR=.8;if(bloomPass)bloomPass.enabled=false}resize()}}
 
 /* while a card is open, the picture slides so what you chose sits in the free part of the screen, not under the card */
 const VO={x:0,y:0};

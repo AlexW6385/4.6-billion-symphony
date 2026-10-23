@@ -135,7 +135,8 @@ const bumpDummy=new THREE.DataTexture(new Uint8Array([128,128,128,255]),1,1);bum
 /* ---- renderer & post ---- */
 const canvas=$('#c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
-let PR=Math.min(window.devicePixelRatio||1,1.5);renderer.setPixelRatio(PR);
+// sharp on a desktop screen (up to 2 device pixels per point), a little softer on phones; the quality steps lower it when slow
+const COARSE=matchMedia('(pointer:coarse)').matches;let PR=Math.min(window.devicePixelRatio||1,COARSE?1.5:2);renderer.setPixelRatio(PR);
 renderer.toneMapping=THREE.NoToneMapping;renderer.outputEncoding=THREE.LinearEncoding;
 /* near shadows: only the planet sun casts, its shadow box follows the spot you look at and is redrawn every other frame (see shadowFollow) */
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
@@ -151,13 +152,16 @@ const FinalShader={uniforms:{tDiffuse:{value:null},uVig:{value:.5},uTime:{value:
   c=mix(c,uFadeCol,uFade);gl_FragColor=vec4(c,1.);}`};
 let composer=null,renderPass=null,bloomPass=null,finalPass=null,fxaaPass=null;
 function initPost(){if(!POST.on)return;try{const w=innerWidth,h=innerHeight;const half=renderer.capabilities.isWebGL2;
- const rt=new THREE.WebGLRenderTarget(w*PR,h*PR,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:half?THREE.HalfFloatType:THREE.UnsignedByteType});
+ const ro={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:half?THREE.HalfFloatType:THREE.UnsignedByteType};
+ // real edge smoothing (4x multisampling) where the GPU can, instead of the blur of FXAA
+ let rt=null;if(half&&!COARSE&&THREE.WebGLMultisampleRenderTarget){try{rt=new THREE.WebGLMultisampleRenderTarget(w*PR,h*PR,ro);rt.samples=4;POST.msaa=true}catch(e){rt=null}}
+ if(!rt)rt=new THREE.WebGLRenderTarget(w*PR,h*PR,ro);
  composer=new THREE.EffectComposer(renderer,rt);renderPass=new THREE.RenderPass(new THREE.Scene(),camera);composer.addPass(renderPass);
  bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(w,h),.62,.5,.93);composer.addPass(bloomPass);
  // the glow is a soft blur anyway: work it out at one sample per screen point, not per device pixel
  {const bs=bloomPass.setSize.bind(bloomPass);bloomPass.setSize=(W,H)=>{const k=Math.min(1,1/PR);bs(Math.max(2,Math.round(W*k)),Math.max(2,Math.round(H*k)))}}
  finalPass=new THREE.ShaderPass(FinalShader);composer.addPass(finalPass);
- if(THREE.FXAAShader){fxaaPass=new THREE.ShaderPass(THREE.FXAAShader);composer.addPass(fxaaPass)}
+ if(THREE.FXAAShader&&!POST.msaa){fxaaPass=new THREE.ShaderPass(THREE.FXAAShader);composer.addPass(fxaaPass)}
 }catch(e){console.warn('post off',e);POST.on=false;composer=null}}
 function setFade(v){if(composer&&POST.on)finalPass.uniforms.uFade.value=v;$('#veil').style.opacity=composer&&POST.on?0:v}
 function resize(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(PR);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();PSCALE.value=h*PR*.5;
