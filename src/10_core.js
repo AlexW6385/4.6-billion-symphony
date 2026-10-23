@@ -140,7 +140,7 @@ const COARSE=matchMedia('(pointer:coarse)').matches;let PR=Math.min(window.devic
 renderer.toneMapping=THREE.NoToneMapping;renderer.outputEncoding=THREE.LinearEncoding;
 /* near shadows: only the planet sun casts, its shadow box follows the spot you look at and is redrawn every other frame (see shadowFollow) */
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
-const SHD={on:true,f:0,max:320,ms:matchMedia('(pointer:coarse)').matches?1024:2048};
+const SHD={on:true,f:0,max:1500,ms:matchMedia('(pointer:coarse)').matches?1024:2048};
 const camera=new THREE.PerspectiveCamera(45,1,.4,120000);
 const POST={on:!!(THREE.EffectComposer&&THREE.UnrealBloomPass&&THREE.ShaderPass)};
 const FinalShader={uniforms:{tDiffuse:{value:null},uVig:{value:.5},uTime:{value:0},uFade:{value:0},uFadeCol:{value:new THREE.Color(0,0,0)}},

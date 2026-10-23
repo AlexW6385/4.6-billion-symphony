@@ -229,7 +229,7 @@ const LPOOL_K=2,_lw=V3();
 /* which things cast and catch the near shadows: solid lit meshes; small ones cast (a town, a creature, a tree), the
    ground and big things only catch */
 function shadowScan(sp){if(sp.type!=='planet'||!sp.sunL)return;sp.scene.traverse(o=>{if(!o.isMesh||o.userData.shd)return;o.userData.shd=1;const m=Array.isArray(o.material)?o.material[0]:o.material;
- if(!m||m.isShaderMaterial||m.transparent||m.alphaTest>0||!m.depthWrite||!(m.isMeshStandardMaterial||m.isMeshPhongMaterial||m.isMeshLambertMaterial))return;o.receiveShadow=true;if(o===sp.terr||o.userData.noShadow)return;
+ if(!m||m.isShaderMaterial||m.transparent||m.alphaTest>0||!m.depthWrite||!(m.isMeshStandardMaterial||m.isMeshPhongMaterial||m.isMeshLambertMaterial))return;o.receiveShadow=true;if(o===sp.terr){o.castShadow=true;return}if(o.userData.noShadow)return;
  const g=o.geometry;if(!g)return;if(!g.boundingSphere)g.computeBoundingSphere();const sc=o.scale?Math.max(o.scale.x,o.scale.y,o.scale.z):1;if(g.boundingSphere.radius*sc<70)o.castShadow=true})}
 /* instanced sets and point clouds: three.js tests them against the frustum with the bounds of ONE instance at the
    set's own origin (or the points as first laid out), so from close up, looking past that origin, a whole set
