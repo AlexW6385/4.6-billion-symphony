@@ -111,7 +111,7 @@ const SOUTHW=dirLL(-56,-14),WSNOW=dirLL(6,-80);
 function rqColors(Gd){const n=Gd.n,P=Gd.P,H=Gd.H;const b=new Float32Array(n*3),l=new Float32Array(n*3),s=new Float32Array(n*3),w=new Float32Array(n*3),pk=new Float32Array(n*3);const p=V3(),c=new THREE.Color(),c2=new THREE.Color();
  const BANK=C('#3d6b3a'),MUD=C('#5a5040');
  for(let k=0;k<n;k++){p.set(P[k*3],P[k*3+1],P[k*3+2]);const h=H[k],lat=Math.asin(p.y)/D2R;
-  lushColor(p,h,lat,c);const rv=h>-1?riverAt(p):null;if(rv){c.lerp(BANK,rv.bank*.45);c.lerp(MUD,rv.k*.6)}l[k*3]=c.r;l[k*3+1]=c.g;l[k*3+2]=c.b;fxG_scorch(p,h,c,c2);pk[k*3]=c2.r;pk[k*3+1]=c2.g;pk[k*3+2]=c2.b;
+  lushColor(p,h,lat,c);const rv=h>-1?riverAt(p):null;if(rv)(Gd.WET||(Gd.WET=new Float32Array(n)))[k]=Math.max(rv.k,rv.bank*.7);if(rv){c.lerp(BANK,rv.bank*.45);c.lerp(MUD,rv.k*.6)}l[k*3]=c.r;l[k*3+1]=c.g;l[k*3+2]=c.b;fxG_scorch(p,h,c,c2);pk[k*3]=c2.r;pk[k*3+1]=c2.g;pk[k*3+2]=c2.b;
   const sw=h>2?Math.max(nearD(p,SOUTHW,6,22),sm(-48,-62,lat))*.92:0;c2.copy(c).lerp(PC.snow,sw);w[k*3]=c2.r;w[k*3+1]=c2.g;w[k*3+2]=c2.b;
   const snowK=h>2?Math.max(sm(18,40,lat+(n3(p.x*30,p.y*30,p.z*30)-.5)*14),nearD(p,WSNOW,8,30)*.85,sm(-40,-58,lat)):0;c2.copy(c).lerp(PC.snow,snowK);s[k*3]=c2.r;s[k*3+1]=c2.g;s[k*3+2]=c2.b;
   barrenColor(p,h,c);if(rv)c.lerp(MUD,rv.k*.5);b[k*3]=c.r;b[k*3+1]=c.g;b[k*3+2]=c.b}
@@ -178,6 +178,7 @@ function rqForests(sp){const Rn=rnd(9091);const gh=sp.ghRaw;const d=V3();
   conifer:G([[kcy(.12,.24,2.2,7),'#4a3a2a',{p:[0,1.1,0]}],[kc(1.75,2.2,9),'#d8d8d8',{p:[0,2.6,0]}],[kc(1.45,2,9),'#e4e4e4',{p:[0,3.7,0]}],[kc(1.15,1.8,9),'#ececec',{p:[0,4.7,0]}],[kc(.85,1.6,9),'#f4f4f4',{p:[0,5.6,0]}],[kc(.5,1.4,8),'#ffffff',{p:[0,6.5,0]}]]),
   palm:G([[ktube([V3(0,0,0),V3(.4,2.6,0),V3(.9,5,.2)],.16,10,6),'#7a6a4e'],[ki(.32,1),'#6a5a3a',{p:[.9,4.9,.2]}],...Array.from({length:9},(_,i)=>{const a=i/9*6.28;return[tg(new THREE.SphereGeometry(1,8,4),{s:[1.5,.06,.32]}),i%2?'#ffffff':'#e0e0e0',{p:[.9+Math.cos(a)*1.3,4.75-.25*(i%3),.2+Math.sin(a)*1.3],r:[0,-a,-.35]}]})]),
   dead:G([[kcy(.12,.22,3.8,7),'#5a4e40',{p:[0,1.9,0]}],[kcy(.04,.08,1.8,5),'#5a4e40',{p:[.45,3.4,0],r:[0,0,-.9]}],[kcy(.04,.08,1.5,5),'#5a4e40',{p:[-.4,2.9,.2],r:[0,0,.9]}],[kcy(.03,.06,1.2,4),'#5a4e40',{p:[.1,3.9,-.4],r:[.8,0,0]}],[kcy(.03,.05,1,4),'#5a4e40',{p:[-.1,3.6,.5],r:[-.9,0,.2]}]])};
+ q2_treeKits(KITS,NEAR);
  const Z={desert:dirLL(25,-6),dieye:dirLL(-17,75),salt:dirLL(4,-72),spires:dirLL(15,-1),jungle:dirLL(33,11),crater:dirLL(20,-13),grass:dirLL(-8,-80),rift:dirLL(14,-60),fung:dirLL(30,-103),lava:dirLL(21,9),crys:dirLL(10,-100)};
  const WEST=dirLL(6,-76),EAST=dirLL(-12,70),NORTH=dirLL(30,2),SOUTH=dirLL(-52,-18),htD=dirLL(...fxG_HT),eastC=dirLL(-12,66);// no trees on the east coast: only inland round the old forest of heaven
  const pick={};const add=(kind,eras,p)=>{const key=kind+'|'+eras.join()+'|'+Math.round(p[0]/4)+','+Math.round(p[1]/4);(pick[key]=pick[key]||{kind,eras,pts:[]}).pts.push(p)};
@@ -193,7 +194,7 @@ function rqForests(sp){const Rn=rnd(9091);const gh=sp.ghRaw;const d=V3();
   if(nearEnt('rongqiu',lat,lon,.35))continue;
   const r4=Rn();const p=[lat,lon,h,r4];const ws=angDeg(d,WEST)<26,ea=angDeg(d,EAST)<24,so=angDeg(d,SOUTH)<22,coast=h<7;
   const cold=Math.abs(lat)>44||so||h>70;let eras=so||lat<-44?ERAS_S:ERAS_A;if(lat>2.6&&lat<6.8&&lon>-6.5&&lon<8.6)eras=eras.filter(e=>e>4);// the bare rock plain above the landing cliffif(angDeg(d,fxG_K().PK)<5.8)eras=eras.filter(e=>e>3);
-  let kind=cold?'conifer':coast&&r4<.55&&Math.abs(lat)<30?'palm':(ea&&r4<.35?'conifer':'broad');p.push(ws?1:ea?2:0);add(kind,eras,p);
+  let kind=cold?'conifer':coast&&r4<.55&&Math.abs(lat)<30?'palm':(ea&&r4<.35?'conifer':'broad');p.push(ws?1:ea?2:0);add(kind,eras,p);(sp.q2T=sp.q2T||[]).push(lat,lon);
   // the long winter: the same woods stand bare or heavy with snow
   if(!so)add(kind==='broad'||kind==='palm'?'dead':'conifer',[4],p.concat(['snow']))}
  const tintOf=(p,kind)=>{const r=p[3],reg=p[4];if(p[5]==='snow')return kind==='conifer'?C('#e8eef2').lerp(C('#3a5a44'),r*.35):C('#5a4e40');

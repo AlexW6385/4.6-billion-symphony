@@ -74,6 +74,7 @@ function roadNet(sp,pairs,eras,o){o=o||{};const gh=sp.gh,Rn=rnd(o.seed||3131);co
    pos.push(...q.p.clone().addScaledVector(S,w/R).normalize().multiplyScalar(r).toArray(),...q.p.clone().addScaledVector(S,-w/R).normalize().multiplyScalar(r).toArray());
    if(i<pts.length-1&&q.h>.4&&nx.h>.4)idx.push(base,base+2,base+1,base+1,base+2,base+3);path.push(q.p.clone().multiplyScalar(r+.35));
    if(i%2===0&&q.h>.4)lamps.push(q.p.clone().addScaledVector(S,(w*1.6)/R).normalize().multiplyScalar(r+1.1))}
+  for(let i=1;i<pts.length;i++)(sp.q2Lines=sp.q2Lines||[]).push({a:pts[i-1].p,b:pts[i].p,w:w*1.6/(R*D2R),eras});// the ground keeps flat and grassless under the road
   paths.push(path)}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
  const nr=g.attributes.normal.array;for(let k=0;k<nr.length;k+=3){const l=Math.hypot(pos[k],pos[k+1],pos[k+2]);nr[k]=pos[k]/l;nr[k+1]=pos[k+1]/l;nr[k+2]=pos[k+2]/l}g.computeBoundingSphere();

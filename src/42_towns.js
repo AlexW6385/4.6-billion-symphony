@@ -173,7 +173,8 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
    const W2=7+Rn()*8,L2=9+Rn()*10,nx=8,nz=10;const g=new THREE.PlaneGeometry(W2,L2,nx,nz);g.rotateX(-Math.PI/2);const pp=g.attributes.position,cs=[];const c1=C(cols[(Rn()*5)|0]),c2=c1.clone().multiplyScalar(.75);
    const ob=new THREE.Object3D();frameLL(sp,fl,fo,0,a,ob);ob.updateMatrixWorld();const v=V3();
    for(let i=0;i<pp.count;i++){v.set(pp.getX(i),0,pp.getZ(i)).applyMatrix4(ob.matrixWorld);const ll=llDir(v);const hh=Math.max(gh(ll[0],ll[1]),.3)+.15;v.normalize().multiplyScalar(R+hh);pp.setXYZ(i,v.x,v.y,v.z);const row=Math.floor((pp.getZ?0:0)+i/(nx+1))%2;const c=row?c1:c2;cs.push(c.r,c.g,c.b)}
-   g.setAttribute('color',new THREE.Float32BufferAttribute(cs,3));g.computeVertexNormals();g.computeBoundingSphere();const m=new THREE.Mesh(g,fm);m.material.polygonOffset=true;m.material.polygonOffsetFactor=-1;addTo(sp,m,eras,!!o.noCarry);cull(m,g.boundingSphere.center,g.boundingSphere.radius,1400)}}
+   g.setAttribute('color',new THREE.Float32BufferAttribute(cs,3));g.computeVertexNormals();g.computeBoundingSphere();{const dg=Math.hypot(W2,L2)*.5/(R*D2R);(sp.entClr=sp.entClr||[]).push({d:dirLL(fl,fo),deg:dg,cs:Math.cos(dg*D2R),eras:o.eras||null})}// no grass or bumps through the crops
+   const m=new THREE.Mesh(g,fm);m.material.polygonOffset=true;m.material.polygonOffsetFactor=-1;addTo(sp,m,eras,!!o.noCarry);cull(m,g.boundingSphere.center,g.boundingSphere.radius,1400)}}
  // a harbour: piers into the water and boats at anchor
  if(o.port){const piers=[],boats=[];for(let i=0;i<40&&piers.length<(o.port|0||6);i++){const a=Rn()*Math.PI*2;const d=r*(.6+Rn()*.7);const [l2,o2]=P(a,d);const h=gh(l2,o2);if(h>1.4||h<-4)continue;
    const [l3,o3]=P(a,d-.12);if(gh(l3,o3)<1.2)continue;piers.push([l3,o3,0,a]);for(let b=0;b<2;b++)boats.push([l2+(Rn()-.5)*.15,o2+(Rn()-.5)*.15/cosl,0,Rn()*6.28])}

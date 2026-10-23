@@ -363,16 +363,16 @@ function makeCover(sp,biomeFn){COVERG=COVERG||coverGeos();
   if(!job){last={d:tg.clone(),rd:rdD};lastEra=ERA;
    const cells=86,cs=rdD*2/cells;const la0=Math.floor((rig.a-rdD)/cs),lo0s=rdD/Math.max(.2,Math.cos(rig.a*D2R));const lcs=cs/Math.max(.2,Math.cos(rig.a*D2R));const lo0=Math.floor((rig.b-lo0s)/lcs);
    const clr=(sp.entClr||[]).filter(e=>(!e.eras||e.eras.includes(ERA))&&angDeg(e.d,tg)<rdD+e.deg*1.5);
-   job={j:0,cells,cs,la0,lo0,lcs,rdD,tg:tg.clone(),clr,era:ERA,acc:groups.map(()=>[])}}
+   job={j:0,cells,cs,la0,lo0,lcs,rdD,tg:tg.clone(),clr,era:ERA,acc:groups.map(()=>[]),lines:sp.q2Lines?q2_lines(sp,tg,rdD):null}}
   const J=job,jEnd=Math.min(job.cells,job.j+18);const tg2=J.tg,rd2=J.rdD,cs=J.cs,lcs=J.lcs,clr=J.clr,acc=J.acc,cells=J.cells;
   while(J.j<cells){const j=J.j++;for(let i=0;i<cells;i++){const ci=J.la0+j,cj=J.lo0+i;const hx=h3(ci*.37,cj*.61,7.1),hy=h3(ci*.71,cj*.19,3.3);
     const la=(ci+hx)*cs,lo=(cj+hy)*lcs;if(la>86||la<-86)continue;dirLL(la,lo,d);const ad=angDeg(d,tg2);if(ad>rd2)continue;if(clr.length){let sk=0;for(const e of clr)if(e.d.dot(d)>e.cs){sk=1;break}if(sk)continue}
-    const h=sp.ghRaw(la,lo);if(h<1.2)continue;for(const k in W)W[k]=0;biomeFn(d,h,la,J.era,W);
-    for(let gi=0;gi<groups.length;gi++){const g=groups[gi];const w=W[g.k]||0;if(w<=0)continue;const hz=h3(ci*1.3+gi*7.7,cj*.9+gi*3.1,gi*1.9);if(hz<w)acc[gi].push([la,lo,h,ad,hz/w,W[g.k+'C']])}}
+    const h=sp.ghRaw(la,lo);if(h<1.2)continue;if(J.lines&&q2_onLine(J.lines,d))continue;for(const k in W)W[k]=0;biomeFn(d,h,la,J.era,W);
+    for(let gi=0;gi<groups.length;gi++){const g=groups[gi];const w=W[g.k]||0;if(w<=0)continue;const hz=h3(ci*1.3+gi*7.7,cj*.9+gi*3.1,gi*1.9);if(hz<w&&!(gi===0&&ad<(sp.q2gr||0)))acc[gi].push([la,lo,h,ad,hz/w,W[g.k+'C']])}}
    if(J.j>=jEnd&&J.j<cells&&!window.__coverSync)return}
   job=null;
   groups.forEach((g,gi)=>{let L=acc[gi];if(L.length>g.n){L.sort((a,b)=>a[3]-b[3]);L=L.slice(0,g.n)}const im=g.im;const sc0=clamp(cs*R*D2R*.55,.8,6);
-   L.forEach((p,i)=>{frameLL(sp,p[0],p[1],-.12,p[4]*6.28,o3);const s=sc0*lerp(g.s[0],g.s[1],(p[4]*7.3)%1);o3.scale.setScalar(s);o3.updateMatrix();im.setMatrixAt(i,o3.matrix);
+   L.forEach((p,i)=>{frameLL(sp,p[0],p[1],-.12+(sp.q2?q2dh(sp,p[0],p[1]):0),p[4]*6.28,o3);const s=sc0*lerp(g.s[0],g.s[1],(p[4]*7.3)%1);o3.scale.setScalar(s);o3.updateMatrix();im.setMatrixAt(i,o3.matrix);
     {const cs2=p[5]||'#ffffff';let c=CVC.get(cs2);if(!c){c=new THREE.Color(cs2);CVC.set(cs2,c)}T2.copy(c)}T2.offsetHSL(((p[4]*13.1)%1-.5)*.03,0,((p[4]*5.7)%1-.5)*.12);im.setColorAt(i,T2)});
    im.count=L.length;im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;im.visible=L.length>0})}};
  sp.cover=cover;return cover}
