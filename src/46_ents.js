@@ -237,7 +237,7 @@ function entryModels(sp){const have=new Set(sp.prox.map(p=>p.w.id));const placed
   const m=mote(w);m.position.copy(c);m.visible=false;m.userData.w=w;sp.scene.add(m);(sp.motes=sp.motes||[]).push(m);
   (sp.entL=sp.entL||[]).push({root:b.root,m,c,r:b.r,far:b.o.far||clamp(b.r*80,320,1700)});if(b.tick)anim(sp,b.root,b.tick);
   prox(sp,w.id,c,Math.max(2.2,b.r*.8),{hide:()=>!b.root.visible&&!m.visible,maxD:2400,ent:1,mote:m});sp.entPos[w.id]={c,r:b.r};
-  if(!(b.o.alt>4)){const deg=clamp(b.r*.5/(R*D2R),.04,.5);(sp.entClr=sp.entClr||[]).push({d:c.clone().normalize(),deg,cs:Math.cos(deg*D2R)})}
+  if(!(b.o.alt>4)){const deg=clamp(b.r*.5/(R*D2R),.04,.5);(sp.entClr=sp.entClr||[]).push({d:c.clone().normalize(),deg,cs:Math.cos(deg*D2R),eras:w.e||null})}
   // standing where a canyon is carved later (or filled in, going back in time): ride the ground up and down with it
   if(sp.G&&sp.G.CY&&sp.TU&&!(b.o.alt>4)&&!b.o.sea){const up=c.clone().normalize();const cy=gridSample(sp.G,sp.G.CY,up);if(cy>.5)(sp.entCy=sp.entCy||[]).push({root:b.root,c,m,up,cy,k:sp.TU.uCanyon.value})}});
  if(sp.entCy&&!sp.entCyA){sp.entCyA=1;anim(sp,null,sp.cyStep=()=>{const k=sp.TU.uCanyon.value;for(const x of sp.entCy){if(Math.abs(k-x.k)<1e-3)continue;const dh=-(k-x.k)*x.cy;x.k=k;x.root.position.addScaledVector(x.up,dh);x.c.addScaledVector(x.up,dh);x.m.position.addScaledVector(x.up,dh)}})}

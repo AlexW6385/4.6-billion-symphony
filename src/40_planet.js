@@ -311,7 +311,7 @@ function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'pla
   const day=sm(-.22,.18,sdot);sp.dayK=day;const setK=Math.max(0,1-Math.abs(sdot-.02)*4)*0.9;
   const skyA=1-sm(160,1400,alt);
   // low sun: the light turns gold and amber, the shadow side goes blue
-  {const lo=1-sm(.04,.5,sdot),w=lo*sm(-.2,.02,sdot);sun.color.setRGB(1,.94-.42*w,.85-.62*w);sun.intensity=(cfg.sunI||1.08)*(1-.25*w);hemi.color.copy(sp._hb||(sp._hb=hemi.color.clone())).lerp(_warmH,w*.45);sp.goldK=w}
+  {const lo=1-sm(.04,.5,sdot),w=lo*sm(-.2,.02,sdot);sun.color.setRGB(1,.94-.42*w,.85-.62*w);sun.intensity=(cfg.sunI||1.08)*(1-.25*w)*(.04+.96*day);hemi.intensity=.2*(.35+.65*day);hemi.color.copy(sp._hb||(sp._hb=hemi.color.clone())).lerp(_warmH,w*.45);sp.goldK=w}
   shadowFollow(sp,sun,sdot);
   tmpc.copy(SK.nh).lerp(SK.hor,day).lerp(SK.set,setK*day*.8);const hor=tmpc.clone();tmpc.copy(SK.nz).lerp(SK.zen,day);const zen=tmpc.clone();
   const su=sky.material.uniforms;su.uSun.value.copy(sp.sunDir);su.uUp.value.copy(cu);su.uZen.value.copy(zen);su.uHor.value.copy(hor);om.uniforms.uSky.value.copy(hor);om.uniforms.uSkyZ.value.copy(zen);om.uniforms.uSkyLive.value=1;su.uA.value=skyA;su.uDip.value=Math.sqrt(Math.max(0,1-(R/cl)*(R/cl)));sky.visible=skyA>.01;sky.position.copy(camera.position);
