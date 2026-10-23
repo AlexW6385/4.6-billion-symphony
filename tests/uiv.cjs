@@ -20,7 +20,7 @@ const log=(...a)=>console.log(...a);let nShot=0;
   if(u.includes('fonts.g'))return r.fulfill({body:'',contentType:'text/css'});
   return r.continue()});
  const ev=(f,a)=>p.evaluate(f,a);const wait=async ms=>{const n=Math.max(1,Math.round(ms/50));for(let i=0;i<n;i+=10)await p.evaluate(k=>{for(let j=0;j<k;j++)window.__step(50)},Math.min(10,n-i))};
- const shot=async n=>{const f=`${OUT}/${String(++nShot).padStart(2,'0')}_${n}.jpg`;await p.evaluate(()=>{window.__noRender=false;window.__step(50);window.__step(50)});await p.screenshot({path:f,type:'jpeg',quality:85});await p.evaluate(()=>{window.__noRender=true});return f};
+ const shot=async n=>{const f=`${OUT}/${String(++nShot).padStart(2,'0')}_${n}.jpg`;await p.evaluate(()=>{window.__noRender=false;window.__step(50);window.__step(50)});await p.screenshot({path:f,type:'jpeg',quality:85,timeout:150000});await p.evaluate(()=>{window.__noRender=true});return f};
  const ok=(name,cond,info)=>log((cond?'PASS ':'FAIL ')+name+(info!==undefined?' :: '+JSON.stringify(info).slice(0,300):''));
  const vis=sel=>ev(s=>{const e=document.querySelector(s);if(!e)return false;const r=e.getBoundingClientRect();const cs=getComputedStyle(e);return r.width>0&&r.height>0&&cs.visibility!=='hidden'&&+cs.opacity>.05},sel);
  const click=async sel=>{const e=await p.$(sel);if(!e){log('NOSEL '+sel);return false}if(MOB)await e.tap().catch(async()=>{await e.click({force:true})});else await e.click().catch(async x=>{log('CLICKERR '+sel+' '+String(x).slice(0,120));await e.click({force:true})});return true};

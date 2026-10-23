@@ -145,7 +145,7 @@ const STREETKIT={
   crate:G([[kb(1.4,.9,.9),'#c8d0d8',{p:[0,.45,0]}],[kb(1.1,.4,.06),'#6ad0ff',{p:[0,.6,.46]}],[kcy(.3,.3,1,10),'#3a4a5a',{p:[1,.5,0]}]]),
   plot:G([[kb(3.4,.1,2.4),'#3a4044',{p:[0,.05,0]}],...[-1.1,0,1.1].map(x=>[kb(.12,.02,2),'#f4f4f4',{p:[x,.11,0]}])])}};
 function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp.ghRaw,gs=sp.gh;const st=TOWNKIT[o.style||'dragon'];const rfs=o.roof?[o.roof]:st.roof.slice(0,2);const KS=rfs.map(c=>{const K=st.kits(c);const L=Array.isArray(K)?[[K[0]],[K[1]],[K[2]]]:[K.s,K.m,K.t];return o.noPlinth?L:L.map(LL=>LL.map(g=>withPlinth(g,o.plinthC)))});const r=o.r||2;const eras=o.eras||null;
- const tm=towerMat({metalness:o.style==='silver'?.55:.08,roughness:o.style==='silver'?.35:.85,win:o.win||'#ffd890'});sp.towerMats=(sp.towerMats||[]).concat([tm]);
+ const tm=towerMat({metalness:o.style==='silver'?.55:.08,roughness:o.style==='silver'?.35:.85,win:o.win||'#ffd890',kit:o.style||'dragon'});sp.towerMats=(sp.towerMats||[]).concat([tm]);
  const cosl=Math.max(.2,Math.cos(la*D2R));const P=(a,d)=>[la+Math.cos(a)*d,lo+Math.sin(a)*d/cosl];
  const nSt=o.streets||5,stA=Array.from({length:nSt},(_,i)=>i/nSt*Math.PI*2+Rn()*.3);const onStreet=(a,d)=>stA.some(s=>{let x=Math.abs(((a-s+Math.PI*3)%(Math.PI*2))-Math.PI);return x*d<.13});
  // houses: rings out from the square, facing it, never on a street or a slope or in the water

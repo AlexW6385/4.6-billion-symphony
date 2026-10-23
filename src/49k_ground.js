@@ -14,7 +14,7 @@ const Q2T=[
  {grass:9000,flw:190,pr:118,pn:112,rg:.85,nrm:1,fine:1},
  {grass:4000,flw:90,pr:84,pn:80,rg:.7,nrm:0,fine:1},
  {grass:0,flw:0,pr:0,pn:0,rg:0,nrm:0,fine:0}];
-const Q2Q={value:new THREE.Vector4(1,1,0,0)};                 // x: close detail texture, y: detail normal
+const Q2Q={value:new THREE.Vector4(1,1,1,0)};                 // x: close detail texture, y: detail normal, z: rock structure (step 3)
 const Q2SUN={value:V3(1,0,0)},Q2SUNC={value:new THREE.Color(0,0,0)};
 const Q2A={patch:170,grass:95};                                // highest camera that still gets the patch / the grass
 function q2_tier(){if(window.__q2tier!==undefined)return window.__q2tier;const l=(typeof perf!=='undefined'&&perf?perf.lvl:0)+(COARSE?1:0);return Math.min(3,l|0)}
@@ -107,11 +107,38 @@ const Q2_GLSL_COLOR=`#include <color_fragment>
  // rock: plates and cracks, faint strata along the height
  float fw=length(fwidth(vOP));float bF=1.-smoothstep(.005,.016,fw),bM=1.-smoothstep(.035,.11,fw);
  float strata=(sin(vH*.9+nL*7.+q2M.a*2.5)*.5+.5)*(1.-smoothstep(.06,.2,fw));
+ float crev=0.,seam=0.;
+ if(uQ.z>.5){
+ // (step 3) rock with structure: layered strata, sharp crevices, weathered pale tops, dark wet feet, scree below
+ vec3 rc0=mix(uRock,c,.14)*1.1;rc0=mix(vec3(dot(rc0,vec3(.33))),rc0,.72);
+ rc0*=mix(vec3(1.05,1.01,.95),vec3(.95,.98,1.03),smoothstep(.3,.7,q2L.a))*(.92+.16*q2L.a);
+ // strata: bands along a warped height, each layer its own shade, a groove under some layers with a lit lip over it, fine laminae inside
+ float sw=vH+(nL-.5)*7.+(q2M.a-.5)*1.8;float sl1=sw*.36;float li=floor(sl1),lf=fract(sl1);float lh=fract(sin(li*91.7+uFreq*13.1)*43758.5453),lh2=fract(sin(li*37.3+5.1)*1731.7);
+ float upF=dot(nT,rn);float vfc=smoothstep(.3,.65,1.-abs(upF));// (seams only on steep faces: on a flat top one layer boundary would smear into a broad band)
+ float fws=fwidth(sl1);float aaS=1.-smoothstep(.08,.3,fws);float sW=max(.05,fws*1.6);
+ seam=(1.-smoothstep(0.,sW,lf))*aaS*vfc*(.35+.65*step(.4,lh2));float lip=smoothstep(sW,sW*2.,lf)*(1.-smoothstep(sW*2.,sW*4.,lf))*aaS*vfc*step(.4,lh2);
+ float lam=(sin(sw*3.3+q2F.a*2.)*.5+.5)*(1.-smoothstep(.02,.09,fw));
+ vec3 layer=mix(vec3(.84,.86,.9),vec3(1.14,1.07,.95),lh)*(.97+.06*lam);
+ // crevices: thin cracks along the peaks of the ridged channel, sharp up close
+ float crM=smoothstep(.84,.95,q2M.g)*(1.-smoothstep(50.,180.,dd)),crF=smoothstep(.8,.95,q2F.g)*bF;
+ crev=max(crM,crF*.6);
+ vec3 rc=rc0*mix(vec3(1.),layer,aaS*.9+.1)*(.86+.26*q2M.g)*(.92+.14*q2L.g)*(.94+.12*q2F.g);
+ rc*=(1.-seam*.22)*(1.+lip*.12)*(1.-crev*.22);
+ // the tops of ledges and the high rock weather pale; the foot of the cliffs by the water is dark and wet
+ float topW=smoothstep(.5,.85,upF)*(.6+.4*q2M.a)+smoothstep(30.,140.,vH)*.25;
+ rc=mix(rc,mix(vec3(dot(rc,vec3(.33))),rc,.55)*1.22,clamp(topW,0.,1.)*.7);
+ float wetB=(1.-smoothstep(.4,3.2,vH+(q2M.a-.5)*1.2))*smoothstep(-.5,.8,vH);rc=mix(rc,rc*vec3(.56,.6,.6),wetB*.75);
+ col=mix(col,rc,rk);
+ // scree: a fringe of broken stone below the rock, pebbly up close
+ float scr=smoothstep(.09,.17,slope+(q2M.g-.5)*.12+(q2L.a-.5)*.1)*(1.-rk)*land*uRockK*(1.-veg*.45)*(1.-sand*.6)*(1.-snow);
+ vec3 sc=mix(rc0*1.08,c,.25)*(.8+.4*q2F.b)*(.9+.2*q2M.b);col=mix(col,sc,scr*.75);
+ q2wet=max(q2wet,wetB*rk*.8);rk=max(rk,scr*.4);
+ }else{
  vec3 rc0=mix(uRock,c,.38);rc0=mix(vec3(dot(rc0,vec3(.33))),rc0,.6);
  // big warm and cool patches, crevice networks at two scales, lighter and darker layers
  rc0*=mix(vec3(1.05,1.01,.94),vec3(.94,.98,1.04),smoothstep(.3,.7,q2L.a))*(.9+.2*q2L.a);
  vec3 rc=rc0*(.74+.44*q2M.g)*(.88+.22*q2L.g)*(.9+.2*q2F.g)*mix(.9,1.1,strata)*mix(vec3(1.),vec3(1.06,1.,.92),strata*.6);
- col=mix(col,rc,rk);
+ col=mix(col,rc,rk);}
  // snow: smooth, a little blue in the shade of every bump
  float hs=smoothstep(uSnow-10.,uSnow+8.,vH+(nL-.5)*34.)*(1.-rk*.5);
  q2sn=max(snow*(1.-rk*.6),hs);
@@ -119,7 +146,7 @@ const Q2_GLSL_COLOR=`#include <color_fragment>
  diffuseColor.rgb=col;
  // the detail normal only from texels clearly bigger than a pixel (finer ones would shimmer in 2x2 blocks)
  // heights for the detail normal, kept to gentle slopes (amplitude well under the feature size, or the light breaks up)
- q2hh=(((q2F.a-.5)*.05*(1.-sand*.5)+rk*(q2F.g-.5)*.04)*bF+((q2M.a-.5)*.3*(1.-sand)+rk*((q2M.g-.5)*.32+strata*.05))*bM+rk*(q2L.g-.5)*1.1)*(1.-q2sn*.7)*(1.-pud);
+ q2hh=(((q2F.a-.5)*.05*(1.-sand*.5)+rk*(q2F.g-.5)*.04)*bF+((q2M.a-.5)*.3*(1.-sand)+rk*((q2M.g-.5)*.32+strata*.05))*bM+rk*(q2L.g-.5)*1.1-rk*(crev*.12+seam*.18)*bM)*(1.-q2sn*.7)*(1.-pud);
 #ifdef IS_PLANET
  {vec3 cq=rn*11.+vec3(uT*.011,uT*.004,uT*.007);float cs=smoothstep(.5,.8,fb3(cq))*(1.-smoothstep(500.,2200.,dd))*land;diffuseColor.rgb*=1.-cs*.18;}
  float cs=smoothstep(.46,.72,fb3(vOP*.0105+vec3(uT*.012,uT*.003,uT*.008)));diffuseColor.rgb*=1.-cs*.2*land*(1.-smoothstep(350.,1500.,dd));
