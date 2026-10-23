@@ -104,15 +104,15 @@ function q5s_warm(sp){const sc=sp.scene;if(sc.__q5warm===q5s_adds(sc))return;sc.
 /* ---- quality control, steadier: a level goes down only after two slow windows in a row, comes back only after six fast ones,
    never within 4 s of a world or age change, and a level that was just left for being slow is not tried again for a minute
    (twice as long each time it flips back). resolution (and so the render targets) only changes when the level's resolution differs ---- */
-applyLevel=function(){const L=perf.lvl,p0=PR;PR=Math.min(PR0,[PR0,1.5,1.25,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}if(PR!==p0)resize()};
+applyLevel=function(){const L=perf.lvl,p0=PR;PR=Math.min(PR0,[PR0,1.3,1.15,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}if(PR!==p0)resize()};
 adapt=function(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}const now=q5s_now();if(now-q5s_swT<4000){perf.t=0;perf.n=0;perf.slow=0;perf.bad=0;return}
  perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
  const up=perf.q5up||(perf.q5up={});perf.bad=perf.bad||0;perf.good=perf.good||0;
- if((fps<34||slow>=8)&&perf.lvl<4){perf.good=0;if(++perf.bad>=2){perf.bad=0;up[perf.lvl]=now;perf.lvl++;perf.hold=1;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,why:'slow'})}}
+ if((fps<Q5DOWN||slow>=8)&&perf.lvl<4){perf.good=0;if(++perf.bad>=2){perf.bad=0;up[perf.lvl]=now;perf.lvl++;perf.hold=1;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,why:'slow'})}}
  else if(fps>56&&slow<=1&&perf.lvl>0){perf.bad=0;const back=perf.lvl-1,wait=60000*Math.pow(2,perf.q5osc||0);if(up[back]&&now-up[back]<wait){perf.good=0;return}
   if(++perf.good>=6){perf.good=0;if(up[back])perf.q5osc=(perf.q5osc||0)+1;perf.lvl--;perf.hold=2;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,why:'fast'})}}
- else{perf.good=0;if(!(fps<34||slow>=8))perf.bad=0}};
-/* a modest phone starts one step down (a phone already caps its resolution at 1.5 and its shadow map at 1024) */
+ else{perf.good=0;if(!(fps<Q5DOWN||slow>=8))perf.bad=0}};
+/* a modest phone starts one step down (a phone already caps its resolution at 1.3, its shadow map at 1024, and its detail two steps below the best) */
 if(COARSE&&((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)))setTimeout(()=>{if(perf.lvl===0){perf.lvl=1;applyLevel();q5s_log('level',{to:1,why:'phone'})}},0);
 
 /* ---- a lost WebGL context: the loop stops, a quiet notice shows, the picture comes back on restore (three.js rebuilds its

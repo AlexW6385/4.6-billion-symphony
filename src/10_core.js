@@ -137,7 +137,7 @@ const bumpDummy=new THREE.DataTexture(new Uint8Array([128,128,128,255]),1,1);bum
 const canvas=$('#c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
 // sharp on a desktop screen (up to 2 device pixels per point), a little softer on phones; the quality steps lower it when slow
-const COARSE=matchMedia('(pointer:coarse)').matches;let PR=Math.min(window.devicePixelRatio||1,COARSE?1.5:2);renderer.setPixelRatio(PR);
+const COARSE=matchMedia('(pointer:coarse)').matches;let PR=Math.min(window.devicePixelRatio||1,COARSE?1.3:1.5);renderer.setPixelRatio(PR);
 renderer.toneMapping=THREE.NoToneMapping;renderer.outputEncoding=THREE.LinearEncoding;
 /* near shadows: only the planet sun casts, its shadow box follows the spot you look at and is redrawn every other frame (see shadowFollow) */
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
@@ -154,8 +154,8 @@ const FinalShader={uniforms:{tDiffuse:{value:null},uVig:{value:.5},uTime:{value:
 let composer=null,renderPass=null,bloomPass=null,finalPass=null,fxaaPass=null;
 function initPost(){if(!POST.on)return;try{const w=innerWidth,h=innerHeight;const half=renderer.capabilities.isWebGL2;
  const ro={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:half?THREE.HalfFloatType:THREE.UnsignedByteType};
- // real edge smoothing (4x multisampling) where the GPU can, instead of the blur of FXAA
- let rt=null;if(half&&!COARSE&&THREE.WebGLMultisampleRenderTarget){try{rt=new THREE.WebGLMultisampleRenderTarget(w*PR,h*PR,ro);rt.samples=4;POST.msaa=true}catch(e){rt=null}}
+ // real edge smoothing (multisampling: 4x on an ordinary screen, 2x on a dense one) where the GPU can, instead of the blur of FXAA
+ let rt=null;if(half&&!COARSE&&THREE.WebGLMultisampleRenderTarget){try{rt=new THREE.WebGLMultisampleRenderTarget(w*PR,h*PR,ro);rt.samples=PR>1.25?2:4;POST.msaa=true}catch(e){rt=null}}
  if(!rt)rt=new THREE.WebGLRenderTarget(w*PR,h*PR,ro);
  composer=new THREE.EffectComposer(renderer,rt);renderPass=new THREE.RenderPass(new THREE.Scene(),camera);composer.addPass(renderPass);
  bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(w,h),.62,.5,.93);composer.addPass(bloomPass);

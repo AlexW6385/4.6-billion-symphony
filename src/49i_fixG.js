@@ -118,7 +118,9 @@ function fxG_homeTree(sp){const g=new THREE.Group();const Rn=rnd(2425);const H=1
   lg.setAttribute('color',new THREE.Float32BufferAttribute(cs,3));lg.deleteAttribute('uv');lg.computeVertexNormals();
   const cap=new THREE.Mesh(lg,detailMat(VC({roughness:.9,side:THREE.DoubleSide}),{bump:1.3,freq:2}));g.add(cap);
   const cl=[];for(let i=0;i<120;i++){const a=Rn()*6.283,r=18+Rn()*15,y=H-4+Rn()*14-Math.max(0,r-28)*.9;const s=2.4+Rn()*3.2;cl.push([tg(new THREE.IcosahedronGeometry(1,1),{p:[Math.cos(a)*r,y,Math.sin(a)*r],s:[s,s*.6,s]}),Rn()<.5?'#3a7a44':'#2f6a3c'])}
-  g.add(new THREE.Mesh(mergeColored(cl),swayMat({roughness:.85},.002)))}
+  // the sway grows with the square of the height in the mesh's own frame, so the leaf clumps are built round a point just
+  // under the cap: they only rustle (a few tenths of a unit at the top), they do not swing the whole crown
+  const lm=new THREE.Mesh(mergeColored(cl).translate(0,-(H-10),0),swayMat({roughness:.85},.0007));lm.position.y=H-10;g.add(lm)}
  // the lake at the bottom of the pit, and the river spilling over the rim on the north side and falling down the trunk side
  {const lk=new THREE.Mesh(new THREE.CircleGeometry(8.4,32),lakeMat);lk.rotation.x=-Math.PI/2;lk.position.y=H-10.2;g.add(lk);
   const fm=fxG_fallMat();const P=[[11,H+12.6],[18,H+13.2],[25,H+12.4],[31,H+8.6],[34,H+3.5]];const w=4.2;

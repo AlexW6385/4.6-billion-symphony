@@ -17,7 +17,7 @@ const Q2T=[
 const Q2Q={value:new THREE.Vector4(1,1,1,0)};                 // x: close detail texture, y: detail normal, z: rock structure (step 3)
 const Q2SUN={value:V3(1,0,0)},Q2SUNC={value:new THREE.Color(0,0,0)};
 const Q2A={patch:170,grass:95};                                // highest camera that still gets the patch / the grass
-function q2_tier(){if(window.__q2tier!==undefined)return window.__q2tier;const l=(typeof perf!=='undefined'&&perf?perf.lvl:0)+(COARSE?1:0);return Math.min(3,l|0)}
+function q2_tier(){if(window.__q2tier!==undefined)return window.__q2tier;const l=(typeof perf!=='undefined'&&perf?perf.lvl:0)+(COARSE?1:0)+Q5OFF();return Math.min(3,l|0)}
 
 /* ---- small value noise from a table (cheap enough to run per vertex at build time) ---- */
 const Q2N=(()=>{const t=new Float32Array(32768),Rn=rnd(7717);for(let i=0;i<t.length;i++)t[i]=Rn();return t})();

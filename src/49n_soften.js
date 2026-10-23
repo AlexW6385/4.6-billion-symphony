@@ -12,18 +12,17 @@
    ================================================================ */
 
 /* ---- quality: 0 best .. 3 lowest; phones one step down ---- */
-function q4b_tier(){if(window.__q4btier!==undefined)return window.__q4btier;const l=(typeof perf!=='undefined'&&perf?perf.lvl:0)+(COARSE?1:0);return Math.min(3,l|0)}
+function q4b_tier(){if(window.__q4btier!==undefined)return window.__q4btier;const l=(typeof perf!=='undefined'&&perf?perf.lvl:0)+(COARSE?1:0)+Q5OFF();return Math.min(3,l|0)}
 
 /* ---------------- 1. geometry: more sides on every round primitive, bevelled boxes ----------------
    called from the top of 10_core.js (hoisted), before any geometry is made. Segment counts of 3 (blades) and 4 (pyramids,
-   square posts) are meant as they are and stay; everything else grows. A phone grows less. */
+   square posts) are meant as they are and stay; everything else grows a little (kept modest: the exhibition runs smooth first). */
 function q4b_geoBoost(){if(q4b_geoBoost.done)return;q4b_geoBoost.done=1;
- const coarse=(()=>{try{return matchMedia('(pointer:coarse)').matches}catch(e){return false}})();
- const up=coarse?(n=>n<=4?n:n<=6?8:n<=9?10:n<=12?12:n):(n=>n<=4?n:n<=6?9:n<=9?12:n<=12?14:n);
+ const up=n=>n<=4?n:n<=6?8:n<=9?10:n<=12?12:n;
  const S=THREE.SphereGeometry;class S2 extends S{constructor(r,w,h,...a){w=w===undefined?8:w;h=h===undefined?6:h;const w2=up(w);const h2=h<=3?h:Math.max(h,Math.round(w2*.6));super(r,w2,h2,...a)}}THREE.SphereGeometry=S2;
  const Cy=THREE.CylinderGeometry;class Cy2 extends Cy{constructor(a,b,h,rs,...r){super(a,b,h,up(rs===undefined?8:rs),...r)}}THREE.CylinderGeometry=Cy2;
  const Co=THREE.ConeGeometry;class Co2 extends Co{constructor(r,h,rs,...a){super(r,h,up(rs===undefined?8:rs),...a)}}THREE.ConeGeometry=Co2;
- const To=THREE.TorusGeometry;class To2 extends To{constructor(r,t,rs,ts,...a){rs=rs===undefined?8:rs;ts=ts===undefined?6:ts;super(r,t,rs<=4?rs:Math.max(rs,coarse?8:10),ts<=4?ts:Math.max(ts,coarse?16:24),...a)}}THREE.TorusGeometry=To2;
+ const To=THREE.TorusGeometry;class To2 extends To{constructor(r,t,rs,ts,...a){rs=rs===undefined?8:rs;ts=ts===undefined?6:ts;super(r,t,rs<=4?rs:Math.max(rs,8),ts<=4?ts:Math.max(ts,16),...a)}}THREE.TorusGeometry=To2;
  const La=THREE.LatheGeometry;class La2 extends La{constructor(p,s,...a){super(p,up(s===undefined?12:s),...a)}}THREE.LatheGeometry=La2;
  const Tu=THREE.TubeGeometry;class Tu2 extends Tu{constructor(p,ts,r,rs,...a){rs=rs===undefined?8:rs;super(p,ts,r,rs<=3?rs:Math.max(rs,8),...a)}}THREE.TubeGeometry=Tu2;
  // a plain box (no segment counts asked for) becomes a bevelled one when it is big enough for the bevel to show

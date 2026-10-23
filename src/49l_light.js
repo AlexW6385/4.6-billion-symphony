@@ -15,7 +15,7 @@ const Q3T=[
  {ao:8,cloud:1,hfog:1,water:1,bld:1},
  {ao:0,cloud:0,hfog:1,water:1,bld:1},
  {ao:0,cloud:0,hfog:0,water:0,bld:0}];
-function q3_tier(){if(window.__q3tier!==undefined)return window.__q3tier;const l=(typeof perf!=='undefined'&&perf?perf.lvl:0)+(COARSE?1:0);return Math.min(3,l|0)}
+function q3_tier(){if(window.__q3tier!==undefined)return window.__q3tier;const l=(typeof perf!=='undefined'&&perf?perf.lvl:0)+(COARSE?1:0)+Q5OFF();return Math.min(3,l|0)}
 const Q3Q={value:new THREE.Vector4(1,1,1,1)};               // x: cloud self-shadow, y: water detail, z: building detail
 
 /* ---------------- near and far follow the view ----------------
