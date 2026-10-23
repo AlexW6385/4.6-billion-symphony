@@ -245,7 +245,7 @@ float sw=sin(uT*1.6+ip.x*.11+ip.z*.13)*.6+sin(uT*2.7+ip.y*.17)*.3+sin(uT*5.3+ip.
    machine is slow it is parked out in space (an empty box: nothing is shadowed, and nothing has to rebuild its shader) */
 function shadowFollow(sp,sun,sdot){const c=sun.shadow.camera,want=SHD.on&&CUR===sp&&rig.alt<SHD.max&&sdot>-.1;
  if(want){const h=clamp(rig.alt*1.5,18,900);if(Math.abs(c.right-h)>h*.1){c.left=-h;c.right=h;c.top=h;c.bottom=-h;c.near=h*.5;c.far=h*10;c.updateProjectionMatrix();sun.shadow.normalBias=h*2/SHD.ms*1.4}if(sun.shadow.mapSize.x!==SHD.ms){sun.shadow.mapSize.set(SHD.ms,SHD.ms);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
-  sun.target.position.copy(S_);sun.position.copy(S_).addScaledVector(sp.sunDir,h*5);sun.userData.pk=false;if(++SHD.f%(SHD.ms>1024?2:3)===0||busy||tw)renderer.shadowMap.needsUpdate=true}
+  sun.target.position.copy(S_);sun.position.copy(S_).addScaledVector(sp.sunDir,h*5);sun.userData.pk=false;if(++SHD.f%(SHD.every||(SHD.ms>1024?2:3))===0||busy||tw)renderer.shadowMap.needsUpdate=true}
  else if(!sun.userData.pk){sun.userData.pk=true;sun.target.position.copy(sp.sunDir).multiplyScalar(40000);sun.position.copy(sun.target.position).addScaledVector(sp.sunDir,600);renderer.shadowMap.needsUpdate=true}}
 /* ---------------- the builder ---------------- */
 function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'planet',sc);BSP=sp;sp.culls=[];sp.cfg=cfg;sp.R=R;

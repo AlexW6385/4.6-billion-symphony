@@ -292,7 +292,8 @@ const perf={t:0,n:0,lvl:0,hold:0};
 /* quality levels: resolution goes first, shadows last, and a level is won back when the frame rate stays high.
    a one-off long frame (a world being built in the background, a shader compiling) is not slowness */
 const PR0=PR;
-function applyLevel(){const L=perf.lvl;PR=Math.min(PR0,[PR0,1.5,1.25,1,.8][L]);SHD.on=L<4;SHD.ms=(L>=3||COARSE)?1024:2048;if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}resize()}
+/* shadows are never switched off: at the low levels they get a smaller map, a shorter reach and fewer redraws instead */
+function applyLevel(){const L=perf.lvl;PR=Math.min(PR0,[PR0,1.5,1.25,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}resize()}
 function adapt(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
  if((fps<34||slow>=8)&&perf.lvl<4){perf.lvl++;perf.hold=1;perf.good=0;applyLevel()}
  else if(fps>56&&slow<=1&&perf.lvl>0){if(++perf.good>=4){perf.lvl--;perf.hold=2;perf.good=0;applyLevel()}}else perf.good=0}
