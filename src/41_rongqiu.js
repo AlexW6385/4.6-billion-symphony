@@ -214,8 +214,9 @@ function rqRocks(sp){const Rn=rnd(3131),gh=sp.ghRaw,d=V3();const kit=[0,1,2].map
  for(let i=0;i<260000;i++){d.set(Rn()*2-1,Rn()*2-1,Rn()*2-1);const l2=d.lengthSq();if(l2>1||l2<.02)continue;d.normalize();const lat=Math.asin(d.y)/D2R,lon=Math.atan2(d.x,d.z)/D2R;const h=gh(lat,lon);if(h<1.5)continue;
   const e1=gh(lat+.2,lon),e2=gh(lat,lon+.2/Math.max(.3,Math.cos(lat*D2R)));const sl=Math.abs(e1-h)+Math.abs(e2-h);
   const w=sm(45,90,h)*.5+sm(2.5,6,sl)*.6+(h<5?sm(.55,.7,fbm(d.x*6-4,d.y*6,d.z*6+1,2))*.5:0);if(w<Rn()*1.7)continue;if(nearEnt('rongqiu',lat,lon,.3))continue;
-  const k=(Rn()*3)|0;const key=k+'|'+Math.round(lat/6)+','+Math.round(lon/6);(groups[key]=groups[key]||{k,pts:[]}).pts.push([lat,lon,h,Rn(),h>60?1:0])}
- let n=0;for(const key in groups){const g=groups[key];inst(kit[g.k],mat,g.pts,(o,p)=>{frameLL(sp,p[0],p[1],-.4,p[3]*6.28,o);const s=.8+Math.pow(p[3],3)*4.5;o.scale.set(s*(.8+p[3]*.5),s*(.6+((p[3]*5.3)%1)*.6),s)},null,{tint:p=>C(p[4]?'#8a8276':'#7a7064').offsetHSL(0,0,(p[3]-.5)*.18),far:1100});n+=g.pts.length}sp.rockN=n}
+  const k=(Rn()*3)|0;const key=k+'|'+Math.round(lat/6)+','+Math.round(lon/6);(groups[key]=groups[key]||{k,pts:[]}).pts.push([lat,lon,h,Rn(),h>60?1:0,sl])}
+ let n=0;for(const key in groups){const g=groups[key];inst(kit[g.k],mat,g.pts,(o,p)=>{const s=.8+Math.pow(p[3],3)*4.5;frameLL(sp,p[0],p[1],-.4-Math.min(.9,p[5]*.14)*s,p[3]*6.28,o);// (sunk into a slope by its steepness, or it hovers over the downhill side)
+  o.scale.set(s*(.8+p[3]*.5),s*(.6+((p[3]*5.3)%1)*.6),s)},null,{tint:p=>C(p[4]?'#8a8276':'#7a7064').offsetHSL(0,0,(p[3]-.5)*.18),far:1100});n+=g.pts.length}sp.rockN=n}
 
 /* ---------- fair-weather clouds: heaps of soft puffs, lit by the sun from the side it is on ---------- */
 const puffTex=canvasTex(128,128,(x)=>{const Rn=rnd(77);for(let i=0;i<60;i++){const a=Rn()*6.28,r=Math.pow(Rn(),.7)*34,px=64+Math.cos(a)*r,py=60+Math.sin(a)*r*.75,rr=7+Rn()*14*(1-r/40);const g=x.createRadialGradient(px,py,0,px,py,rr);g.addColorStop(0,'rgba(255,255,255,.34)');g.addColorStop(.7,'rgba(255,255,255,.12)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
@@ -224,14 +225,14 @@ function rqCumulus(sp){const Rn=rnd(5150);const pos=[],sz=[],yy=[],d=V3(),up=V3(
  for(let c=0,tries=0;c<170&&tries<20000;tries++){d.set(Rn()*2-1,Rn()*2-1,Rn()*2-1);if(d.lengthSq()>1||d.lengthSq()<.02)continue;d.normalize();const lat=Math.asin(d.y)/D2R;if(Math.abs(lat)>68)continue;
   const cf=fbm(d.x*4.5+7,d.y*4.5,d.z*4.5-3,3);if(cf<.52+Rn()*.08)continue;if(angDeg(d,SEA)<16)continue;c++;
   up.copy(d);nx.set(0,1,0).addScaledVector(up,-up.y);if(nx.lengthSq()<1e-6)nx.set(1,0,0);nx.normalize();ex.copy(nx).cross(up);
-  const cr=26+Rn()*48,base=R+38+Rn()*16,np=34+Math.floor(Rn()*30);
+  const cr=26+Rn()*48,base=R+72+Rn()*22,np=34+Math.floor(Rn()*30);// (the base above the hills: they used to sit on the slopes and in front of them)
   for(let k=0;k<np;k++){const a=Rn()*6.28,r=Math.pow(Rn(),.65)*cr,top=(1-r/cr);const y=Math.pow(top,.9)*cr*.5*(.3+.7*Rn())+Rn()*1.2;
    const q=d.clone().multiplyScalar(base+y).addScaledVector(nx,Math.cos(a)*r).addScaledVector(ex,Math.sin(a)*r*1.3);pos.push(q.x,q.y,q.z);sz.push((70+Rn()*60)*(.6+top*.7));yy.push(clamp(y/(cr*.55+2),0,1))}}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aS',new THREE.Float32BufferAttribute(sz,1));g.setAttribute('aY',new THREE.Float32BufferAttribute(yy,1));g.computeBoundingSphere();
  const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:false,uniforms:{uScale:PSCALE,uSun:{value:sp.sunDir},uTex:{value:puffTex},uAlt:{value:0}},
   vertexShader:`attribute float aS,aY;uniform float uScale,uAlt;uniform vec3 uSun;varying float vL,vY,vA,vS;void main(){vec4 w=modelMatrix*vec4(position,1.);vec4 mv=viewMatrix*w;float d=-mv.z;
    gl_PointSize=clamp(aS*uScale/max(d,1.),1.,1100.);gl_Position=projectionMatrix*mv;vec3 n=normalize(w.xyz);float sl=dot(n,uSun);vS=sl;vL=smoothstep(-.28,.4,sl);vY=aY;
-   vA=smoothstep(30.,140.,d)*(1.-smoothstep(1500.,2300.,d))*(1.-smoothstep(420.,820.,uAlt));}`,
+   vA=smoothstep(60.,200.,d)*(1.-smoothstep(1500.,2300.,d))*(1.-smoothstep(420.,820.,uAlt));}`,
   fragmentShader:`uniform sampler2D uTex;varying float vL,vY,vA,vS;void main(){vec4 t=texture2D(uTex,gl_PointCoord);if(t.a<.01)discard;
    vec3 lit=vec3(1.,.99,.96)*(.38+.62*vL);vec3 sh=vec3(.5,.56,.68)*(.25+.6*vL);vec3 c=mix(sh,lit,.45+.55*vY);c=mix(c,vec3(1.,.72,.52)*(.6+.4*vL),(1.-smoothstep(0.,.3,abs(vS-.05)))*.32);
    gl_FragColor=vec4(c,min(1.,t.a*1.05)*vA*.85);}`});
@@ -352,11 +353,11 @@ function buildRongqiu(){
   const sm2=emitter({n:180,life:8,speed:8,spread:.18,size:8,dir:[0,1,0],col:'#5a5450',col2:'#2a2826',op:.55,add:false,tex:smokeTex,area:[24,2,8],wander:1.5});sm2.position.y=6;g.add(sm2);
   g.add(at(glowSprite('#ff5a2a',70,.6),0,4,0));fr(-26,36,0,0,g,false);g.position.setLength(R+ghR(-26,36)+.3);addE(g,[1,2,3,4,5,6,7,8,9,10,11,12]);cull(g,null,120,2200);px('abyss',g.position.clone().setLength(R-4),40,{maxD:2600})}
  // crystal mountain of the frozen sea: pillars of crystal carrying daylight down into the deep
- {const cmx=new THREE.MeshStandardMaterial({color:'#c9f6ff',emissive:'#4fb7d4',emissiveIntensity:.55,roughness:.08,metalness:.1,flatShading:true,transparent:true,opacity:.93});const g=new THREE.Group();const Rn=rnd(5);
+ {const cmx=new THREE.MeshStandardMaterial({color:'#a9dce8',emissive:'#3f9ab8',emissiveIntensity:.26,roughness:.12,metalness:.1,flatShading:true,transparent:true,opacity:.88});const g=new THREE.Group();const Rn=rnd(5);
   for(let i=0;i<9;i++){const c=new THREE.Mesh(ko(1),cmx);c.scale.set(6-i*.45,46+i*8,6-i*.45);c.position.set((Rn()-.5)*18,6,(Rn()-.5)*18);c.rotation.set((Rn()-.5)*.35,Rn()*3,(Rn()-.5)*.35);g.add(c)}
   for(let i=0;i<40;i++){const c=new THREE.Mesh(ko(1),cmx);const a=Rn()*6.28,d=14+Rn()*20;c.position.set(Math.cos(a)*d,1,Math.sin(a)*d);c.scale.set(1.2,4+Rn()*6,1.2);c.rotation.set((Rn()-.5)*.6,Rn()*3,(Rn()-.5)*.6);g.add(c)}
   const beam=new THREE.Mesh(new THREE.CylinderGeometry(8,22,90,20,1,true),new THREE.MeshBasicMaterial({color:'#bff4ff',transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));beam.position.y=-40;g.add(beam);
-  g.add(sparkles(Array.from({length:120},()=>V3((Rn()-.5)*50,Rn()*80,(Rn()-.5)*50)),'#e8fdff',1.6,1));g.add(at(glowSprite('#bff4ff',120,.35),0,40,0));
+  g.add(sparkles(Array.from({length:120},()=>V3((Rn()-.5)*50,Rn()*80,(Rn()-.5)*50)),'#e8fdff',1.6,1));g.add(at(glowSprite('#bff4ff',90,.16),0,40,0));
   fr(71,34,0,0,g,false);g.position.setLength(R+1);addE(g);cull(g,null,90,3200);px('jjzs',g.position.clone().add(g.position.clone().normalize().multiplyScalar(40)),40)}
  // holes in the ice where the ice-crystal beasts hunt
  {const pts=scatter(26,74,24,6,12);
@@ -583,8 +584,8 @@ function buildRongqiu(){
  // the three-layered sea of clouds, sealed water and light-gas you can run across
  {const layers=[110,128,146];layers.forEach((alt,k)=>{const g=new THREE.Group();const mtl=new THREE.SpriteMaterial({map:smokeTex,color:k===2?'#fffaf0':k===1?'#fff0f8':'#ffffff',transparent:true,opacity:.95,depthWrite:false});const mt2=new THREE.SpriteMaterial({map:glowTex,color:k===1?'#ffd8f0':'#fff4e0',transparent:true,opacity:.35,depthWrite:false,blending:THREE.AdditiveBlending});
    scatter(95,-10,70,11,111+k).forEach((p,i)=>{const s=new THREE.Sprite(i%9===0&&k===1?mt2:mtl);const sz=52+p[3]*55;s.scale.set(sz,sz*.38,1);s.position.copy(dirLL(p[0],p[1]).multiplyScalar(R+alt+p[3]*4));g.add(s)});
-   addE(g,k===0?[5,6,7,8,9,10,11,12]:[5]);cull(g,dirLL(-10,70).multiplyScalar(R+alt),260,7000);const cd=dirLL(-10,70);anim(sp,g,()=>{const dk=sm(-.25,.2,cd.dot(sp.sunDir));mtl.opacity=.55*(1-.55*sm(1100,2000,rig.alt))*(.45+.55*sm(140,600,rig.alt));const LT=k===0?[.74,.8,.95]:k===1?[.97,.9,.96]:[1.04,1,.93];mtl.color.setRGB((.2+.8*dk)*LT[0],(.22+.78*dk)*LT[1],(.3+.7*dk)*LT[2]);mt2.opacity=.35*(1-sm(1100,2000,rig.alt))})});
-  const gl=new THREE.Group();for(let i=0;i<12;i++){const s=glowSprite(i%2?'#ffd0f0':'#fff0c0',60,.35);s.position.set((h3(i,1,7)-.5)*300,0,(h3(i,2,7)-.5)*300);gl.add(s)}fr(-9,69,119,0,gl,false);addE(gl,[5]);cull(gl,null,200,3000);
+   addE(g,k===0?[5,6,7,8,9,10,11,12]:[5]);cull(g,dirLL(-10,70).multiplyScalar(R+alt),260,7000);const cd=dirLL(-10,70);anim(sp,g,()=>{const dk=sm(-.25,.2,cd.dot(sp.sunDir));mtl.opacity=.42*(1-.55*sm(1100,2000,rig.alt))*(.45+.55*sm(140,600,rig.alt));const LT=k===0?[.6,.66,.8]:k===1?[.8,.74,.8]:[.86,.83,.77];mtl.color.setRGB((.2+.8*dk)*LT[0],(.22+.78*dk)*LT[1],(.3+.7*dk)*LT[2]);mt2.opacity=.18*(1-sm(1100,2000,rig.alt))})});
+  const gl=new THREE.Group();for(let i=0;i<12;i++){const s=glowSprite(i%2?'#ffd0f0':'#fff0c0',60,.18);s.position.set((h3(i,1,7)-.5)*300,0,(h3(i,2,7)-.5)*300);gl.add(s)}fr(-9,69,119,0,gl,false);addE(gl,[5]);cull(gl,null,200,3000);
   const huts=scatter(30,-8,69,3,113);inst(new THREE.SphereGeometry(1,10,6,0,6.283,0,1.57),M('#f4f4f0'),huts,(o,p)=>{frameLL(sp,p[0],p[1],148.5,0,o,false);o.scale.setScalar(1.6+p[3])},[5]);
   px('cloudsea',dirLL(-8,68).multiplyScalar(R+130),40,{maxD:3200})}
  // the academy of alloy, on its own mountain beside the great peak, the top just clearing the third layer (the great peak itself is bare rock with a path cut up it)

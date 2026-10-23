@@ -29,7 +29,7 @@ const TOWNKIT={
      G([[kb(4,1.4,4),'#ffffff',{p:[0,.7,0]}],[kb(3,1.4,3),'#ffffff',{p:[0,2.1,0]}],[kb(2,1.4,2),'#ffffff',{p:[0,3.5,0]}],[kc(1.7,1.6,4),rf,{p:[0,5,0],r:[0,.785,0]}],[kb(1,1.6,4.6),'#9a8a70',{p:[0,.8,1.4],r:[-.55,0,0]}],door(0,1.52,.6,.9)]),
      G([[kcy(.9,1,4.4,10),'#ffffff',{p:[0,2.2,0]}],[kcy(1.25,1.1,1.2,10),'#ffffff',{p:[0,5,0]}],[kc(1.5,2,10),rf,{p:[0,6.6,0]}],[kcy(.03,.03,1.6,3),BEAM,{p:[0,8.3,0]}],[kb(.8,.5,.04),'#c84a3a',{p:[.4,8.7,0]}],...[0,1.57,3.14,4.71].map(a=>[kb(.4,.55,.06),WINC,{p:[Math.sin(a)*1.26,5.1,Math.cos(a)*1.26],r:[0,a,0]}])])]})},
  // 白骸龙: pale stone, flat roofs and battlements
- white:{roof:['#8a8478','#7a7468','#9a9488'],wall:['#e8e4d8','#dcd6c8','#f0ece2'],kits:(rf)=>({
+ white:{roof:['#8a8478','#7a7468','#9a9488'],wall:['#d6d2c4','#cac4b6','#dedad0'],kits:(rf)=>({
   s:[G([[kb(2.6,2.6,2.6),'#ffffff',{p:[0,1.3,0]}],[kc(2.1,1.6,4),rf,{p:[0,3.4,0],r:[0,.785,0]}],door(0,1.31,.7,1.3),[kb(.4,.5,.06),WINC,{p:[.8,1.7,1.32]}]]),
      G([[kcy(1.3,1.4,2,12),'#ffffff',{p:[0,1,0]}],[tg(hemi(1.35),{}),'#d8d2c4',{p:[0,2,0]}],door(0,1.36,.6,1.1)]),
      G([[kb(2.2,2,2),'#ffffff',{p:[0,1,0]}],[tg(new THREE.CylinderGeometry(.45,.45,.1,10,1,false,0,Math.PI),{r:[Math.PI/2,0,0]}),DOORC,{p:[0,1.2,1.02]}],door(0,1.02,.9,1.2),...[-.8,0,.8].map(x=>[kb(.5,.35,.5),'#ffffff',{p:[x,2.15,.75]}])])],
@@ -159,6 +159,8 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
  H.flat(2).forEach(L=>L.forEach(p=>{if(smoke.length<(o.smoke||10)&&Rn()<.08)smoke.push(p);if(Rn()<.3)lamps.push(p)}));
  // streets and the square
  const road=new THREE.MeshStandardMaterial({color:o.road||'#9a8a6a',roughness:.95,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+ // the streets and the square keep the near ground's turf and bumps off them (q2_clear reads these lines)
+ {const Q=sp.q2Lines=sp.q2Lines||[];const c0=dirLL(la,lo);Q.push({a:c0,b:c0,w:r*.2,eras:eras});for(const a of stA)Q.push({a:c0,b:dirLL(...P(a,r*1.15)),w:.1,eras:eras})}
  for(const a of stA){const pos=[],idx=[];const n=24;for(let i=0;i<=n;i++){const d=r*1.15*i/n;const [l2,o2]=P(a,d);const c=dirLL(l2,o2);const side=dirLL(...P(a+Math.PI/2,.05)).sub(dirLL(la,lo)).normalize();
    for(const s of[-1,1]){const q=c.clone().addScaledVector(side,s*(.075+i/n*.03)*D2R);q.normalize();const hh=Math.max(gh(...llDir(q)),.2)+.12;q.multiplyScalar(R+hh);pos.push(q.x,q.y,q.z)}if(i<n){const b=i*2;idx.push(b,b+1,b+2,b+1,b+3,b+2)}}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,road);m.material.side=THREE.DoubleSide;addTo(sp,m,eras,!!o.noCarry);g.computeBoundingSphere();cull(m,g.boundingSphere.center,g.boundingSphere.radius,1500)}
@@ -169,8 +171,9 @@ function town(sp,la,lo,o){const Rn=rnd(o.seed||hashStr(o.name||'t'));const gh=sp
   inst(G([[kb(1,2.6,R*D2R*r*1.05*Math.PI*2/n*1.05),'#ffffff',{p:[0,1.1,0]}],[kb(1.3,.4,R*D2R*r*1.05*Math.PI*2/n*1.05),'#e0e0e0',{p:[0,2.5,0]}]]),wm,segs,(ob,p)=>{frameLL(sp,p[0],p[1],-.4,p[3],ob)},eras,{tint:()=>wc,far:1500,noCarry:!!o.noCarry});
   inst(G([[kcy(1.1,1.3,4.4,8),'#ffffff',{p:[0,2,0]}],[kcy(1.4,1.4,.5,8),'#e0e0e0',{p:[0,4.3,0]}],[kc(1.3,1.8,8),'#8a8a8a',{p:[0,5.4,0]}]]),wm,tw,(ob,p)=>{frameLL(sp,p[0],p[1],-.4,p[3],ob)},eras,{tint:()=>wc,far:1500,noCarry:!!o.noCarry})}
  // fields outside the town: striped strips of crops laid on the ground
- if(o.fields){const fm=VC({roughness:.95});const cols=['#a8a050','#7a9a40','#c8b060','#6a8a3a','#9a7a40'];for(let f=0;f<(o.fields|0||8);f++){const a=Rn()*Math.PI*2,d=r*(1.25+Rn()*.6);const [fl,fo]=P(a,d);if(gh(fl,fo)<2)continue;
-   const W2=7+Rn()*8,L2=9+Rn()*10,nx=8,nz=10;const g=new THREE.PlaneGeometry(W2,L2,nx,nz);g.rotateX(-Math.PI/2);const pp=g.attributes.position,cs=[];const c1=C(cols[(Rn()*5)|0]),c2=c1.clone().multiplyScalar(.75);
+ // (drawn with the planet's own ground material, so the rows of crops and ploughed earth take the same light and detail as the turf round them)
+ if(o.fields){const fm=sp.q4aFieldMat||(sp.q4aFieldMat=q4a_fieldMat(sp));const cols=['#8a9a48','#7a8e3c','#9c9452','#6f8a3a','#98884a'],earth=['#6e5e48','#75624a','#665a46'];for(let f=0;f<(o.fields|0||8);f++){const a=Rn()*Math.PI*2,d=r*(1.25+Rn()*.6);const [fl,fo]=P(a,d);if(gh(fl,fo)<2)continue;
+   const W2=7+Rn()*8,L2=9+Rn()*10,nx=8,nz=10;const g=new THREE.PlaneGeometry(W2,L2,nx,nz);g.rotateX(-Math.PI/2);const pp=g.attributes.position,cs=[];const c1=C(cols[(Rn()*5)|0]),c2=C(earth[(Rn()*3)|0]);
    const ob=new THREE.Object3D();frameLL(sp,fl,fo,0,a,ob);ob.updateMatrixWorld();const v=V3();
    for(let i=0;i<pp.count;i++){v.set(pp.getX(i),0,pp.getZ(i)).applyMatrix4(ob.matrixWorld);const ll=llDir(v);const hh=Math.max(gh(ll[0],ll[1]),.3)+.15;v.normalize().multiplyScalar(R+hh);pp.setXYZ(i,v.x,v.y,v.z);const row=Math.floor((pp.getZ?0:0)+i/(nx+1))%2;const c=row?c1:c2;cs.push(c.r,c.g,c.b)}
    g.setAttribute('color',new THREE.Float32BufferAttribute(cs,3));g.computeVertexNormals();g.computeBoundingSphere();{const dg=Math.hypot(W2,L2)*.5/(R*D2R);(sp.entClr=sp.entClr||[]).push({d:dirLL(fl,fo),deg:dg,cs:Math.cos(dg*D2R),eras:o.eras||null})}// no grass or bumps through the crops
@@ -215,4 +218,4 @@ const TOWN_SITES=[
  [11.2,9.0,{name:'v_p',style:'dragon',r:.7,n:20,eras:[6,7,8,9,10,11,12],people:8,pCol:'#3a8a5a',fields:5,towers:0}],
  [-49,-28.6,{name:'mine',style:'dragon',r:.8,n:24,eras:[6,7,8],noCarry:true,people:12,pCol:'#3a8a5a',towers:0}]];
 const TOWNC=TOWN_SITES.map(([la,lo,o])=>[dirLL(la,lo),o.r*1.02]);
-function rqTowns(sp){sp.nightMats=sp.nightMats||[];sp.entClr=sp.entClr||[];for(const [la,lo,o] of TOWN_SITES){const deg=o.r*.92;sp.entClr.push({d:dirLL(la,lo),deg,cs:Math.cos(deg*D2R),eras:o.eras||null})}sp.towns=TOWN_SITES.map(([la,lo,o])=>Object.assign({name:o.name},town(sp,la,lo,o)));rqCityDetail(sp)}
+function rqTowns(sp){sp.nightMats=sp.nightMats||[];sp.entClr=sp.entClr||[];for(const [la,lo,o] of TOWN_SITES){const deg=o.r*.92;sp.entClr.push({d:dirLL(la,lo),deg,cs:Math.cos(deg*D2R),eras:o.eras||null,town:1})}sp.towns=TOWN_SITES.map(([la,lo,o])=>Object.assign({name:o.name},town(sp,la,lo,o)));rqCityDetail(sp)}

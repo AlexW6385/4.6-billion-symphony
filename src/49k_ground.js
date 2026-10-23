@@ -143,6 +143,8 @@ const Q2_GLSL_COLOR=`#include <color_fragment>
  float hs=smoothstep(uSnow-10.,uSnow+8.,vH+(nL-.5)*34.)*(1.-rk*.5);
  q2sn=max(snow*(1.-rk*.6),hs);
  col=mix(col,mix(c,vec3(.9,.94,.97),hs)*(.97+.06*q2M.a)-vec3(.03,.015,0.)*(1.-q2F.b),q2sn);
+ // (snow never goes brighter than the light can keep: it would burn to a flat white)
+ col=mix(col,min(col,vec3(.8,.84,.9))*(.95+.1*(q2M.a-.5)+.04*(q2F.b-.5)),q2sn);
  diffuseColor.rgb=col;
  // the detail normal only from texels clearly bigger than a pixel (finer ones would shimmer in 2x2 blocks)
  // heights for the detail normal, kept to gentle slopes (amplitude well under the feature size, or the light breaks up)
@@ -225,7 +227,7 @@ function q2_patchSys(sp){const tm=sp.terr.material;
  return P}
 function q2_buf(P,k,n){let B=P.buf[k];if(B&&B.n===n)return B;const nv=(n+1)*(n+1);
  B={n,nv,pos:new Float32Array(nv*3),nrm:new Float32Array(nv*3),ca:new Float32Array(nv*3),cb:new Float32Array(nv*3),q:new Float32Array(nv*2),
-  cc:new Float32Array(nv*3),nb:new Float32Array(nv*3),dist:new Float32Array(nv),wE:new Float32Array(nv),dh:new Float32Array(nv),gw:new Float32Array(nv)};
+  cc:new Float32Array(nv*3),nb:new Float32Array(nv*3),dist:new Float32Array(nv),wE:new Float32Array(nv),dh:new Float32Array(nv),gw:new Float32Array(nv),tw:new Float32Array(nv)};
  const idx=new (nv>65535?Uint32Array:Uint16Array)(n*n*6);let q=0;for(let j=0;j<n;j++)for(let i=0;i<n;i++){const a=j*(n+1)+i,b=a+1,c=a+n+1,d=c+1;idx[q++]=a;idx[q++]=c;idx[q++]=b;idx[q++]=b;idx[q++]=c;idx[q++]=d}
  const g=new THREE.BufferGeometry();g.setIndex(new THREE.BufferAttribute(idx,1));
  g.setAttribute('position',new THREE.BufferAttribute(B.pos,3));g.setAttribute('normal',new THREE.BufferAttribute(B.nrm,3));g.setAttribute('color',new THREE.BufferAttribute(B.ca,3));g.setAttribute('aCol2',new THREE.BufferAttribute(B.cb,3));g.setAttribute('aQ',new THREE.BufferAttribute(B.q,2));g.setAttribute('aN0',new THREE.BufferAttribute(B.nb,3));// the sphere's own smooth normal: what the ground is made of follows it, not the bumps
@@ -252,11 +254,11 @@ function q2_jobStart(P,c,T,ti){const sp=P.sp,Gd=sp.G;const back=P.act===0?1:0;co
  const Nn=V3(0,1,0).addScaledVector(c,-c.y);if(Nn.lengthSq()<1e-6)Nn.set(1,0,0);Nn.normalize();const E=Nn.clone().cross(c).negate();
  const rin=Rp*.955-2,alt=Math.max(rig.alt,14);const rg=clamp(26+alt*1.05,36,Rp*.86)*T.rg;
  const degR=(Rp*1.5)/(R*D2R);
- const clr=(sp.entClr||[]).filter(e=>(!e.eras||e.eras.includes(ERA))&&angDeg(e.d,c)<degR+e.deg*2);
+ const clr=(sp.entClr||[]).filter(e=>(!e.eras||e.eras.includes(ERA))&&angDeg(e.d,c)<degR+e.deg*2);const towns=clr.filter(e=>e.town);
  const lines=(sp.q2Lines||[]).filter(l=>(!l.eras||l.eras.includes(ERA))&&(angDeg(l.a,c)<degR+1||angDeg(l.b,c)<degR+1)).map(l=>{const ab=l.b.clone().sub(l.a);const m=l.a.clone().add(l.b).multiplyScalar(.5);
   return{a:l.a,ab,l2:ab.lengthSq()||1e-12,m,rr:(Math.sqrt(ab.lengthSq())*.5+(l.w*2.4+.06)*D2R),w:l.w,lv:l.lv}});
  const lakes=(typeof LAKEZ!=='undefined'?LAKEZ:[]).filter(z=>angDeg(z[0],c)<degR+z[1]*2);
- const J={P,B,n,Rp,r:Rp,rin,rg,C:c.clone(),E,N:Nn,ti,T,alt,clr,lines,lakes,cy:sp.TU.uCanyon.value,era:ERA,row:0,stage:0,gi:0,
+ const J={P,B,n,Rp,r:Rp,rin,rg,C:c.clone(),E,N:Nn,ti,T,alt,clr,towns,lines,lakes,cy:sp.TU.uCanyon.value,era:ERA,row:0,stage:0,gi:0,
   col:sp.sets[sp.ckey],ca:sp.terr.geometry.attributes.color.array,cb:sp.terr.geometry.attributes.aCol2.array,step:q2_jobStep};
  // what grows here: the biome on a coarse grid over the patch (it changes over degrees, not units)
  J.bio=[];const BN=9,W={},d=V3();
@@ -266,7 +268,7 @@ function q2_jobStart(P,c,T,ti){const sp=P.sp,Gd=sp.G;const back=P.act===0?1:0;co
  J.BN=BN;return J}
 // how much of the planned relief is allowed here: none on towns, roads, rivers, lakes and the waterline
 function q2_clear(J,d,h){let w=sm(.8,2.6,h),g=sm(1.25,2.4,h);
- for(const e of J.clr){const a=angDeg(d,e.d);w*=sm(e.deg*.95,e.deg*1.5+.08,a);g*=sm(e.deg*1.02,e.deg*1.14+.02,a)}
+ for(const e of J.clr){const a=angDeg(d,e.d);w*=sm(e.deg*.95,e.deg*1.5+.08,a);const gk=sm(e.deg*1.02,e.deg*1.14+.02,a);g*=e.town?.3+.7*gk:gk}// (a town keeps a third of its turf, short: see q4a_town)
  for(const l of J.lines){// distance to the segment (as a chord, in degrees), after a cheap test against its bounding ball
   const mx=d.x-l.m.x,my=d.y-l.m.y,mz=d.z-l.m.z;if(mx*mx+my*my+mz*mz>l.rr*l.rr)continue;
   let t=((d.x-l.a.x)*l.ab.x+(d.y-l.a.y)*l.ab.y+(d.z-l.a.z)*l.ab.z)/l.l2;t=t<0?0:t>1?1:t;const ex=d.x-l.a.x-l.ab.x*t,ey=d.y-l.a.y-l.ab.y*t,ez=d.z-l.a.z-l.ab.z*t;const a=Math.sqrt(ex*ex+ey*ey+ez*ez)/D2R;
@@ -297,6 +299,8 @@ function q2_jobStep(J){const P=J.P,sp=P.sp,B=J.B,n=J.n,Gd=sp.G,GN=Gd.N,M=Gd.M,H=
    let nx=NR[k*3]*wa+NR[k1*3]*wb+NR[k2*3]*wc+NR[k3*3]*wd,ny=NR[k*3+1]*wa+NR[k1*3+1]*wb+NR[k2*3+1]*wc+NR[k3*3+1]*wd,nz=NR[k*3+2]*wa+NR[k1*3+2]*wb+NR[k2*3+2]*wc+NR[k3*3+2]*wd;const nl=Math.hypot(nx,ny,nz)||1;nx/=nl;ny/=nl;nz/=nl;
    for(let q=0;q<3;q++){B.ca[vi*3+q]=J.ca[k*3+q]*wa+J.ca[k1*3+q]*wb+J.ca[k2*3+q]*wc+J.ca[k3*3+q]*wd;B.cb[vi*3+q]=J.cb[k*3+q]*wa+J.cb[k1*3+q]*wb+J.cb[k2*3+q]*wc+J.cb[k3*3+q]*wd;
     c3[q]=J.col[k*3+q]*ba+J.col[k1*3+q]*bb+J.col[k2*3+q]*bc+J.col[k3*3+q]*bd;B.cc[vi*3+q]=c3[q]}
+   // inside a town the turf is trodden to earth (q4a_town: how much, with a ragged edge), and the colour follows
+   B.tw[vi]=J.towns.length&&wE0>0?q4a_town(J.towns,d):0;if(B.tw[vi]>0)q4a_tread(B,vi,B.tw[vi]);
    const fo=QQ[k*2]*ba+QQ[k1*2]*bb+QQ[k2*2]*bc+QQ[k3*2]*bd,we=QQ[k*2+1]*ba+QQ[k1*2+1]*bb+QQ[k2*2+1]*bc+QQ[k3*2+1]*bd;
    B.q[vi*2]=QQ[k*2]*wa+QQ[k1*2]*wb+QQ[k2*2]*wc+QQ[k3*2]*wd;B.q[vi*2+1]=QQ[k*2+1]*wa+QQ[k1*2+1]*wb+QQ[k2*2+1]*wc+QQ[k3*2+1]*wd;
    // a little relief: bumps and hummocks, more on bare and rocky ground, little on sand, snow, mud or under trees
@@ -334,7 +338,7 @@ function q2_recolour(P){const sp=P.sp,cu=P.cur;if(!cu)return;const B=cu.B,n=cu.n
  for(let vi=0;vi<B.nv;vi++){d.set(B.pos[vi*3],B.pos[vi*3+1],B.pos[vi*3+2]).normalize();const fi=faceOf(d),f=FACES[fi],dn=d.dot(f.n);const a=Math.atan(d.dot(f.u)/dn)*1.2732395,b=Math.atan(d.dot(f.v)/dn)*1.2732395;
   const x=clamp((a+1)*.5*GN,0,GN-1e-4),y=clamp((b+1)*.5*GN,0,GN-1e-4);const ci=x|0,cj=y|0,fx=x-ci,fy=y-cj;const k=fi*M*M+cj*M+ci;const wE=B.wE[vi];
   let ta,tb,tc,td;if(fx+fy<1){ta=1-fx-fy;tb=fx;tc=fy;td=0}else{ta=0;tb=1-fy;tc=1-fx;td=fx+fy-1}const wa=ta+((1-fx)*(1-fy)-ta)*wE,wb=tb+(fx*(1-fy)-tb)*wE,wc=tc+((1-fx)*fy-tc)*wE,wd=td+(fx*fy-td)*wE;
-  for(let q=0;q<3;q++){B.ca[vi*3+q]=ca[k*3+q]*wa+ca[(k+1)*3+q]*wb+ca[(k+M)*3+q]*wc+ca[(k+M+1)*3+q]*wd;B.cb[vi*3+q]=cb[k*3+q]*wa+cb[(k+1)*3+q]*wb+cb[(k+M)*3+q]*wc+cb[(k+M+1)*3+q]*wd}}
+  for(let q=0;q<3;q++){B.ca[vi*3+q]=ca[k*3+q]*wa+ca[(k+1)*3+q]*wb+ca[(k+M)*3+q]*wc+ca[(k+M+1)*3+q]*wd;B.cb[vi*3+q]=cb[k*3+q]*wa+cb[(k+1)*3+q]*wb+cb[(k+M)*3+q]*wc+cb[(k+M+1)*3+q]*wd}if(B.tw[vi]>0)q4a_tread(B,vi,B.tw[vi])}
  B.geo.attributes.color.needsUpdate=true;B.geo.attributes.aCol2.needsUpdate=true}
 /* where the patch puts the ground, relative to the plain height (for things placed on it after it is built) */
 function q2_at(cu,d){const cd=d.dot(cu.C);if(cd<.5)return -1;const x=d.dot(cu.E)/cd*R,y=d.dot(cu.N)/cd*R;if(Math.abs(x)>=cu.r||Math.abs(y)>=cu.r)return -1;
@@ -436,7 +440,7 @@ function q2_grassFill(J){const P=J.P,B=J.B,S=J.gs,out=S.out,W=J.n+1,bk=1-P.ga;co
   const r1=q2h(ia*.37,ib*.29,sd+.5),r2=q2h(ib*.23,ia*.41,sd+2.5),r3=q2h(ia*.17+ib*.11,sd,4.4);
   let ex=-uy*ux,ey=1-uy*uy,ez=-uy*uz;let el=Math.hypot(ex,ey,ez);if(el<1e-4){ex=1;ey=0;ez=0;el=1}ex/=el;ey/=el;ez/=el;const nx=ey*uz-ez*uy,ny=ez*ux-ex*uz,nz=ex*uy-ey*ux;
   const cy=Math.cos(r1*6.283),sy=Math.sin(r1*6.283);const ax=ex*cy+nx*sy,ay=ey*cy+ny*sy,az=ez*cy+nz*sy;const bx=ay*uz-az*uy,by=az*ux-ax*uz,bz=ax*uy-ay*ux;
-  const bi=q2_bio(J,px*J.E.x+py*J.E.y+pz*J.E.z,px*J.N.x+py*J.N.y+pz*J.N.z);const tall=1+bi.tall*1.1;const sw=(.85+.45*r2)*(1+lv*.15),sh=(.36+.46*r3)*tall*(1+lv*.12);
+  const bi=q2_bio(J,px*J.E.x+py*J.E.y+pz*J.E.z,px*J.N.x+py*J.N.y+pz*J.N.z);const twn=L(B.tw,v,fx,fy,0,1);const tall=(1+bi.tall*1.1)*(1-.55*twn);const sw=(.85+.45*r2)*(1+lv*.15),sh=(.36+.46*r3)*tall*(1+lv*.12);
   const o=S.g*16;IM[o]=ax*sw;IM[o+1]=ay*sw;IM[o+2]=az*sw;IM[o+3]=0;IM[o+4]=ux*sh;IM[o+5]=uy*sh;IM[o+6]=uz*sh;IM[o+7]=0;IM[o+8]=bx*sw;IM[o+9]=by*sw;IM[o+10]=bz*sw;IM[o+11]=0;IM[o+12]=px-ux*.04;IM[o+13]=py-uy*.04;IM[o+14]=pz-uz*.04;IM[o+15]=1;
   // the ground colour (with the biome's tint), each clump a little lighter or darker, warmer or cooler
   let cr=L(B.cc,v,fx,fy,0,3),cg=L(B.cc,v,fx,fy,1,3),cb=L(B.cc,v,fx,fy,2,3);if(bi.tc){cr*=bi.tc.r;cg*=bi.tc.g;cb*=bi.tc.b}const lk=1.06*(1+(r3-.5)*.2),wk=(r2-.5)*.08;

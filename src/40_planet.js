@@ -86,12 +86,12 @@ void main(){vec3 p=normalize(vOP);vec4 t=texture2D(uHT,llUV(p));float h=t.r*90.-
  vec3 sky=mix(skyD,skyL*mix(vec3(1.),vec3(1.,.7,.5),gold*pow(max(dot(Rf,uSun),0.)*.5+.5,3.)),uSkyLive);col=mix(col,sky,fres*mix(.55,.8,uSkyLive));
  // light through the near side of a wave
  col+=uShal*.18*pow(1.-max(dot(N,V),0.),3.)*day*(.4+.6*ndl);
- vec3 Hh=normalize(uSun+V);float shp=mix(1600.,650.,nk)*(1.-gold*.5);col+=mix(vec3(1.,.93,.78),vec3(1.,.55,.22),gold)*pow(max(dot(N,Hh),0.),shp)*mix(.7,1.7,nk)*(day+gold*.6);
+ vec3 Hh=normalize(uSun+V);float shp=mix(1600.,650.,nk)*(1.-gold*.5);col+=mix(vec3(1.,.93,.78),vec3(1.,.55,.22),gold)*pow(max(dot(N,Hh),0.),shp)*mix(.5,1.1,nk)*(day+gold*.6);// (a softer glitter: the sun's path used to burn to a solid white disc)
  vec3 Hm=normalize(uMoon+V);{float md=max(dot(N,Hm),0.);float mup=step(0.,dot(p,uMoon));col+=vec3(.55,.75,1.)*(pow(md,160.)*.6+pow(md,28.)*.16)*(1.-day)*mup;col+=vec3(.7,.85,1.)*pow(md,600.)*1.4*(1.-day)*mup;}
  float fz=vn3(vOP*.33+vec3(0.,uT*.3,0.));float foam=(1.-smoothstep(.1,1.9,depth))*(.5+.5*sin(depth*5.-uT*1.5+fz*7.));
  foam=clamp(foam+(1.-smoothstep(0.,.5,depth))*.6,0.,1.)*(.4+.6*nk);
  col=mix(col,uFoamC*(.12+.88*day*max(ndl,.3)),foam*.85);
- float a=mix(.34,.94,smoothstep(0.,20.,depth));{float clr=1.-smoothstep(25.,240.,dist);a=mix(a,min(a,.38+.34*smoothstep(8.,70.,depth)),clr);}a=max(a,foam*.92);a*=smoothstep(-1.2,0.,-h+0.);
+ float a=mix(.34,.94,smoothstep(0.,20.,depth));{float clr=1.-smoothstep(25.,240.,dist);a=mix(a,min(a,.5+.3*smoothstep(5.,60.,depth)),clr);}a=max(a,foam*.92);a*=smoothstep(-1.2,0.,-h+0.);// (shallows a little less see-through: a slope just under the surface read as a pale flat shape)
  gl_FragColor=vec4(col,a);
 #include <tonemapping_fragment>
 #include <encodings_fragment>
@@ -161,8 +161,9 @@ function skyMat(){return new THREE.ShaderMaterial({depthWrite:false,depthTest:fa
  vec3 c=mix(uHor,uZen,pow(smoothstep(-.02,.95,e),.48));
  float hz=exp(-ep*8.);c=mix(c,mix(uHor,vec3(dot(uHor,vec3(.333))),.3)*1.1,hz*.32);
  c*=.9+.2*mu*mu;
- float low=smoothstep(.32,.0,se)*smoothstep(-.2,-.03,se);float side=pow(mu*.5+.5,3.);float anti=pow(max(-mu,0.),1.5);
- c=mix(c,c*.55+vec3(1.,.48,.2)*.78,low*hz*side*.92);
+ float low=smoothstep(.32,.0,se)*smoothstep(-.2,-.03,se);float side=pow(mu*.5+.5,1.8);float anti=pow(max(-mu,0.),1.5);
+ // (the warm band reaches well round the horizon, a fainter amber all the way round, and the zenith deepens: a low sun used to leave the sky away from it a flat grey)
+ c=mix(c,c*.55+vec3(1.,.48,.2)*.78,low*hz*side*.92);c=mix(c,vec3(.95,.62,.4)*(.6+.4*dot(c,vec3(.33))),low*exp(-ep*5.)*.22);c*=1.-low*.14*smoothstep(.15,.7,e);
  c+=vec3(.42,.2,.3)*low*anti*exp(-abs(e-.07)*16.)*.55;
  c*=1.-low*anti*exp(-ep*28.)*.28;
  float m=max(mu,0.);float dayS=.35+.65*smoothstep(-.12,.2,se);

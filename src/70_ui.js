@@ -31,7 +31,10 @@ function spaceTitle(sp){const m=MB[sp.id];return[m.n,`${m.sub} · ${ERAN[ERA]}`]
 let pendEnter=null;
 function enterSpace(id,opt){opt=opt||{};if(busy){pendEnter=[id,opt];pendGo=null;return}if(CUR&&CUR.camOv)CUR.camOv=null;const m=MB[id];if(!m)return;busy=true;fadeTo=1;closeCap(true);
  const go=()=>{const first=!SP[id];const run=()=>{const sp=getSpace(id);if(CUR&&CUR!==sp)CUR.saved={...rig,era:ERA};const prev=CUR;CUR=sp;if(renderPass)renderPass.scene=sp.scene;sp.scene.add(selRing);
-   tw=null;vel.a=vel.b=0;const want=opt.era&&eraListFor(sp).includes(opt.era)?opt.era:null;
+   tw=null;vel.a=vel.b=0;
+   // a space you have been to before comes back in the age you left it in; only a first visit takes the nearest age to the current one
+   if(!opt.era&&!opt.home&&sp.saved&&sp.saved.era&&eraListFor(sp).includes(sp.saved.era))opt.era=sp.saved.era;
+   const want=opt.era&&eraListFor(sp).includes(opt.era)?opt.era:null;
    // a remembered spot is only reused when it belongs to the era we are arriving in
    let s=opt.rig||(sp.saved&&!opt.home&&(sp.type==='planet'||!want||sp.saved.era===want)?sp.saved:(sp.type!=='planet'&&want?eraSpot(sp,want):homeFor(sp,want||ERA)));Object.assign(rig,{a:s.a,b:s.b,alt:s.alt,head:s.head||0,y:s.y||0});
    if(sp.type==='planet'){if(opt.portal&&sp.saved&&sp.saved.era)opt.era=sp.saved.era;ERA=opt.era&&MB[id].e.includes(opt.era)?opt.era:clampEra(sp,ERA);store.set('rq_era',ERA);applyPlanetEra(sp,ERA)}else if(opt.era&&eraListFor(sp).includes(opt.era)){ERA=opt.era}

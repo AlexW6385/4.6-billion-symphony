@@ -121,7 +121,7 @@ setInterval(()=>{if(!CUR||busy||document.hidden)return;const sp=CUR;
  // at sea level, at the foot of the golden beam
  if(ERA===1&&!found.has('sarin')&&rig.alt<60&&angDeg(dirLL(rig.a,rig.b,egz_v),egz_SAR)<1.1)egg('sarin');
  // right inside 苏苏米's palace
- if(ERA===3&&!found.has('emerald')){const p=sp.prox.find(q=>q.w.id==='emeraldcity');if(p&&camera.position.distanceTo(p.pos)<34)egg('emerald')}
+ if(ERA===3&&!found.has('emerald'))q4a_emeraldEgg(sp);// (only once the camera has settled there: see 49m_fixesA)
  // as far out as you can go, the moon close, and nothing touched for a while: looking back at home
  if(ERA===4&&!found.has('name')&&sp.moonK>.7&&!tw&&rig.alt>altMax()*.96&&performance.now()-lastInput>6000)egg('name')},250);
 

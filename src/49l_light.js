@@ -60,7 +60,7 @@ void main(){vec4 c=texture2D(tA,vUv);if(c.g>uMaxD){gl_FragColor=c;return;}float 
 class Q3AOPass extends THREE.Pass{constructor(){super();this.needsSwap=false;
   const o={minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,format:THREE.RGBAFormat,type:THREE.HalfFloatType,depthBuffer:false};
   this.rtA=new THREE.WebGLRenderTarget(2,2,o);this.rtB=new THREE.WebGLRenderTarget(2,2,o);
-  this.mAU_maxD={value:320};this.mA=new THREE.ShaderMaterial({uniforms:{tD:{value:null},uPI:{value:new THREE.Matrix4()},uPS:{value:1},uAsp:{value:1},uR:{value:1.1},uMaxD:this.mAU_maxD,uInt:{value:1},uNS:{value:12},uTx:{value:new THREE.Vector2(1,1)}},vertexShader:Q3_AO_VS,fragmentShader:Q3_AO_FS,depthTest:false,depthWrite:false});
+  this.mAU_maxD={value:320};this.mA=new THREE.ShaderMaterial({uniforms:{tD:{value:null},uPI:{value:new THREE.Matrix4()},uPS:{value:1},uAsp:{value:1},uR:{value:1.6},uMaxD:this.mAU_maxD,uInt:{value:1.7},uNS:{value:12},uTx:{value:new THREE.Vector2(1,1)}},vertexShader:Q3_AO_VS,fragmentShader:Q3_AO_FS,depthTest:false,depthWrite:false});
   this.mB=new THREE.ShaderMaterial({uniforms:{tA:{value:this.rtA.texture},uTx:{value:new THREE.Vector2(1,1)},uMaxD:this.mAU_maxD},vertexShader:Q3_AO_VS,fragmentShader:Q3_BL_FS,depthTest:false,depthWrite:false});
   this.q=new THREE.FullScreenQuad(this.mA)}
  setSize(w,h){const W=Math.max(1,Math.round(w/2)),H=Math.max(1,Math.round(h/2));this.rtA.setSize(W,H);this.rtB.setSize(W,H);this.mB.uniforms.uTx.value.set(1/W,1/H);this.mA.uniforms.uTx.value.set(1/w,1/h);this.W=W;this.H=H}
@@ -79,7 +79,7 @@ FinalShader.fragmentShader=`uniform sampler2D tDiffuse,tAO,tDepth;uniform float 
     float ao=ws>1e-3?a/ws:1.;if(uDbg>0.){gl_FragColor=vec4(vec3(ao),1.);return;}c*=mix(vec3(1.),vec3(ao)+(1.-ao)*vec3(.0,.035,.1),uAOK);}}
   {float l0=dot(c,vec3(.299,.587,.114));c*=uExp*mix(uGain,vec3(1.),smoothstep(.5,.95,l0));}
   {vec2 sd=(vUv-uSunP.xy)*vec2(uAsp,1.);float sw=exp(-dot(sd,sd)*1.6)*uSunP.z;c*=mix(vec3(1.),uWarm,sw);}
-  vec3 hi=.82+.18*(1.-exp(-(c-.82)/.18));c=mix(c,hi,step(.82,c));
+  vec3 hi=.74+.26*(1.-exp(-(c-.74)/.26));c=mix(c,hi,step(.74,c));// (the shoulder starts lower: snow, cloud and pale stone kept burning out to flat white)
   c=clamp(c,0.,1.);c=mix(c,c*c*(3.-2.*c),uCon);
   float l=dot(c,vec3(.299,.587,.114));c+=uLift*pow(1.-smoothstep(0.,.42,l),2.);
   l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);
@@ -260,7 +260,7 @@ towerMat=function(o){o=Object.assign({},o||{});const kit=o.kit;delete o.kit;cons
  m.onBeforeCompile=sh=>{ob(sh);sh.uniforms.uKit=m.userData.U.uKit;sh.uniforms.uQ3=Q3Q;
   sh.vertexShader='varying vec3 q3LP,q3LN;\n'+sh.vertexShader.replace('#include <fog_vertex>','#include <fog_vertex>\nq3LP=position;q3LN=normal;');
   sh.fragmentShader='uniform float uKit;uniform vec4 uQ3;varying vec3 q3LP,q3LN;\n'+(sh.fragmentShader.indexOf('float vn3(')<0?GLSL_NOISE:'')+sh.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
- if(uQ3.z>.5){vec3 p=q3LP,n=normalize(q3LN);float fwp=length(fwidth(p));float kA=1.-smoothstep(.025,.11,fwp);
+ if(uQ3.z>.5){vec3 p=q3LP,n=normalize(q3LN);float fwp=length(fwidth(p));float kA=1.-smoothstep(.02,.085,fwp);// (the courses fade out before they are finer than a few pixels)
   vec3 c=diffuseColor.rgb;float lum=dot(c,vec3(.3,.59,.11));float s3=c.r+c.g+c.b+.001;
   float mxc=max(c.r,max(c.g,c.b)),sat=(mxc-min(c.r,min(c.g,c.b)))/(mxc+.001);
   // (window panes and other dark glass keep their own look)
@@ -271,30 +271,32 @@ towerMat=function(o){o=Object.assign({},o||{});const kit=o.kit;delete o.kit;cons
    vec3 k=vec3(1.);
    // walls
    if(wall>0.){
-    if(met<.5){vec2 bs=uKit<.5||uKit>6.5?vec2(.56,.3):uKit<1.5?vec2(1.,.46):vec2(1.2,.6);float jw=uKit<.5||uKit>6.5?.045:uKit<1.5?.03:.018;
+    // (coarse courses, soft joints no thinner than a pixel and a half: finer ones broke up into noise from a few tens of metres)
+    if(met<.5){vec2 bs=uKit<.5||uKit>6.5?vec2(1.,.42):uKit<1.5?vec2(1.4,.62):vec2(1.6,.8);float jw=max(uKit<.5||uKit>6.5?.05:uKit<1.5?.04:.03,fwp*1.6);
      float row=floor(v/bs.y);float uu=u/bs.x+row*.5;float cell=floor(uu);vec2 f=vec2(fract(uu),fract(v/bs.y));
      float jn=1.-smoothstep(0.,jw/bs.x,min(f.x,1.-f.x))*smoothstep(0.,jw/bs.y,min(f.y,1.-f.y));
      float h=fract(sin(dot(vec2(cell,row),vec2(12.9898,78.233)))*43758.5453);
-     float sv=uKit<.5||uKit>6.5?.16:uKit<1.5?.08:.05;
-     k=vec3(1.+(h-.5)*sv)*(1.-jn*(uKit>2.5&&uKit<3.5?.12:.3));
+     float sv=uKit<.5||uKit>6.5?.1:uKit<1.5?.06:.04;
+     k=vec3(1.+(h-.5)*sv)*(1.-jn*(uKit>2.5&&uKit<3.5?.08:.18));
      if(uKit>2.5&&uKit<3.5)k*=1.-.06*smoothstep(.6,.9,vn3(p*vec3(2.,6.,2.)));}
-    else{vec2 ps=uKit<4.5?vec2(.75,.95):uKit<5.5?vec2(.6,1.05):vec2(.8,1.2);float row=floor(v/ps.y);float uu=u/ps.x+(uKit<4.5?row*.5:0.);vec2 f=vec2(fract(uu),fract(v/ps.y));
-     float sm2=1.-smoothstep(0.,.025/ps.x,min(f.x,1.-f.x))*smoothstep(0.,.025/ps.y,min(f.y,1.-f.y));float h=fract(sin(dot(vec2(floor(uu),row),vec2(12.9898,78.233)))*43758.5453);
-     k=vec3(1.+(h-.5)*.07)*(1.-sm2*.32);
+    else{vec2 ps=uKit<4.5?vec2(1.1,1.3):uKit<5.5?vec2(1.1,1.25):vec2(1.2,1.5);float row=floor(v/ps.y);float uu=u/ps.x+(uKit<4.5?row*.5:0.);vec2 f=vec2(fract(uu),fract(v/ps.y));
+     float sw=max(.03,fwp*1.6);float sm2=1.-smoothstep(0.,sw/ps.x,min(f.x,1.-f.x))*smoothstep(0.,sw/ps.y,min(f.y,1.-f.y));float h=fract(sin(dot(vec2(floor(uu),row),vec2(12.9898,78.233)))*43758.5453);
+     k=vec3(1.+(h-.5)*.06)*(1.-sm2*.22);
      if(uKit>3.5&&uKit<4.5){vec2 rv=abs(f-.5)-vec2(.5-.07/ps.x,.5-.07/ps.y);float rd=length(max(rv,0.)*ps);k*=1.-.35*(1.-smoothstep(.015,.035,rd))*step(0.,min(rv.x,rv.y));
       k*=1.-.14*smoothstep(.45,.8,vn3(vec3(u*3.,v*.35,1.7)))*(1.-smoothstep(0.,3.,v));}
      else k*=.97+.06*vn3(vec3(u*.6,v*14.,3.));}
     // rain streaks and a little dirt toward the ground
     k*=1.-.08*smoothstep(.5,.85,vn3(vec3(u*2.2,v*.25,5.)));}
    // wood: boards with dark gaps and a grain along them
-   if(wood>0.){float bw=.24;float bb=fract(u/bw);float gap=1.-smoothstep(0.,.06,min(bb,1.-bb));float gr=vn3(vec3(u*9.,v*1.2,floor(u/bw)*3.1));
-    k=mix(k,vec3((1.-gap*.4)*(.86+.28*gr)),wood*wall+wood*flt*.5);}
+   if(wood>0.){float bw=.34;float bb=fract(u/bw);float gap=1.-smoothstep(0.,max(.06,fwp*1.6/bw),min(bb,1.-bb));float gr=vn3(vec3(u*6.,v*1.2,floor(u/bw)*3.1));
+    k=mix(k,vec3((1.-gap*.3)*(.88+.24*gr)),wood*wall+wood*flt*.5);}
    // roofs: rows of tiles (stone and timber kits) or standing seams (metal ones)
-   if(slope>0.){float tr=.22;float rv2=v/tr;float row=floor(rv2);float fr=fract(rv2);
-    if(met<.5){float uu=u/.3+row*.5;float sx=fract(uu);float seamx=1.-smoothstep(0.,.08,min(sx,1.-sx));float h=fract(sin(dot(vec2(floor(uu),row),vec2(41.3,17.9)))*43758.5453);
-     k=mix(k,vec3((.74+.26*smoothstep(0.,.8,fr))*(1.-seamx*.25)*(.92+.16*h)),slope);}
-    else{float sx=fract(u/.5);float seam=1.-smoothstep(0.,.05,min(sx,1.-sx));k=mix(k,vec3(1.-seam*.3)*(.96+.08*vn3(p*4.)),slope);}}
-   if(flt>0.)k=mix(k,vec3(.9+.18*vn3(p*1.7)),flt*(1.-met*.6));
+   if(slope>0.){float tr=.34;float rv2=v/tr;float row=floor(rv2);float fr=fract(rv2);
+    if(met<.5){float uu=u/.46+row*.5;float sx=fract(uu);float seamx=1.-smoothstep(0.,max(.08,fwp*1.6/.46),min(sx,1.-sx));float h=fract(sin(dot(vec2(floor(uu),row),vec2(41.3,17.9)))*43758.5453);
+     k=mix(k,vec3((.8+.2*smoothstep(0.,.8,fr))*(1.-seamx*.18)*(.94+.12*h)),slope);}
+    else{float sx=fract(u/.7);float seam=1.-smoothstep(0.,max(.05,fwp*1.6/.7),min(sx,1.-sx));k=mix(k,vec3(1.-seam*.22)*(.96+.08*vn3(p*4.)),slope);}}
+   // (flat tops a little darker: pale ones burned out to white in the sun)
+   if(flt>0.)k=mix(k,vec3(.78+.16*vn3(p*1.7)),flt*(1.-met*.6));
    float dirt=(1.-smoothstep(.2,1.25,v+(vn3(p*2.3)-.5)*.5))*(1.-flt);
    c*=mix(vec3(1.),k,kA);c=mix(c,c*vec3(.7,.64,.56),dirt*.55*kA+dirt*.25*(1.-kA));
    diffuseColor.rgb=c;}}`)};

@@ -64,7 +64,11 @@ function buildXimin(){const sp=makePlanet('ximin',{height:ximinH,colors:oneSet(x
  // the farm sea, the deep city under glass, the green oasis that is the last clean land
  instDomes();function instDomes(){fxG_deepNet(sp);// the deep city: a network of glass tubes on the sea floor (49i_fixG)
   inst(kb(1,1,1),mt('#6a8a70'),scatter(120,-2,140,5,322),(o,p)=>{frameLL(sp,p[0],p[1],.4,0,o,false);o.scale.set(3,.4,3)},null)}
- inst(geoC('conifer'),swayMat({roughness:.85},.003),scatter(240,-16,-70,4,323,(la,lo,h)=>h>2),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.setScalar(.8+p[3]*.9)},null);
+ // (the oasis: conifers and broadleaves mixed, no two the same shade, thinning toward the rim)
+ {const oas=scatter(300,-16,-70,4.2,323,(la,lo,h)=>h>2&&angDeg(dirLL(la,lo),XOAS)<3.2+h3(la*7,lo*3,1)*1.3);const con=oas.filter(p=>p[3]<.6),brd=oas.filter(p=>p[3]>=.6);
+  const tint=p=>C('#ffffff').offsetHSL((p[3]*7.3%1-.5)*.05,0,(p[3]*3.7%1-.5)*.22+.06);
+  inst(geoC('conifer'),swayMat({roughness:.85},.003),con,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o);o.scale.setScalar(.7+p[3]*1.3)},null,{tint});
+  inst(geoC('broad'),swayMat({roughness:.85},.004),brd,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6,o);o.scale.setScalar(.7+(p[3]-.6)*1.6)},null,{tint})}
  inst(kb(1,1.4,.4),mt('#5a5a54'),scatter(40,-16,-70,3.4,324,(la,lo,h)=>h>2),(o,p)=>{frameLL(sp,p[0],p[1],.4,p[3]*6,o);o.scale.set(3+p[3]*3,2+p[3]*4,1);o.rotateZ((p[3]-.5)*.5)},null);
  ximinMore(sp);ximinClose(sp);nightLights(sp,'#bfe2ff',9000,91);sp.herds=makeHerds(FAUNA.filter(f=>f.m==='ximin'),sp);herdProx(sp);entryModels(sp);placeMotes(sp);
  REGIONS.filter(r=>r.m==='ximin'&&r.rad).forEach(r=>sp.labels.push({n:r.n,id:null,pos:dirLL(...r.ll).multiplyScalar(R+70),minAlt:1500}));
