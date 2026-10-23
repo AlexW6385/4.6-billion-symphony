@@ -77,6 +77,31 @@ const log=(...a)=>console.log(...a);let nShot=0;
  const labs=await ev(()=>[...document.querySelectorAll('#labels .lab.on')].map(e=>{const r=e.getBoundingClientRect();return{t:e.textContent,x:r.x+r.width/2,y:r.y+r.height/2}}));ok('continent labels visible',labs.length>0,labs.map(l=>l.t));
  await shot('labels');
  if(labs.length){const L=labs.find(l=>l.x>80&&l.x<VW-80&&l.y>80&&l.y<VH-120)||labs[0];await tapAt(L.x,L.y);await idle(1500);ok('label click opens card',await vis('#cap.on'),L.t);await shot('label_card')}
+ // ---------- centring: after go(), the thing sits in the middle 30% of the free part of the screen, at a fair size, with a clear line of sight ----------
+ const centring=async id=>ev(id=>{const q=window.__rq,sp=q.CUR,cam=q.cam;cam.updateMatrixWorld();const w=WIKI.find(x=>x.id===id);const sel=q.dbg.selP();const P=sel&&sel.w.id===id?sel:sp.prox.find(x=>x.w.id===id&&!x.side&&(!x.hide||!x.hide()));
+  let c=P?(P.c?P.c():P.pos):q.dbg.posOf(w);if(!c)return{err:'no focus'};let r=P?P.r:8;
+  // the body's own centre and size when it has one
+  let root=null,bd=1e18;sp.scene.traverse(o=>{if(!o.userData||o.userData.pick!==id||o.isInstancedMesh)return;let v=o,vis=true;while(v){if(v.visible===false)vis=false;v=v.parent}if(!vis)return;const d=o.getWorldPosition(new THREE.Vector3()).distanceToSquared(c);if(d<bd){bd=d;root=o}});
+  if(root){const B=new THREE.Box3();root.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||!m.visible)return;const mt=Array.isArray(m.material)?m.material[0]:m.material;if(!mt||mt.blending===THREE.AdditiveBlending)return;const g=m.geometry;if(!g||!g.attributes||!g.attributes.position)return;if(!g.boundingBox)g.computeBoundingBox();const bb=g.boundingBox.clone().applyMatrix4(m.matrixWorld);if(bb.max.x-bb.min.x<1600)B.union(bb)});if(!B.isEmpty()){c=B.getCenter(new THREE.Vector3());const sz=B.getSize(new THREE.Vector3());r=Math.max(r,Math.max(sz.x,sz.y,sz.z)*.5)}}
+  const v=c.clone().project(cam);const sx=(v.x*.5+.5)*innerWidth,sy=(-v.y*.5+.5)*innerHeight;
+  // the free part of the screen: what the card does not cover
+  let L=0,T=0,Rt=innerWidth,B=innerHeight;const cap=document.querySelector('#cap');if(cap&&cap.classList.contains('on')){const rc=cap.getBoundingClientRect();const ex=.26*innerHeight*.5+28;if(innerWidth<=760&&rc.top>innerHeight*.3)B=rc.top;else if(innerWidth>760&&rc.right<innerWidth*.6&&rc.right>innerWidth/2-ex&&rc.top<innerHeight/2+ex)L=rc.right}
+  const nx=(sx-(L+Rt)/2)/((Rt-L)/2),ny=(sy-(T+B)/2)/((B-T)/2);
+  const dist=cam.position.distanceTo(c);const fill=2*r/(dist*2*Math.tan(cam.fov*Math.PI/360));
+  // rays from the camera to the body's centre and its sides, stopped at its hull; its own meshes never count
+  const own=o=>{let x=o;while(x){if(x.userData&&x.userData.pick===id)return true;x=x.parent}return false};
+  const dir=c.clone().sub(cam.position).normalize(),rt=new THREE.Vector3().crossVectors(dir,cam.up).normalize(),up=new THREE.Vector3().crossVectors(rt,dir);
+  const pts=[c,c.clone().addScaledVector(rt,r*.5),c.clone().addScaledVector(rt,-r*.5),c.clone().addScaledVector(up,r*.5)];let blocked=0;
+  const rc=new THREE.Raycaster();rc.params.Points.threshold=0;rc.params.Line.threshold=0;const hull=new THREE.Sphere(c,r*1.1),tmp=new THREE.Vector3();
+  for(const Q of pts){const d=Q.clone().sub(cam.position);const Ld=d.length();d.normalize();rc.set(cam.position,d);let far=Ld-1;if(rc.ray.intersectSphere(hull,tmp))far=Math.min(far,cam.position.distanceTo(tmp)-.5);rc.far=Math.max(.5,far);
+   const hits=[];sp.scene.traverse(o=>{if(!o.isMesh||!o.visible||own(o))return;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending)return;let x=o,vis=true;while(x){if(x.visible===false)vis=false;x=x.parent}if(!vis)return;try{o.raycast(rc,hits)}catch(e){}});if(hits.length)blocked++}
+  return{nx:+nx.toFixed(2),ny:+ny.toFixed(2),fill:+fill.toFixed(2),occ:+(blocked/pts.length).toFixed(2),behind:v.z>1,dist:+dist.toFixed(0),alt:+q.rig.alt.toFixed(0)}},id);
+ for(const id of ['emeraldcity','greenpool','behemoth','gulong','feilong','lvtan','canyon','crystalcave']){await ev(id=>window.__rq.go(id),id);await idle(2500);await wait(1500);const m=await centring(id);
+  ok('centred '+id,m&&!m.err&&!m.behind&&Math.abs(m.nx)<=.3&&Math.abs(m.ny)<=.3&&m.occ<=.5,m);
+  if(m&&!m.err)ok('fair size '+id,m.fill>=.08&&m.fill<=.6,m.fill)}
+ // a thing already in view: a click on it opens its card without a flight of any length
+ {await ev(()=>window.__rq.go('emeraldcity'));await idle(2500);await click('#cap .x');await wait(400);const xy=await screenOf('emeraldcity');
+  if(xy){await tapAt(xy.x,xy.y);const r=await ev(()=>{const Q=window.__rq;let twMs=0;for(let i=0;i<60;i++){window.__step(50);if(Q.tw)twMs+=50}return{twMs,card:!!document.querySelector('#cap.on')}});ok('click on a thing in view does not fly off',r.card&&r.twMs<=800,r)}else log('SKIP in-view click (not on screen)')}
  // ---------- card ----------
  await ev(()=>window.__rq.go('emeraldcity'));await idle(2500);
  ok('go() opens card',await vis('#cap.on'));const ct=await ev(()=>document.querySelector('#cap h2').textContent);ok('card title',ct.includes('翡翠'),ct);await shot('card_emerald');

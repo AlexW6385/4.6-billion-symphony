@@ -29,7 +29,7 @@ function chEnts(k){const out=[],at={};for(const id of CH[k].ents)if(W[id]&&!(id 
 const shortN=n=>n.split(/\s*·\s*/)[0];
 /* go to where a chapter happens, in that chapter's era */
 function goChapterPlace(k){const P=CHP[k];if(!P)return;const c=CH[k],id=P.id,w=W[id],m=mapOf(w);const e=(w.e||[]).includes(c.e)&&MB[m].e.includes(c.e)?c.e:null;
- if(m!==CUR.id){if(e){enterSpace(m,{era:e,rig:entryRig(w,SP[m]),after:()=>open(id)});return}go(id);return}
+ if(m!==CUR.id){if(e){enterSpace(m,{era:e,rig:entryRig(w,SP[m]),rigFn:()=>q4c_entryRig(id),after:()=>{open(id);q4c_goto(id,null)}});return}go(id);return}
  if(e&&e!==ERA){if(CUR.type==='planet')setEra(e);else{ERA=e;syncTime()}}go(id)}
 
 /* ---------- on the card: the chapters, and a way to page through neighbouring cards ---------- */

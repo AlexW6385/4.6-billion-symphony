@@ -390,7 +390,7 @@ function fxA_wyvern(f){const g=new THREE.Group();const ya=f.w==='yalong';const c
  const legs=[];const hl=ya?.6:1;for(const z of[-1,1]){const P0=V3(-.45,-.05,z*.2);const l=fxA_jlimb([P0,V3(-.4,-.28*hl,z*.24),V3(-.62,-.45*hl,z*.24),V3(-.72,-.52*hl,z*.24)],[.09,.075,.045,.03],skin);g.add(l);
   for(let k=-1;k<=1;k++){const c=cone(.015,.08,claw,4);c.position.set(-.27,-.47*hl,k*.035);fxA_point(c,V3(-1,-.5,0));l.add(c)}legs.push(l)}
  g.userData.tails=[{m:tl,a:.2,f:2}];
- g.userData.anim=t=>{const fl=Math.sin(t*3.2);for(const w of W)w.m.rotation.x=-w.z*(.05+fl*.55);g.position.y=-fl*.06;hg.rotation.z=Math.sin(t*.9)*.08;jaw.rotation.z=-.1-Math.max(0,Math.sin(t*1.1))*.25;tl.rotation.y=Math.sin(t*2)*.18;for(const l of legs)l.rotation.z=.5+Math.sin(t*3.2+1)*.08};
+ g.userData.anim=t=>{const fl=Math.sin(t*3.2);for(const w of W)w.m.rotation.x=-w.z*(.05+fl*.55);/* the bob goes on the parts, not the root: the herd sets the root's position (q4c) */for(const ch of g.children){if(ch.userData.y0===undefined)ch.userData.y0=ch.position.y;ch.position.y=ch.userData.y0-fl*.06}hg.rotation.z=Math.sin(t*.9)*.08;jaw.rotation.z=-.1-Math.max(0,Math.sin(t*1.1))*.25;tl.rotation.y=Math.sin(t*2)*.18;for(const l of legs)l.rotation.z=.5+Math.sin(t*3.2+1)*.08};
  return g}
 
 SPEC.jiaolong=fxA_jiaolong;SPEC.xm_heijiao=fxA_kentao;SPEC.jingzhui=fxA_jingzhui;SPEC.changyou=fxA_changyou;SPEC.feilong=fxA_wyvern;SPEC.yalong=fxA_wyvern;

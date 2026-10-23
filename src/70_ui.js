@@ -35,6 +35,8 @@ function enterSpace(id,opt){opt=opt||{};if(busy){pendEnter=[id,opt];pendGo=null;
    // a remembered spot is only reused when it belongs to the era we are arriving in
    let s=opt.rig||(sp.saved&&!opt.home&&(sp.type==='planet'||!want||sp.saved.era===want)?sp.saved:(sp.type!=='planet'&&want?eraSpot(sp,want):homeFor(sp,want||ERA)));Object.assign(rig,{a:s.a,b:s.b,alt:s.alt,head:s.head||0,y:s.y||0});
    if(sp.type==='planet'){if(opt.portal&&sp.saved&&sp.saved.era)opt.era=sp.saved.era;ERA=opt.era&&MB[id].e.includes(opt.era)?opt.era:clampEra(sp,ERA);store.set('rq_era',ERA);applyPlanetEra(sp,ERA)}else if(opt.era&&eraListFor(sp).includes(opt.era)){ERA=opt.era}
+   // arriving for an entry: its exact framing can only be worked out once the world is built
+   if(opt.rigFn){let s2=null;try{s2=opt.rigFn()}catch(e){console.warn('rigFn',e)}if(s2)Object.assign(rig,{a:s2.a,b:s2.b,alt:s2.alt,head:s2.head||0,y:s2.y||0})}
    if(sp.type!=='planet'){rigPose();const e=sp.eraAt?sp.eraAt(S_):null;if(e&&!(opt.era&&eraListFor(sp).includes(opt.era)))ERA=e}
    buildLabels(sp);buildTime();rigPose();pushOut=0;
    document.body.classList.toggle('pale',!!MB[id].white);const[t1,t2]=spaceTitle(sp);setTimeout(()=>showTitle(t1,t2),350);
@@ -90,7 +92,7 @@ cap.addEventListener('click',e=>{if(e.target.closest('.x'))return closeCap();con
 /* after a jump, make sure the thing is actually in sight: if a wall, a tower or a trunk is in the way,
    or the camera would sit inside something, try going round it or a little higher */
 const _crc=new THREE.Raycaster();
-function cuttable(o,r){if(o.userData.noCut)return false;if(o.isInstancedMesh)return o.count>3;const g=o.geometry;if(!g)return false;if(!g.boundingSphere)g.computeBoundingSphere();const bs=g.boundingSphere;if(!bs)return false;const k=o.getWorldScale(_cs0).x;return bs.radius*k<Math.max(45,r*3)&&bs.center.length()<bs.radius*1.2}
+function cuttable(o,r){if(o.userData.noCut)return false;if(o.isInstancedMesh)return o.count>3;const g=o.geometry;if(!g)return false;if(!g.boundingSphere)g.computeBoundingSphere();const bs=g.boundingSphere;if(!bs)return false;const k=o.getWorldScale(_cs0).x;return bs.radius*k<Math.max(CUT.big?130:45,r*3)&&bs.center.length()<bs.radius*1.2}
 const _cs0=new THREE.Vector3();
 /* occluder list: only what is near the target, instanced sets cut down to their nearby instances.
    Raycasting the whole scene (every tree instance) 100+ times on arrival froze the page for most of a second. */
@@ -112,36 +114,16 @@ const _vcS=[];function visCast(rc,root){const out=[];const st=_vcS;st.length=0;s
   const ch=o.children;for(let i=0;i<ch.length;i++)st.push(ch[i])}
  out.sort((a,b)=>a.distance-b.distance);return out}
 function occCast(L){return L?_crc.intersectObjects(L,false):visCast(_crc,CUR.scene)}
-let _occL=null;
 
-/* the thing being looked at never blocks its own view */
-let _clrId=null;
-function viewClearOf(P,r,skipCut){const cam=camera;const v=P.clone().project(cam);const [tx,ty]=voTarget();const ox=(camera.view&&camera.view.enabled?-camera.view.offsetX:0),oy=(camera.view&&camera.view.enabled?-camera.view.offsetY:0);
- const nx=v.x+2*(tx-ox)/innerWidth,ny=v.y-2*(ty-oy)/innerHeight;if(!(v.z<1&&Math.abs(nx)<.85&&Math.abs(ny)<.85))return 0;
- {const pane=document.body.classList.contains('touring')?($('#tour').classList.contains('on')?$('#tour'):null):cap.classList.contains('on')?cap:null;if(pane){const R=pane.getBoundingClientRect(),fx=(nx*.5+.5)*innerWidth,fy=(-ny*.5+.5)*innerHeight;if(fx>R.left-20&&fx<R.right+20&&fy>R.top-20&&fy<R.bottom+20)return 0}}
- const dist=cam.position.distanceTo(P);const dir=P.clone().sub(cam.position).normalize();_crc.set(cam.position,dir);_crc.far=Math.max(1,dist-Math.max(r*2.5,10));_crc.camera=cam;_crc.params.Points.threshold=0;_crc.params.Line.threshold=0;
- const hits=occCast(_occL);
- for(const h of hits){const o=h.object;if(!o.isMesh)continue;if(_clrId){let v=o,own=false;while(v){if(v.userData&&v.userData.pick===_clrId){own=true;break}v=v.parent}if(own)continue}const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)continue;if(!_occL&&!isVis(o))continue;if(skipCut&&dist<700&&cuttable(o,r))continue;return .05+.9*h.distance/dist}
- return 1}
-function pickClear(to,P,r){if(!P)return to;const save={a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y};let best=null,bs=-1;_occL=occList(P,Math.max(260,r*6));try{
- const heads=[0,.8,-.8,1.6,-1.6,2.6,-2.6],mults=CUR.type==='tube'?[1,.7,1.4,1.9]:[1,1.5,2.2,3,4.5,6.5];
- const as=CUR.type==='tube'?[to.a,P.z-60,P.z-130,P.z-20]:CUR.type==='planet'?(()=>{const la=llDir(P)[0];return[to.a,(to.a+la)/2,la-(la-to.a)*.15]})():[to.a];
- outer:for(const m of mults)for(const az of as)for(const h of heads){Object.assign(rig,to,{a:CUR.type==='tube'?clamp(az,CUR.zr[0],CUR.zr[1]):az,head:(to.head||0)+h,alt:clamp(to.alt*m,altMin(),altMax())});rigPose();const sc=viewClearOf(P,r,true)-(m-1)*.008;if(window.__pcDbg)window.__pcDbg.push([m,+h.toFixed(1),+sc.toFixed(2)]);if(sc>bs){bs=sc;best={a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y}}if(sc>=.95)break outer}
- }finally{_occL=null}
- Object.assign(rig,save);rigPose();return best||to}
-function focusOf(id){const w=W[id];const p=selP&&selP.w.id===id?selP:null;const P=p?proxCenter(p):posOf(w);const r=p?p.r:Math.max(8,sizeOf(w)*.5);return P?{P:P.clone(),r}:null}
-function ensureClear(id,F){if(CUR.camOv)return;if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}F=F||focusOf(id);if(!F)return;_clrId=id;dayFor(F.P);CUT.req={P:F.P,r:F.r,id};
- // small things seen from too far: come closer so they fill a fair part of the view
- const near=o=>{if(CUR.type==='planet'&&F.r<90){const want=clamp(F.r*9,70,900);if(o.alt>want*1.3){const ll=llDir(F.P);o.a=ll[0]-want/260;o.b=ll[1];o.alt=want}}return o};
- if(tw){const fin=tw.to;const to=pickClear(near({a:fin.a,b:fin.b,alt:fin.alt,head:fin.head,y:fin.y}),F.P,F.r);Object.assign(tw.to,to);
-  // the clear view comes back in plain longitude: keep the short way round from where the flight started
-  if(CUR.type==='planet'||CUR.type==='tube')tw.to.b=tw.from.b+wrap180(tw.to.b-tw.from.b);tw.to.head=tw.from.head+((tw.to.head-tw.from.head+Math.PI*3)%(Math.PI*2)-Math.PI);return}
- const to=pickClear(near({a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y}),F.P,F.r);if(to.a!==rig.a||to.alt!==rig.alt||to.head!==rig.head)flyTo(to.a,to.b,to.alt,1.2,to.y,to.head)}
+/* after a jump, make sure the thing is actually in sight (the search itself lives in 49o_nav.js: q4c_goto / q4c_clear).
+   a bare point (a side story's spot) keeps the height of the flight under way and only turns or rises if something is in the way */
+function ensureClear(id,F){if(CUR.camOv)return;if(!id&&F&&F.P){q4c_gotoPoint(F.P,F.r||10);return}if(!id)return;
+ if(q4c_last.id===id&&performance.now()-q4c_last.t<800)return;q4c_goto(id,F&&F.p||null)}
 /* cutaway: canopy, spires or huts still standing between the camera and a small thing sink into the ground
    while its card is open, and grow back when it closes */
 const CUT={L:[],s:0,goal:0,req:null,sp:null};const _cm=new THREE.Matrix4(),_cp=new THREE.Vector3(),_cq=new THREE.Quaternion(),_cs=new THREE.Vector3();
 function cutSet(c,k){k=Math.max(.001,k);if(c.im){c.m0.decompose(_cp,_cq,_cs);_cs.multiplyScalar(k);_cm.compose(_cp,_cq,_cs);c.im.setMatrixAt(c.i,_cm);const ic=c.im.userData._ic,v0=c.im.instanceMatrix.version;c.im.instanceMatrix.needsUpdate=true;if(ic&&ic.v===v0)ic.v=c.im.instanceMatrix.version}else c.o.scale.copy(c.s0).multiplyScalar(k)}
-function cutNow(){for(const c of CUT.L)cutSet(c,1);CUT.L=[];CUT.keys=new Set();CUT.goal=0;CUT.job=null}
+function cutNow(){for(const c of CUT.L)cutSet(c,1);CUT.L=[];CUT.keys=new Set();CUT.goal=0;CUT.job=null;CUT.big=false}
 function cutRun(){if(!CUT.job)return;try{if(CUT.job.next().done)CUT.job=null}catch(e){CUT.job=null}}
 function cutFind(P,r){const g=cutJob(P,r);while(!g.next().done);}
 // the same search spread over a few frames: the list of nearby solids first, then a few rays at a time
@@ -152,7 +134,7 @@ function* cutJob(P,r){const cam=camera;const dist=cam.position.distanceTo(P);if(
   for(const h of occCast(OL)){const o=h.object;if(!o.isMesh)continue;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)continue;
    if(!cuttable(o,r))break;if(o.isInstancedMesh){if(h.instanceId==null)continue;const key=o.uuid+':'+h.instanceId;if(seen.has(key))continue;seen.add(key);const m0=new THREE.Matrix4();o.getMatrixAt(h.instanceId,m0);CUT.L.push({im:o,i:h.instanceId,m0,s:0})}
    else{if(seen.has(o.uuid))continue;seen.add(o.uuid);CUT.L.push({o,s0:o.scale.clone(),s:0})}if(CUT.L.length>220)return}}}
-function cutStep(dt){if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
+function cutStep(dt){if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.big=!!q.big;CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
  if(CUT.goal===1&&sel!==CUT.id)CUT.goal=0;
  // following something that moves: every second, whatever new got in the way sinks too
  const F=CUR.follow;if(CUT.goal===1&&F&&F.id===CUT.id&&!tw){CUT.t=(CUT.t||0)+dt;if(CUT.t>1&&!CUT.job){CUT.t=0;const c=proxCenter(F.p);if(c){CUT.job=cutJob(c.clone(),F.p.r||4);cutRun()}}}
@@ -162,48 +144,22 @@ window.__cut=CUT;
 /* arriving somewhere in deep night: let the day turn there, so what you came to see is lit (the sun glides, it doesn't jump) */
 function dayFor(P){const sp=CUR;if(sp.type!=='planet'||sp.sunLon===undefined||!(sp.dayLen<1e11)||!P)return;const d=P.clone().normalize();if(d.dot(sp.sunDir)>-.05)return;
  const ll=llDir(P);const cur=sp.sunLon+T*360/sp.dayLen;const tgt=ll[1]+32;let dl=((tgt-cur)%360+540)%360-180;sp._sunTw={a:sp.sunLon,b:sp.sunLon+dl,t0:T}}
-/* moving things (herds, trains, fliers): after arriving, the camera keeps them in view while their card is open */
-function startFollow(p,id){if(!p||!p.c||CUR.camOv)return;CUR.follow={p,id,off:null}}
+/* moving things (herds, trains, fliers): after arriving, the camera keeps them in view while their card is open (49o_nav.js: q4c_follow) */
+function startFollow(p,id){if(!p||!p.c||CUR.camOv)return;CUR.follow={p,id,prev:null}}
 function stopFollow(){if(CUR)CUR.follow=null}
 ['pointerdown','wheel','keydown'].forEach(t=>addEventListener(t,e=>{if(e.target&&e.target.closest&&e.target.closest('#cap,#lib,#rd,#book,#time,#snd'))return;stopFollow()},{passive:true,capture:true}));
-/* following something that moves: the view keeps pace with it (its speed is measured and fed forward, so a fast flier
-   does not trail off the edge), pulls back a little for fast or high-flying things, and rises when something blocks it */
-const _fq=V3(),_fr=V3();
-function followStep(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!==F.id||(F.p.hide&&F.p.hide())){CUR.follow=null;return}const c=proxCenter(F.p);if(!c||!(dt>0))return;
- const ty_=CUR.type,pl=ty_==='planet',flat=!pl&&ty_!=='tube';let ta,tb,ty=0;if(pl){const ll=llDir(c);ta=ll[0];tb=ll[1]}else if(ty_==='tube'){ta=c.z;tb=Math.atan2(-c.x,-c.y)/D2R}else{ta=-c.z;tb=c.x;ty=c.y}
- const dB=x=>flat?x:wrap180(x);
- if(!F.off){F.off={a:rig.a-ta,b:dB(rig.b-tb),y:rig.y-ty};F.pa=ta;F.pb=tb;F.py=ty;F.va=F.vb=F.vy=0;F.alt0=rig.alt;return}
- // its speed, smoothed; a jump (a respawn, a wrap) is not speed
- let da=ta-F.pa,db=dB(tb-F.pb),dy=ty-F.py;F.pa=ta;F.pb=tb;F.py=ty;const u=pl?R*D2R:1,cs=pl?Math.max(.15,Math.cos(ta*D2R)):1;
- const jump=Math.hypot(da*u,db*u*cs,dy)>Math.max(60,rig.alt*1.5);if(jump){da=db=dy=0;F.va=F.vb=F.vy=0}
- const kv=1-Math.exp(-dt*4);F.va+=(da/dt-F.va)*kv;F.vb+=(db/dt-F.vb)*kv;F.vy+=(dy/dt-F.vy)*kv;
- F.chk=(F.chk||0)+dt;if(F.chk>.35){F.chk=0;F.up=viewClearOf(c,F.p.r||4)<.6}
- // how far back to sit: blocked view, fast mover (covers a quarter of the view a second), or high above its ground
- const spd=Math.hypot(F.va*u,F.vb*u*cs,F.vy);let want=F.up?rig.alt*1.6:0;want=Math.max(want,spd*3.2);
- if(pl){const ll=llDir(c);const h=c.length()-R-Math.max(0,CUR.gh(ll[0],ll[1]));if(h>4)want=Math.max(want,h*2.6)}else if(ty_==='tube'){}
- const cap=Math.min(altMax(),F.alt0*4);if(want>rig.alt&&rig.alt<cap)rig.alt=Math.min(cap,rig.alt*(1+dt*1.1),want);
- // what was set beside it at the start drifts back to the middle, so a mover ends up centred in the free part of the view
- // on a planet the view looks at the ground, so a flier would sit above the middle: steer by where it shows on screen instead
- if(pl){_fq.copy(c).project(camera);_fr.copy(S_).project(camera);const ex=(_fq.x-_fr.x),ey=(_fq.y-_fr.y);if(Math.abs(ex)<3&&Math.abs(ey)<3){const span=rig.alt*.42/(R*D2R),g=Math.min(1,dt*1.6)*span,h=rig.head;
-  F.off.a+=(ey*Math.cos(h)+ex*Math.sin(h))*g;F.off.b+=(-ey*Math.sin(h)+ex*Math.cos(h))*g/cs}}
- else{const dk=Math.exp(-dt*.35);F.off.a*=dk;F.off.b*=dk}
- const k=1-Math.exp(-dt*3);rig.a+=F.va*dt+(ta+F.off.a-rig.a)*k;rig.b+=F.vb*dt+dB(tb+F.off.b-rig.b)*k;if(flat)rig.y+=F.vy*dt+(ty+F.off.y-rig.y)*k;
- if(pl)rig.a=clamp(rig.a,-86,86);else if(ty_==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1])}
+function followStep(dt){q4c_follow(dt)}
 /* go to an entry wherever it is */
 let pendGo=null;function goLater(id){go(id)}
 function go(id){const w=W[id];if(!w)return;if(busy){pendGo=id;pendEnter=null;return}const m=mapOf(w);const be=bestEra(w,m);
- const arrive=()=>{if(CUR.type==='planet'&&be&&be!==ERA)setEra(be);else if(CUR.type!=='planet'&&be)ERA=be,syncTime();flyEntry(w);open(id);ensureClear(id);startFollow(selP,id)};
- if(m!==CUR.id){const h=entryRig(w,SP[m]);enterSpace(m,{era:be||undefined,rig:h,after:()=>{open(id);ensureClear(id);startFollow(selP,id)}});return}arrive()}
+ // the card opens first, so the free part of the screen is known when the view is framed
+ const arrive=()=>{if(CUR.type==='planet'&&be&&be!==ERA)setEra(be);else if(CUR.type!=='planet'&&be)ERA=be,syncTime();open(id);q4c_goto(id,null)};
+ if(m!==CUR.id){const h=entryRig(w,SP[m]);enterSpace(m,{era:be||undefined,rig:h,rigFn:()=>q4c_entryRig(id),after:()=>{open(id);q4c_goto(id,null)}});return}arrive()}
+/* a first guess at where to arrive for an entry in a world that is not built yet (the exact framing follows once it is) */
 function entryRig(w,sp){const t=MB[mapOf(w)].type;if(t==='planet'){const ll=w.ll||[18,-25];const alt=w.c==='地理'?520:300;return{a:ll[0]-alt/200,b:ll[1],alt,head:0,y:0}}
  const p=posOf(w),s=sizeOf(w);if(t==='tube')return{a:w.z-Math.min(160,40+s*2),b:w.ang||0,alt:Math.min(520,120+s*2.4),head:0,y:Math.min(TUBE_R[mapOf(w)]*.7,Math.abs(w.h||0))};
  return{a:-p.z,b:p.x,alt:Math.max(170,Math.min(1600,s*6+120)),head:0,y:clamp(p.y,-400,400)}}
-function flyEntry(w){const t=CUR.type;
- if(t==='planet'){if(w.moon||w.id==='moon'||w.id==='moon_bus'||w.id==='ex_moon'){if(!moonView(w))flyTo(18,-25,2600,1.8);return}const f=FAUNA.find(f=>f.w===w.id&&(f.m||'rongqiu')===CUR.id&&herdVisible(CUR,{f},ERA));
-  if(f){flyTo(f.at[0]-.5,f.at[1],90+f.s*12+(f.alt>40?f.alt:0),2);return}const ep=CUR.entPos&&CUR.entPos[w.id];if(ep&&eraOk(w.e)){flyNear(ep.c,ep.r,1);return}const ll=w.ll||[18,-25];let alt=w.c==='地理'?(RN[w.id]?1200:440):200;if(w.id===CUR.id||w.id==='ex_planet'||w.id==='xm_planet')alt=2600;if(w.id==='cloudsea'||w.id==='cloudpeak')alt=420;
-  flyTo(ll[0]-(alt<900?alt/170:0),ll[1],alt,2);return}
- const p=posOf(w),s=sizeOf(w);
- if(t==='tube'){flyTo(w.z-Math.min(160,40+s*2),w.ang||0,Math.min(520,120+s*2.4),1.8,Math.min(CUR.Rt*.7,Math.abs(w.h||0)));return}
- const alt=Math.max(150,Math.min(1600,s*5.5+110));flyTo(-p.z,p.x,alt,2,clamp(p.y,-400,400))}
+function flyEntry(w){q4c_goto(w.id,null)}
 
 /* ---------- the book ---------- */
 let libTab='ent',openGroups=new Set();
@@ -230,7 +186,7 @@ $('#libbody').addEventListener('click',e=>{const tb=e.target.closest('[data-tour
  const sg=e.target.closest('[data-sg]');if(sg){const m=sg.dataset.sg;sideOpen.has(m)?sideOpen.delete(m):sideOpen.add(m);renderLib();return}
  const sd=e.target.closest('[data-side]');if(sd){if(innerWidth<760)$('#lib').classList.remove('on');goSide(sd.dataset.side);return}
  const a=e.target.closest('[data-i]');if(a){const A=ARCS[+a.dataset.i];const id=A.go||ARCGO[+a.dataset.i];const w=W[id];if(!w)return;if(innerWidth<760)$('#lib').classList.remove('on');
-  const m=mapOf(w);if(m!==CUR.id){enterSpace(m,{era:MB[m].e.includes(A.e)?A.e:undefined,rig:entryRig(w),after:()=>{open(id);ensureClear(id)}})}else{if(CUR.type==='planet'&&A.e!==ERA&&MB[m].e.includes(A.e))setEra(A.e);flyEntry(w);open(id);ensureClear(id)}}});
+  const m=mapOf(w);if(m!==CUR.id){enterSpace(m,{era:MB[m].e.includes(A.e)?A.e:undefined,rig:entryRig(w),rigFn:()=>q4c_entryRig(id),after:()=>{open(id);q4c_goto(id,null)}})}else{if(CUR.type==='planet'&&A.e!==ERA&&MB[m].e.includes(A.e))setEra(A.e);open(id);q4c_goto(id,null)}}});
 
 /* ---------- pointer: hover, touch, drag, wheel ---------- */
 const mouse={x:-1,y:-1,in:false};let hov=null,hovPlace=null,drag=null,pinch=null,pushOut=0,spins=0;const ptrs=new Map();
@@ -298,15 +254,10 @@ function tap(cx,cy,ptype){pickProx.mesh=1;pickProx.touch=ptype==='touch'||ptype=
 function choose(p){const w=p.w;if(p.click)p.click();if(p.only)return;if(p.egg)egg(p.egg);if(egz_choose(p))return;
  if(w.id==='naodai'){toast('脑袋虫',BRAIN[brainI++%BRAIN.length]);egz_late('brain')}
  if((w.id==='moon'||w.id==='moon_bus')&&CUR.id==='rongqiu'){CUR.moonT=CUR.moonT?0:1;if(CUR.moonT){toast('星空翻滚者','“月，与鸣石共鸣。鸣石，让一切升腾。”');egz_late('moon');clearTimeout(moonTO);moonTO=setTimeout(()=>{if(SP.rongqiu)SP.rongqiu.moonT=0},90000)}open(w.id);return}
- if(p.w.go&&CUR.id==='void'){open(w.id);const c=proxCenter(p);flyTo(-c.z,c.x,Math.max(140,p.r*5.5),1.6,clamp(c.y,-400,400));return}
  open(w.id);
- // a member of a moving herd: fly to the one that was clicked and keep it in the middle of the view
- if(CUR.type==='planet'&&p.herd){selP=p;const c=proxCenter(p);if(c)flyNear(c,p.r);startFollow(p,w.id);return}
- const c=proxCenter(p);if(!c)return;flyNear(c,p.r);ensureClear(w.id,{P:c.clone(),r:p.r})}
+ // the thing that was touched (a particular member of a herd, a particular marker) is what the view goes to and stays on
+ q4c_goto(w.id,p)}
 let moonTO=0;
-function flyNear(c,r,force){const t=CUR.type;if(t==='planet'){const ll=llDir(c);let alt=clamp(r*7,50,900);if(force){const hc=c.length()-R-Math.max(CUR.gh(ll[0],ll[1]),0);if(hc>r)alt=Math.max(alt,hc*1.5+r*3);flyTo(ll[0]-alt/260,ll[1],alt,1.8);return}if(rig.alt<alt*.7&&angDeg(dirLL(rig.a,rig.b),dirLL(ll[0],ll[1]))<1.5)return;flyTo(ll[0]-alt/260,ll[1],Math.min(rig.alt,alt*1.4)>alt?alt:Math.max(alt,Math.min(rig.alt,alt*1.4)),1.6);return}
- if(t==='tube'){const z=c.z,ang=Math.atan2(-c.x,-c.y)/D2R;flyTo(z-r*2,ang,clamp(r*5,60,500),1.6);return}
- const alt=clamp(r*5.5,120,1600);flyTo(-c.z,c.x,alt,1.6,clamp(c.y,-400,400))}
 /* which named place is under a point on a planet */
 const REGB=Object.fromEntries(REGIONS.map(r=>[r.id,r]));const GEO={};WIKI.forEach(w=>{if(w.c==='地理'&&w.ll){const m=mapOf(w);(GEO[m]=GEO[m]||[]).push({w,d:dirLL(w.ll[0],w.ll[1])})}});
 function placeAt(cx,cy){const h=surfHit(cx,cy);if(!h)return null;const d=dirLL(h.a,h.b);let best=null,bs=1e9;
@@ -348,9 +299,11 @@ const VO={x:0,y:0};
 function voTarget(){let tx=0,ty=0;const W=innerWidth,H=innerHeight;
  const tourP=document.body.classList.contains('touring')&&$('#tour')&&$('#tour').classList.contains('on');
  if(tourP){const r=$('#tour').getBoundingClientRect();return [0,r.top/2-H/2]}
- // an entry card leaves the picture where it is; only the open book makes room
+ // on a wide screen an entry card leaves the picture where it is (it sits beside what you look at); on a phone it covers the
+ // lower half, so the picture slides up and what you chose stays in the free part above it. the open book always makes room
  const pane=$('#rd')&&$('#rd').classList.contains('on')?$('#rd'):null;
- if(pane){const r=pane.getBoundingClientRect();if(W>760){if(r.left<W*.5)tx=(r.right+W)/2-W/2;else tx=r.left/2-W/2}else{ty=r.top/2-H/2}}return [tx,ty]}
+ if(pane){const r=pane.getBoundingClientRect();if(W>760){if(r.left<W*.5)tx=(r.right+W)/2-W/2;else tx=r.left/2-W/2}else{ty=r.top/2-H/2}}
+ else if(W<=760&&cap.classList.contains('on')&&!document.body.classList.contains('touring')){const top=cap.offsetTop;if(top>H*.3)ty=(top-8)/2-H/2}return [tx,ty]}
 function updViewOff(dt){const W=innerWidth,H=innerHeight;const [tx,ty]=voTarget();
  const k=1-Math.exp(-dt*5);VO.x+=(tx-VO.x)*k;VO.y+=(ty-VO.y)*k;
  if(Math.abs(VO.x)<.5&&Math.abs(VO.y)<.5){if(camera.view&&camera.view.enabled){camera.clearViewOffset()}return}
@@ -380,7 +333,7 @@ function loop(now){const fc=frameCap(now);
  if(fc===0){last=now;setTimeout(()=>requestAnimationFrame(loop),300);return}
  if(fc<60&&now-last<1000/fc-4){requestAnimationFrame(loop);return}
  const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==SG_ADDS){CUR._sbN=now;try{batchSprites(CUR);noStaleCull(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=SG_ADDS}
- if(tw){tw.t+=dt/tw.dur;const k=Math.min(1,tw.t),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;const hop=Math.pow(Math.sin(k*Math.PI),2)*hopOf()*.8;
+ if(tw){if(tw.track)q4c_retrack();tw.t+=dt/tw.dur;const k=Math.min(1,tw.t),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;const hop=Math.pow(Math.sin(k*Math.PI),2)*hopOf()*.8;
   rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1)tw=null}
  else if(!drag&&!pinch){if(Math.abs(vel.a)+Math.abs(vel.b)>1e-5){rig.a+=vel.a*dt*60;rig.b+=vel.b*dt*60;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86);else if(CUR.type==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);else{const L=CUR.bound||7000;rig.a=clamp(rig.a,-L,L);rig.b=clamp(rig.b,-L,L)}const dk=Math.exp(-dt*5.5);vel.a*=dk;vel.b*=dk}}
  if(!busy){pinchStep();drainZoom(dt)}
@@ -406,4 +359,4 @@ setTimeout(()=>{
   if(firstVisit){const tc=matchMedia('(pointer:coarse)').matches;const H=[[1800,tc?'单指拖动转动世界，双指缩放':'拖动转动世界，滚轮缩放',3400],[9800,'下方的时间轴可以换一个时代看看',3400],[15000,'靠近以后，发光的小点都是词条，点一下',3600],[21000,'右下角是图书馆：词条、故事、原著章节和番外',3800]];H.forEach(([d,t,ms])=>setTimeout(()=>{if(!$('#cap.on')&&CUR&&CUR.id==='rongqiu'&&!$('#lib.on'))hint(t,ms)},d));flyTo(18,-25,2600,7);setTimeout(()=>{$('#time').classList.add('open');setEra(2);setTimeout(()=>$('#time').classList.remove('open'),5200)},3600)}}});
  requestAnimationFrame(t=>{last=t;loop(t)})},30);
 window.__rq={bc:buildCreature,fll:frameLL,cam:camera,ren:renderer,place(a,b,alt,head){tw=null;vel.a=vel.b=0;Object.assign(rig,{a,b,alt,head:head||0})},stop(){tw=null},go,open,setEra,enterSpace,exitToVoid,flyTo,rig,get CUR(){return CUR},get ERA(){return ERA},SP,timeTo,zoomAt,pickProx,egg,get tw(){return tw}};
-Object.assign(window.__rq,{dbg:{selP:()=>selP,posOf,sizeOf,proxCenter,rigPose,flyEntry,busy:()=>busy,pickProx,eraOk,dayFor,SHD,getSpace,sunAt:lon=>{CUR.sunLon=lon-T*360/CUR.dayLen}}});
+Object.assign(window.__rq,{dbg:{selP:()=>selP,posOf,sizeOf,proxCenter,rigPose,flyEntry,ensureClear,q4c:{aim:q4c_aim,vis:q4c_vis,want:q4c_want,subject:q4c_subject,goto:q4c_goto,clear:q4c_clear},busy:()=>busy,pickProx,eraOk,dayFor,SHD,getSpace,sunAt:lon=>{CUR.sunLon=lon-T*360/CUR.dayLen}}});
