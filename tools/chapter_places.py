@@ -1,29 +1,33 @@
 # Where each chapter happens: recount data/links.js "cp" from the chapter text.
-#   CLEAN=/path/整理版.txt python3 tools/chapter_places.py [--write] [--show 768,1164]
-# The cleaned text has exactly one header per chapter, in the same order as data/chapters.js (4700).
+#   NOVEL=/path/full.txt python3 tools/chapter_places.py [--write] [--show=768,1164] [--fresh=k,k,…|--fresh=@file]
+# The full txt (8 volumes) has one header per chapter, in the same order as data/chapters.js (4881).
+# --fresh: chapters whose current place is only a placeholder (new to the index); their place is worked out from scratch.
 # For every chapter the place names (地理 / 文明 entries, their name parts, plus the short forms below) are counted,
 # longest name first so "三层云海" is not also counted as "云海"; places from another era of the book are ignored;
 # broad regions count for less than a named spot. A chapter with no clear place inherits the one before it
 # (cp = -(index)-2), as the old table did. Without --write it only prints how the result differs from the current table.
 import os, re, sys, json, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CLEAN = os.environ.get('CLEAN') or '/home/claude/out/进化的四十六亿重奏·整理版.txt'
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _common import chapters_full
 
 def load_js():
     js = ('global.window={};for(const f of ["wiki","wiki3","wiki4","chapters","links"])require(%r+"/"+f+".js");'
-          'console.log(JSON.stringify({W:window.WIKI,C:window.CHAPS,L:window.LINKS}))') % os.path.join(ROOT, 'data')
+          'console.log(JSON.stringify({W:window.WIKI,C:window.CHAPS,E:window.CHERA,L:window.LINKS}))') % os.path.join(ROOT, 'data')
     return json.loads(subprocess.run(['node', '-e', js], capture_output=True, text=True, check=True).stdout)
 
 D = load_js(); W = {w['id']: w for w in D['W']}; L = D['L']; IDS = L['ids']; IX = {x: i for i, x in enumerate(IDS)}
 
-# the era of a chapter (same rule as src/72_reader.js)
-def era(v, n):
-    if v == '1': return 1 if n <= 75 else 2 if n <= 240 else 3
-    if v == '2': return 4 if 606 + n <= 705 else 5
-    for lim, e in ((530, 6), (1090, 7), (1670, 8), (2270, 9), (2870, 10), (3450, 11)):
-        if n <= lim: return e
-    return 12
-CH = [(v, i + 1, era(v, i + 1)) for v in ('1', '2', '3') for i, _ in enumerate(D['C'][v])]
+# the era of a chapter (same rule as src/72_reader.js: where each era begins, CHERA)
+def era(k):
+    e = 1
+    for i, s in enumerate(D['E']):
+        if k >= s: e = i + 1
+    return e
+VOLS = sorted(D['C'], key=int)
+CH = []
+for v in VOLS:
+    for i, _ in enumerate(D['C'][v]): CH.append((v, i + 1, era(len(CH))))
 
 # short forms the book uses for places whose entry names are longer
 EXTRA = {
@@ -63,10 +67,9 @@ NAME2 = {}
 for n, i in PAT: NAME2.setdefault(n, []).append(i)
 
 def chapters():
-    t = open(CLEAN, encoding='utf-8').read()
-    H = [m.start() for m in re.finditer(r'(?m)^第[零一二三四五六七八九十百千0-9]+章', t)]
-    assert len(H) == len(CH), (len(H), len(CH))
-    return [t[a:H[i + 1] if i + 1 < len(H) else len(t)] for i, a in enumerate(H)]
+    T = chapters_full()
+    assert len(T) == len(CH), (len(T), len(CH))
+    return [x[3] for x in T]
 
 def place_of(text, e):
     sc = {}
@@ -79,6 +82,12 @@ def place_of(text, e):
             k = BROAD.get(i, 1) * (.3 if w['c'] == '文明' else 1) * (1.6 if m.start() < n * .2 else 1)
             sc[i] = sc.get(i, 0) + k
     return sc
+
+FRESH = set()
+for a in sys.argv:
+    if a.startswith('--fresh='):
+        x = a[8:]; x = open(x[1:]).read() if x.startswith('@') else x
+        FRESH = {int(y) for y in re.split(r'[,\s]+', x.strip()) if y}
 
 def main():
     T = chapters(); old = L['cp']; new = []; diff = []
@@ -104,7 +113,7 @@ def main():
     for k, text in enumerate(T):
         v, n, e = CH[k]
         sc = near(k)
-        o = old[k]; oid = None if o == -1 else IDS[o if o >= 0 else -o - 2]
+        o = old[k] if k < len(old) else -1; oid = None if o == -1 or k in FRESH else IDS[o if o >= 0 else -o - 2]
         best = max(sc, key=sc.get) if sc else None; s = sc.get(best, 0) if best else 0; so = sc.get(oid, 0) if oid else 0
         val = o
         # only overrule the old table when the text clearly says somewhere else

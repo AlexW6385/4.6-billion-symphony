@@ -332,7 +332,7 @@ function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'pla
 const _dd=V3(),UP_Y=V3(0,1,0),_warmH=new THREE.Color('#ffb070');
 
 /* era → which objects show (planet rule: things that lasted to the end of book two carry on into book three) */
-function applyPlanetEra(sp,e){for(const x of sp.eraObjs){const v=x.e.includes(e)||(sp.id==='rongqiu'&&e>=6&&!x.noCarry&&x.e.includes(5)&&!x.e.some(z=>z>=6));x.o.userData.eraHide=!v;x.o.visible=v}
+function applyPlanetEra(sp,e){for(const x of sp.eraObjs){const v=x.e.includes(e)||(e===13&&x.e.includes(12))||(sp.id==='rongqiu'&&e>=6&&!x.noCarry&&x.e.includes(5)&&!x.e.some(z=>z>=6));x.o.userData.eraHide=!v;x.o.visible=v}
  for(const h of sp.herds){const v=herdVisible(sp,h,e);h.eraVis=v;h.near=undefined;h.list.forEach(x=>x.o.visible=false)}
  if(sp.cfg.colorKey)sp.setColors(sp.cfg.colorKey(e));if(sp.cfg.canyonOf)sp.setCanyon(sp.cfg.canyonOf(e));if(sp.onEra)sp.onEra(e)}
 

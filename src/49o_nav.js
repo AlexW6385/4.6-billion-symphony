@@ -33,7 +33,7 @@ function q4c_above(c){const t=CUR.type;if(t==='planet'){const ll=llDir(c);return
  if(t==='tube'){const ang=Math.atan2(-c.x,-c.y)/D2R;const d=CUR.wallR?Math.max(0,CUR.wallR(c.z,ang)):0;return CUR.Rt-Math.hypot(c.x,c.y)-d}return 0}
 /* where on the screen the thing should sit, and how big it may be: the middle, unless the open card would cover it —
    then the middle of the free part (on a phone the card takes the lower half, so things go into the upper half) */
-function q4c_want(){const Wd=innerWidth,Hd=innerHeight;rigPose();const v=TG.clone().project(camera);let wx=v.z<1?clamp(v.x,-.7,.7):0,wy=v.z<1?clamp(v.y,-.7,.7):0;let fill=.26,vo=false;
+function q4c_want(){const Wd=innerWidth,Hd=innerHeight;rigPose();const v=TG.clone().project(camera);let wx=v.z<1?clamp(v.x,-.7,.7):0,wy=v.z<1?clamp(v.y,-.7,.7):0;let fill=.5,vo=false;
  const touring=document.body.classList.contains('touring')&&!document.body.classList.contains('tourcard');const cap=document.querySelector('#cap');
  if(cap&&cap.classList.contains('on')&&!touring){const L=cap.offsetLeft,T=cap.offsetTop,Rr=L+cap.offsetWidth,B=T+cap.offsetHeight;if(Rr>L&&B>T){
   if(Wd<=760){// a phone: the picture itself slides up (voTarget), the thing stays at the look-at point and only has to fit the free strip
@@ -48,11 +48,12 @@ function q4c_voNow(F){rigPose();const v=TG.clone().project(camera);if(v.z<1){F.w
 /* how high to stand so a thing of radius r fills a fair part of the view (small things a little less, big ones a little more).
    the view rests on the ground at a tilt, so the distance to the thing depends on where on the screen it is to sit (wy) and,
    on a planet, on how high it flies; the height is solved for that distance, not for the distance to the look-at point */
-function q4c_altFor(S,fill,c,wy){const t=CUR.type;if(S.planetLevel)return 2600;if(S.reg)return clamp(S.reg*D2R*R*3.2,600,1800);
- const r=S.r;let f=Math.min(fill,lerp(.16,.3,sm(3,40,r)));if(!S.obj)f=Math.min(f,S.w&&S.w.c==='地理'?.14:.2);
+function q4c_altFor(S,fill,c,wy){const t=CUR.type;if(S.planetLevel)return 2600;if(S.reg)return clamp(S.reg*D2R*R*2.2,420,1400);
+ // close enough that the thing is the subject of the picture: a third of the view or more (a place with no body of its own, a little less)
+ const r=S.r;let f=Math.min(fill,lerp(.32,.45,sm(3,40,r)));if(!S.obj)f=Math.min(f,S.w&&S.w.c==='地理'?.4:.36);
  const tn=Math.tan(camera.fov*D2R/2),D=r/(f*tn);const h=t==='planet'?Math.max(0,q4c_above(c)):0;let alt=D;
  for(let i=0;i<4;i++){const tl=tiltOf(t,alt);const phi=clamp(Math.atan((wy||0)*tn),-.5,Math.max(0,Math.min(.6,1.3-tl)));alt=(D*Math.cos(tl+phi)+h)/((1+tl*.2)*Math.max(.25,Math.cos(tl)))}
- if(t==='planet'&&S.w&&S.w.c==='地理'&&!S.obj)alt=Math.max(alt,160);
+ if(t==='planet'&&S.w&&S.w.c==='地理'&&!S.obj)alt=Math.max(alt,80);
  return clamp(alt,altMin()+8,altMax())}
 /* the rig pose that puts point P at screen position (wx,wy) for a given height and heading: a few Newton steps on (a,b).
    the ground under the target is taken as it is there (not the smoothed value from where the camera stands now) */

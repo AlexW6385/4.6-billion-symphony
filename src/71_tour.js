@@ -16,7 +16,8 @@ const TOUR_STOPS=[
  ['ng_qiushen','v_phoenix','v_feng','ng_snow'],['tn_xianqu','tn_sand','v_wuyi','tn_wuxing'],['bk_home','v_bone','v_bridge','v_warbus','dr_dreamshaper'],
  ['v_pain','v_kuding','v_amber','v_dongchuang'],['v_liquid','v_xingyan','v_ranxing','v_nospace'],['v_xiaoerxi','v_qijizhidu','v_haishen'],
  ['dr_mengli','dr_hope','dr_doll'],['bk_mengerxi','bk_crying','bk_hang','bk_abyss'],['c_sarin','bk_simu','bk_order','bk_pig'],
- ['v_benglie','v_huanxiang','v_hunhe','v_yingzhe'],['v_renzhi','v_keli','v_piaobo','v_collide']];
+ ['v_benglie','v_huanxiang','v_hunhe','v_yingzhe'],['v_renzhi','v_keli','v_piaobo','v_collide'],
+ ['j1_jisuan','j1_jijing','j1_ningqiu','j1_yongshuo'],['j1_shizong','j1_guzhan','j1_benyuan','j1_tunshi'],['j1_chezhan','j1_wohliu','j1_jiaotong','j1_jilu'],['j1_jingju','j1_guodong','j1_yongye','j1_biri'],['j2_dalie','j2_huanxu','j2_xuying','j2_guanli'],['j2_lvying','j2_heini','j2_shiti','j2_lianjun'],['j2_lukuai','j2_jiejing','j2_juxingyun','j2_heiheng','j2_anmian'],['j3_jingjing','j3_lunhui','j3_xiwang','j3_yingui'],['j3_eyevoid','j3_nongwu','j3_zhongmo','j3_genchu','j3_baigaoworld'],['j3_zhihui','j3_ronger','j3_farnuo','j3_end']];
 const CN_NUM=n=>{const d='零一二三四五六七八九';if(n<=10)return n===10?'十':d[n];if(n<20)return '十'+d[n-10];return d[Math.floor(n/10)]+'十'+(n%10?d[n%10]:'')};
 const TOUR=(()=>{const L=[];(window.ARCS||[]).forEach((a,i)=>{const S=(TOUR_STOPS[i]||[]).filter(id=>W[id]);(S.length?S:[a.go||ARCGO[i]].filter(id=>id&&W[id])).forEach((id,k)=>L.push({act:i,first:k===0,id}))});return L})();
 const tourEl=document.createElement('div');tourEl.id='tour';tourEl.className='glass';document.body.appendChild(tourEl);

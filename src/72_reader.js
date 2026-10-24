@@ -4,16 +4,20 @@
    the text itself is read from the reader's own copy, kept only in their browser.
    ================================================================ */
 const QD_CAT='https://m.qidian.com/book/2718601/catalog/';
-const VOLN={1:'卷一',2:'卷二',3:'卷三'};
-const CH=[],CHI={1:{},2:{},3:{}},VOLLEN={1:0,2:0,3:0};
-if(window.CHAPS)['1','2','3'].forEach(v=>{const L=CHAPS[v]||[];VOLLEN[v]=L.length;L.forEach((t,i)=>{const n=i+1;
- const e=v==='1'?(n<=75?1:n<=240?2:3):v==='2'?(606+n<=705?4:5):(n<=530?6:n<=1090?7:n<=1670?8:n<=2270?9:n<=2870?10:n<=3450?11:12);
+/* the book's eight volumes (卷一 单细胞 … 卷八 虚空的接触); each chapter's era comes from where the eras begin (CHERA) */
+const VCN='一二三四五六七八九十',VOLS=window.VOLS||[1,2,3].map(v=>({v,n:''}));
+const VOLN={},VOLNM={},CH=[],CHI={},VOLLEN={};VOLS.forEach(o=>{VOLN[o.v]='卷'+VCN[o.v-1];VOLNM[o.v]=o.n;CHI[o.v]={};VOLLEN[o.v]=0});
+const CHERA=window.CHERA||[0];const eraAt=k=>{let e=1;for(let i=0;i<CHERA.length;i++)if(k>=CHERA[i])e=i+1;return e};
+if(window.CHAPS)VOLS.forEach(({v})=>{v=String(v);const L=CHAPS[v]||[];VOLLEN[v]=L.length;L.forEach((t,i)=>{const n=i+1;
+ const e=eraAt(CH.length);
  const k=CH.length;const pv=CH[k-1];let d=t,dup=0;const st=t.replace(/\s*[，,]：?$/,'').replace(/。$/,'');
  if(pv&&pv.v===+v&&st!==t&&(pv.t===st||pv.raw===st+'。')){d=pv.t;dup=1}else if(/\s+[，,]：$/.test(t)){d=st;dup=1}
  d=d.replace(/^[一二三四五六七八九十]\s{2,}/,'').replace(/^(\\t|\s)+/,'').replace(/[（(]修改[)）]$/,'');CH.push({v:+v,n,t:d,raw:t,dup,e,ents:[]});(CHI[v][t]=CHI[v][t]||[]).push(k);if(d!==t)(CHI[v][d]=CHI[v][d]||[]).push(k)})});
 const ENTCH={};
-WIKI.forEach(w=>{if(!w.ch)return;let v='1';const out=[];const re=/卷([一二三])|《([^》]+)》/g;let m;
- while((m=re.exec(w.ch))){if(m[1]){v={'一':'1','二':'2','三':'3'}[m[1]];continue}let L=CHI[v]&&CHI[v][m[2]];if(!L)for(const k of['1','2','3'])if(CHI[k][m[2]]){L=CHI[k][m[2]];break}if(!L)continue;
+WIKI.forEach(w=>{if(!w.ch)return;let v='1';const out=[];const re=/卷([一二三四五六七八])|《([^》@]+)(?:@(\d+))?》/g;let m;
+ while((m=re.exec(w.ch))){if(m[1]){v=String(VCN.indexOf(m[1])+1);continue}let L=CHI[v]&&CHI[v][m[2]];if(!L)for(const k in CHI)if(CHI[k][m[2]]){L=CHI[k][m[2]];break}if(!L)continue;
+  // a title used twice in one volume can name its chapter number: 《流动@111》
+  if(m[3]){const n=+m[3],L2=L.filter(k=>CH[k].n===n);if(L2.length)L=L2}
   const e=w.e||[];const best=L.find(k=>e.includes(CH[k].e));const k=best===undefined?L[0]:best;if(!out.includes(k))out.push(k)}
  out.sort((a,b)=>a-b);ENTCH[w.id]=out;out.forEach(k=>CH[k].ents.push(w.id))});
 /* the book's own index (links.js): which entries each chapter mentions, how often, and where the chapter happens.
@@ -35,7 +39,7 @@ function goChapterPlace(k){const P=CHP[k];if(!P)return;const c=CH[k],id=P.id,w=W
 /* ---------- on the card: the chapters, and a way to page through neighbouring cards ---------- */
 const chA=k=>`<a data-ch="${k}">《${esc(CH[k].t)}》<i>${VOLN[CH[k].v]} · 第${CH[k].n}章</i></a>`;
 function chapHTML(id){const cur=[...new Set(ENTCH[id]||[])].sort((a,b)=>a-b);const X=(ENTX[id]||[]).filter(([k])=>!cur.includes(k));const w=W[id];
- if(!cur.length&&!X.length)return w&&w.ch?`<div class="sec">原文</div><div class="meta" style="margin-top:4px">${esc(w.ch)}</div>`:'';
+ if(!cur.length&&!X.length)return w&&w.ch?`<div class="sec">原文</div><div class="meta" style="margin-top:4px">${esc(w.ch.replace(/@\d+》/g,'》'))}</div>`:'';
  let h=`<div class="sec">原文章节</div>`;if(cur.length)h+=`<div class="chs">${cur.map(chA).join('')}</div>`;
  if(X.length){const tot=X.length+cur.length;const top=X.slice().sort((a,b)=>b[1]-a[1]).slice(0,cur.length?6:10).map(x=>x[0]).sort((a,b)=>a-b);
   h+=`<div class="chs">${top.map(chA).join('')}</div>`;
@@ -76,7 +80,7 @@ function parseNovel(txt){if(txt.startsWith(CLEANSIG)){const heads=[];let m;HEADX
  const heads=[];let m;HEADRE.lastIndex=0;while((m=HEADRE.exec(txt))){const t=m[1].trim();const sh=t.replace(/^第[零一二三四五六七八九十百千万两〇0-9]+章\s*/,'').trim();heads.push({s:m.index,e:m.index+m[0].length,t,sh})}
  if(heads.length<50)return null;const at=new Array(CH.length).fill(-1);let j=0;
  for(let k=0;k<CH.length;k++){const want=CH[k].raw||CH[k].t;for(let q=j;q<Math.min(heads.length,j+40);q++){if(heads[q].sh===want||heads[q].t===want||heads[q].t.endsWith(want)){at[k]=q;j=q+1;break}}}
- return{txt,heads,at}}
+ return{txt,heads,at,clean:at.every(x=>x>=0)}}
 async function loadNovelFile(file){const buf=await file.arrayBuffer();const txt=decodeNovel(new Uint8Array(buf));const N=parseNovel(txt);if(!N){toast('没认出章节','这个文件里没有找到“第……章”这样的章节标题。');return false}
  NOVEL=N;IDB.put('novel',buf);const hit=N.at.filter(x=>x>=0).length;toast('原文已载入',N.clean?`整理版，${CH.length} 章全部对上。文件只存在这台设备的浏览器里。`:`认出 ${N.heads.length} 个章节标题，对上了 ${hit} / ${CH.length} 章。换成整理版可以全部对上。文件只存在这台设备的浏览器里。`);return true}
 let novelTried=false;async function ensureNovel(){if(NOVEL||novelTried)return NOVEL;novelTried=true;const buf=await IDB.get('novel');if(buf){try{NOVEL=parseNovel(decodeNovel(new Uint8Array(buf)))}catch(e){NOVEL=null}}return NOVEL}
@@ -84,7 +88,7 @@ let novelTried=false;async function ensureNovel(){if(NOVEL||novelTried)return NO
 let NAMERE=null,NAMEID=null;function nameRe(){if(NAMERE)return NAMERE;NAMEID={};const L=[];for(const w of WIKI){for(const part of w.n.split(/\s*[·（）()]\s*/)){const t=part.trim();if(t.length<2||t.length>10||NAMEID[t])continue;NAMEID[t]=w.id;L.push(t)}}
  L.sort((a,b)=>b.length-a.length);NAMERE=new RegExp(L.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');return NAMERE}
 function chapterText(k){if(!NOVEL)return null;const q=NOVEL.at[k];if(q<0)return null;const h=NOVEL.heads[q],nx=NOVEL.heads[q+1];const raw=NOVEL.txt.slice(h.e,nx?nx.s:NOVEL.txt.length);const re=nameRe();
- return raw.split(/\r?\n/).map(l=>l.replace(/^[\s\u3000]+|[\s\u3000]+$/g,'')).filter(l=>l&&!/^【卷[一二三]】$/.test(l)).map(l=>{if(l==='……')return'<p class="sep">……</p>';if(/^【第.+】$/.test(l))return`<h4 class="subh">${esc(l.slice(1,-1))}</h4>`;
+ return raw.split(/\r?\n/).map(l=>l.replace(/^[\s\u3000]+|[\s\u3000]+$/g,'')).filter(l=>l&&!/^【卷[一二三四五六七八]】$/.test(l)&&!/^第[一二三四五六七八]卷\s/.test(l)).map(l=>{if(l==='……')return'<p class="sep">……</p>';if(/^【第.+】$/.test(l))return`<h4 class="subh">${esc(l.slice(1,-1))}</h4>`;
   const e=esc(l);return`<p>${e.replace(re,m=>`<a data-nm="${NAMEID[m]}">${m}</a>`)}</p>`}).join('')}
 
 /* ---------- the reader ---------- */
@@ -114,9 +118,9 @@ async function openRd(k,from){if(!CH[k])return;rdK=k;rdToc=false;if(from!==undef
   ${body?`<div class="txt">${body}</div>${whereH}${chipsH}<div class="rdnav end"><button data-rs="-1">‹ 上一章</button><button data-toc>目录</button><button data-rs="1">下一章 ›</button></div>`:''}
   ${body?'':`<div class="sec">前后章节</div><ol>${toc.join('')}</ol>`}
   ${NOVEL?(body?'':`<p class="note">在你载入的原文里没有对上这一章的标题。</p>`)+`<p class="note">原文来自你自己设备上的文件，只保存在这个浏览器里，不会随页面分享出去。<a class="lnk" data-unload>移除原文</a></p>`
-   +(NOVEL.clean?'':`<label class="qd load">换成整理版原文（全部章节都能对上）<input type="file" accept=".txt,text/plain" data-file hidden></label>`)
+   +(NOVEL.clean?'':`<label class="qd load">换成完整版原文（全部章节都能对上）<input type="file" accept=".txt,text/plain" data-file hidden></label>`)
    :`<label class="qd load">载入原文 txt，在这里逐章阅读<input type="file" accept=".txt,text/plain" data-file hidden></label>
-  <p class="note">最好选整理版（《进化的四十六亿重奏》·整理版.txt），全部章节都能对上；原来那份 txt（UTF-8 或 GBK）也可以。文件只在这台设备的浏览器里读取和保存，不会上传，也不会出现在分享出去的页面里。之后点任何条目的章节，都会直接翻到原文那一章。</p>
+  <p class="note">最好选完整版（八卷、到第八卷《虚空的接触》结尾的那份 txt），全部章节都能对上；整理版或更早的不全的 txt（UTF-8 或 GBK）也可以，对不上的章节只显示条目。文件只在这台设备的浏览器里读取和保存，不会上传，也不会出现在分享出去的页面里。之后点任何条目的章节，都会直接翻到原文那一章。</p>
   <a class="lnk" href="${QD_CAT}" target="_blank" rel="noopener">也可以去起点中文网的目录 ↗</a>`}`;
  rd.classList.add('on','read');rd.classList.toggle('read',!!body);rd.scrollTop=0}
 function closeRd(){rd.classList.remove('on');rdK=-1}
@@ -147,9 +151,11 @@ const chOpen=new Set();
 function chapLibHTML(q){if(q){const L=[];CH.forEach((c,k)=>{if(!c.dup&&c.t.includes(q))L.push(k)});return L.slice(0,300).map(k=>chRow(k,true)).join('')}
  let last=-1;try{last=+localStorage.getItem('rq_lastch')}catch(e){}
  let h=(CH[last]?`<button class="chr cont" data-rch="${last}"><b>继续读</b>${esc(CH[last].t)}<s>${VOLN[CH[last].v]} 第${CH[last].n}章</s></button>`:'');let lastV=0;
- for(const E of ERAS){const ks=[];CH.forEach((c,k)=>{if(c.e===E.id)ks.push(k)});if(!ks.length)continue;const v=CH[ks[0]].v;if(v!==lastV){h+=`<div class="vol">${VOLN[v]}</div>`;lastV=v}
-  h+=`<button class="chg" data-ce="${E.id}">${chOpen.has(E.id)?'▾':'▸'} ${esc(E.n)}<small>第${CH[ks[0]].n}–${CH[ks[ks.length-1]].n}章</small></button>`;
-  if(chOpen.has(E.id))h+=ks.filter(k=>!CH[k].dup).map(k=>chRow(k)).join('')}
+ const volH=v=>`<div class="vol">${VOLN[v]}${VOLNM[v]?'　'+esc(VOLNM[v]):''}</div>`;
+ for(const E of ERAS){const ks=[];CH.forEach((c,k)=>{if(c.e===E.id)ks.push(k)});if(!ks.length)continue;const A=CH[ks[0]],B=CH[ks[ks.length-1]];if(A.v!==lastV){h+=volH(A.v);lastV=A.v}
+  h+=`<button class="chg" data-ce="${E.id}">${chOpen.has(E.id)?'▾':'▸'} ${esc(E.n)}<small>${A.v===B.v?`第${A.n}–${B.n}章`:`第${A.n}章 – ${VOLN[B.v]} 第${B.n}章`}</small></button>`;
+  if(chOpen.has(E.id)){let pv=A.v;h+=ks.filter(k=>!CH[k].dup).map(k=>{const r=(CH[k].v!==pv?volH(CH[k].v):'')+chRow(k);pv=CH[k].v;return r}).join('')}
+  if(B.v!==lastV){if(!chOpen.has(E.id))h+=volH(B.v);lastV=B.v}}
  return h}
 function chRow(k,vol){const c=CH[k],n=chEnts(k).length,pl=CHP[k];return`<button class="chr" data-rch="${k}"><b>${vol?VOLN[c.v]+' ':''}${c.n}</b>${esc(c.t)}${pl&&!pl.inh?`<em>${esc(shortN(W[pl.id].n))}</em>`:''}</button>`}
 Object.assign(window.__rq,{openRd,loadNovelFile,CH,chEnts,CHP,goChapterPlace});

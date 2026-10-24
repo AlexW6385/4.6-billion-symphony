@@ -59,10 +59,12 @@ let labs=[];
 function buildLabels(sp){labRoot.innerHTML='';labs=[];sp.labels.forEach(L=>{if(!L.pos)return;const el=document.createElement('div');el.className='lab';el.textContent=L.n;labRoot.appendChild(el);
  el.onclick=()=>{if(L.id&&W[L.id]){go(L.id)}else if(L.sector||L.era){const c=L.pos;flyTo(-c.z,c.x,1600,2,clamp(c.y-340,-200,200))}};labs.push({L,el})})}
 const _pj=V3();
-function updateLabels(){const Wd=innerWidth,Hd=innerHeight;const camR=camera.position.length();for(const x of labs){const L=x.L;let on=rig.alt>L.minAlt&&(!L.e||L.e.includes(ERA));
- if(on&&CUR.type==='planet'){_pj.copy(L.pos).normalize();if(_pj.dot(camera.position.clone().normalize())<R/camR+.05)on=false}
- if(on){_pj.copy(L.pos).project(camera);if(_pj.z>1||Math.abs(_pj.x)>1.1||Math.abs(_pj.y)>1.1)on=false;else x.el.style.transform=`translate(${(_pj.x*.5+.5)*Wd}px,${(-_pj.y*.5+.5)*Hd}px) translate(-50%,-50%)`}
- x.el.classList.toggle('on',on);x.el.style.pointerEvents=on?'auto':'none'}}
+const _labCam=new THREE.Vector3();
+/* labels follow their spot on screen; the page is only touched when a label moves by a pixel or turns on or off */
+function updateLabels(){const Wd=innerWidth,Hd=innerHeight;const camR=camera.position.length();_labCam.copy(camera.position).normalize();for(const x of labs){const L=x.L;let on=rig.alt>L.minAlt&&(!L.e||L.e.includes(ERA));
+ if(on&&CUR.type==='planet'){_pj.copy(L.pos).normalize();if(_pj.dot(_labCam)<R/camR+.05)on=false}
+ if(on){_pj.copy(L.pos).project(camera);if(_pj.z>1||Math.abs(_pj.x)>1.1||Math.abs(_pj.y)>1.1)on=false;else{const tx=Math.round((_pj.x*.5+.5)*Wd),ty=Math.round((-_pj.y*.5+.5)*Hd);if(tx!==x.tx||ty!==x.ty){x.tx=tx;x.ty=ty;x.el.style.transform=`translate(${tx}px,${ty}px) translate(-50%,-50%)`}}}
+ if(on!==x.on){x.on=on;x.el.classList.toggle('on',on);x.el.style.pointerEvents=on?'auto':'none'}}}
 
 /* ---------- the hairline of time ---------- */
 function eraListFor(sp){return MB[sp.id].e}
@@ -87,7 +89,7 @@ function open(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;mark
  const rel=R0.map(relA).join('')+(R1.length?`${R1.map(relA).join('')}`:'');
  const goL=w.go&&MB[w.go]?`<a class="go" data-go="${w.go}">进入「${MB[w.go].n}」 →</a>`:'';
  const away=!(here&&(CUR.type!=='planet'||eraOk(w.e)));const goT=away&&!goL?`<a class="go" data-goto="${id}">前往「${MB[mapOf(w)].n}」看看 →</a>`:'';
- cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb ${CATK(w.c)}">${w.c} · ${placeName(w)}</div><h2>${w.n}</h2><p class="s">${w.s}</p><p class="d">${w.d}</p><div class="meta">${eras}</div>${chapHTML(id)}${rel?`<div class="sec">相关</div><div class="rel">${rel}</div>`:''}${sideHintHTML(id)}${goL}${goT}${cardNavHTML(id)}`;
+ cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb ${CATK(w.c)}">${w.c} · ${placeName(w)}</div><h2>${w.n}</h2><p class="s">${w.s}</p>${w.d.split('\n').map(x=>`<p class="d">${x}</p>`).join('')}<div class="meta">${eras}</div>${chapHTML(id)}${rel?`<div class="sec">相关</div><div class="rel">${rel}</div>`:''}${sideHintHTML(id)}${goL}${goT}${cardNavHTML(id)}`;
  cap.classList.add('on');cap.scrollTop=0;
  selP=CUR.prox.find(p=>p.w.id===id&&!p.side&&(!p.hide||!p.hide()))||CUR.prox.find(p=>p.w.id===id&&!p.side&&eraOk(p.e))||null}
 function closeCap(quiet){cap.classList.remove('on');sel=null;selP=null}
@@ -181,7 +183,7 @@ function renderLib(){const body=$('#libbody');const q=$('#q').value.trim();
    return`<button class="grp${opn?' open':''}" data-g="${m.id}">${m.n}<small>${m.sub} · ${L.length}</small></button>${inner}`}).join('');return}
  if(libTab==='ch'){body.innerHTML=chapLibHTML(q);return}
  if(libTab==='side'){body.innerHTML=sideLibHTML(q);return}
- if(libTab==='arc'){body.innerHTML='<button class="tourall" data-tour="0">▶　按故事顺序导览全书</button><div class="vol">卷一 · 卷二　绒球</div>'+ARCS.map((a,i)=>(i===12?'<div class="vol">卷三　虚空</div>':'')+`<div class="arcw"><button class="arc" data-i="${i}"><b>${esc(a.t)}<small>${esc(a.ch)} · ${ERAN[a.e]}</small></b><span>${esc(a.d)}</span></button><button class="tourb" data-tour="${i}" aria-label="从这里开始导览">▶</button></div>`).join('');return}
+ if(libTab==='arc'){body.innerHTML='<button class="tourall" data-tour="0">▶　按故事顺序导览全书</button><div class="vol">卷一 – 卷五　绒球</div>'+ARCS.map((a,i)=>(i===12?'<div class="vol">卷六 – 卷八　虚空</div>':'')+`<div class="arcw"><button class="arc" data-i="${i}"><b>${esc(a.t)}<small>${esc(a.ch)} · ${ERAN[a.e]}</small></b><span>${esc(a.d)}</span></button><button class="tourb" data-tour="${i}" aria-label="从这里开始导览">▶</button></div>`).join('');return}
  body.innerHTML=`<div class="count">已发现 ${found.size} / ${EGGS.length}</div>`+EGGS.map(g=>`<div class="egg${found.has(g.id)?' f':''}"><i>${found.has(g.id)?'✦':'·'}</i><div><b>${found.has(g.id)?esc(g.n):'未发现'}</b><small>${esc(g.hint)}</small></div></div>`).join('')}
 $('#libbody').addEventListener('click',e=>{const tb=e.target.closest('[data-tour]');if(tb){const act=+tb.dataset.tour;const k=TOUR.findIndex(s=>s.act===act);tourStart(Math.max(0,k));return}const g=e.target.closest('[data-g]');if(g){const id=g.dataset.g;openGroups.has(id)?openGroups.delete(id):openGroups.add(id);renderLib();return}
  const rc=e.target.closest('[data-rch]');if(rc){$('#lib').classList.remove('on');openRd(+rc.dataset.rch);return}const ce=e.target.closest('[data-ce]');if(ce){const k=+ce.dataset.ce;chOpen.has(k)?chOpen.delete(k):chOpen.add(k);renderLib();return}
