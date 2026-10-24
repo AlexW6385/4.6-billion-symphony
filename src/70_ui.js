@@ -126,7 +126,7 @@ function ensureClear(id,F){if(CUR.camOv)return;if(!id&&F&&F.P){q4c_gotoPoint(F.P
  if(q4c_last.id===id&&performance.now()-q4c_last.t<800)return;q4c_goto(id,F&&F.p||null)}
 /* cutaway: canopy, spires or huts still standing between the camera and a small thing sink into the ground
    while its card is open, and grow back when it closes */
-const CUT={L:[],s:0,goal:0,req:null,sp:null};const _cm=new THREE.Matrix4(),_cp=new THREE.Vector3(),_cq=new THREE.Quaternion(),_cs=new THREE.Vector3();
+const CUT={L:[],s:0,goal:0,req:null,sp:null,off:true};const _cn=new THREE.Vector3(),_cn2=new THREE.Vector3();const _cm=new THREE.Matrix4(),_cp=new THREE.Vector3(),_cq=new THREE.Quaternion(),_cs=new THREE.Vector3();
 function cutSet(c,k){k=Math.max(.001,k);if(c.im){c.m0.decompose(_cp,_cq,_cs);_cs.multiplyScalar(k);_cm.compose(_cp,_cq,_cs);c.im.setMatrixAt(c.i,_cm);const ic=c.im.userData._ic,v0=c.im.instanceMatrix.version;c.im.instanceMatrix.needsUpdate=true;if(ic&&ic.v===v0)ic.v=c.im.instanceMatrix.version}else c.o.scale.copy(c.s0).multiplyScalar(k)}
 function cutNow(){for(const c of CUT.L)cutSet(c,1);CUT.L=[];CUT.keys=new Set();CUT.goal=0;CUT.job=null;CUT.big=false}
 function cutRun(){if(!CUT.job)return;try{if(CUT.job.next().done)CUT.job=null}catch(e){CUT.job=null}}
@@ -137,9 +137,11 @@ function* cutJob(P,r){const cam=camera;const dist=cam.position.distanceTo(P);if(
  for(const [x,y] of [[0,0],[1,0],[-1,0],[0,1],[0,-1],[.7,.7],[-.7,.7],[.7,-.7],[-.7,-.7],[0,-1.6],[0,1.6]]){if(nr++%3===2)yield;const rr=Math.max(r*1.2,5),T=P.clone().addScaledVector(rt,x*rr).addScaledVector(up,y*rr);const d=T.clone().sub(cp);const L=d.length();
   _crc.set(cp,d.normalize());_crc.far=Math.max(1,L-Math.max(r*1.6,6));_crc.camera=cam;
   for(const h of occCast(OL)){const o=h.object;if(!o.isMesh)continue;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)continue;
+   // the ground the thing stands on (paving, plates, a city's floor tiles) is not in the way: a ray that meets it near the thing and not above it stops there
+   if(CUR.type==='planet'&&h.point.distanceTo(P)<Math.max(r*3,30)&&_cn.copy(h.point).sub(P).dot(_cn2.copy(P).normalize())<r*.3)break;
    if(!cuttable(o,r))break;if(o.isInstancedMesh){if(h.instanceId==null)continue;const key=o.uuid+':'+h.instanceId;if(seen.has(key))continue;seen.add(key);const m0=new THREE.Matrix4();o.getMatrixAt(h.instanceId,m0);CUT.L.push({im:o,i:h.instanceId,m0,s:0})}
    else{if(seen.has(o.uuid))continue;seen.add(o.uuid);CUT.L.push({o,s0:o.scale.clone(),s:0})}if(CUT.L.length>220)return}}}
-function cutStep(dt){if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.big=!!q.big;CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
+function cutStep(dt){if(CUT.off){if(CUT.L.length||CUT.req){CUT.req=null;cutNow()}return}if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.big=!!q.big;CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
  if(CUT.goal===1&&sel!==CUT.id)CUT.goal=0;
  // following something that moves: every second, whatever new got in the way sinks too
  const F=CUR.follow;if(CUT.goal===1&&F&&F.id===CUT.id&&!tw){CUT.t=(CUT.t||0)+dt;if(CUT.t>1&&!CUT.job){CUT.t=0;const c=proxCenter(F.p);if(c){CUT.job=cutJob(c.clone(),F.p.r||4);cutRun()}}}
@@ -337,7 +339,7 @@ function loop(now){if(q5s_halt)return;const fc=frameCap(now);
  if(fc<60&&now-last<1000/fc-4){requestAnimationFrame(loop);return}
  const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;q5s_begin();if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==q5s_adds(CUR.scene)&&!q5s_blown()){CUR._sbN=now;try{batchSprites(CUR);noStaleCull(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=q5s_adds(CUR.scene)}
  if(tw){if(tw.track)q4c_retrack();tw.t+=dt/tw.dur;const k=Math.min(1,tw.t),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;const hop=Math.pow(Math.sin(k*Math.PI),2)*hopOf()*.8;
-  rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1)tw=null}
+  rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1){const tr=tw.track;tw=null;if(tr&&tr.settle)q4c_settle(tr)}}
  else if(!drag&&!pinch){if(Math.abs(vel.a)+Math.abs(vel.b)>1e-5){rig.a+=vel.a*dt*60;rig.b+=vel.b*dt*60;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86);else if(CUR.type==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);else{const L=CUR.bound||7000;rig.a=clamp(rig.a,-L,L);rig.b=clamp(rig.b,-L,L)}const dk=Math.exp(-dt*5.5);vel.a*=dk;vel.b*=dk}}
  if(!busy){pinchStep();drainZoom(dt)}
  if(!busy){const kk=dragK()*5*dt*60,ch=Math.cos(rig.head),sh=Math.sin(rig.head);if(keys.KeyW||keys.ArrowUp)moveBy(kk*ch,-kk*sh);if(keys.KeyS||keys.ArrowDown)moveBy(-kk*ch,kk*sh);if(keys.KeyD||keys.ArrowRight)moveBy(kk*sh,kk*ch);if(keys.KeyA||keys.ArrowLeft)moveBy(-kk*sh,-kk*ch);
