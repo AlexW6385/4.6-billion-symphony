@@ -101,7 +101,7 @@ let rdToc=false;
 function openToc(v){if(rdK<0||!CH[rdK])return;const c=CH[rdK];v=v||rdToc||c.v;rdToc=v;
  const L=[];for(let j=0;j<CH.length;j++){const x=CH[j];if(x.v!==v)continue;L.push(`<li data-rk="${j}" class="${j===rdK?'cur':''}"><b>${x.n}</b>${esc(x.t)}${x.ents&&x.ents.length?'<s>条目</s>':''}</li>`)}
  rd.innerHTML=`<button class="x" aria-label="关闭">×</button><a class="back" data-tocback>‹ 回到《${esc(c.t)}》</a>
-  <div class="eb">目录 · ${VOLLEN[v]} 章</div><div class="vtabs">${[1,2,3].map(n=>`<button data-tv="${n}" class="${n===v?'on':''}">${VOLN[n]}</button>`).join('')}</div>
+  <div class="eb">目录 · ${VOLN[v]}${VOLNM[v]?' '+esc(VOLNM[v]):''} · ${VOLLEN[v]} 章</div><div class="vtabs">${VOLS.map(o=>o.v).map(n=>`<button data-tv="${n}" class="${n===v?'on':''}" title="${esc(VOLNM[n]||'')}">${VOLN[n]}</button>`).join('')}</div>
   <ol class="toc">${L.join('')}</ol>`;
  rd.classList.add('on');rd.classList.remove('read');rd.scrollTop=0;const li=rd.querySelector('li.cur');if(li)rd.scrollTop=Math.max(0,li.offsetTop-rd.clientHeight*.4)}
 async function openRd(k,from){if(!CH[k])return;rdK=k;rdToc=false;if(from!==undefined)rdFrom=from;if(!NOVEL&&!novelTried){if(!rd.classList.contains('on')){rd.innerHTML='<button class="x" aria-label="关闭">×</button><p class="sec">翻开中…</p>';rd.classList.add('on')}await ensureNovel()}if(rdK!==k)return;const c=CH[k];const vl=VOLLEN[c.v];const body=NOVEL?chapterText(k):null;

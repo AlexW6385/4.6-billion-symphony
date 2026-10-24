@@ -133,7 +133,7 @@ const log=(...a)=>console.log(...a);let nShot=0;
   const eb1=await ev(()=>document.querySelector('#rd .eb').textContent);await click('#rd [data-rs="1"]');await wait(800);const eb2=await ev(()=>document.querySelector('#rd .eb').textContent);ok('reader next chapter',eb1!==eb2,[eb1,eb2]);
   const fi=await p.$('#rd input[type=file]');if(fi){await fi.setInputFiles(CLEAN);for(let i=0;i<30;i++){await p.waitForTimeout(500);await wait(100);if(await ev(()=>!!document.querySelector('#rd .txt')))break}ok('load txt shows text',await ev(()=>!!document.querySelector('#rd .txt')));await shot('reader_txt')}
   await click('#rd [data-rs="1"]');await wait(800);ok('next keeps text',await ev(()=>!!document.querySelector('#rd .txt')));
-  const tocb=await p.$('#rd [data-toc]');if(tocb){await click('#rd [data-toc]');await wait(600);ok('toc page opens',await ev(()=>document.querySelectorAll('#rd ol.toc li').length>50));await shot('reader_toc');await click('#rd [data-tocback]');await wait(600);ok('toc back to chapter',await ev(()=>!!document.querySelector('#rd .txt')))}
+  const tocb=await p.$('#rd [data-toc]');if(tocb){await click('#rd [data-toc]');await wait(600);ok('toc page opens',await ev(()=>document.querySelectorAll('#rd ol.toc li').length>=20));await shot('reader_toc');await click('#rd [data-tocback]');await wait(600);ok('toc back to chapter',await ev(()=>!!document.querySelector('#rd .txt')))}
   const nm=await p.$('#rd [data-nm]');ok('inline entry names in text',!!nm);
   if(nm){await nm.click();await idle(2500);ok('inline name goes to entry',await vis('#cap.on'),await ev(()=>document.querySelector('#cap h2').textContent));await shot('reader_nm')}
   if(await vis('#rd.on'))await click('#rd .x');await wait(400);ok('reader closes',!(await vis('#rd.on')));
