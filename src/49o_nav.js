@@ -82,7 +82,8 @@ function q4c_vis(S,c,skipCut){const cam=camera;const dist=cam.position.distanceT
  let clear=0;const hull=new THREE.Sphere(c,rr*1.08);
  for(const Q of pts){const d=Q.clone().sub(cam.position);const L=d.length();d.normalize();q4c_rc.set(cam.position,d);q4c_rc.camera=cam;
   let far=L-1;if(q4c_rc.ray.intersectSphere(hull,q4c_tmpV))far=Math.min(far,cam.position.distanceTo(q4c_tmpV)-.5);q4c_rc.far=Math.max(.5,far);
-  let blocked=false;for(const h of occCast(q4c_occ)){const o=h.object;if(!o.isMesh||q4c_own(o,S.id))continue;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!q4c_solid(m))continue;if(!q4c_occ&&!isVis(o))continue;if(skipCut&&dist<700&&cuttable(o,S.rc))continue;blocked=true;break}
+  let blocked=false;for(const h of occCast(q4c_occ)){const o=h.object;if(!o.isMesh||q4c_own(o,S.id))continue;if(o===CUR.ocean)continue;// the sea is seen through, it never hides what swims in it
+  const m=Array.isArray(o.material)?o.material[0]:o.material;if(!q4c_solid(m))continue;if(!q4c_occ&&!isVis(o))continue;if(skipCut&&dist<700&&cuttable(o,S.rc))continue;blocked=true;break}
   if(!blocked)clear++}
  return clear/pts.length}
 /* the camera itself must stand in the open: not under the ground, not inside a wall, a trunk or a crown */
@@ -142,7 +143,7 @@ function q4c_follow(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!
  if(F.gAlt!==undefined){const k=1-Math.exp(-dt*2.2);rig.alt+=(F.gAlt-rig.alt)*k;rig.head+=(F.gHead-rig.head)*k;if(Math.abs(F.gAlt-rig.alt)<1&&Math.abs(F.gHead-rig.head)<.01)F.gAlt=undefined}
  const pose=q4c_aim(c,rig.alt,rig.head,F.wx,F.wy,undefined,F.prev||undefined,F.prev?2:5);const dB=x=>t==='planet'||t==='tube'?wrap180(x):x;
  // never let the camera end up on top of the thing it follows (a herd member that walked under it)
- if(F.gAlt===undefined&&camera.position.distanceTo(c)<Math.max(10,F.S.r*5)){F.gAlt=Math.min(altMax(),Math.max(rig.alt*1.5,q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy)));F.gHead=rig.head}
+ if(F.gAlt===undefined&&camera.position.distanceTo(c)<Math.max(3,F.S.r*1.2)){F.gAlt=Math.min(altMax(),Math.max(rig.alt*1.5,q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy)));F.gHead=rig.head}
  if(pose.err>.4&&F.gAlt===undefined){F.gAlt=Math.min(altMax(),Math.max(rig.alt*1.4,q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy)));F.gHead=rig.head}
  if(F.prev){const da=pose.a-F.prev.a,db=dB(pose.b-F.prev.b),dy=pose.y-F.prev.y;const u=t==='planet'?R*D2R:1,cs=t==='planet'?Math.max(.15,Math.cos(pose.a*D2R)):1;
   if(Math.hypot(da*u,db*(t==='tube'?CUR.Rt*D2R:u*cs),dy)>Math.max(60,rig.alt*1.5)){F.prev=null;flyTo(pose.a,pose.b,rig.alt,1.2,pose.y,rig.head);tw.track={S:F.S,wx:F.wx,wy:F.wy,vo:F.vo,live:true};return}
@@ -150,8 +151,8 @@ function q4c_follow(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!
  else Object.assign(rig,{a:pose.a,b:pose.b,y:pose.y});
  F.prev=pose;if(t==='planet')rig.a=clamp(rig.a,-86,86);else if(t==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);
  // every so often: is it still in sight, and still the right size? a blocked view turns first, then goes lower or (within a cap) higher
- F.chk=(F.chk||0)+dt;if(F.chk>.6&&F.gAlt===undefined){F.chk=0;rigPose();q4c_occ=occList(c,Math.max(260,F.S.r*6));let vis;try{vis=q4c_vis(F.S,c,true)}finally{q4c_occ=null}
+ F.chk=(F.chk||0)+dt;if(F.chk>.6&&F.gAlt===undefined&&performance.now()-(F.adj||0)>3000){F.chk=0;rigPose();q4c_occ=occList(c,Math.max(260,F.S.r*6));let vis;try{vis=q4c_vis(F.S,c,true)}finally{q4c_occ=null}
   const cap=Math.min(altMax(),Math.max(F.alt0*1.6,F.S.r*20));const want=q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy);
   if(vis<.6){let b=q4c_clear(F.S,c,{alt:rig.alt,head:rig.head,y:rig.y},F.wx,F.wy,true);const now=performance.now();if(b.sc<.5&&now-(F.full||0)>2500){F.full=now;b=q4c_clear(F.S,c,{alt:Math.min(cap,Math.max(rig.alt,want)),head:rig.head,y:rig.y},F.wx,F.wy)}
-   if(b.big&&!CUT.big){CUT.big=true;CUT.t=2}if(b.sc>vis+.1&&(b.head!==rig.head||b.alt!==rig.alt)){F.gAlt=Math.min(cap,b.alt);F.gHead=b.head}}
-  else if(rig.alt<want*.75){F.gAlt=Math.min(cap,want);F.gHead=rig.head}else if(rig.alt>want*2.4&&vis>.9){F.gAlt=Math.max(want*1.5,rig.alt*.7);F.gHead=rig.head}}}
+   if(b.big&&!CUT.big){CUT.big=true;CUT.t=2}if(b.sc>vis+.25&&(Math.abs(b.head-rig.head)>.05||Math.abs(Math.log(b.alt/rig.alt))>.15)){F.gAlt=Math.min(cap,b.alt);F.gHead=b.head;F.adj=performance.now()}}
+  else if(rig.alt<want*.75){F.gAlt=Math.min(cap,want);F.gHead=rig.head;F.adj=performance.now()}else if(rig.alt>want*2.4&&vis>.9){F.gAlt=Math.max(want*1.5,rig.alt*.7);F.gHead=rig.head;F.adj=performance.now()}}}

@@ -192,7 +192,9 @@ makeCover=function(sp,fn){sp.q2Biome=fn;return q2_mc0(sp,fn)};
 
 /* ---------------- after a planet is built ---------------- */
 const q2_gs0=getSpace;
-getSpace=function(id){const had=!!SP[id];const sp=q2_gs0(id);if(!had&&sp&&sp.type==='planet'&&sp.terr)try{q2_setup(sp)}catch(e){console.warn('q2',id,e)}return sp};
+/* worlds whose ground is not soil (the metal-plated 虚民母球): the finer ground patch would paint plain earth over their plating */
+const Q2_NOPATCH=new Set(['ximin']);
+getSpace=function(id){const had=!!SP[id];const sp=q2_gs0(id);if(!had&&sp&&sp.type==='planet'&&sp.terr&&!Q2_NOPATCH.has(id))try{q2_setup(sp)}catch(e){console.warn('q2',id,e)}return sp};
 
 function q2_setup(sp){const Gd=sp.G,geo=sp.terr.geometry,n=Gd.n,M=Gd.M,NN=Gd.N;
  // forest floor (from where the trees stand) and wet ground (river banks) for every grid point

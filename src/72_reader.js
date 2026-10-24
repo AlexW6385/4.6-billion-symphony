@@ -59,10 +59,12 @@ function swipeable(el,fn){let s=null;el.addEventListener('pointerdown',e=>{if(e.
  el.addEventListener('pointermove',e=>{if(!s||e.pointerId!==s.id)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.3){el.style.transform=`translateX(${dx*.35}px)`;el.style.opacity=String(1-Math.min(.5,Math.abs(dx)/500))}});
  const end=e=>{if(!s||e.pointerId!==s.id)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;s=null;el.style.transform='';el.style.opacity='';if(Math.abs(dx)>56&&Math.abs(dx)>Math.abs(dy)*1.4)fn(dx<0?1:-1)};
  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',e=>{s=null;el.style.transform='';el.style.opacity=''})
- /* laptop trackpads: a two-finger sideways swipe arrives as horizontal wheel deltas; one gesture (plus its inertia tail) turns one page */
- let wx=0,wl=false,wt=0;const wr=()=>{wx=0;wl=false;el.style.transform='';el.style.opacity=''};
- el.addEventListener('wheel',e=>{const ax=Math.abs(e.deltaX);if(ax<=Math.abs(e.deltaY)*1.2&&!wx&&!wl)return;e.preventDefault();clearTimeout(wt);wt=setTimeout(wr,wl?260:180);if(wl)return;
-  wx+=e.deltaX*(e.deltaMode===1?33:1);if(Math.abs(wx)>110){const d=wx>0?1:-1;wl=true;el.style.transform='';el.style.opacity='';fn(d);return}
+ /* laptop trackpads: a two-finger sideways swipe arrives as horizontal wheel deltas. one gesture turns one page; its inertia tail
+    (deltas that only fade) is swallowed, but a fresh swipe — the deltas growing again, or a short pause — turns the next page at once */
+ let wx=0,wl=false,wt=0,wlast=0,wT=0;const wr=()=>{wx=0;wl=false;el.style.transform='';el.style.opacity=''};
+ el.addEventListener('wheel',e=>{const ax=Math.abs(e.deltaX);if(ax<=Math.abs(e.deltaY)*1.2&&!wx&&!wl)return;e.preventDefault();clearTimeout(wt);wt=setTimeout(wr,180);
+  const now=performance.now();if(wl&&(now-wT>90||(ax>8&&ax>wlast*1.6)))wl=false;wlast=ax;wT=now;if(wl)return;
+  wx+=e.deltaX*(e.deltaMode===1?33:1);if(Math.abs(wx)>110){const d=wx>0?1:-1;wl=true;wx=0;el.style.transform='';el.style.opacity='';fn(d);return}
   el.style.transform=`translateX(${-wx*.35}px)`;el.style.opacity=String(1-Math.min(.5,Math.abs(wx)/500))},{passive:false})}
 swipeable(cap,d=>{if(cap.dataset.side){const i=SIDES.findIndex(s=>s.id===cap.dataset.side);goSide(SIDES[(i+d+SIDES.length)%SIDES.length].id);return}cardStep(d)});
 
