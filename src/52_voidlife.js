@@ -138,4 +138,4 @@ function dreamRoadMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(616);const part
 function voidLin(sp){const s=glowSprite('#ffd890',26,.85),s2=glowSprite('#fff4d8',8,1);s.userData.noBatch=s2.userData.noBatch=1;const g=new THREE.Group();g.add(s);g.add(s2);sp.scene.add(g);const pos=V3();
  const place=()=>{const S=SECTORS[ERA];if(!S){g.visible=false;return pos}g.visible=true;pos.set(S.c[0]+90,S.c[1]-50,S.c[2]+60);return pos};
  anim(sp,null,t=>{g.position.copy(place());const k=.75+.25*Math.sin(t*1.6);s.material.opacity=.6*k;s.scale.setScalar(26+5*Math.sin(t*1.6))});
- prox(sp,'lin',()=>place(),24,{maxD:3800,e:[6,7,8,9,10,11,12],hide:()=>!SECTORS[ERA]})}
+ prox(sp,'lin',()=>place(),24,{maxD:3800,e:[6,7,8,9,10,11,12,13],hide:()=>!SECTORS[ERA]})}

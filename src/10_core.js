@@ -75,7 +75,7 @@ const W=Object.fromEntries(WIKI.map(w=>[w.id,w]));
 const EB=Object.fromEntries(ERAS.map(e=>[e.id,e]));
 const MAPL=MAPS.filter(m=>m.id!=='ningu');
 const MB=Object.fromEntries(MAPL.map(m=>[m.id,m]));
-MB.void.e=[6,7,8,9,10,11,12];
+MB.void.e=[6,7,8,9,10,11,12,13];
 const mapOf=w=>w.m||'rongqiu';
 const PORTAL={};WIKI.forEach(w=>{if(w.go&&MB[w.go]&&mapOf(w)==='void')PORTAL[w.go]=w.id});
 FAUNA.forEach(f=>{if(f.w==='xm_train')f.track=1});
@@ -140,7 +140,7 @@ const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'
 const COARSE=matchMedia('(pointer:coarse)').matches;let PR=Math.min(window.devicePixelRatio||1,COARSE?1.3:1.5);renderer.setPixelRatio(PR);
 renderer.toneMapping=THREE.NoToneMapping;renderer.outputEncoding=THREE.LinearEncoding;
 /* near shadows: only the planet sun casts, its shadow box follows the spot you look at and is redrawn every other frame (see shadowFollow) */
-renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=matchMedia('(pointer:coarse)').matches?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
 const SHD={on:true,f:0,max:1500,ms:matchMedia('(pointer:coarse)').matches?1024:2048};
 const camera=new THREE.PerspectiveCamera(45,1,.4,120000);
 const POST={on:!!(THREE.EffectComposer&&THREE.UnrealBloomPass&&THREE.ShaderPass)};
@@ -159,8 +159,8 @@ function initPost(){if(!POST.on)return;try{const w=innerWidth,h=innerHeight;cons
  if(!rt)rt=new THREE.WebGLRenderTarget(w*PR,h*PR,ro);
  composer=new THREE.EffectComposer(renderer,rt);renderPass=new THREE.RenderPass(new THREE.Scene(),camera);composer.addPass(renderPass);
  bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(w,h),.62,.5,.93);composer.addPass(bloomPass);
- // the glow is a soft blur anyway: work it out at one sample per screen point, not per device pixel
- {const bs=bloomPass.setSize.bind(bloomPass);bloomPass.setSize=(W,H)=>{const k=Math.min(1,1/PR);bs(Math.max(2,Math.round(W*k)),Math.max(2,Math.round(H*k)))}}
+ // the glow is a soft blur anyway: work it out below one sample per screen point (three quarters on a computer, half on a phone)
+ {const bs=bloomPass.setSize.bind(bloomPass);bloomPass.setSize=(W,H)=>{const k=Math.min(1,1/PR)*(COARSE?.5:.75);bs(Math.max(2,Math.round(W*k)),Math.max(2,Math.round(H*k)))}}
  finalPass=new THREE.ShaderPass(FinalShader);composer.addPass(finalPass);
  if(THREE.FXAAShader&&!POST.msaa){fxaaPass=new THREE.ShaderPass(THREE.FXAAShader);composer.addPass(fxaaPass)}
 }catch(e){console.warn('post off',e);POST.on=false;composer=null}}
@@ -177,7 +177,7 @@ function anim(sp,o,f){sp.anims.push({o,f});}
 
 /* ---- era state ---- */
 let ERA=store.get('rq_era',2);if(!EB[ERA])ERA=2;
-function eraOk(e){if(!CUR||CUR.type!=='planet')return true;return !e||e.includes(ERA)}
+function eraOk(e){if(!CUR||CUR.type!=='planet')return true;return !e||e.includes(ERA)||(ERA===13&&e.includes(12))}
 
 /* ---- the camera rig: one rig over three kinds of surface ---- */
 const rig={a:18,b:-25,alt:2600,head:0,y:0};

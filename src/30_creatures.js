@@ -430,7 +430,7 @@ const NOCARRY=new Set(['xumin','ev_xumin','creator2','tianchuan']);
 function makeHerds(list,sp){const hs=[];list.forEach((f,fi)=>{if(f.kind==='none')return;const L=[];for(let i=0;i<f.n;i++){const o=buildCreature(f);if(!o)return;if(f.w)o.userData.pick=f.w;if(f.swim)o.userData.swim=1;if(!o.userData.free&&!f.swim&&!(f.alt>1.5)&&!/jelly|flyer|burner|fish|squid|swarm|fluff/.test(f.kind||'')&&!o.userData.segs&&!o.userData.noShadow){const bb=new THREE.Box3().setFromObject(o);if(!bb.isEmpty()&&bb.min.y>-.5&&bb.min.y<1.2)o.add(shadow(Math.max(.4,Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)*.42)))}if(!o.userData.free){skinify(o);bake(o)}if(!o.userData.free)o.scale.multiplyScalar(f.s*2.2);o.userData.wid=f.w;sp.scene.add(o);
   L.push({o,ph:i*2.1+fi,sp:(.035+((fi*7+i)%5)*.011)*(f.kind==='flyer'||f.kind==='jelly'?1.5:1)})}
  if(!L.length)return;const h={f,list:L};hs.push(h)});return hs}
-function herdVisible(sp,h,e){const fe=h.f.e;if(fe.includes(e))return true;return sp.id==='rongqiu'&&e>=6&&fe.includes(5)&&!fe.some(z=>z>=6)&&!NOCARRY.has(h.f.w)}
+function herdVisible(sp,h,e){const fe=h.f.e;if(fe.includes(e)||(e===13&&fe.includes(12)))return true;return sp.id==='rongqiu'&&e>=6&&fe.includes(5)&&!fe.some(z=>z>=6)&&!NOCARRY.has(h.f.w)}
 const tmpO=new THREE.Object3D(),pA=V3(),pB=V3(),m4=new THREE.Matrix4();
 function routeAt(f,u){let R0=f._rc;if(!R0){const r=f.route;let L=0;const c=[0];for(let i=0;i<r.length;i++){const a=r[i],b=r[(i+1)%r.length];L+=Math.hypot(b[0]-a[0],(b[1]-a[1])*Math.cos((a[0]+b[0])*.5*D2R));c.push(L)}R0=f._rc={c,L}}
  const d=(((u%1)+1)%1)*R0.L;let i=0;while(i<f.route.length-1&&R0.c[i+1]<d)i++;const a=f.route[i],b=f.route[(i+1)%f.route.length];const k=(d-R0.c[i])/Math.max(1e-6,R0.c[i+1]-R0.c[i]);

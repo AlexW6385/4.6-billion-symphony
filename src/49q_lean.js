@@ -10,4 +10,4 @@
    ================================================================ */
 function Q5OFF(){return window.__q5off!==undefined?window.__q5off:1}
 const Q5DOWN=42;
-setTimeout(()=>{try{Object.assign(window.__rq.dbg,{post:()=>({bloomPass,composer,finalPass,fxaaPass}),setLvl:L=>{perf.lvl=L;applyLevel()},perf:()=>perf})}catch(e){}},0);
+setTimeout(()=>{try{Object.assign(window.__rq.dbg,{post:()=>({bloomPass,composer,finalPass,fxaaPass}),setLvl:L=>{perf.lvl=L;applyLevel()},perf:()=>perf,tw:()=>tw})}catch(e){}},0);

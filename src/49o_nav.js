@@ -33,7 +33,7 @@ function q4c_above(c){const t=CUR.type;if(t==='planet'){const ll=llDir(c);return
  if(t==='tube'){const ang=Math.atan2(-c.x,-c.y)/D2R;const d=CUR.wallR?Math.max(0,CUR.wallR(c.z,ang)):0;return CUR.Rt-Math.hypot(c.x,c.y)-d}return 0}
 /* where on the screen the thing should sit, and how big it may be: the middle, unless the open card would cover it —
    then the middle of the free part (on a phone the card takes the lower half, so things go into the upper half) */
-function q4c_want(){const Wd=innerWidth,Hd=innerHeight;rigPose();const v=TG.clone().project(camera);let wx=v.z<1?clamp(v.x,-.7,.7):0,wy=v.z<1?clamp(v.y,-.7,.7):0;let fill=.26,vo=false;
+function q4c_want(){const Wd=innerWidth,Hd=innerHeight;rigPose();const v=TG.clone().project(camera);let wx=v.z<1?clamp(v.x,-.7,.7):0,wy=v.z<1?clamp(v.y,-.7,.7):0;let fill=.5,vo=false;
  const touring=document.body.classList.contains('touring')&&!document.body.classList.contains('tourcard');const cap=document.querySelector('#cap');
  if(cap&&cap.classList.contains('on')&&!touring){const L=cap.offsetLeft,T=cap.offsetTop,Rr=L+cap.offsetWidth,B=T+cap.offsetHeight;if(Rr>L&&B>T){
   if(Wd<=760){// a phone: the picture itself slides up (voTarget), the thing stays at the look-at point and only has to fit the free strip
@@ -48,11 +48,15 @@ function q4c_voNow(F){rigPose();const v=TG.clone().project(camera);if(v.z<1){F.w
 /* how high to stand so a thing of radius r fills a fair part of the view (small things a little less, big ones a little more).
    the view rests on the ground at a tilt, so the distance to the thing depends on where on the screen it is to sit (wy) and,
    on a planet, on how high it flies; the height is solved for that distance, not for the distance to the look-at point */
-function q4c_altFor(S,fill,c,wy){const t=CUR.type;if(S.planetLevel)return 2600;if(S.reg)return clamp(S.reg*D2R*R*3.2,600,1800);
- const r=S.r;let f=Math.min(fill,lerp(.16,.3,sm(3,40,r)));if(!S.obj)f=Math.min(f,S.w&&S.w.c==='地理'?.14:.2);
+// trenches and pits: looked into from higher up, or their walls hide them
+const Q4C_DEEP=new Set(['canyon','rift','inca_pit','abyss']);
+function q4c_altFor(S,fill,c,wy){const t=CUR.type;if(S.planetLevel)return 2600;if(S.reg)return clamp(S.reg*D2R*R*2.2,420,1400);
+ // close enough that the thing is the subject of the picture: a third of the view or more (a place with no body of its own, a little less)
+ const r=S.r;let f=Math.min(fill,lerp(.16,.45,sm(3,40,r)));if(!S.obj)f=Math.min(f,S.w&&S.w.c==='地理'?.28:.34);
  const tn=Math.tan(camera.fov*D2R/2),D=r/(f*tn);const h=t==='planet'?Math.max(0,q4c_above(c)):0;let alt=D;
  for(let i=0;i<4;i++){const tl=tiltOf(t,alt);const phi=clamp(Math.atan((wy||0)*tn),-.5,Math.max(0,Math.min(.6,1.3-tl)));alt=(D*Math.cos(tl+phi)+h)/((1+tl*.2)*Math.max(.25,Math.cos(tl)))}
- if(t==='planet'&&S.w&&S.w.c==='地理'&&!S.obj)alt=Math.max(alt,160);
+ // a place seen too low hides behind its own rims and walls
+ if(t==='planet'&&S.w&&S.w.c==='地理'&&!S.obj)alt=Math.max(alt,80,r*(Q4C_DEEP.has(S.w.id)?15:7.5));
  return clamp(alt,altMin()+8,altMax())}
 /* the rig pose that puts point P at screen position (wx,wy) for a given height and heading: a few Newton steps on (a,b).
    the ground under the target is taken as it is there (not the smoothed value from where the camera stands now) */
@@ -137,6 +141,8 @@ function q4c_follow(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!
  const c=F.S.c();if(!c||!(dt>0))return;const t=CUR.type;
  if(F.gAlt!==undefined){const k=1-Math.exp(-dt*2.2);rig.alt+=(F.gAlt-rig.alt)*k;rig.head+=(F.gHead-rig.head)*k;if(Math.abs(F.gAlt-rig.alt)<1&&Math.abs(F.gHead-rig.head)<.01)F.gAlt=undefined}
  const pose=q4c_aim(c,rig.alt,rig.head,F.wx,F.wy,undefined,F.prev||undefined,F.prev?2:5);const dB=x=>t==='planet'||t==='tube'?wrap180(x):x;
+ // never let the camera end up on top of the thing it follows (a herd member that walked under it)
+ if(F.gAlt===undefined&&camera.position.distanceTo(c)<Math.max(10,F.S.r*5)){F.gAlt=Math.min(altMax(),Math.max(rig.alt*1.5,q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy)));F.gHead=rig.head}
  if(pose.err>.4&&F.gAlt===undefined){F.gAlt=Math.min(altMax(),Math.max(rig.alt*1.4,q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy)));F.gHead=rig.head}
  if(F.prev){const da=pose.a-F.prev.a,db=dB(pose.b-F.prev.b),dy=pose.y-F.prev.y;const u=t==='planet'?R*D2R:1,cs=t==='planet'?Math.max(.15,Math.cos(pose.a*D2R)):1;
   if(Math.hypot(da*u,db*(t==='tube'?CUR.Rt*D2R:u*cs),dy)>Math.max(60,rig.alt*1.5)){F.prev=null;flyTo(pose.a,pose.b,rig.alt,1.2,pose.y,rig.head);tw.track={S:F.S,wx:F.wx,wy:F.wy,vo:F.vo,live:true};return}

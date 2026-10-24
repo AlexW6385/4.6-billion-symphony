@@ -321,7 +321,7 @@ function placeEntries(sp){WIKI.filter(w=>mapOf(w)===sp.id).forEach(w=>{const p=p
  else if(!entryShape(w,sp,p)){const m=mote(w);m.position.copy(p);m.scale.set(.04,.04,1);m.userData.base=.04;sp.scene.add(m);(sp.motes=sp.motes||[]).push(m);m.userData.w=w;prox(sp,w.id,p,12,{maxD:3800,mote:m})}})}
 
 /* ---------- the void itself ---------- */
-const SECCOL={6:'#6a8aff',7:'#5affc8',8:'#ff9a5a',9:'#ffd27a',10:'#ff6a3a',11:'#c86aff',12:'#9aa0b8'};
+const SECCOL={6:'#6a8aff',7:'#5affc8',8:'#ff9a5a',9:'#ffd27a',10:'#ff6a3a',11:'#c86aff',12:'#9aa0b8',13:'#ffd9a0'};
 function voidSkyMat(){return new THREE.ShaderMaterial({depthWrite:false,depthTest:false,side:THREE.BackSide,uniforms:{uDim:{value:1}},
  vertexShader:'varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
  fragmentShader:GLSL_NOISE+`uniform float uDim;varying vec3 vD;void main(){vec3 d=normalize(vD);float n=fb3(d*2.2+vec3(3.1));float n2=fb3(d*5.5-vec3(1.3));float band=exp(-pow(d.y*2.6+sin(d.x*2.+d.z)*.3,2.));
@@ -356,7 +356,7 @@ function buildVoid(){const sc=new THREE.Scene();const sp=newSpace('void','space'
   if(curSec!==null&&best!==curSec){const c=curSec===10&&Math.hypot(p.x-NG_C[0],p.z-NG_C[2])<Math.hypot(p.x-SECTORS[10].c[0],p.z-SECTORS[10].c[2])?NG_C:SECTORS[curSec].c;if(Math.hypot(p.x-c[0],p.z-c[2])<bd+180)return curSec}
   curSec=best;return best};
  sp.update=(T,dt)=>{const k=(T/300)%1;const p=route.getPointAt(k);trav.position.copy(p);trail.position.copy(p);
-  other.material.opacity+=((ERA===12?.22:0)-other.material.opacity)*Math.min(1,dt);sp.stars.material.opacity=ERA===12?.55:1;skyM.uniforms.uDim.value=ERA===12?.6:1;sky.position.copy(camera.position)};
+  other.material.opacity+=((ERA>=12?.22:0)-other.material.opacity)*Math.min(1,dt);sp.stars.material.opacity=ERA>=12?.55:1;skyM.uniforms.uDim.value=ERA>=12?.6:1;sky.position.copy(camera.position)};
  return sp}
 
 /* a faint river of stardust that flows through the star regions in story order, from the first one out to the last */
