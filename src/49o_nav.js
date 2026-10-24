@@ -114,7 +114,9 @@ function q4c_same(to){return q4c_dist(to)<rig.alt*.02&&Math.abs(Math.log(to.alt/
 function q4c_goto(id,p,opt){opt=opt||{};if(!CUR||CUR.camOv)return;const w=W[id];
  if(CUR.type==='planet'&&w&&(w.moon||w.id==='moon'||w.id==='moon_bus'||w.id==='ex_moon')){if(!moonView(w))flyTo(18,-25,2600,1.8);return}
  // a herd member: the one that was clicked, else the member nearest the camera (not the herd's home spot)
- if(!p&&w&&CUR.type==='planet'){const L=CUR.prox.filter(x=>x.w.id===id&&x.herd&&!x.side&&eraOk(x.e)&&herdVisible(CUR,x.herd,ERA));if(L.length){let bd=1e18;for(const x of L){const c=proxCenter(x);if(!c)continue;const d=c.distanceToSquared(camera.position);if(d<bd){bd=d;p=x}}}}
+ if(!p&&w&&CUR.type==='planet'){const L=CUR.prox.filter(x=>x.w.id===id&&x.herd&&!x.side&&eraOk(x.e)&&herdVisible(CUR,x.herd,ERA));if(L.length){const D=[];for(const x of L){const c=proxCenter(x);if(c)D.push([c.distanceToSquared(camera.position),x])}D.sort((a,b)=>a[0]-b[0]);
+  // of the few nearest members, the one that can be seen most clearly (trees no longer step aside for the camera)
+  let bs=-1;const wt0=q4c_want();for(const [,x] of D.slice(0,4)){const S0=q4c_subject(id,x);if(!S0)continue;const c0=S0.c();const a0=q4c_altFor(S0,wt0.fill,c0,wt0.vo?0:wt0.wy);const ps=q4c_clear(S0,c0,q4c_aim(c0,a0,rig.head,wt0.wx,wt0.wy),wt0.wx,wt0.wy,true);if(ps.sc>bs+.05){bs=ps.sc;p=x}}}}
  const S=q4c_subject(id,p);if(!S)return;if(S.p&&sel===id)selP=S.p;q4c_last={id,t:performance.now()};
  if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}
  const c=S.c();const wt=q4c_want();const alt=opt.alt||q4c_altFor(S,wt.fill,c,wt.vo?0:wt.wy);
@@ -123,7 +125,9 @@ function q4c_goto(id,p,opt){opt=opt||{};if(!CUR||CUR.camOv)return;const w=W[id];
  CUT.req={P:c.clone(),r:S.rc,id,big:!!pose.big};
  CUR.follow=null;
  if(q4c_same(pose)){tw=null;return}
- flyTo(pose.a,pose.b,pose.alt,q4c_dur(pose),pose.y,pose.head);tw.track={S,wx:wt.wx,wy:wt.wy,vo:wt.vo,live:false}}
+ flyTo(pose.a,pose.b,pose.alt,q4c_dur(pose),pose.y,pose.head);tw.track={S,wx:wt.wx,wy:wt.wy,vo:wt.vo,live:false,settle:S.moving}}
+/* a moving thing has gone on a little while the camera flew: one short, gentle correction on arrival, then the camera stays */
+function q4c_settle(k){if(!k||!k.S||sel!==k.S.id)return;const c=k.S.c();if(!c)return;const pose=q4c_aim(c,rig.alt,rig.head,k.wx,k.wy);if(pose.err<.12||q4c_same(pose))return;flyTo(pose.a,pose.b,pose.alt,.9,pose.y,pose.head);tw.track={S:k.S,wx:k.wx,wy:k.wy,vo:k.vo,live:false,settle:false}}
 /* the same for a bare point (a side story's spot): keep the height, just make sure it can be seen */
 function q4c_gotoPoint(P,r){if(!CUR||CUR.camOv)return;const S={id:null,w:null,p:null,rp:r,r,rc:r,moving:false,c:()=>P.clone()};const wt=q4c_want();const base=tw?tw.to:rig;
  let pose=q4c_aim(P,base.alt,base.head,wt.wx,wt.wy);pose=q4c_clear(S,P,pose,wt.wx,wt.wy);
