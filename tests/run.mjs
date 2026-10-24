@@ -1,6 +1,8 @@
 // Test runner.
 //   npm test            build dist/ (minified), then UI tests (desktop + mobile) and the smoke run through every space
 //   npm run test:quick  UI tests on desktop only
+//   node tests/run.mjs desk|mob|smoke …   only the parts named (run just what a change touches)
+//   SHOTS=1             also save screenshots of each step (slow: every one is a frame drawn in software)
 // Needs Playwright's Chromium (npx playwright install chromium) or CHROMIUM_PATH pointing at one.
 // The reader's "load txt" test uses tests/fixtures/novel_sample.txt (generated, placeholder text only)
 // unless NOVEL_TXT points at your own copy of the novel.
@@ -28,10 +30,9 @@ const check = (name, r, needPass) => {
 console.log('build'); const b = run(['scripts/build.mjs', '--min']); if (b.status) { console.log(b.stdout, b.stderr); process.exit(1); }
 if (!process.env.NOVEL_TXT && !fs.existsSync(T('fixtures/novel_sample.txt'))) run([T('make_fixture.cjs')]);
 
-check('ui desktop', run([T('uiv.cjs'), 'desk']), 55);
-if (!quick) {
-  check('ui mobile', run([T('uiv.cjs'), 'mob']), 50);
-  const steps = fs.readFileSync(T('smoke.json'), 'utf8');
-  check('smoke (all spaces)', run([T('run4.cjs'), steps], { NOINTRO: '1', WAIT: '12000' }), 5);
-}
+const parts = process.argv.slice(2).filter(a => /^(desk|mob|smoke)$/.test(a));
+const want = p => parts.length ? parts.includes(p) : (p === 'desk' || !quick);
+if (want('desk')) check('ui desktop', run([T('uiv.cjs'), 'desk']), 55);
+if (want('mob')) check('ui mobile', run([T('uiv.cjs'), 'mob']), 50);
+if (want('smoke')) { const steps = fs.readFileSync(T('smoke.json'), 'utf8'); check('smoke (all spaces)', run([T('run4.cjs'), steps], { NOINTRO: '1', WAIT: '12000' }), 5); }
 process.exit(bad ? 1 : 0);

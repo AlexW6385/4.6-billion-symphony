@@ -325,7 +325,7 @@ function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'pla
   moonL.intensity=.2;
   if(sp.cover)sp.cover.update();
   const CL=sp.culls;for(let ci=0,cn=CL.length;ci<cn;ci++){const c=CL[ci];if(c.o.userData.eraHide){c.o.visible=false;continue}const d=camera.position.distanceTo(c.c)-c.r;let v=d<c.far&&!(c.near&&d<c.near);
-   if(v&&cl>R+30){const ccl=c.c.length();if(c.c.dot(cu)/ccl<R/cl-.03-c.r/ccl&&d>200)v=false}c.o.visible=v}
+   if(v&&cl>R+30){const ccl=c.c.length();if(c.c.dot(cu)/ccl<R/cl-.03-c.r/ccl&&d>200)v=false}c.o.visible=v;c.o.userData.distHide=!v}
   updateHerds(sp,T);
   if(sp.extra)sp.extra(T,dt)};
  sp.bootMs=performance.now()-t0;BSP=sp;return sp}
