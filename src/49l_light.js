@@ -25,8 +25,8 @@ const Q3Q={value:new THREE.Vector4(1,1,1,1)};               // x: cloud self-sha
 function q3_clip(){const sp=CUR;if(!sp)return;let n=.4,f=120000;const cp=camera.position;
  const close=!!(sp.camOv||window.__view||sp.follow);
  if(sp.type==='planet'){const cl=cp.length();const ll=llDir(cp);const g=Math.max(0,sp.gh(ll[0],ll[1])*(sp.TU?sp.TU.uHK.value:1));const hag=Math.max(.5,cl-R-g);
-  n=close?.3:clamp(hag*.025,.3,120);f=Math.min(120000,cl+41500)}
- else if(sp.type==='space')n=close?.3:clamp(rig.alt*.002,.4,6);
+  n=close?.3:clamp(hag*.012,.3,60);f=Math.min(120000,cl+41500)}
+ else if(sp.type==='space')n=close?.3:clamp(rig.alt*.001,.3,3);
  else n=close?.3:clamp(rig.alt*.003,.3,3);
  if(window.__q3clip===0){n=.4;f=120000}
  if(Math.abs(camera.near-n)>n*.04||camera.far!==f){camera.near=n;camera.far=f;camera.updateProjectionMatrix()}}

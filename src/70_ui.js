@@ -126,7 +126,7 @@ function ensureClear(id,F){if(CUR.camOv)return;if(!id&&F&&F.P){q4c_gotoPoint(F.P
  if(q4c_last.id===id&&performance.now()-q4c_last.t<800)return;q4c_goto(id,F&&F.p||null)}
 /* cutaway: canopy, spires or huts still standing between the camera and a small thing sink into the ground
    while its card is open, and grow back when it closes */
-const CUT={L:[],s:0,goal:0,req:null,sp:null};const _cn=new THREE.Vector3(),_cn2=new THREE.Vector3();const _cm=new THREE.Matrix4(),_cp=new THREE.Vector3(),_cq=new THREE.Quaternion(),_cs=new THREE.Vector3();
+const CUT={L:[],s:0,goal:0,req:null,sp:null,off:true};const _cn=new THREE.Vector3(),_cn2=new THREE.Vector3();const _cm=new THREE.Matrix4(),_cp=new THREE.Vector3(),_cq=new THREE.Quaternion(),_cs=new THREE.Vector3();
 function cutSet(c,k){k=Math.max(.001,k);if(c.im){c.m0.decompose(_cp,_cq,_cs);_cs.multiplyScalar(k);_cm.compose(_cp,_cq,_cs);c.im.setMatrixAt(c.i,_cm);const ic=c.im.userData._ic,v0=c.im.instanceMatrix.version;c.im.instanceMatrix.needsUpdate=true;if(ic&&ic.v===v0)ic.v=c.im.instanceMatrix.version}else c.o.scale.copy(c.s0).multiplyScalar(k)}
 function cutNow(){for(const c of CUT.L)cutSet(c,1);CUT.L=[];CUT.keys=new Set();CUT.goal=0;CUT.job=null;CUT.big=false}
 function cutRun(){if(!CUT.job)return;try{if(CUT.job.next().done)CUT.job=null}catch(e){CUT.job=null}}
@@ -141,7 +141,7 @@ function* cutJob(P,r){const cam=camera;const dist=cam.position.distanceTo(P);if(
    if(CUR.type==='planet'&&h.point.distanceTo(P)<Math.max(r*3,30)&&_cn.copy(h.point).sub(P).dot(_cn2.copy(P).normalize())<r*.3)break;
    if(!cuttable(o,r))break;if(o.isInstancedMesh){if(h.instanceId==null)continue;const key=o.uuid+':'+h.instanceId;if(seen.has(key))continue;seen.add(key);const m0=new THREE.Matrix4();o.getMatrixAt(h.instanceId,m0);CUT.L.push({im:o,i:h.instanceId,m0,s:0})}
    else{if(seen.has(o.uuid))continue;seen.add(o.uuid);CUT.L.push({o,s0:o.scale.clone(),s:0})}if(CUT.L.length>220)return}}}
-function cutStep(dt){if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.big=!!q.big;CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
+function cutStep(dt){if(CUT.off){if(CUT.L.length||CUT.req){CUT.req=null;cutNow()}return}if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.big=!!q.big;CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
  if(CUT.goal===1&&sel!==CUT.id)CUT.goal=0;
  // following something that moves: every second, whatever new got in the way sinks too
  const F=CUR.follow;if(CUT.goal===1&&F&&F.id===CUT.id&&!tw){CUT.t=(CUT.t||0)+dt;if(CUT.t>1&&!CUT.job){CUT.t=0;const c=proxCenter(F.p);if(c){CUT.job=cutJob(c.clone(),F.p.r||4);cutRun()}}}

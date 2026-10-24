@@ -83,7 +83,7 @@ function q4c_vis(S,c,skipCut){const cam=camera;const dist=cam.position.distanceT
  for(const Q of pts){const d=Q.clone().sub(cam.position);const L=d.length();d.normalize();q4c_rc.set(cam.position,d);q4c_rc.camera=cam;
   let far=L-1;if(q4c_rc.ray.intersectSphere(hull,q4c_tmpV))far=Math.min(far,cam.position.distanceTo(q4c_tmpV)-.5);q4c_rc.far=Math.max(.5,far);
   let blocked=false;for(const h of occCast(q4c_occ)){const o=h.object;if(!o.isMesh||q4c_own(o,S.id))continue;if(o===CUR.ocean)continue;// the sea is seen through, it never hides what swims in it
-  const m=Array.isArray(o.material)?o.material[0]:o.material;if(!q4c_solid(m))continue;if(!q4c_occ&&!isVis(o))continue;if(skipCut&&dist<700&&cuttable(o,S.rc))continue;blocked=true;break}
+  const m=Array.isArray(o.material)?o.material[0]:o.material;if(!q4c_solid(m))continue;if(!q4c_occ&&!isVis(o))continue;if(skipCut&&!CUT.off&&dist<700&&cuttable(o,S.rc))continue;blocked=true;break}
   if(!blocked)clear++}
  return clear/pts.length}
 /* the camera itself must stand in the open: not under the ground, not inside a wall, a trunk or a crown */
@@ -102,7 +102,7 @@ function q4c_clear(S,c,base,wx,wy,lite){const sv={a:rig.a,b:rig.b,alt:rig.alt,he
    if(sc>bs){bs=sc;best=pose}if(sc>=.95)break outer}};
   run();
   // enclosed on every side (a creature deep in a clump of trees): let the cutaway take bigger things and look again
-  if(bs<=0&&!lite&&S.id){CUT.big=true;big=true;run()}
+  if(bs<=0&&!lite&&S.id&&!CUT.off){CUT.big=true;big=true;run()}
  }finally{q4c_occ=null;CUT.big=big0;Object.assign(rig,sv);_gS=gs;_gT=gt;rigPose()}
  best=best||base;best.sc=bs;best.big=big;return best}
 /* how long a flight takes: a short hop for something already in view, up to a few seconds across a world */
@@ -117,13 +117,13 @@ function q4c_goto(id,p,opt){opt=opt||{};if(!CUR||CUR.camOv)return;const w=W[id];
  if(!p&&w&&CUR.type==='planet'){const L=CUR.prox.filter(x=>x.w.id===id&&x.herd&&!x.side&&eraOk(x.e)&&herdVisible(CUR,x.herd,ERA));if(L.length){let bd=1e18;for(const x of L){const c=proxCenter(x);if(!c)continue;const d=c.distanceToSquared(camera.position);if(d<bd){bd=d;p=x}}}}
  const S=q4c_subject(id,p);if(!S)return;if(S.p&&sel===id)selP=S.p;q4c_last={id,t:performance.now()};
  if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}
- const c=S.c();dayFor(c);const wt=q4c_want();const alt=opt.alt||q4c_altFor(S,wt.fill,c,wt.vo?0:wt.wy);
+ const c=S.c();const wt=q4c_want();const alt=opt.alt||q4c_altFor(S,wt.fill,c,wt.vo?0:wt.wy);
  let pose=q4c_aim(c,alt,opt.head!==undefined?opt.head:rig.head,wt.wx,wt.wy);
  if(!opt.noClear&&!S.planetLevel&&!S.reg)pose=q4c_clear(S,c,pose,wt.wx,wt.wy);
  CUT.req={P:c.clone(),r:S.rc,id,big:!!pose.big};
- CUR.follow=S.moving?{p:S.p,id,S,wx:wt.wx,wy:wt.wy,vo:wt.vo,fill:wt.fill,alt0:pose.alt,prev:null}:null;
+ CUR.follow=null;
  if(q4c_same(pose)){tw=null;return}
- flyTo(pose.a,pose.b,pose.alt,q4c_dur(pose),pose.y,pose.head);tw.track={S,wx:wt.wx,wy:wt.wy,vo:wt.vo,live:S.moving}}
+ flyTo(pose.a,pose.b,pose.alt,q4c_dur(pose),pose.y,pose.head);tw.track={S,wx:wt.wx,wy:wt.wy,vo:wt.vo,live:false}}
 /* the same for a bare point (a side story's spot): keep the height, just make sure it can be seen */
 function q4c_gotoPoint(P,r){if(!CUR||CUR.camOv)return;const S={id:null,w:null,p:null,rp:r,r,rc:r,moving:false,c:()=>P.clone()};const wt=q4c_want();const base=tw?tw.to:rig;
  let pose=q4c_aim(P,base.alt,base.head,wt.wx,wt.wy);pose=q4c_clear(S,P,pose,wt.wx,wt.wy);
@@ -132,7 +132,7 @@ function q4c_gotoPoint(P,r){if(!CUR||CUR.camOv)return;const S={id:null,w:null,p:
 /* the pose to arrive at when another world is entered for an entry (worked out once that world is built) */
 function q4c_entryRig(id){MW_ALL=true;CUR.scene.updateMatrixWorld(true);const S=q4c_subject(id,null);if(!S)return null;const c=S.c();const wt=q4c_want();const alt=q4c_altFor(S,wt.fill,c,wt.vo?0:wt.wy);return q4c_aim(c,alt,0,wt.wx,wt.wy)}
 /* a flight toward something that moves keeps its destination on the thing */
-function q4c_retrack(){const k=tw.track;if(!k||!k.S)return;if(k.vo)q4c_voNow(k);else if(!k.live)return;const c=k.S.c();if(!c)return;const pose=q4c_aim(c,tw.to.alt,tw.to.head,k.wx,k.wy,undefined,tw.to);
+function q4c_retrack(){const k=tw.track;if(!k||!k.S)return;if(k.vo)q4c_voNow(k);else if(!k.live)return;const c=k.live?k.S.c():(k.c0||(k.c0=k.S.c()));if(!c)return;// a moving thing is aimed at where it was when the flight beganconst pose=q4c_aim(c,tw.to.alt,tw.to.head,k.wx,k.wy,undefined,tw.to);
  tw.to.a=pose.a;tw.to.y=pose.y;tw.to.b=CUR.type==='planet'||CUR.type==='tube'?tw.from.b+wrap180(pose.b-tw.from.b):pose.b}
 /* following: the pose that centres the thing is worked out every frame and the rig carries it forward, so the residual error
    decays while the thing's own motion is followed exactly; a blocked view turns the heading, height rises only within a cap */
