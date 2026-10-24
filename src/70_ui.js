@@ -107,7 +107,9 @@ function instCenters(o,g){const v=o.instanceMatrix.version,c=o.userData._ic;if(c
  const C=new Float32Array(o.count*4);for(let i=0;i<o.count;i++){o.getMatrixAt(i,_oiM);_oiW.multiplyMatrices(o.matrixWorld,_oiM);_oiS.copy(g.boundingSphere).applyMatrix4(_oiW);C[i*4]=_oiS.center.x;C[i*4+1]=_oiS.center.y;C[i*4+2]=_oiS.center.z;C[i*4+3]=_oiS.radius}
  o.userData._ic={v,n:o.count,w:o.matrixWorld.clone(),C};return C}
 function occList(P,R){const L=[];const sc=CUR.scene;
- sc.traverseVisible(o=>{if(!o.isMesh||!o.geometry)return;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)return;
+ // things hidden only because the camera is far from them still count: they will show when the camera gets there
+ const walk=(o,f)=>{if(!o.visible&&!o.userData.distHide)return;f(o);for(const ch of o.children)walk(ch,f)};
+ walk(sc,o=>{if(!o.isMesh||!o.geometry)return;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)return;
   const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingSphere)return;
   if(o.isInstancedMesh){const idx=[];const C=instCenters(o,g);const n=Math.min(o.count,C.length>>2);for(let i=0;i<n;i++){const k=i*4,dx=C[k]-P.x,dy=C[k+1]-P.y,dz=C[k+2]-P.z,rr=R+C[k+3];if(dx*dx+dy*dy+dz*dz<rr*rr)idx.push(i)}
    if(idx.length)L.push({isMesh:true,layers:o.layers,src:o,material:o.material,raycast(rc,out){const mw=o.matrixWorld;_oiMesh.geometry=o.geometry;_oiMesh.material=o.material;const ro=rc.ray.origin,rd=rc.ray.direction,far=rc.far;for(const i of idx){const k=i*4,ex=C[k]-ro.x,ey=C[k+1]-ro.y,ez=C[k+2]-ro.z,rr=C[k+3];let t=ex*rd.x+ey*rd.y+ez*rd.z;if(t<-rr||t>far+rr)continue;t=Math.max(0,Math.min(far,t));const qx=ex-rd.x*t,qy=ey-rd.y*t,qz=ez-rd.z*t;if(qx*qx+qy*qy+qz*qz>rr*rr)continue;o.getMatrixAt(i,_oiM);_oiMesh.matrixWorld.multiplyMatrices(mw,_oiM);_oiHits.length=0;_oiMesh.raycast(rc,_oiHits);for(const h of _oiHits){h.instanceId=i;h.object=o;out.push(h)}}}});return}

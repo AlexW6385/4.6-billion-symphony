@@ -95,7 +95,7 @@ function q4c_camFree(S,c){const cam=camera;if(CUR.type==='planet'){const ll=llDi
  return true}
 /* search for a pose with a clear view: the heading turns first; the height changes (down as well as up) only when turning is not enough */
 function q4c_clear(S,c,base,wx,wy,lite){const sv={a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y};const gs=_gS,gt=_gT;const t=CUR.type;const big0=CUT.big;
- q4c_occ=occList(c,Math.max(260,S.r*6));let best=null,bs=-1,big=false;try{
+ q4c_occ=occList(c,Math.max(260,S.r*6,Math.min(2600,base.alt*3.2)));/* (as far out as the camera may stand: a cloud next to the lens hides everything) */let best=null,bs=-1,big=false;try{
   const heads=lite?[0,.8,-.8,1.6,-1.6]:[0,.8,-.8,1.6,-1.6,2.5,-2.5];const mults=lite?[1,1.3,.75,.5]:t==='tube'?[1,.75,1.4,.5,1.9]:[1,.7,1.4,.5,2,.35,3];
   const run=()=>{outer:for(const m of mults)for(const h of heads){const alt=clamp(base.alt*m,altMin()+8,altMax());const pose=q4c_aim(c,alt,base.head+h,wx,wy,base.y);Object.assign(rig,{a:pose.a,b:pose.b,alt:pose.alt,head:pose.head,y:pose.y});_gS=null;rigPose();
    let sc=q4c_vis(S,c,true);const cf=sc>0?q4c_camFree(S,c):null;if(cf===false)sc=0;if(window.__q4cDbg)window.__q4cDbg.push([m,+h.toFixed(1),+sc.toFixed(2),cf]);sc-=Math.abs(h)*.012+Math.abs(Math.log(m))*.05;
@@ -121,7 +121,7 @@ function q4c_goto(id,p,opt){opt=opt||{};if(!CUR||CUR.camOv)return;const w=W[id];
  if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}
  const c=S.c();const wt=q4c_want();const alt=opt.alt||q4c_altFor(S,wt.fill,c,wt.vo?0:wt.wy);
  let pose=q4c_aim(c,alt,opt.head!==undefined?opt.head:rig.head,wt.wx,wt.wy);
- if(!opt.noClear&&!S.planetLevel&&!S.reg)pose=q4c_clear(S,c,pose,wt.wx,wt.wy);
+ if(!opt.noClear&&!S.planetLevel)pose=q4c_clear(S,c,pose,wt.wx,wt.wy,!!S.reg);// (a region too: a cloud or a peak in the way is turned away from)
  CUT.req={P:c.clone(),r:S.rc,id,big:!!pose.big};
  CUR.follow=null;
  if(q4c_same(pose)){tw=null;return}
