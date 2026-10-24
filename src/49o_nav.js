@@ -48,13 +48,15 @@ function q4c_voNow(F){rigPose();const v=TG.clone().project(camera);if(v.z<1){F.w
 /* how high to stand so a thing of radius r fills a fair part of the view (small things a little less, big ones a little more).
    the view rests on the ground at a tilt, so the distance to the thing depends on where on the screen it is to sit (wy) and,
    on a planet, on how high it flies; the height is solved for that distance, not for the distance to the look-at point */
+// trenches and pits: looked into from higher up, or their walls hide them
+const Q4C_DEEP=new Set(['canyon','rift','inca_pit','abyss']);
 function q4c_altFor(S,fill,c,wy){const t=CUR.type;if(S.planetLevel)return 2600;if(S.reg)return clamp(S.reg*D2R*R*2.2,420,1400);
  // close enough that the thing is the subject of the picture: a third of the view or more (a place with no body of its own, a little less)
  const r=S.r;let f=Math.min(fill,lerp(.16,.45,sm(3,40,r)));if(!S.obj)f=Math.min(f,S.w&&S.w.c==='地理'?.28:.34);
  const tn=Math.tan(camera.fov*D2R/2),D=r/(f*tn);const h=t==='planet'?Math.max(0,q4c_above(c)):0;let alt=D;
  for(let i=0;i<4;i++){const tl=tiltOf(t,alt);const phi=clamp(Math.atan((wy||0)*tn),-.5,Math.max(0,Math.min(.6,1.3-tl)));alt=(D*Math.cos(tl+phi)+h)/((1+tl*.2)*Math.max(.25,Math.cos(tl)))}
  // a place seen too low hides behind its own rims and walls
- if(t==='planet'&&S.w&&S.w.c==='地理'&&!S.obj)alt=Math.max(alt,80,r*7.5);
+ if(t==='planet'&&S.w&&S.w.c==='地理'&&!S.obj)alt=Math.max(alt,80,r*(Q4C_DEEP.has(S.w.id)?15:7.5));
  return clamp(alt,altMin()+8,altMax())}
 /* the rig pose that puts point P at screen position (wx,wy) for a given height and heading: a few Newton steps on (a,b).
    the ground under the target is taken as it is there (not the smoothed value from where the camera stands now) */
