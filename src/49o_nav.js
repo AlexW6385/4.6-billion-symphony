@@ -132,7 +132,7 @@ function q4c_gotoPoint(P,r){if(!CUR||CUR.camOv)return;const S={id:null,w:null,p:
 /* the pose to arrive at when another world is entered for an entry (worked out once that world is built) */
 function q4c_entryRig(id){MW_ALL=true;CUR.scene.updateMatrixWorld(true);const S=q4c_subject(id,null);if(!S)return null;const c=S.c();const wt=q4c_want();const alt=q4c_altFor(S,wt.fill,c,wt.vo?0:wt.wy);return q4c_aim(c,alt,0,wt.wx,wt.wy)}
 /* a flight toward something that moves keeps its destination on the thing */
-function q4c_retrack(){const k=tw.track;if(!k||!k.S)return;if(k.vo)q4c_voNow(k);else if(!k.live)return;const c=k.live?k.S.c():(k.c0||(k.c0=k.S.c()));if(!c)return;// a moving thing is aimed at where it was when the flight beganconst pose=q4c_aim(c,tw.to.alt,tw.to.head,k.wx,k.wy,undefined,tw.to);
+function q4c_retrack(){const k=tw.track;if(!k||!k.S)return;if(k.vo)q4c_voNow(k);else if(!k.live)return;const c=k.live?k.S.c():(k.c0||(k.c0=k.S.c()));if(!c)return;/* a moving thing is aimed at where it was when the flight began */const pose=q4c_aim(c,tw.to.alt,tw.to.head,k.wx,k.wy,undefined,tw.to);
  tw.to.a=pose.a;tw.to.y=pose.y;tw.to.b=CUR.type==='planet'||CUR.type==='tube'?tw.from.b+wrap180(pose.b-tw.from.b):pose.b}
 /* following: the pose that centres the thing is worked out every frame and the rig carries it forward, so the residual error
    decays while the thing's own motion is followed exactly; a blocked view turns the heading, height rises only within a cap */

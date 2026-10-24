@@ -96,7 +96,8 @@ const log=(...a)=>console.log(...a);let nShot=0;
   for(const Q of pts){const d=Q.clone().sub(cam.position);const Ld=d.length();d.normalize();rc.set(cam.position,d);let far=Ld-1;if(rc.ray.intersectSphere(hull,tmp))far=Math.min(far,cam.position.distanceTo(tmp)-.5);rc.far=Math.max(.5,far);
    const hits=[];sp.scene.traverse(o=>{if(!o.isMesh||!o.visible||own(o))return;/* the canyon is cut into the ground by the terrain shader, not the mesh: rays would hit ground that is not drawn */if(id==='canyon'&&o===sp.terr)return;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending)return;let x=o,vis=true;while(x){if(x.visible===false)vis=false;x=x.parent}if(!vis)return;try{o.raycast(rc,hits)}catch(e){}});if(hits.length)blocked++}
   return{nx:+nx.toFixed(2),ny:+ny.toFixed(2),fill:+fill.toFixed(2),occ:+(blocked/pts.length).toFixed(2),behind:v.z>1,dist:+dist.toFixed(0),alt:+q.rig.alt.toFixed(0)}},id);
- for(const id of ['emeraldcity','greenpool','behemoth','gulong','feilong','lvtan','canyon','crystalcave']){await ev(id=>window.__rq.go(id),id);await idle(2500);await wait(1500);const m=await centring(id);
+ // the camera no longer follows moving things: it flies to where the thing is and stays, so it is measured on arrival
+ for(const id of ['emeraldcity','greenpool','behemoth','gulong','feilong','lvtan','canyon','crystalcave']){await ev(id=>window.__rq.go(id),id);await wait(300);for(let i=0;i<80;i++){if(!(await ev(()=>!!window.__rq.dbg.tw()||window.__rq.dbg.busy())))break;await wait(100)}await wait(100);const m=await centring(id);
   ok('centred '+id,m&&!m.err&&!m.behind&&Math.abs(m.nx)<=.3&&Math.abs(m.ny)<=.3&&m.occ<=.5,m);
   if(m&&!m.err)ok('fair size '+id,m.fill>=.08&&m.fill<=.6,m.fill)}
  // a thing already in view: a click on it opens its card without a flight of any length
