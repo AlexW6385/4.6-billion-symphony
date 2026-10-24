@@ -141,6 +141,8 @@ function q4c_follow(dt){const F=CUR.follow;if(!F||tw||drag||pinch)return;if(sel!
  const c=F.S.c();if(!c||!(dt>0))return;const t=CUR.type;
  if(F.gAlt!==undefined){const k=1-Math.exp(-dt*2.2);rig.alt+=(F.gAlt-rig.alt)*k;rig.head+=(F.gHead-rig.head)*k;if(Math.abs(F.gAlt-rig.alt)<1&&Math.abs(F.gHead-rig.head)<.01)F.gAlt=undefined}
  const pose=q4c_aim(c,rig.alt,rig.head,F.wx,F.wy,undefined,F.prev||undefined,F.prev?2:5);const dB=x=>t==='planet'||t==='tube'?wrap180(x):x;
+ // never let the camera end up on top of the thing it follows (a herd member that walked under it)
+ if(F.gAlt===undefined&&camera.position.distanceTo(c)<Math.max(10,F.S.r*5)){F.gAlt=Math.min(altMax(),Math.max(rig.alt*1.5,q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy)));F.gHead=rig.head}
  if(pose.err>.4&&F.gAlt===undefined){F.gAlt=Math.min(altMax(),Math.max(rig.alt*1.4,q4c_altFor(F.S,F.fill||.26,c,F.vo?0:F.wy)));F.gHead=rig.head}
  if(F.prev){const da=pose.a-F.prev.a,db=dB(pose.b-F.prev.b),dy=pose.y-F.prev.y;const u=t==='planet'?R*D2R:1,cs=t==='planet'?Math.max(.15,Math.cos(pose.a*D2R)):1;
   if(Math.hypot(da*u,db*(t==='tube'?CUR.Rt*D2R:u*cs),dy)>Math.max(60,rig.alt*1.5)){F.prev=null;flyTo(pose.a,pose.b,rig.alt,1.2,pose.y,rig.head);tw.track={S:F.S,wx:F.wx,wy:F.wy,vo:F.vo,live:true};return}
