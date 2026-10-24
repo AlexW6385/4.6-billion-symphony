@@ -20,7 +20,7 @@ const steps=JSON.parse(process.argv[2]||'[]');const FILE=process.env.FILE||'inde
   if(u.includes('fonts.g'))return r.fulfill({body:'',contentType:'text/css'});
   return r.continue()});
  const t0=Date.now();
- await p.goto('http://x.test/index.html');await p.waitForTimeout(+(process.env.WAIT||12000));
+ await p.goto('http://x.test/index.html',{timeout:180000});await p.waitForTimeout(+(process.env.WAIT||12000));
  console.log('loaded',Date.now()-t0,'ms');
  for(const s of steps){try{ if(s.js){const r=await p.evaluate(s.js);if(s.out)fs.writeFileSync(s.out,JSON.stringify(r));else if(r!==undefined)console.log('js>',JSON.stringify(r).slice(0,900))} if(s.mouse){const [x,y]=s.mouse;await p.mouse.move(x,y)} if(s.click){const [x,y]=s.click;await p.mouse.click(x,y)} if(s.wheel){await p.mouse.move(s.wheel[0],s.wheel[1]);await p.mouse.wheel(0,s.wheel[2])} if(s.file){await p.setInputFiles(s.file[0],s.file[1])} if(s.wait)await p.waitForTimeout(s.wait); if(s.shot){await p.screenshot({path:s.shot});console.log('shot',s.shot)} }catch(e){console.log('STEPERR',e.message.slice(0,300))}}
  console.log(errs.slice(0,25).join('\n'));

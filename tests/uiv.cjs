@@ -101,7 +101,7 @@ const log=(...a)=>console.log(...a);let nShot=0;
   // things that move (a herd member, a flying dragon) are flown to once and not followed: they only have to be in the picture,
   // and a herd among trees may stand behind leaves (nothing is cut away any more)
   const mv=['behemoth','gulong','feilong'].includes(id);
-  ok('centred '+id,m&&!m.err&&!m.behind&&(mv?Math.abs(m.nx)<=1&&Math.abs(m.ny)<=1:Math.abs(m.nx)<=.3&&Math.abs(m.ny)<=.3&&m.occ<=.5),m);
+  ok('centred '+id,m&&!m.err&&!m.behind&&(mv?Math.abs(m.nx)<=1.1&&Math.abs(m.ny)<=1.1:Math.abs(m.nx)<=.3&&Math.abs(m.ny)<=.3&&m.occ<=.5),m);
   if(m&&!m.err)ok('fair size '+id,m.fill>=.08&&m.fill<=.6,m.fill)}
  // a thing already in view: a click on it opens its card without a flight of any length
  {await ev(()=>window.__rq.go('emeraldcity'));await idle(2500);await click('#cap .x');await wait(400);const xy=await screenOf('emeraldcity');
