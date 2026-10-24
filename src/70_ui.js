@@ -351,7 +351,7 @@ function loop(now){if(q5s_halt)return;const fc=frameCap(now);
  q5s_mark('ui');updViewOff(dt);updateBooms(dt);updateHover();updateMotes();updateLabels();
  if(CUR.type!=='planet'&&CUR.eraAt&&++eraTick%20===0){const e=CUR.eraAt(S_);if(e&&e!==ERA){ERA=e;syncTime()}}
  fadeK+=(fadeTo-fadeK)*Math.min(1,dt*(fadeTo>fadeK?7:3.2));setFade(fadeK);if(finalPass)finalPass.uniforms.uTime.value=T;
- q5s_mark('render');if(composer&&POST.on)composer.render();else renderer.render(CUR.scene,camera);q5s_end();
+ q5s_mark('render');if(window.__q5resize){window.__q5resize=0;resize()}if(composer&&POST.on)composer.render();else renderer.render(CUR.scene,camera);q5s_end();
  // quality only adapts to frames that were not held back on purpose
  if(rawDt<1&&fc===60&&loop.pf===60)adapt(rawDt);else{perf.t=0;perf.n=0;perf.slow=0}loop.pf=fc;requestAnimationFrame(loop)}
 

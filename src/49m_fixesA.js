@@ -68,6 +68,8 @@ towerMat=function(o){const m=q4a_tw0(o);const ob=m.onBeforeCompile;
 const Q4P={L:null,t:0,c:V3(),k:0,sp:null,by:new Map()},_q4r=new THREE.Raycaster(),_q4a=V3(),_q4b=V3(),_q4c=V3(),_q4h=[];
 function q4a_solids(sp,P,rr){const L=occList(P,rr),out=[];Q4P.by.clear();
  for(const e of L){const m=Array.isArray(e.material)?e.material[0]:e.material;if(!m)continue;const src=e.src||e;if(src===sp.ocean||src.userData.noPush||src.isPoints||src.isSprite)continue;
+  // the thing being looked at, and anything alive and moving, never pushes the camera (its moving body made the view pump in and out)
+  {let v=src,skip=false;while(v){const u=v.userData;if(u&&((sel&&u.pick===sel)||u.anim||u.herd)){skip=true;break}v=v.parent}if(skip)continue}
   const key=m.customProgramCacheKey?m.customProgramCacheKey():'';if(/sway|q2grass|q2flw/.test(key))continue;out.push(e);Q4P.by.set(src,e)}
  if(sp.terr&&!Q4P.by.has(sp.terr)){out.push(sp.terr);Q4P.by.set(sp.terr,sp.terr)}return out}
 /* is the camera inside the thing this ray entered? the ray back from the camera toward the entry point finds no face of it
@@ -76,7 +78,7 @@ function q4a_inside(h,dist){const e=Q4P.by.get(h.object);if(!e)return false;_q4h
  const o0=o.clone(),d0=d.clone();o.copy(o0).addScaledVector(d0,dist);d.negate();_q4r.far=dist-h.distance+.1;/* (the entry face is a back face from this side, so only a real exit counts; +.1 keeps a grazing clip from reading as inside) */e.raycast(_q4r,_q4h);o.copy(o0);d.copy(d0);_q4r.far=dist;
  let gap=1e9;for(const q of _q4h)if(q.distance<_q4r.far&&(h.instanceId===undefined||q.instanceId===h.instanceId)&&q.distance<gap)gap=q.distance;
  return gap>1e8||gap<4}// (no face found on the way back: inside it; a face close behind the lens counts too)
-function q4a_push(){const sp=CUR;if(!sp||sp.type!=='planet'||sp.camOv||window.__view||window.__q4nopush){Q4P.k=0;return}const alt=rig.alt;if(alt>160){Q4P.k=0;return}
+function q4a_push(){const sp=CUR;if(!sp||sp.type!=='planet'||sp.camOv||window.__view||window.__q4nopush){Q4P.k=0;return}if(tw){Q4P.k*=.85;return}const alt=rig.alt;if(alt>160){Q4P.k=0;return}
  const now=performance.now();
  if(!Q4P.L||Q4P.sp!==sp||now-Q4P.t>1500||Q4P.c.distanceTo(TG)>30){Q4P.sp=sp;Q4P.t=now;Q4P.c.copy(TG);try{Q4P.L=q4a_solids(sp,TG,Math.max(80,alt*2.5))}catch(e){Q4P.L=[]}}
  _q4a.copy(TG).addScaledVector(UP,1.2);_q4b.copy(camera.position).sub(_q4a);const dist=_q4b.length();if(dist<3||!Q4P.L.length){Q4P.k*=.8;return}_q4b.divideScalar(dist);
@@ -85,7 +87,8 @@ function q4a_push(){const sp=CUR;if(!sp||sp.type!=='planet'||sp.camOv||window.__
  for(let s=-1;s<=1;s++){if(s!==0&&!side)continue;_q4r.ray.origin.copy(_q4a);if(s!==0)_q4r.ray.origin.addScaledVector(side,s*1.1);_q4r.ray.direction.copy(_q4b);_q4r.far=dist;
   const hits=_q4r.intersectObjects(Q4P.L,false);let n=0;for(const h of hits){if(h.distance<=.5)continue;if(++n>4)break;const ins=q4a_inside(h,dist);if(window.__q4dbg)window.__q4dbg.push([s,+h.distance.toFixed(1),+dist.toFixed(1),h.object.geometry&&h.object.geometry.type,h.instanceId,ins,_q4h.length]);if(ins){if(h.distance<best)best=h.distance;break}}}
  const want=best<dist?Math.max(dist*.12,best-1.6):dist;const tgt=1-want/dist;
- Q4P.k+=(tgt-Q4P.k)*(tgt>Q4P.k?.5:.1);
+ // eased, and small changes ignored, so a ray grazing a surface cannot make the view twitch
+ if(Math.abs(tgt-Q4P.k)>.04)Q4P.k+=(tgt-Q4P.k)*(tgt>Q4P.k?.25:.06);else if(tgt<.01)Q4P.k*=.9;
  if(Q4P.k>1e-3){camera.position.copy(_q4a).addScaledVector(_q4b,dist*(1-Q4P.k));camera.lookAt(TG);camera.updateMatrixWorld()}}
 const q4a_cs0=cutStep;
 cutStep=function(dt){try{q4a_push();q4a_fill()}catch(e){}q4a_cs0(dt)};

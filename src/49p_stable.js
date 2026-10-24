@@ -104,7 +104,7 @@ function q5s_warm(sp){const sc=sp.scene;if(sc.__q5warm===q5s_adds(sc))return;sc.
 /* ---- quality control, steadier: a level goes down only after two slow windows in a row, comes back only after six fast ones,
    never within 4 s of a world or age change, and a level that was just left for being slow is not tried again for a minute
    (twice as long each time it flips back). resolution (and so the render targets) only changes when the level's resolution differs ---- */
-applyLevel=function(){const L=perf.lvl,p0=PR;PR=Math.min(PR0,[PR0,1.3,1.15,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}if(PR!==p0)resize()};
+applyLevel=function(){const L=perf.lvl,p0=PR;PR=Math.min(PR0,[PR0,1.3,1.15,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}if(PR!==p0)window.__q5resize=1};// (the resize waits for the next frame's render: done here, after this frame was drawn, it left one blank frame — a black flash)
 adapt=function(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}const now=q5s_now();if(now-q5s_swT<4000){perf.t=0;perf.n=0;perf.slow=0;perf.bad=0;return}
  perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
  const up=perf.q5up||(perf.q5up={});perf.bad=perf.bad||0;perf.good=perf.good||0;
