@@ -26,7 +26,9 @@ function q4c_subject(id,p){const w=W[id];if(!w&&!p)return null;const t=CUR.type;
  const o=q4c_body(id,c0);if(o){const b=q4c_bounds(o);if(b.r>0){S.obj=o;S.r=b.r;S.cl=b.cl}}
  if(!S.r){S.r=S.rp;if(!p&&w&&w.k&&w.k!=='none')S.r=Math.max(S.r,sizeOf(w)*.6)}S.rc=Math.max(S.rp,S.r*.6);
  // live centre: the measured body centre follows the moving root; a hidden body (a herd not yet near) falls back to its marker
- const fb=c0.clone();S.c=()=>{let c=S.p?proxCenter(S.p):null;if(!c||c.lengthSq()<1)c=fb;if(S.obj&&S.cl&&S.obj.visible)return S.obj.localToWorld(q4c_tmpV.copy(S.cl)).clone();return c.clone()};
+ const fb=c0.clone();S.c=()=>{let c=S.p?proxCenter(S.p):null;if(!c||c.lengthSq()<1)c=fb;if(S.obj&&S.cl&&S.obj.visible){const b=S.obj.localToWorld(q4c_tmpV.copy(S.cl));
+  // a herd's bodies are shared: one that has wandered far from this member's own spot now stands for someone else
+  if(b.distanceTo(c)<Math.max(40,S.r*6))return b.clone()}return c.clone()};
  return S}
 /* height of a point above the ground it stands over */
 function q4c_above(c){const t=CUR.type;if(t==='planet'){const ll=llDir(c);return c.length()-R-Math.max(0,CUR.gh(ll[0],ll[1]))}
@@ -127,7 +129,8 @@ function q4c_goto(id,p,opt){opt=opt||{};if(!CUR||CUR.camOv)return;const w=W[id];
  if(q4c_same(pose)){tw=null;return}
  flyTo(pose.a,pose.b,pose.alt,q4c_dur(pose),pose.y,pose.head);tw.track={S,wx:wt.wx,wy:wt.wy,vo:wt.vo,live:false,settle:S.moving}}
 /* a moving thing has gone on a little while the camera flew: one short, gentle correction on arrival, then the camera stays */
-function q4c_settle(k){if(!k||!k.S||sel!==k.S.id)return;if(k.vo)q4c_voNow(k);const c=k.S.c();if(!c)return;const pose=q4c_aim(c,rig.alt,rig.head,k.wx,k.wy);if(pose.err<.12||q4c_same(pose))return;flyTo(pose.a,pose.b,pose.alt,.9,pose.y,pose.head);tw.track={S:k.S,wx:k.wx,wy:k.wy,vo:k.vo,live:false,settle:false}}
+function q4c_settle(k){if(!k||!k.S||sel!==k.S.id)return;if(k.vo)q4c_voNow(k);const c=k.S.c();if(!c)return;if(c.distanceTo(TG)>Math.max(60,rig.alt*1.5))return;// (a correction is a small step, never a leap to somewhere else)
+ const pose=q4c_aim(c,rig.alt,rig.head,k.wx,k.wy);if(pose.err<.12||q4c_same(pose))return;flyTo(pose.a,pose.b,pose.alt,.9,pose.y,pose.head);tw.track={S:k.S,wx:k.wx,wy:k.wy,vo:k.vo,live:false,settle:false}}
 /* the same for a bare point (a side story's spot): keep the height, just make sure it can be seen */
 function q4c_gotoPoint(P,r){if(!CUR||CUR.camOv)return;const S={id:null,w:null,p:null,rp:r,r,rc:r,moving:false,c:()=>P.clone()};const wt=q4c_want();const base=tw?tw.to:rig;
  let pose=q4c_aim(P,base.alt,base.head,wt.wx,wt.wy);pose=q4c_clear(S,P,pose,wt.wx,wt.wy);
