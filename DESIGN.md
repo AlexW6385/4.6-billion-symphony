@@ -45,6 +45,7 @@ When goals conflict, resolve in this order.
 - **Layered src/:** core renderer & picking → fx → creatures → planet template → per-space content → entry models (`45_kit`, `46_ents`, `47_new`) → UI, reader, side stories, audio.
 - **Tests:** Playwright + headless Chromium with a virtual clock; UI tests on desktop and phone layouts, then a walk through every space. `tests/audit.cjs` checks every entry is visible and unoccluded; `tests/perf5.cjs` / `trace1.cjs` measure frame cost.
 - **Content tools** (need the private novel): `check_overlap.py`, `find_in_chapters.py`, `thin.mjs`.
+- **Music.** Synthesised in the browser (Web Audio: FM / wavetable, synthesised-impulse reverb), no audio files, cheap enough never to touch §6. Each space has a theme, but the themes are related: one motif that evolves with the story — the eras of the timeline and the worlds 琳 reaches in sequence are variations of it, so the exhibition sounds like one story rather than unrelated loops. Music fades to near-silence or stops while the reader or library is open (as the frame-rate reductions already do for rendering). Crossfade on every space change. On phones, sound starts only after the first interaction (browser autoplay rules): default muted with a clear toggle; do not fight this.
 - **Deployment:** GitHub Actions builds `site/` and publishes to GitHub Pages on every push to `main`.
 
 ## 6. Performance and smoothness
@@ -119,6 +120,7 @@ Append-only: date, decision, reason.
 - 2026-10-26 — Technical debt is fixed as found; the patch layers are to be folded in Phase 0. Reason: author's instruction not to stack problems; the layers block understanding.
 - 2026-10-26 — The novel is read search-first from `rongqiu-source`, with working notes kept there, to save tokens. Reason: 34 MB of text; cost.
 - 2026-10-26 — This document is the brief for autonomous work; the agent decides §9 items itself.
+- 2026-10-26 — One evolving motif across spaces and eras; music retreats when panels are open; muted by default on phones. Reason: coherence as an exhibition; smoothness and autoplay rules.
 
 ## 11. Roadmap and status
 
