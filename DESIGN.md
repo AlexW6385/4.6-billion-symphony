@@ -56,7 +56,7 @@ Hard rules; measure, don't guess.
 - **Loading:** first frame on a cold load within 3 s on the author's desktop; data for other spaces loads lazily or in idle time, never blocking.
 - **Work scheduling:** anything that can take more than a few ms per frame (placement, occlusion search, texture painting, layout) is sliced across frames or done in idle time, as `docs/性能.md` already does for several systems. Keep that discipline for everything new.
 - **Power:** keep the existing idle/panel frame-rate reductions; they must never cause a visible stall when activity resumes.
-- **Measure every change** that touches rendering or placement with `perf5.cjs` on the affected space before and after; record regressions in §10 if accepted, otherwise fix.
+- **Measure rendering and placement changes** with `perf5.cjs` on the affected space only, before and after; record regressions in §10 if accepted, otherwise fix. Data-only changes are not measured.
 - **Lightweight by construction:** no new large assets; procedural models from the kit; textures generated or tiny; the minified site stays small enough that a phone on mobile data opens it without waiting.
 
 ## 7. Constraints and rules
@@ -64,10 +64,20 @@ Hard rules; measure, don't guess.
 - Never commit `.txt` or any original prose. Run `check_overlap.py` before committing entry or side-story text.
 - Every new entry has: name, category, world + coordinates, era, summary, body, chapter list; every new place is reachable, visible (`audit.cjs` passes) and in the library.
 - Side stories follow `docs/番外写作指南.md` and are marked "不是原文".
-- Mobile layout always works; `npm test` (both layouts) passes before every push.
+- Mobile layout always works. Testing is tiered to keep the agent's time on content (see §7a).
 - No gameplay; no accounts or server; no second renderer.
 - Keep docs current: when `src/` structure or data fields change, `docs/架构.md` changes in the same commit.
 - Commits are authored as the repository owner (Alex Wang <alex119122114@gmail.com>) with no AI co-author trailers; messages in English, saying what changed and why.
+
+### 7a. Testing tiers
+
+Testing exists to catch regressions, not to be the work. Three tiers:
+
+- **Per change:** the quick suite (`npm run test:quick`) or the one test covering what changed. Data-only changes (`data/`) run `check_overlap.py` and nothing else. No audit, no perf, no screenshots.
+- **Per task end and before every release:** the full suite (`npm test`, both layouts), `audit.cjs`, `perf5.cjs` compared with the baseline, and screenshots at the fixed viewpoints.
+- **High-risk operations only** (folding patch layers, replacing a renderer-level system, upgrading three.js): screenshot comparison after each step.
+
+Test and tool output must be summarised (failures and totals only); never paste whole logs into the working context.
 
 ## 8. Depth is layered
 
@@ -112,7 +122,7 @@ Append-only: date, decision, reason.
 
 ## 11. Roadmap and status
 
-The implementing agent updates this section at the end of every session. Phases run in order; within a phase, order is the agent's choice. A phase is done when its items are built, tested (`npm test`, `audit.cjs`, `perf5.cjs`), pushed, and the live site works on desktop and phone.
+The implementing agent updates this section at the end of every session. Phases run in order; within a phase, order is the agent's choice. A phase is done when its items are built, pass the release-tier checks of §7a, are pushed, and the live site works on desktop and phone.
 
 **Done**
 - Spaces: 绒球, 虚空, 梦境岛, 虚民母球, 尔什, 地下世界 and others; entries with models, chapter links, library, search, timeline, share.
@@ -121,7 +131,7 @@ The implementing agent updates this section at the end of every session. Phases 
 - `DESIGN.md` (this brief), 2026-10-26.
 
 **Phase 0 — Debt and smoothness baseline**
-- Fold the `49*_fix*` patch layers into their home files (see §9). Update `docs/架构.md`.
+- Fold the `49*_fix*` patch layers into their home files (see §9; high-risk tier of §7a). Update `docs/架构.md`.
 - Record a baseline: `perf5.cjs` per space, `audit.cjs`, screenshots at fixed viewpoints; store under `tests/baseline/` (small).
 - Fix the world-switch shader-compile hitch and any other hitch the baseline shows.
 - Walk every interaction path (enter space → entry → card → related → library → chapter → reader → share → back) on both layouts; fix anything that is not silky.
