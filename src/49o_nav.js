@@ -115,7 +115,8 @@ function q4c_dur(to){const d=q4c_dist(to);const za=Math.abs(Math.log(to.alt/rig.
  return clamp(.5+Math.min(2.2,rel*.55+Math.sqrt(d)/40)+za*.35+dh*.2,.6,3.4)}
 function q4c_same(to){return q4c_dist(to)<rig.alt*.02&&Math.abs(Math.log(to.alt/rig.alt))<.04&&Math.abs(((to.head-rig.head+Math.PI*3)%(Math.PI*2))-Math.PI)<.03}
 /* go and look at an entry (the card is already open when this is called, so the free part of the screen is known) */
-function q4c_goto(id,p,opt){opt=opt||{};if(!CUR||CUR.camOv)return;const w=W[id];
+function q4c_goto(id,p,opt){opt=opt||{};if(!CUR)return;if(CUR.camOv)moonRelease();// (a jump from the moon view — a card link, the tour, a shared link — used to be ignored until a click)
+ const w=W[id];
  if(CUR.type==='planet'&&w&&(w.moon||w.id==='moon'||w.id==='moon_bus'||w.id==='ex_moon')){if(!moonView(w))flyTo(18,-25,2600,1.8);return}
  // a herd member: the one that was clicked, else the member nearest the camera (not the herd's home spot)
  if(!p&&w&&CUR.type==='planet'){const L=CUR.prox.filter(x=>x.w.id===id&&x.herd&&!x.side&&eraOk(x.e)&&herdVisible(CUR,x.herd,ERA));if(L.length){const D=[];for(const x of L){const c=proxCenter(x);if(c)D.push([c.distanceToSquared(camera.position),x])}D.sort((a,b)=>a[0]-b[0]);
@@ -134,7 +135,7 @@ function q4c_goto(id,p,opt){opt=opt||{};if(!CUR||CUR.camOv)return;const w=W[id];
 function q4c_settle(k){if(!k||!k.S||sel!==k.S.id)return;if(k.vo)q4c_voNow(k);const c=k.S.c();if(!c)return;if(c.distanceTo(TG)>Math.max(60,rig.alt*1.5))return;// (a correction is a small step, never a leap to somewhere else)
  const pose=q4c_aim(c,rig.alt,rig.head,k.wx,k.wy);if(pose.err<.12||q4c_same(pose))return;flyTo(pose.a,pose.b,pose.alt,.9,pose.y,pose.head);tw.track={S:k.S,wx:k.wx,wy:k.wy,vo:k.vo,live:false,settle:false}}
 /* the same for a bare point (a side story's spot): keep the height, just make sure it can be seen */
-function q4c_gotoPoint(P,r){if(!CUR||CUR.camOv)return;const S={id:null,w:null,p:null,rp:r,r,rc:r,moving:false,c:()=>P.clone()};const wt=q4c_want();const base=tw?tw.to:rig;
+function q4c_gotoPoint(P,r){if(!CUR)return;if(CUR.camOv)moonRelease();const S={id:null,w:null,p:null,rp:r,r,rc:r,moving:false,c:()=>P.clone()};const wt=q4c_want();const base=tw?tw.to:rig;
  let pose=q4c_aim(P,base.alt,base.head,wt.wx,wt.wy);pose=q4c_clear(S,P,pose,wt.wx,wt.wy);
  if(tw){tw.track=null;Object.assign(tw.to,{a:pose.a,alt:pose.alt,y:pose.y});tw.to.b=CUR.type==='planet'||CUR.type==='tube'?tw.from.b+wrap180(pose.b-tw.from.b):pose.b;tw.to.head=tw.from.head+((pose.head-tw.from.head+Math.PI*3)%(Math.PI*2)-Math.PI)}
  else if(!q4c_same(pose))flyTo(pose.a,pose.b,pose.alt,q4c_dur(pose),pose.y,pose.head)}
