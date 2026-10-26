@@ -130,7 +130,7 @@ const _vcS=[];function visCast(rc,root){const out=[];const st=_vcS;st.length=0;s
   if(o.isMesh&&o.geometry){const m=Array.isArray(o.material)?o.material[0]:o.material;if(m&&!m.transparent&&m.depthWrite!==false&&m.blending!==THREE.AdditiveBlending&&m.visible!==false&&o.layers.test(rc.layers))o.raycast(rc,out)}
   const ch=o.children;for(let i=0;i<ch.length;i++)st.push(ch[i])}
  out.sort((a,b)=>a.distance-b.distance);return out}
-function occCast(L){return L?_crc.intersectObjects(L,false):visCast(_crc,CUR.scene)}
+function occCast(L,rc){rc=rc||_crc;return L?rc.intersectObjects(L,false):visCast(rc,CUR.scene)}
 
 /* after a jump, make sure the thing is actually in sight (the search itself lives in 49o_nav.js: q4c_goto / q4c_clear).
    a bare point (a side story's spot) keeps the height of the flight under way and only turns or rises if something is in the way */
@@ -367,4 +367,4 @@ setTimeout(()=>{
   if(firstVisit){const tc=matchMedia('(pointer:coarse)').matches;const H=[[1800,tc?'单指拖动转动世界，双指缩放':'拖动转动世界，滚轮缩放',3400],[9800,'下方的时间轴可以换一个时代看看',3400],[15000,'靠近以后，发光的小点都是词条，点一下',3600],[21000,'右下角是图书馆：词条、故事、原著章节和番外',3800]];H.forEach(([d,t,ms])=>setTimeout(()=>{if(!$('#cap.on')&&CUR&&CUR.id==='rongqiu'&&!$('#lib.on'))hint(t,ms)},d));flyTo(18,-25,2600,7);setTimeout(()=>{$('#time').classList.add('open');setEra(2);setTimeout(()=>$('#time').classList.remove('open'),5200)},3600)}}});
  requestAnimationFrame(t=>{last=t;loop(t)})},30);
 window.__rq={bc:buildCreature,fll:frameLL,cam:camera,ren:renderer,place(a,b,alt,head){tw=null;vel.a=vel.b=0;Object.assign(rig,{a,b,alt,head:head||0})},stop(){tw=null},go,open:openBase,setEra,enterSpace:q5s_enterSpace,exitToVoid,flyTo,rig,get CUR(){return CUR},get ERA(){return ERA},SP,timeTo:timeToBase,zoomAt,pickProx,egg:eggBase,get tw(){return tw}};
-Object.assign(window.__rq,{dbg:{selP:()=>selP,posOf,sizeOf,proxCenter,rigPose,flyEntry,ensureClear,q4c:{aim:q4c_aim,vis:q4c_vis,want:q4c_want,subject:q4c_subject,goto:q4c_goto,clear:q4c_clear},busy:()=>busy,pickProx,eraOk,dayFor,SHD,getSpace,tables:()=>({SPEC,ENT,KIND}),sunAt:lon=>{CUR.sunLon=lon-T*360/CUR.dayLen}}});
+Object.assign(window.__rq,{dbg:{selP:()=>selP,posOf,sizeOf,proxCenter,rigPose,flyEntry,ensureClear,occList,occListBase,q4c:{aim:q4c_aim,vis:q4c_vis,want:q4c_want,subject:q4c_subject,goto:q4c_goto,clear:q4c_clear},busy:()=>busy,pickProx,eraOk,dayFor,SHD,getSpace,tables:()=>({SPEC,ENT,KIND}),sunAt:lon=>{CUR.sunLon=lon-T*360/CUR.dayLen}}});

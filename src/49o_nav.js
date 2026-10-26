@@ -86,7 +86,7 @@ function q4c_vis(S,c,skipCut){const cam=camera;const dist=cam.position.distanceT
  let clear=0;const hull=new THREE.Sphere(c,rr*1.08);
  for(const Q of pts){const d=Q.clone().sub(cam.position);const L=d.length();d.normalize();q4c_rc.set(cam.position,d);q4c_rc.camera=cam;
   let far=L-1;if(q4c_rc.ray.intersectSphere(hull,q4c_tmpV))far=Math.min(far,cam.position.distanceTo(q4c_tmpV)-.5);q4c_rc.far=Math.max(.5,far);
-  let blocked=false;for(const h of occCast(q4c_occ)){const o=h.object;if(!o.isMesh||q4c_own(o,S.id))continue;if(o===CUR.ocean)continue;// the sea is seen through, it never hides what swims in it
+  let blocked=false;for(const h of occCast(q4c_occ,q4c_rc)){const o=h.object;if(!o.isMesh||q4c_own(o,S.id))continue;if(o===CUR.ocean)continue;// the sea is seen through, it never hides what swims in it
   const m=Array.isArray(o.material)?o.material[0]:o.material;if(!q4c_solid(m))continue;if(!q4c_occ&&!isVis(o))continue;if(skipCut&&!CUT.off&&dist<700&&cuttable(o,S.rc))continue;blocked=true;break}
   if(!blocked)clear++}
  return clear/pts.length}
@@ -94,15 +94,17 @@ function q4c_vis(S,c,skipCut){const cam=camera;const dist=cam.position.distanceT
 function q4c_camFree(S,c){const cam=camera;if(CUR.type==='planet'){const ll=llDir(cam.position);if(cam.position.length()-R-Math.max(0,CUR.gh(ll[0],ll[1]))<6)return false}
  const d=cam.position.clone().sub(c);const L=d.length();d.normalize();const r0=Math.min(L*.5,Math.max(S.r,1.5)*1.1);q4c_rc.set(c.clone().addScaledVector(d,r0),d);q4c_rc.far=L-r0+5;q4c_rc.camera=cam;
  const bad=o=>{if(!o.isMesh||q4c_own(o,S.id))return false;const m=Array.isArray(o.material)?o.material[0]:o.material;return q4c_solid(m)&&(q4c_occ||isVis(o))};
- for(const h of occCast(q4c_occ)){if(bad(h.object)&&Math.abs(h.distance-(L-r0))<7)return false}
- for(const dd of[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]){q4c_rc.set(cam.position,q4c_tmpV.set(dd[0],dd[1],dd[2]));q4c_rc.far=4;for(const h of occCast(q4c_occ))if(bad(h.object))return false}
+ for(const h of occCast(q4c_occ,q4c_rc)){if(bad(h.object)&&Math.abs(h.distance-(L-r0))<7)return false}
+ for(const dd of[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]){q4c_rc.set(cam.position,q4c_tmpV.set(dd[0],dd[1],dd[2]));q4c_rc.far=4;for(const h of occCast(q4c_occ,q4c_rc))if(bad(h.object))return false}
  return true}
 /* search for a pose with a clear view: the heading turns first; the height changes (down as well as up) only when turning is not enough */
 function q4c_clear(S,c,base,wx,wy,lite){const sv={a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y};const gs=_gS,gt=_gT;const t=CUR.type;const big0=CUT.big;
  q4c_occ=occList(c,Math.max(260,S.r*6,Math.min(2600,base.alt*3.2)));/* (as far out as the camera may stand: a cloud next to the lens hides everything) */let best=null,bs=-1,big=false;try{
   const heads=lite?[0,.8,-.8,1.6,-1.6]:[0,.8,-.8,1.6,-1.6,2.5,-2.5];const mults=lite?[1,1.3,.75,.5]:t==='tube'?[1,.75,1.4,.5,1.9]:[1,.7,1.4,.5,2,.35,3];
   const run=()=>{outer:for(const m of mults)for(const h of heads){const alt=clamp(base.alt*m,altMin()+8,altMax());const pose=q4c_aim(c,alt,base.head+h,wx,wy,base.y);Object.assign(rig,{a:pose.a,b:pose.b,alt:pose.alt,head:pose.head,y:pose.y});_gS=null;rigPose();
-   let sc=q4c_vis(S,c,true);const cf=sc>0?q4c_camFree(S,c):null;if(cf===false)sc=0;if(window.__q4cDbg)window.__q4cDbg.push([m,+h.toFixed(1),+sc.toFixed(2),cf]);sc-=Math.abs(h)*.012+Math.abs(Math.log(m))*.05;
+   // a pose that cannot keep the thing on screen (the camera held by the ground or a height limit) is no pose at all
+   q4c_tmpV.copy(c).project(camera);const onScr=q4c_tmpV.z<1&&Math.abs(q4c_tmpV.x)<.82&&Math.abs(q4c_tmpV.y)<.82;
+   let sc=onScr?q4c_vis(S,c,true):0;const cf=sc>0?q4c_camFree(S,c):null;if(cf===false)sc=0;if(window.__q4cDbg)window.__q4cDbg.push([m,+h.toFixed(1),+sc.toFixed(2),cf]);sc-=Math.abs(h)*.012+Math.abs(Math.log(m))*.05;
    if(sc>bs){bs=sc;best=pose}if(sc>=.95)break outer}};
   run();
   // enclosed on every side (a creature deep in a clump of trees): let the cutaway take bigger things and look again
