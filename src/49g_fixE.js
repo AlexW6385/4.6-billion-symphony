@@ -368,10 +368,6 @@ function fxE_bubbleShrimp(){const g=new THREE.Group();const sk=M('#d8906a',{roug
 function fxE_dreamlink(){return bSquids({n:3,s:.6})}
 
 // the scholar's flyer also roams the map as a fauna record; give it the same body
-SPEC.rq_tlant3=()=>fxE_heli();
 
-Object.assign(ENT,{
- huiyinchong:[fxE_huiyin,1.1], huangqunlz:[fxE_queen,1.6,{alt:.3,sea:1}], spy:[fxE_spy,1.1], dumeisha:[fxE_medusa,1.4], pier:[fxE_pier,1],
- kongyuting:[fxE_skyboat,1.6,{alt:16}], rq_tlant3:[fxE_heli,1.4,{alt:12}], rq_mist:[fxE_fograft,1.4,{sea:1}], yuanjiao:[fxE_yuanjiao,1.1], duntou:[fxE_stoneBeast,1.1],
- jueyuan:[fxE_digger,1.8,{walk:1}], baoxiao:[fxE_roarer,1.3,{dll:[.8,1]}], jiaoshu:[fxE_calltree,1.2], jianzao:[fxE_flea,.8], yanshenghua:[fxE_fireflower,1.1], paokexia:[fxE_bubbleShrimp,1.2,{sea:1}], menglian:[fxE_dreamlink,1.1,{sea:1}],
-});
+
+

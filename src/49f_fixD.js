@@ -61,7 +61,7 @@ function fxD_xumin(o){o=Object.assign({skin:'#8e9aa8'},o||{});const g=new THREE.
  g.userData.anim=t=>{const L=g.userData.legs;if(L)for(const l of L){l.m.rotation.z=.25+Math.sin(t*3+l.ph)*.25;l.m.userData.knee.rotation.z=-.5-Math.max(0,Math.sin(t*3+l.ph+1.4))*.4}
   tor.scale.y=1+Math.sin(t*1.6)*.02;head.rotation.z=Math.sin(t*.7)*.06;head.rotation.y=Math.sin(t*.45)*.12;arms.forEach((a,i)=>{a.rotation.z=.55+Math.sin(t*1.1+i*1.9)*.1});};
  g.userData.xmShoulder=V3(.34,2.2,.34);return g}
-const fxD_scholar=()=>fxD_xumin({cloth:'#3a4a5a',cloth2:'#2a3440',book:1,bag:'#5a4a3a'});
+function fxD_scholar(){return fxD_xumin({cloth:'#3a4a5a',cloth2:'#2a3440',book:1,bag:'#5a4a3a'})}
 
 /* ---------- a small mechanical 爆哮虫 (Maya's loudspeaker), metal grey ---------- */
 function fxD_mechRoarer(){const g=bRoarer({col:'#8a929a'});const rep={};g.traverse(c=>{if(!c.isMesh||!c.material||!c.material.isMeshStandardMaterial||c.material.transparent)return;const m=c.material;const k=m.uuid;
@@ -388,36 +388,4 @@ function fxD_xiulian(){const g=new THREE.Group();const bl=M('#e0e4e8',{metalness
 function fxD_jianzhang(){const g=bFingerCaptain();for(const c of g.children.slice())if(c.material===shadowMat)g.remove(c);const a0=g.userData.anim;g.userData.anim=t=>{a0(t);g.position.y=1.1+Math.sin(t*.7)*.25};return g}
 
 /* ---------- the table ---------- */
-Object.assign(ENT,{
- xm_general:[()=>fxD_xumin({cloth:'#c83a3a',cloth2:'#8a2a2a',medals:1,hat:'cap',hatc:'#8a2a2a',cape:'#8a2a2a',belt:'#e8c040'}),1],
- xm_nemo:[()=>fxD_xumin({armor:'#5a5e62',crack:1}),1],
- tlant:[fxD_scholar,1],
- c_xuezhe:[fxD_xuezhe,1],
- c_baoxiao:[fxD_baoxiao,1,{isle:1}],
- v_huhe_guard:[fxD_huhe,1,{isle:1}],
- v_gugu:[fxD_gugu,1,{isle:1}],
- v_huijin:[fxD_ashPair,1],
- ex_mother:[fxD_mother,1.3],
- ex_wushou:[fxD_wushou,1],
- v_se:[fxD_se,1,{isle:1}],
- v_yuanling:[fxD_yuanling,1.1],
- v_fudao:[fxD_fudao,1.1],
- v_cangyi:[fxD_cangyi,1.1,{isle:1}],
- ex_closest:[fxD_closest,1.1,{alt:.3,sea:1}],
- v_yanpi:[fxD_yanpi,1,{isle:1}],
- ng_galaxy:[fxD_galaxy,1.2],
- v_huaduo:[fxD_huaduo,1.1],
- ng_snow:[fxD_snow,1.1],
- mg_chene:[()=>fxD_croc({}),1.2,{walk:1}],
- mg_mini:[()=>fxD_croc({tiny:1,mech:1}),.7],
- dr_jumper:[fxD_jumper,1.1],
- v_chibcha2:[fxD_chibcha2,1.2,{isle:1}],
- v_anzao:[fxD_anzao,1.1],
- v_poyan:[fxD_poyan,1.1],
- v_zhanfen:[fxD_zhanfen,1,{isle:1}],
- mg_exit:[fxD_moons,2],
- dr_edge:[fxD_edge,1.4],
- bk_daowen:[fxD_daowen,1.1],
- mg_xiulian:[fxD_xiulian,1.1],
- ng_jianzhang:[fxD_jianzhang,1,{isle:1}],
-});
+

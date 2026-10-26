@@ -192,7 +192,7 @@ function q4b_train(f){const g=new THREE.Group();const body=M('#d8dde2',{metalnes
   if(i<N-1){const cp=cyl(.04,.04,gap+.06,dark,8);cp.rotation.z=Math.PI/2;cp.position.set(-L/2-gap/2,.2,0);car.add(cp)}}
  for(const s of[-1,1]){const nose=sph(0,.28,.15,.15,18,body);nose.position.set(s*x0,.24,0);g.add(nose);const lamp=sph(0,.04,.04,.04,8,GL('#ffffff',.9));lamp.position.set(s*(x0+.24),.2,0);g.add(lamp);g.add(at(glowSprite('#cfe8ff',.7,.5),s*(x0+.26),.2,0))}
  g.userData.noSkin=1;return g}
-SPEC.xm_train=q4b_train;
+
 
 /* 燃尽者: the brain-spirit's soldiers, fifty metres tall, three holes in the head, no lower body — a charred crust over an
    inner fire, floating on the heat it sheds */
@@ -206,7 +206,7 @@ function q4b_burner(f){const g=new THREE.Group();const crust=detailMat(new THREE
  const fl=emitter({n:110,life:1.8,speed:1.1,spread:.7,size:2.4,dir:[0,-1,0],col:'#ffb050',col2:'#ff3010',op:.7,area:[.5,.3,.5]});g.add(fl);
  g.add(at(glowSprite('#ff6a2a',5.5,.4),0,1.2,0));g.add(at(glowSprite('#ff9a4a',2.2,.5),.75,3.6,0));
  g.userData.anim=t=>{hd.rotation.y=Math.sin(t*.4)*.3;for(const a of g.userData.arms)a.m.rotation.z=.08+Math.sin(t*.9+a.z)*.06};return g}
-SPEC.rq_ranjin=q4b_burner;
+
 
 /* 食苔甲: a metre-long beetle, round as a ball, in hard plated armour; the wing cases split down a seam, ridged across */
 function q4b_mossBeetle(f){const g=new THREE.Group();const skin=M(f.col||'#3a5a3a',{roughness:.28,metalness:.25}),dk=M('#1c2a1c',{roughness:.45,metalness:.2}),pale=M('#8aa06a',{roughness:.8});
@@ -219,7 +219,7 @@ function q4b_mossBeetle(f){const g=new THREE.Group();const skin=M(f.col||'#3a5a3
  for(let i=0;i<4;i++){const m=sph(0,.09,.03,.08,8,pale);m.position.set(.3-i*.22,.98-i*.02,(i%2?-1:1)*.25);m.rotation.z=(i%2?-1:1)*.3;g.add(m)}
  const legs=[];for(let i=0;i<3;i++)for(const z of[-1,1]){const l=leg2(.36,.42,.045,dk,.9);l.position.set(.45-i*.4,.3,z*.5);l.rotation.x=z*1.05;l.rotation.z=-.55+i*.5;g.add(l);legs.push({m:l,ph:i*2.1+(z>0?0:Math.PI),a:.6})}
  addLegs(g,legs);stdAnim(g,{fq:6,amp:.35});return g}
-SPEC.shitaijia=q4b_mossBeetle;
+
 
 /* 唤雾者: flying sharks of the brain-spirit's army; living mist pours from where the gills were */
 function q4b_fogShark(f){const g=new THREE.Group();const skin=M(f.col||'#c8d8e0',{roughness:.45}),belly=M('#eef4f6',{roughness:.5}),dk=M('#6a7a86',{roughness:.5,side:THREE.DoubleSide});
@@ -231,14 +231,16 @@ function q4b_fogShark(f){const g=new THREE.Group();const skin=M(f.col||'#c8d8e0'
   const e=sph(0,.045,.045,.045,8,M('#0a0c10'));e.position.set(.92,.12,z*.2);g.add(e);
   const fog=emitter({n:70,life:2.6,speed:.55,spread:.6,size:1.4,dir:[-1,0,z*.4],col:'#e6eef4',col2:'#b8c8d4',op:.45,add:false,tex:smokeTex,area:[.25,.1,.05],wander:.6});fog.position.set(.6,0,z*.4);g.add(fog)}
  addWings(g,wings);g.userData.tails=[{m:tail,f:3,a:.25}];stdAnim(g,{});return g}
-SPEC.xm_huanwu=q4b_fogShark;
+
 
 /* 大气史莱姆: the see-through ray keeps its shape; inside it now ride the 滚雷, the glowing balls that thunder */
-{const d0=SPEC.daqi;if(d0)SPEC.daqi=function(f){const g=d0(f);g.traverse(o=>{if(o.isMesh&&o.material&&o.material.opacity===.45&&o.material.transparent)o.material.opacity=.55});
+function q4b_daqi(f){const g=fxB_daqi(f);g.traverse(o=>{if(o.isMesh&&o.material&&o.material.opacity===.45&&o.material.transparent)o.material.opacity=.55});
  const orbs=[];for(let i=0;i<3;i++){const m=new THREE.MeshStandardMaterial({color:'#eef8ff',emissive:'#cfe8ff',emissiveIntensity:1.4,roughness:.1});const o=sph(0,.11,.1,.11,16,m);o.position.set(-.15+i*.22-.2,.04,(i-1)*.28);g.add(o);const gl=glowSprite('#dff2ff',.9,.5);gl.position.copy(o.position);g.add(gl);orbs.push({o,m,gl,ph:i*2.1})}
- const a0=g.userData.anim;g.userData.anim=t=>{if(a0)a0(t);for(const q of orbs){const k=Math.pow(Math.max(0,Math.sin(t*1.7+q.ph)),6);q.m.emissiveIntensity=.9+2.4*k;q.gl.material.opacity=.3+.6*k;q.gl.scale.setScalar(.8+k*1.1)}};return g}}
+ const a0=g.userData.anim;g.userData.anim=t=>{if(a0)a0(t);for(const q of orbs){const k=Math.pow(Math.max(0,Math.sin(t*1.7+q.ph)),6);q.m.emissiveIntensity=.9+2.4*k;q.gl.material.opacity=.3+.6*k;q.gl.scale.setScalar(.8+k*1.1)}};return g}
+
 /* 光龙: a little more body in the skin, so it reads as a beast of light and not a smear */
-{const g0=SPEC.guanglong;if(g0)SPEC.guanglong=function(f){const g=g0(f);g.traverse(o=>{if(!o.isMesh||!o.material)return;const m=o.material;if(m.transparent&&m.opacity===.42)m.opacity=.58;else if(m.transparent&&m.opacity===.2&&m.side===THREE.BackSide)m.opacity=.32});return g}}
+function q4b_guanglong(f){const g=fxB_guanglong(f);g.traverse(o=>{if(!o.isMesh||!o.material)return;const m=o.material;if(m.transparent&&m.opacity===.42)m.opacity=.58;else if(m.transparent&&m.opacity===.2&&m.side===THREE.BackSide)m.opacity=.32});return g}
+
 
 /* 观察者: Lin's first eye — a cell that swallowed a strange crystal and could see: the crystal sits in the front of the
    cell like a lens in an iris, the membrane clear round it */
@@ -252,7 +254,7 @@ function q4b_observer(){const g=new THREE.Group();const mem=new THREE.MeshStanda
  const cr=new THREE.Mesh(ko(.26),EM('#e0fbff',1.1,{roughness:.05,flatShading:true}));cr.position.set(.72,.05,0);cr.scale.set(.7,1.4,1);g.add(cr);g.add(at(glowSprite('#e0fbff',2.2,.65),.8,.05,0));
  for(let i=0;i<12;i++){const a=i/12*6.283;const c=tubeAlong([V3(Math.cos(a)*1.08,Math.sin(a)*1.08,0),V3(Math.cos(a)*1.4,Math.sin(a)*1.4,.1),V3(Math.cos(a)*1.65,Math.sin(a)*1.65,Math.sin(a*3)*.25)],.018,M('#bfe0d4',{roughness:.6}),6);g.add(c)}
  g.userData.anim=t=>{m.scale.setScalar(1.1+Math.sin(t*1.5)*.04);cr.rotation.x=t*.8;nu.position.y=.05+Math.sin(t*.7)*.04};return g}
-ENT.guanchazhe=[q4b_observer,1.1,{alt:1}];
+
 
 /* 天船: an alloy-and-crystal airship full of light gas, floating on the cloud sea — a ribbed silver envelope, a crystal ridge
    along its back, a gondola and engine pods beneath, fins at the stern */
@@ -267,18 +269,13 @@ function q4b_skyShip(){const g=new THREE.Group();const met=M('#d8e0e8',{metalnes
  g.add(at(glowSprite('#bff4ff',4,.45),.2,2.3,0));
  for(const z of[-1,1]){const f=new THREE.Mesh(wingGeo(1.6,1.1,'fin'),met);f.position.set(-2.4,1.3,z*.4);if(z<0)f.scale.z=-1;g.add(f)}const vf=new THREE.Mesh(wingGeo(1.3,1,'fin'),met);vf.rotation.x=-Math.PI/2;vf.position.set(-2.4,1.6,0);g.add(vf);
  g.userData.anim=t=>{g.children.forEach(o=>{if(o.geometry&&o.geometry.type==='OctahedronGeometry')o.rotation.y=t*.6});g.position.y=Math.sin(t*.5)*.2};return g}
-ENT.tianchuan=[q4b_skyShip,2.6,{alt:52,far:2400}];
+
 
 /* 不可预见之地: the other void, where everything is born of thought — soft mist with shards of half-made things turning in it */
-{const b0=ENT.bk_overview;ENT.bk_overview=[()=>{const g=b0[0]();const shards=[];const sm=new THREE.MeshStandardMaterial({color:'#f0e8ff',emissive:'#c8b0ff',emissiveIntensity:.5,transparent:true,opacity:.7,roughness:.2,flatShading:true});
- for(let i=0;i<14;i++){const s=new THREE.Mesh(i%3===0?new THREE.TetrahedronGeometry(.5,0):i%3===1?ko(.4):new THREE.IcosahedronGeometry(.35,0),sm);const a=h3(i,1,4)*6.28,r=2+h3(i,2,4)*4;s.position.set(Math.cos(a)*r,1+h3(i,3,4)*3,Math.sin(a)*r);s.scale.setScalar(.6+h3(i,4,4));g.add(s);shards.push({s,a,r,y:s.position.y,ph:h3(i,5,4)*6})}
- const rings=[];for(let i=0;i<2;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(3.2+i*1.4,.04,8,64),GL('#d8c8ff',.5));r.rotation.x=Math.PI/2+(i?.5:-.3);r.position.y=2;g.add(r);rings.push(r)}
- const a0=g.userData.anim;g.userData.anim=t=>{if(a0)a0(t);for(const q of shards){const a=q.a+t*.12;q.s.position.set(Math.cos(a)*q.r,q.y+Math.sin(t*.6+q.ph)*.4,Math.sin(a)*q.r);q.s.rotation.set(t*.3+q.ph,t*.2,0)}rings.forEach((r,i)=>r.rotation.z=t*(i?-.05:.07))};return g},b0[1],b0[2]]}
+
 
 /* 雪原: white grains like a desert — drifts and dunes round the torch-bearers' plain */
-{const s0=ENT.ng_snow;if(s0)ENT.ng_snow=[()=>{const g=s0[0]();const sn=M('#f6f6f2',{roughness:.95});
- for(let i=0;i<9;i++){const a=h3(i,1,6)*6.28,r=3.2+h3(i,2,6)*4.5;const d=sph(0,1.4+h3(i,3,6)*2.2,.35+h3(i,4,6)*.35,1+h3(i,5,6)*1.6,22,sn);d.position.set(Math.cos(a)*r,0,Math.sin(a)*r);d.rotation.y=h3(i,6,6)*3;g.add(d)}
- const plain=new THREE.Mesh(new THREE.CircleGeometry(9,48),M('#f0f0ec',{roughness:1}));plain.rotation.x=-Math.PI/2;plain.position.y=.01;g.add(plain);return g},s0[1],s0[2]]}
+
 
 /* 绿毯: the green carpet on the sea floor was one flat stamp; now a bed of overlapping fronds, darker in the seams, lit by
    the sun through the water and thinning toward the edge */

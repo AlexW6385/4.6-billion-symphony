@@ -134,9 +134,9 @@ function bBaldCrow(){const g=new THREE.Group();const sk=M('#c8a898',{roughness:.
  for(const z of[-1,1]){const l=leg2(.4,.4,.04,M('#5a4a3a'),.6);l.position.set(0,.65,z*.15);g.add(l)}const sw=new THREE.Mesh(new THREE.CircleGeometry(3,24),new THREE.MeshStandardMaterial({color:'#3a4a2a',roughness:.1,metalness:.2}));sw.rotation.x=-Math.PI/2;sw.position.y=.02;g.add(sw);
  for(let i=0;i<4;i++){const lf=sph(0,.9,.04,.6,10,M('#4a7a3a'));lf.position.set((h3(i,1,2)-.5)*5,.05,(h3(i,2,2)-.5)*5);lf.rotation.y=i;g.add(lf)}g.userData.anim=t=>W2.forEach(x=>x.wg.rotation.x=x.z*(.3+Math.sin(t*3)*.5));return g}
 Object.assign(ENT,{
- hangmu:[bCarrier,1.4,{alt:.4}], tunshizhe:[bDevourers,1,{alt:.4}], yunshuzhe:[bTransporters,1.2,{alt:.3}], huweizhe:[bGuardianWorm,1.2], dantou:[bWarhead,1], lvzaoqiu:[bAlgaeBalls,1.1], qianjing:[bCrystalField,1.6],
+ hangmu:[fxG_carrier,1.4,{alt:.4}], tunshizhe:[bDevourers,1,{alt:.4}], yunshuzhe:[bTransporters,1.2,{alt:.3}], huweizhe:[fxC_yuandun,1.2], dantou:[bWarhead,1], lvzaoqiu:[bAlgaeBalls,1.1], qianjing:[bCrystalField,1.6],
  zuankongyu:[bBorerFish,1,{alt:.2}], rouqiyu:[bLobeFin,1,{alt:.2}], guangdao:[bLightBombs,1,{alt:.2}], lieshazhe:[()=>bBladeScorps({}),1.7], tucizhe:[bSpikeDiscs,1], paojizhe:[()=>bBladeScorps({n:3,cannon:1,col:'#5a6a3a'}),1.6],
- fensuizhe:[bCrusher,1.3,{walk:1}], lvtanshan:[bUmbrellas,1.3], fuchouteng:[bVengeVine,1.4], tanwuzhe:[bFogScouts,1.4,{alt:46}], kaikai:[bCloudRay,2.6,{alt:52,far:2200}],
- ruibing:[bStoneBirds,1,{isle:1}], zhicao:[bSmartGrass,1.1,{isle:1}], shengyan:[bLivingRock,1.4], luxi:[bLucy,1.6], huannaoyu:[bMerfolk,1,{isle:1}], wendingchong:[bStabilizers,1], yinyan:[bHiddenEye,.9],
- qiyi:[bAirAnts,1,{isle:1}], henggu:[bAncientMud,1,{isle:1}], caise:[bRainbowCaptain,1.1], tunman:[bGulper,1.6], yongheng:[bEternalEye,1.6], hongtianxie:[bBoomCrabs,1], tuya:[bBaldCrow,1.1]});
-SPEC.rq_tlant3=(f)=>{const g=new THREE.Group();const w=bWoodFlyer(f);g.add(w);g.userData.noSkin=1;g.userData.anim=t=>w.userData.anim(t);return g};
+ fensuizhe:[bCrusher,1.3,{walk:1}], lvtanshan:[fxG_umbrellas,1.3], fuchouteng:[bVengeVine,1.4], tanwuzhe:[bFogScouts,1.4,{alt:46}], kaikai:[bCloudRay,2.6,{alt:52,far:2200}],
+ ruibing:[bStoneBirds,1,{isle:1}], zhicao:[fxG_smartGrass,1.1,{isle:1}], shengyan:[bLivingRock,1.4], luxi:[fxG_lucy,1.6], huannaoyu:[fxG_merfolk,1,{isle:1}], wendingchong:[bStabilizers,1], yinyan:[bHiddenEye,.9],
+ qiyi:[fxG_airAnts,1,{isle:1}], henggu:[fxG_ancientMud,1,{isle:1}], caise:[fxG_rainbowSlug,1.1], tunman:[bGulper,1.6], yongheng:[bEternalEye,1.6], hongtianxie:[bBoomCrabs,1], tuya:[bBaldCrow,1.1]});
+SPEC.rq_tlant3=()=>fxE_heli();

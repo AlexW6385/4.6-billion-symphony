@@ -585,5 +585,4 @@ function fxF_takoHope(){const D=fxF_drake({skin:'#77726a',stripe:'#3a3631',belly
  const ra=D.arms[0];
  return fxF_drakeIdle(D,{look:.35,noArms:1,talk:.5,extra:t=>{ra.s.rotation.z=.15;ra.el.rotation.z=1.45;ra.s.rotation.x=-.15;const la=D.arms[1];la.s.rotation.z=.6+Math.sin(t*.9)*.08;la.el.rotation.z=1.2;la.s.rotation.x=.2}})}
 /* ---------- the table ---------- */
-Object.assign(ENT,{c_veronica:[fxF_veronica,1],c_bilu:[fxF_bilu,1],ex_teliti:[fxF_teliti,1],ex_nuo:[fxF_nuo,1],v_rosalie:[fxF_rosalie,1,{isle:1}],c_sarin:[fxF_sarin,1.1,{isle:1}],c_hero:[fxF_hero,1,{isle:1}],ex_clown:[fxF_clown,1.2],bk_abu:[fxF_abu,1.1],
- susumi:[fxF_susumi,1.1,{dll:[.8,.8]}],tako:[fxF_tako,1],lideer:[fxF_lideer,1],jingkuang:[fxF_jingkuang,1.1,{dll:[-.9,1]}],yuyan:[fxF_yuyan,1],dr_tako:[fxF_takoHope,1.1,{isle:1}]});
+

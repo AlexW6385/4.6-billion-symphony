@@ -205,14 +205,14 @@ function fxC_manteng(){const g=new THREE.Group();const cols=['#4a8a34','#5a9a3c'
  const ground=new THREE.Mesh(new THREE.CircleGeometry(2.8,24),M('#c8b07a',{roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=.02;g.add(ground);
  g.userData.anim=t=>st.forEach((s,i)=>{s.rotation.z=Math.sin(t*.9+i*.7)*.04;s.rotation.x=Math.cos(t*.7+i)*.03});return g}
 
-ENT.chibcha=[fxC_chibcha,1];
-ENT.mtzm2=[fxC_mtzm2,1.6,{alt:.3,sea:1}];
-ENT.kaituo=[fxC_kaituo,1.8];
-ENT.yuandun=[fxC_yuandun,1.8];
-ENT.tanglangxia=[fxC_tanglangxia,1.4,{sea:1}];
-ENT.shijun=[()=>{const g=bAmoeba({col:'#3a9ad8'});const s=bScorpion({w:'x',col:'#7a9a5a'});s.scale.setScalar(.4);s.position.set(2,0,0);g.add(s);return g},1.4];
-ENT.siwangjianci=[fxC_siwang,1.6];
-ENT.manteng=[fxC_manteng,3];
+
+
+
+
+
+
+
+
 
 /* ---------- 鳞甲虫 and 锯蜓: the first a four-metre grazer, an oval body shingled with square plates like a trilobite,
    shovelling ferns with thick legs; the second a huge flyer with four broad leaf-like wings (butterfly rather than
@@ -402,15 +402,15 @@ function fxC_juxian(){const g=new THREE.Group();const sand=M('#d0b486',{roughnes
   g.add(d);dr.push({d,a:i/7*6.28,r:.6+(i%3)*.45})}
  g.userData.anim=t=>{dr.forEach((x,i)=>{x.d.position.set(1.05+Math.cos(x.a+t*.3)*x.r,1.2+Math.sin(t*1.7+i)*.18,Math.sin(x.a+t*.3)*x.r)});tn.forEach((x,i)=>x.rotation.z=Math.sin(t*2+i)*.3)};return g}
 
-ENT.linjia=[fxC_linjia,1.3];
-ENT.heifeng=[fxC_heifeng,1.4];
-ENT.anying=[fxC_anying,1.3,{dll:[.7,-1]}];
-ENT.pensha=[fxC_pensha,1.4];
-ENT.zhenjunlz=[fxC_zhenjun,1.8];
-ENT.yika=[fxC_yika,1,{sea:1}];
-ENT.zhanxie=[fxC_zhanxie,1.1];
-ENT.baozhajq=[fxC_baozha,1];
-ENT.juxian=[fxC_juxian,1.4];
+
+
+
+
+
+
+
+
+
 
 /* ---------- 爆甲: swarm beetles that mix fluids inside them and blow themselves up; they open their wing cases and fly
    (later kinds also drive themselves with a jet) ---------- */
@@ -457,13 +457,11 @@ function fxC_ext3(){const g=new THREE.Group();const gr=new THREE.Mesh(new THREE.
  const fg2=G([[new THREE.CylinderGeometry(.01,.01,.2,3).translate(0,.1,0),'#4a8a3a'],[new THREE.SphereGeometry(.05,6,4).translate(0,.21,0),'#f08ab0']]);const fl2=[];for(let i=0;i<80;i++)fl2.push([V3((h3(i,4,6)-.5)*6.4,0,(h3(i,5,6)-.5)*6.4),[0,0,0],1]);g.add(fxC_inst(fg2,fm.material,fl2));
  g.add(emitter({n:60,life:6,speed:.3,spread:1,size:2.2,dir:[1,.2,0],col:'#fff2c8',op:.18,add:false,tex:smokeTex,area:[6,1.5,6],wander:.5}));g.add(at(glowSprite('#fff0b0',4,.22),0,2.2,0));return g}
 
-ENT.baojia=[fxC_baojia,1.2];
-ENT.kongjiang=[fxC_kongjiang,1.3];
-ENT.gunlei=[fxC_gunlei,1];
-ENT.shengtan=[fxC_shengtan,1];
-ENT.ev_ext3=[fxC_ext3,2.2];
+
+
+
+
+
 /* 琳 and 观察者: the first cells were nearly see-through, with grey nuclei */
-ENT.lin=[()=>{const g=bCells({n:34,col:'#e6f2ee',core:'#626464',size:1.1,glow:'#eaf6f2'});const ring=new THREE.Mesh(new THREE.TorusGeometry(1.8,.03,4,48),GL('#e8f4f0',.4));ring.rotation.x=Math.PI/2;g.add(ring);
- const a0=g.userData.anim;g.userData.anim=t=>{a0&&a0(t);ring.scale.setScalar(1+Math.sin(t*.8)*.08);g.rotation.y=t*.05};return g},1.4,{alt:1.5}];
-ENT.guanchazhe=[()=>{const g=bCrystalCell();const mem=g.children[0],nu=g.children[1];mem.material=new THREE.MeshStandardMaterial({color:'#eef6f4',transparent:true,opacity:.3,roughness:.08,emissive:'#a8c8c0',emissiveIntensity:.12,depthWrite:false});
- nu.material=M('#7e8080',{roughness:.5});g.traverse(o=>{if(o.isLineSegments)o.material=new THREE.LineBasicMaterial({color:'#d8e8e4',transparent:true,opacity:.7})});return g},1.1,{alt:1}];
+
+

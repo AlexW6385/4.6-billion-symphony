@@ -406,9 +406,9 @@ function q5m_lamp(P){const h=P.h||2.6;return G([[kcy(.07,.09,h,6),P.metal,{p:[0,
 {const K=STREETKIT.dragon;if(K){const P={wood:'#8a6a40',wood2:'#6a5030',metal:BEAM,glass:'#ffcf7a',load:'#a08050',sack:'#c8b088'};K.cart=q5m_cart(P);K.crate=q5m_crate(P);K.lamp=q5m_lamp(P)}}
 
 /* ---------------- swap the new bodies in ---------------- */
-(()=>{const sw=new Map([[q5m_quad0,q5m_quad],[q5m_scorp0,q5m_scorpion],[q5m_beetle0,q5m_beetle],[q5m_fish0,q5m_fish],[q5m_jelly0,q5m_jelly],[q5m_dfly0,q5m_dragonfly],[q5m_ptero0,q5m_ptero],[q5m_upright0,q5m_upright],[q5m_squid0,q5m_squid],[q5m_wheel0,q5m_wheel],[q5m_swarm0,q5m_swarm]]);for(const T of[SPEC,KIND])for(const k in T)if(sw.has(T[k]))T[k]=sw.get(T[k])})();
 bQuadSmall=q5m_quad;bScorpion=q5m_scorpion;bBeetle=q5m_beetle;bFish=q5m_fish;bJelly=q5m_jelly;bDragonfly=q5m_dragonfly;bPterosaur=q5m_ptero;bUpright=q5m_upright;bSquid=q5m_squid;bWheel=q5m_wheel;bSwarm=q5m_swarm;bHuts=q5m_huts;
 // 巨脉蜻蜓 had its legs added on top of the old body (49c); the new body has its own
-SPEC.jumai=q5m_dragonfly;
+
 // 大眼龙 makes the salamander's eyes 2.6 times bigger by looking for the old body's eye spheres; the new body takes the size instead
-if(typeof ENT!=='undefined'&&ENT.dayanlong&&ENT.dayanlong[0]===bBigEyeLizard){const e0=ENT.dayanlong[0];ENT.dayanlong[0]=function(){q5m_eyeK=2.6;try{return e0.apply(this,arguments)}finally{q5m_eyeK=1}}}
+function q5m_bigEyeLizard(){q5m_eyeK=2.6;try{return bBigEyeLizard.apply(this,arguments)}finally{q5m_eyeK=1}}
+

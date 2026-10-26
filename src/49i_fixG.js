@@ -319,9 +319,9 @@ function fxG_merfolk(){const g=new THREE.Group();const fs=[];for(let i=0;i<3;i++
   const tail=tubeAlong([V3(0,1.2,0),V3(-.4,.5,0),V3(-1.2,.15,0),V3(-2.2,.1,0)],.22,sk,16);f.add(tail);const fin=new THREE.Mesh(wingGeo(.6,.6,'fin').rotateX(-Math.PI/2),sk);fin.position.set(-2.3,.15,0);f.add(fin);
   const tor=sph(0,.3,.55,.28,12,sk);tor.position.y=1.6;f.add(tor);{const hd=sph(0,.29,.3,.34,14,sk);hd.position.y=2.4;f.add(hd)}for(const z of[-1,1]){const dm=sph(0,.22,.2,.2,12,sk);dm.position.set(-.03,2.55,z*.12);f.add(dm);const e=eye(.05);e.position.set(.26,2.4,z*.13);f.add(e);const a=leg2(.4,.35,.05,sk,-.6);a.position.set(.05,1.95,z*.32);f.add(a)}
   f.position.set((i-1)*1.8,0,Math.sin(i*2)*.8);f.rotation.y=i-1;g.add(f);fs.push({f,tail})}g.add(shadow(2.4));g.userData.anim=t=>fs.forEach((x,i)=>{x.tail.rotation.y=Math.sin(t*1.5+i)*.12;x.f.position.y=Math.abs(Math.sin(t*.8+i))*.08});return g}
-Object.assign(ENT,{hangmu:[fxG_carrier,1.4,{alt:.4}],lvtanshan:[fxG_umbrellas,1.3],zhicao:[fxG_smartGrass,1.1,{isle:1}],luxi:[fxG_lucy,1.6],qiyi:[fxG_airAnts,1,{isle:1}],henggu:[fxG_ancientMud,1,{isle:1}],caise:[fxG_rainbowSlug,1.1],huannaoyu:[fxG_merfolk,1,{isle:1}]});
+
 // 护卫者 is the revived 圆盾蠕虫: the same body as the rebuilt one (its own pincer-tipped limbs under the dome head)
-if(typeof fxC_yuandun==='function')ENT.huweizhe=[fxC_yuandun,1.2];
+
 
 /* ---------- 深海之城 (虚民): the city lives inside transparent tubes on the deep sea floor, walls of pressure glass, with
    traffic running through them and the buildings standing inside ---------- */
@@ -356,7 +356,7 @@ function fxG_erxi(sp){
    else{const bd=new THREE.Mesh(kb(4,2,.12),new THREE.MeshBasicMaterial({color:ads[i%4]}));bd.position.y=-1.8;c.add(bd);const fr2=new THREE.Mesh(kb(4.3,2.3,.08),M('#3a4044'));fr2.position.set(0,-1.8,-.06);c.add(fr2)}
    const a=Rn()*6.283,d=Rn()*1.8;L.push({c,la:45+Math.cos(a)*d,lo:12+Math.sin(a)*d/Math.cos(45*D2R),alt:24+Rn()*26,ph:Rn()*6});g.add(c)}
   sp.scene.add(g);addE(g,[8,9,10,11,12]);anim(sp,g,t=>{if(rig.alt>1600)return;L.forEach(x=>frameLL(sp,x.la+Math.sin(t*.03+x.ph)*.15,x.lo+Math.cos(t*.025+x.ph)*.2,x.alt+Math.sin(t*.5+x.ph)*1.5,x.ph,x.c))})}}
-ENT.xm_deepcity=[fxG_deepCity,1.8,{sea:1,alt:-5}];// under the surface, seen through the water
+// under the surface, seen through the water
 
 /* ---------- 深渊墓场: west of the skull island the sea floor is a bed of broken shells tens of metres deep ---------- */
 function fxG_grave(sp){const Rn=rnd(4638);const pts=[];for(let i=0;i<2400&&pts.length<900;i++){const a=Rn()*6.283,d=Math.sqrt(Rn())*1.5;const la=4.6+Math.cos(a)*d,lo=-38.6+Math.sin(a)*d;const h=sp.ghRaw(la,lo);if(h>-9||h<-16)continue;pts.push([la,lo,h,Rn()])}

@@ -117,65 +117,71 @@ function bUnder(){const g=bWindowCave({ferns:1});const ht=cyl(.5,.9,5,M('#5a4632
    options: alt (lift above the ground), isle (stand on a little floating rock off-planet), walk (keep legs moving), far, hd (heading) */
 const ENT={
  // 绒球 · 海
- lin:[bLin,1.4,{alt:1.5}], guanchazhe:[bCrystalCell,1.1,{alt:1}], shilijj:[()=>bCrystal('#e0fbff'),.9], baigao:[bPaste,1.1,{alt:.3}],
+ lin:[()=>{const g=bCells({n:34,col:'#e6f2ee',core:'#626464',size:1.1,glow:'#eaf6f2'});const ring=new THREE.Mesh(new THREE.TorusGeometry(1.8,.03,4,48),GL('#e8f4f0',.4));ring.rotation.x=Math.PI/2;g.add(ring);
+ const a0=g.userData.anim;g.userData.anim=t=>{a0&&a0(t);ring.scale.setScalar(1+Math.sin(t*.8)*.08);g.rotation.y=t*.05};return g},1.4,{alt:1.5}], guanchazhe:[q4b_observer,1.1,{alt:1}], shilijj:[()=>bCrystal('#e0fbff'),.9], baigao:[bPaste,1.1,{alt:.3}],
  jingjun:[()=>bCells({n:22,col:'#cfeeff',core:'#5a8aa8',spikes:1,glow:'#cfeeff'}),1.3,{alt:1}], guiwujun:[()=>bCells({n:20,col:'#f4f4f4',core:'#8a8a8a',fur:'#ffffff'}),1.2,{alt:1}],
- rongbingjun:[bIceCells,1.2], juxian:[bSandTrap,1.4], tanchong:[bCarpet,1.3,{alt:.5}], yexing:[bLeafWorm,1], jiebei:[bBivalve,.9], sangni:[()=>bStarfish({arms:15,col:'#d86a5a',r:1.5,shift:1}),1],
- yuandun:[bShieldWorm,1.8], ev_ext1:[bBubbles,2.4],
+ rongbingjun:[bIceCells,1.2], juxian:[fxC_juxian,1.4], tanchong:[bCarpet,1.3,{alt:.5}], yexing:[bLeafWorm,1], jiebei:[bBivalve,.9], sangni:[()=>bStarfish({arms:15,col:'#d86a5a',r:1.5,shift:1}),1],
+ yuandun:[fxC_yuandun,1.8], ev_ext1:[bBubbles,2.4],
  // 绒球 · 北之大陆
- manteng:[bVineFern,3], niuqushu:[bTwinTree,1.6], shepao:[()=>bBeetlePair({col:'#c0c8d0',col2:'#6a5a3a',blast:1}),1.1], linjia:[()=>bBeetlePair({col:'#6a6a4a',col2:'#7a6a4a',fly:1}),1.3],
- chibcha:[bChibcha,1], jinglin:[()=>bLizard({crystal:1}),1.4], maya:[bMayaNest,1.6], mukatu:[()=>{const g=bMaya();const r=bBeetle({w:'heijiao',col:'#2a2420'});r.position.set(-2,0,0);g.add(r,shadow(1.4));return g},1.2],
- heifeng:[bInsectTrio,1.4], baojia:[bBaojia,1.2], pensha:[bSandBug,1.4], anying:[bShadowBeast,1.3,{dll:[.7,-1]}], hongzhu:[()=>bSpider({col:'#c83a2a',wings:1,lava:1}),1], zhanxie:[bStickyScorp,1.1],
- siwangjianci:[bSpikeWall,1.6], luxingsha:[bLandShark,1.2], jichizhe:[()=>bRaptor({w:'x',col:'#5a7a5a'}),1.1,{walk:1}], huijinchong:[bAshPool,1.4], bujizhe:[bSupplier,1.4,{alt:14}],
- ronglie:[bSacs,.9], dunaozhe:[bReader,1.1], shengtan:[()=>{const g=bSoundWave({col:'#9ad8ff'});const b=sph(0,.4,.3,.3,12,EM('#9ad8ff',.5));g.add(b);g.position.y=1;return grp(g,shadow(.8))},1], shentou:[bMimic,1.1],
- kongjiang:[bPod,1.3], tuke:[bSprayer,1.2], kaituo:[bDriller,1.8,{walk:1}], tiankong:[()=>bSkyPod({}),2.4,{alt:34}], art:[()=>bBomb({col:'#8a6a4a',core:'#ffb050'}),1.2], xianshi:[bScreenBeast,1.2],
- gunlei:[bThunderBall,1], ev_war:[()=>bBattle({}),3], ev_ext2:[bMeteors,3,{far:2200,sea:1}], ev_ext3:[bFrostDeath,2.2], under:[bUnder,3.4],
+ manteng:[fxC_manteng,3], niuqushu:[bTwinTree,1.6], shepao:[()=>bBeetlePair({col:'#c0c8d0',col2:'#6a5a3a',blast:1}),1.1], linjia:[fxC_linjia,1.3],
+ chibcha:[fxC_chibcha,1], jinglin:[()=>bLizard({crystal:1}),1.4], maya:[bMayaNest,1.6], mukatu:[()=>{const g=bMaya();const r=bBeetle({w:'heijiao',col:'#2a2420'});r.position.set(-2,0,0);g.add(r,shadow(1.4));return g},1.2],
+ heifeng:[fxC_heifeng,1.4], baojia:[fxC_baojia,1.2], pensha:[fxC_pensha,1.4], anying:[fxC_anying,1.3,{dll:[.7,-1]}], hongzhu:[()=>bSpider({col:'#c83a2a',wings:1,lava:1}),1], zhanxie:[fxC_zhanxie,1.1],
+ siwangjianci:[fxC_siwang,1.6], luxingsha:[bLandShark,1.2], jichizhe:[()=>bRaptor({w:'x',col:'#5a7a5a'}),1.1,{walk:1}], huijinchong:[bAshPool,1.4], bujizhe:[bSupplier,1.4,{alt:14}],
+ ronglie:[bSacs,.9], dunaozhe:[bReader,1.1], shengtan:[fxC_shengtan,1], shentou:[bMimic,1.1],
+ kongjiang:[fxC_kongjiang,1.3], tuke:[bSprayer,1.2], kaituo:[fxC_kaituo,1.8], tiankong:[()=>bSkyPod({}),2.4,{alt:34}], art:[()=>bBomb({col:'#8a6a4a',core:'#ffb050'}),1.2], xianshi:[bScreenBeast,1.2],
+ gunlei:[fxC_gunlei,1], ev_war:[()=>bBattle({}),3], ev_ext2:[bMeteors,3,{far:2200,sea:1}], ev_ext3:[fxC_ext3,2.2], under:[bUnder,3.4],
  // 绒球 · 西方群岛与恐龙大陆
- yika:[bYika,1,{sea:1}], plague:[bPlague,1.6], zhenjunlz:[bMantisGrub,1.8], lvyang:[()=>bTrilobite({filter:1,col:'#6a5a4a'}),2.8], tanglangxia:[bMantisShrimp,1.4,{sea:1}],
- shijun:[()=>{const g=bAmoeba({col:'#a8e8a0'});const s=bScorpion({w:'x',col:'#7a9a5a'});s.scale.setScalar(.4);s.position.set(2,0,0);g.add(s);return g},1.4], baozhajq:[bSpikeBall,1], mtzm2:[bMtzm,1.6,{alt:.3,sea:1}],
- baoxiao:[()=>bRoarer({}),1.3,{dll:[.8,1]}], spy:[()=>bScorpion({w:'lixie',col:'#6a6a52'}),1.1], tako:[()=>{const g=bDragonFig({base:'gulong',egg:1});for(let i=0;i<9;i++){const s=new THREE.Mesh(kd(.15),M('#8a8478',{flatShading:true}));s.position.set(.7+Math.cos(i*.7)*.6,.1,.3+Math.sin(i*.7)*.6);g.add(s)}return g},1],
- lideer:[()=>bDragonFig({base:'gulong',small:1,scarf:'#5a8ac8'}),1], dumeisha:[()=>bTentacleTree({fleas:1}),1.4], jianzao:[bFlea,.8], longqimu_tree:[bDragonTree,1.4],
- susumi:[()=>bDragonFig({base:'emerald',crown:1,cape:'#2a7a4a'}),1.1,{dll:[.8,.8]}], mukela:[()=>bTrio([{base:'emerald',cape:'#8a2a2a'},{base:'emerald',spear:1},{base:'emerald',col:'#2a2a2a',scarf:'#c83a2a'}]),1],
+ yika:[fxC_yika,1,{sea:1}], plague:[bPlague,1.6], zhenjunlz:[fxC_zhenjun,1.8], lvyang:[()=>bTrilobite({filter:1,col:'#6a5a4a'}),2.8], tanglangxia:[fxC_tanglangxia,1.4,{sea:1}],
+ shijun:[()=>{const g=bAmoeba({col:'#3a9ad8'});const s=bScorpion({w:'x',col:'#7a9a5a'});s.scale.setScalar(.4);s.position.set(2,0,0);g.add(s);return g},1.4], baozhajq:[fxC_baozha,1], mtzm2:[fxC_mtzm2,1.6,{alt:.3,sea:1}],
+ baoxiao:[fxE_roarer,1.3,{dll:[.8,1]}], spy:[fxE_spy,1.1], tako:[fxF_tako,1],
+ lideer:[fxF_lideer,1], dumeisha:[fxE_medusa,1.4], jianzao:[fxE_flea,.8], longqimu_tree:[bDragonTree,1.4],
+ susumi:[fxF_susumi,1.1,{dll:[.8,.8]}], mukela:[()=>bTrio([{base:'emerald',cape:'#8a2a2a'},{base:'emerald',spear:1},{base:'emerald',col:'#2a2a2a',scarf:'#c83a2a'}]),1],
  leigu:[()=>bCentipede({rib:1,mouth:1}),1.1], yate:[bYate,1.4], fenlienao:[bBrainCrystals,1], bingzhu:[()=>bSpider({crystal:1,size:1.4}),1],
- jingkuang:[()=>bDragonFig({base:'baihai',crown:1,crystal:1,cape:'#5a2a3a'}),1.1,{dll:[-.9,1]}], yuyan:[()=>bDragonFig({base:'baihai',old:1,staff:'crystal',bones:1}),1],
- kongyuting:[bBoneShip,1.6,{alt:16}], rqzj:[bDreamStones,1.6,{alt:1}], dayanlong:[bBigEyeLizard,1], shenyuanguyou:[()=>bSquids({}),1,{sea:1}], tanzuan:[bProbe,1], menglian:[()=>bSquids({n:3,col:'#8a6aa8',ring:'#c88aff',glow:'#b08aff',s:.6}),1.1,{sea:1}],
- huangqunlz:[bQueenLocust,1.6,{alt:.3,sea:1}], yinxi:[()=>{const g=new THREE.Group();const a=bLizard({stone:1,col:'#6a7a5a'});const b=bLizard({col:'#7a6a4a'});b.position.set(-.5,0,1.4);b.rotation.y=2.6;g.add(a,b);g.userData.anim=t=>{a.userData.anim(t);b.userData.anim(t+2)};return g},1.1,{dll:[-1.2,-4.3]}],
- yuanjiao:[()=>{const g=bCeratops({w:'x',col:'#8a7a5a'});g.traverse(c=>{if(c.geometry&&(c.geometry.type==='ConeGeometry'||c.geometry.type==='TubeGeometry'))c.visible=false});return g},1.1], duntou:[bPachy,1.1],
- qinshizhe:[bLeafCut,1.4], zhaozemu:[bBendTree,1.5], luoxuanying:[()=>bFlyCloud({box:1}),1.3], didanchong:[bBulletBug,1.1], jueyuan:[bDigger,1.8,{walk:1}],
- yanshenghua:[bFireFlower,1.1], jiaoshu:[bRecordTree,1.2], huiyinchong:[()=>{const g=bSoundWave({col:'#ffd8a0'});g.position.y=1.2;const b=bBeetle({w:'x',col:'#8a7a5a'});b.scale.setScalar(.6);return grp(g,b)},1.1], paokexia:[bShrimp,1.2,{sea:1}], chuandichong:[bBees,1.2],
+ jingkuang:[fxF_jingkuang,1.1,{dll:[-.9,1]}], yuyan:[fxF_yuyan,1],
+ kongyuting:[fxE_skyboat,1.6,{alt:16}], rqzj:[bDreamStones,1.6,{alt:1}], dayanlong:[q5m_bigEyeLizard,1], shenyuanguyou:[()=>bSquids({}),1,{sea:1}], tanzuan:[bProbe,1], menglian:[fxE_dreamlink,1.1,{sea:1}],
+ huangqunlz:[fxE_queen,1.6,{alt:.3,sea:1}], yinxi:[()=>{const g=new THREE.Group();const a=bLizard({stone:1,col:'#6a7a5a'});const b=bLizard({col:'#7a6a4a'});b.position.set(-.5,0,1.4);b.rotation.y=2.6;g.add(a,b);g.userData.anim=t=>{a.userData.anim(t);b.userData.anim(t+2)};return g},1.1,{dll:[-1.2,-4.3]}],
+ yuanjiao:[fxE_yuanjiao,1.1], duntou:[fxE_stoneBeast,1.1],
+ qinshizhe:[bLeafCut,1.4], zhaozemu:[bBendTree,1.5], luoxuanying:[()=>bFlyCloud({box:1}),1.3], didanchong:[bBulletBug,1.1], jueyuan:[fxE_digger,1.8,{walk:1}],
+ yanshenghua:[fxE_fireflower,1.1], jiaoshu:[fxE_calltree,1.2], huiyinchong:[fxE_huiyin,1.1], paokexia:[fxE_bubbleShrimp,1.2,{sea:1}], chuandichong:[bBees,1.2],
  jingmaoyu:[()=>{const g=bFluffKin({crystal:1});const n=bFluffKin({spike:1,col:'#d8d0c0',tip:'#a89880'});n.scale.setScalar(.7);n.position.set(0,0,3);g.add(n);const a0=g.userData.anim;g.userData.anim=t=>{a0(t);n.userData.anim(t+1)};return g},.8],
  rq_cuihai:[()=>{const g=bDragonFig({base:'x',col:'#5a9a7a'});const p=new THREE.Mesh(kcy(.5,.6,2.2,10),detailMat(M('#8a8070',{roughness:1,flatShading:true}).clone(),{bump:1.2,freq:4}));p.position.set(-1.6,1.1,.6);g.add(p);g.add(tubeAlong([V3(-1.6,2.2,.6),V3(-1.4,2.8,.8),V3(-1.1,3,.5)],.06,M('#8a5a6a'),8));return g},1.1],
- rq_tlant3:[bWoodFlyer,1.4,{alt:12}], rq_mist:[bFogRaft,1.4,{sea:1}], ev_snow:[bBlizzard,2.4], mosi:[()=>bWorkers({n:5,fig:{skin:'#a08a6a',cloth:'#8a7458',cloth2:'#6a5a44',head:'pointed',fur:'#c8b088',ears:1,h:1.5}}),1],
- pier:[()=>{const g=bFig({h:2,skin:'#d8b89a',cloth:'#5a6a8a',cloth2:'#3a4258',sword:'stone',cape:'#8a2a2a',hair:'#3a2a1a'});const t=new THREE.Mesh(kb(.1,1.2,.9),M('#8a8478'));t.position.set(1,.6,.6);t.rotation.y=.4;g.add(t);return g},1],
- tlant:[()=>bFig({h:1.8,skin:'#a8b4c0',cloth:'#3a4a5a',cloth2:'#2a3440',head:'big',glasses:1,book:1,bag:'#5a4a3a'}),1],
+ rq_tlant3:[fxE_heli,1.4,{alt:12}], rq_mist:[fxE_fograft,1.4,{sea:1}], ev_snow:[bBlizzard,2.4], mosi:[()=>bWorkers({n:5,fig:{skin:'#a08a6a',cloth:'#8a7458',cloth2:'#6a5a44',head:'pointed',fur:'#c8b088',ears:1,h:1.5}}),1],
+ pier:[fxE_pier,1],
+ tlant:[fxD_scholar,1],
  // 绒球 · 东之大陆与天国
- tianchuan:[bSilverShip,2.6,{alt:52,far:2400}], jiyi:[bMothCloud,1.4,{alt:1}], moni:[bMimic,1.1], zhiyunzhe:[bCloudMicrobes,2.4,{alt:46}], shengwuta:[bTower,1.4], donggua:[()=>{const g=new THREE.Group();for(let i=0;i<5;i++){const d=bDragonkin({w:'zhuru'});d.position.set((i%3-1)*1,0,(Math.floor(i/3)-.5)*1.2);d.rotation.y=i;const b=sph(0,.12,.12,.12,8,M('#c8b898'));b.position.set(.5,1.2,.3);d.add(b);g.add(d)}g.add(shadow(1.8));g.userData.anim=t=>g.children.forEach((c,i)=>{if(c.userData.anim){c.userData.anim(t*.4+i);c.position.y=Math.abs(Math.sin(t*3+i))*.25}});return g},1],
+ tianchuan:[q4b_skyShip,2.6,{alt:52,far:2400}], jiyi:[bMothCloud,1.4,{alt:1}], moni:[bMimic,1.1], zhiyunzhe:[bCloudMicrobes,2.4,{alt:46}], shengwuta:[bTower,1.4], donggua:[()=>{const g=new THREE.Group();for(let i=0;i<5;i++){const d=bDragonkin({w:'zhuru'});d.position.set((i%3-1)*1,0,(Math.floor(i/3)-.5)*1.2);d.rotation.y=i;const b=sph(0,.12,.12,.12,8,M('#c8b898'));b.position.set(.5,1.2,.3);d.add(b);g.add(d)}g.add(shadow(1.8));g.userData.anim=t=>g.children.forEach((c,i)=>{if(c.userData.anim){c.userData.anim(t*.4+i);c.position.y=Math.abs(Math.sin(t*3+i))*.25}});return g},1],
  ev_tianguo:[bSkyFire,2.6,{far:2200}], ev_xumin:[bWreckage,2.6,{far:2200}], c_maya:[()=>{const g=new THREE.Group();const c=bMist({col:'#ffffff',n:12,r:5,h:1,s:3,op:.6});g.add(c);const b=bMaya();b.position.y=.8;g.add(b);g.userData.anim=t=>{c.userData.anim(t);b.userData.anim&&b.userData.anim(t);b.rotation.x=t*.6};return g},1.3,{alt:46}],
  // 虚民母球
  xm_ruigou:[()=>bCity({col:'#9aa4ac',n:30,r:3.2,glow:'#ffd890',ads:1}),2], xm_busattack:[bBusAttack,2], xm_extinct:[bExtinctHolo,1.2], xm_starfish:[bArmorStar,.9],
- xm_general:[()=>bFig({h:2,skin:'#a8b4c0',cloth:'#c83a3a',cloth2:'#8a2a2a',head:'big',medals:1,hat:'cap',hatc:'#8a2a2a',cape:'#8a2a2a'}),1], xm_union:[()=>bCity({col:'#d8dde2',n:20,r:3,glow:'#ffe8b0',hall:1,flags:1}),2],
- xm_nemo:[()=>{const g=bFig({h:1.9,skin:'#a8b4c0',cloth:'#6a6e72',cloth2:'#4a4e52',head:'big',coat:'#5a5e62'});const cr=new THREE.Mesh(kb(.03,.8,.05),M('#4a1010'));cr.position.set(.36,1.6,0);cr.rotation.x=.6;g.add(cr);return g},1],
- xm_deepcity:[()=>bDomes({col:'#9ad8ff',bubble:1}),1.8,{sea:1}], xm_xuanfu:[()=>bDiscCraft({n:5}),1.6,{alt:26}],
+ xm_general:[()=>fxD_xumin({cloth:'#c83a3a',cloth2:'#8a2a2a',medals:1,hat:'cap',hatc:'#8a2a2a',cape:'#8a2a2a',belt:'#e8c040'}),1], xm_union:[()=>bCity({col:'#d8dde2',n:20,r:3,glow:'#ffe8b0',hall:1,flags:1}),2],
+ xm_nemo:[()=>fxD_xumin({armor:'#5a5e62',crack:1}),1],
+ xm_deepcity:[fxG_deepCity,1.8,{sea:1,alt:-5}], xm_xuanfu:[()=>bDiscCraft({n:5}),1.6,{alt:26}],
  // 尔什
- ex_haiju:[()=>bDomes({col:'#7ab8e8',bubble:1}),1.8,{sea:1}], ex_ability:[bAbility,1.1], ex_closest:[bCephalo,1.1,{alt:.3,sea:1}], ex_ameirun:[bAmeirun,2], ex_mother:[bElephant,1.3], ex_teliti:[bTeliti,1], ex_wushou:[bHandCentipede,1],
- ex_research:[()=>bLab({cannon:1}),1.4], ex_clown:[bClownRoom,1.2], ex_split:[()=>bBeams({col:'#fff4d0'}),2,{far:2600}], ex_nautilus:[bNautFarm,1.6], ex_niuyao:[()=>bCity({col:'#c8b8a8',n:30,r:3.4,glow:'#ffd8a0',twist:1,tall:1.4}),2],
- ex_nuo:[bNuo,1], ex_travel:[bTravel,2,{alt:20}], ex_endsign:[bQuake,2.2], c_veronica:[bVeronica,1], c_bilu:[bBilu,1],
+ ex_haiju:[()=>bDomes({col:'#7ab8e8',bubble:1}),1.8,{sea:1}], ex_ability:[bAbility,1.1], ex_closest:[fxD_closest,1.1,{alt:.3,sea:1}], ex_ameirun:[bAmeirun,2], ex_mother:[fxD_mother,1.3], ex_teliti:[fxF_teliti,1], ex_wushou:[fxD_wushou,1],
+ ex_research:[()=>bLab({cannon:1}),1.4], ex_clown:[fxF_clown,1.2], ex_split:[()=>bBeams({col:'#fff4d0'}),2,{far:2600}], ex_nautilus:[bNautFarm,1.6], ex_niuyao:[()=>bCity({col:'#c8b8a8',n:30,r:3.4,glow:'#ffd8a0',twist:1,tall:1.4}),2],
+ ex_nuo:[fxF_nuo,1], ex_travel:[bTravel,2,{alt:20}], ex_endsign:[bQuake,2.2], c_veronica:[fxF_veronica,1], c_bilu:[fxF_bilu,1],
  // 虚空
- v_spike:[bMoleMonkey,1,{isle:1}], v_huhe_guard:[bGuardian,1,{isle:1}], v_guancha:[bStoneEye,1,{isle:1}], v_se:[bSe,1,{isle:1}], v_yanzhu:[bRockSpiders,1,{isle:1}], v_yuanling:[bEnergyBeings,1.1],
- v_fudao:[bFloatHost,1.1], v_yanpi:[bRockSkin,1,{isle:1}], v_gouluo:[bHookWheel,1,{isle:1,walk:1}], v_yangzhi:[bLimbKeepers,1,{isle:1}], v_cangyi:[bMemoryCubes,1.1,{isle:1}], v_rosalie:[bRosalie,1,{isle:1}],
- v_jiaotuan:[bTentacleCult,.9,{isle:1}], v_gugu:[bArmoredOcto,1,{isle:1}], v_shijing:[bMercury,1.1], v_shuimin:[bStrider,1,{walk:1}], v_huijin:[bAshBrains,1], v_poyan:[bAmberWalker,1.1],
- v_zhanfen:[bHollowLog,1,{isle:1}], v_chibcha2:[bChibchaSite,1.2,{isle:1}], v_jiqimin:[bMechFolk,1,{isle:1}], v_huanxing:[bShifter,1,{isle:1}], v_yiyin:[()=>bSoundWave({screen:1,col:'#ffb0d8'}),1.2],
- v_shijiang:[bCorpseSmith,1,{isle:1}], v_anzao:[bDarkAlgae,1.1], v_ningu_gate:[()=>bWarp({col:'#9ab8d8'}),1.4], v_huaduo:[bFlowerWorld,1.1],
- ng_busman:[bHeroes,1,{isle:1}], ng_galaxy:[bSpikeShip,1.2], ng_jianzhang:[bFingerCaptain,1,{isle:1}], ng_naogen:[bRootBrain,1,{isle:1}], ng_button:[bButtonFolk,1,{isle:1}], ng_snow:[bTorchFolk,1.1],
- ng_huobanao:[bTorchBrain,1,{isle:1}], c_baoxiao:[()=>bRoarer({}),1,{isle:1}], c_hero:[bDemonKing,1,{isle:1}],
+ v_spike:[bMoleMonkey,1,{isle:1}], v_huhe_guard:[fxD_huhe,1,{isle:1}], v_guancha:[bStoneEye,1,{isle:1}], v_se:[fxD_se,1,{isle:1}], v_yanzhu:[bRockSpiders,1,{isle:1}], v_yuanling:[fxD_yuanling,1.1],
+ v_fudao:[fxD_fudao,1.1], v_yanpi:[fxD_yanpi,1,{isle:1}], v_gouluo:[bHookWheel,1,{isle:1,walk:1}], v_yangzhi:[bLimbKeepers,1,{isle:1}], v_cangyi:[fxD_cangyi,1.1,{isle:1}], v_rosalie:[fxF_rosalie,1,{isle:1}],
+ v_jiaotuan:[bTentacleCult,.9,{isle:1}], v_gugu:[fxD_gugu,1,{isle:1}], v_shijing:[bMercury,1.1], v_shuimin:[bStrider,1,{walk:1}], v_huijin:[fxD_ashPair,1], v_poyan:[fxD_poyan,1.1],
+ v_zhanfen:[fxD_zhanfen,1,{isle:1}], v_chibcha2:[fxD_chibcha2,1.2,{isle:1}], v_jiqimin:[bMechFolk,1,{isle:1}], v_huanxing:[bShifter,1,{isle:1}], v_yiyin:[()=>bSoundWave({screen:1,col:'#ffb0d8'}),1.2],
+ v_shijiang:[bCorpseSmith,1,{isle:1}], v_anzao:[fxD_anzao,1.1], v_ningu_gate:[()=>bWarp({col:'#9ab8d8'}),1.4], v_huaduo:[fxD_huaduo,1.1],
+ ng_busman:[bHeroes,1,{isle:1}], ng_galaxy:[fxD_galaxy,1.2], ng_jianzhang:[fxD_jianzhang,1,{isle:1}], ng_naogen:[bRootBrain,1,{isle:1}], ng_button:[bButtonFolk,1,{isle:1}], ng_snow:[()=>{const g=fxD_snow();const sn=M('#f6f6f2',{roughness:.95});
+ for(let i=0;i<9;i++){const a=h3(i,1,6)*6.28,r=3.2+h3(i,2,6)*4.5;const d=sph(0,1.4+h3(i,3,6)*2.2,.35+h3(i,4,6)*.35,1+h3(i,5,6)*1.6,22,sn);d.position.set(Math.cos(a)*r,0,Math.sin(a)*r);d.rotation.y=h3(i,6,6)*3;g.add(d)}
+ const plain=new THREE.Mesh(new THREE.CircleGeometry(9,48),M('#f0f0ec',{roughness:1}));plain.rotation.x=-Math.PI/2;plain.position.y=.01;g.add(plain);return g},1.1],
+ ng_huobanao:[bTorchBrain,1,{isle:1}], c_baoxiao:[fxD_baoxiao,1,{isle:1}], c_hero:[fxF_hero,1,{isle:1}],
  // 梦境
- dr_road:[bArch,1.3], dr_edge:[bRibbon,1.4], c_tentacle:[bTentacleGuide,1.1,{isle:1}], dr_doom:[bDoom,1.4], dr_jumper:[bJumper,1.1], dr_zhaoji:[bCaller,1.2], dr_tako:[bTakoHope,1.1,{isle:1}],
+ dr_road:[bArch,1.3], dr_edge:[fxD_edge,1.4], c_tentacle:[bTentacleGuide,1.1,{isle:1}], dr_doom:[bDoom,1.4], dr_jumper:[fxD_jumper,1.1], dr_zhaoji:[bCaller,1.2], dr_tako:[fxF_takoHope,1.1,{isle:1}],
  // 米德加尔特
- mg_overview:[()=>bWarp({col:'#c8b8a0'}),1.5], mg_chene:[()=>bDustCroc({}),1.2,{walk:1}], mg_mini:[()=>bDustCroc({tiny:1}),.7], mg_mech:[()=>bDustCroc({mech:1}),1.2], mg_xiulian:[bArmoredMonks,1.1], mg_exit:[bMoons3,2],
- c_xuezhe:[()=>{const g=bFig({h:1.8,skin:'#a8b4c0',cloth:'#5a4a3a',cloth2:'#3a3028',head:'big',glasses:1,bag:'#6a5a3a',book:1});const c=bDustCroc({mech:1});c.scale.setScalar(.6);c.position.set(-1.6,0,1);g.add(c);const a0=g.userData.anim;g.userData.anim=t=>{a0(t);c.userData.anim(t)};return g},1],
+ mg_overview:[()=>bWarp({col:'#c8b8a0'}),1.5], mg_chene:[()=>fxD_croc({}),1.2,{walk:1}], mg_mini:[()=>fxD_croc({tiny:1,mech:1}),.7], mg_mech:[()=>bDustCroc({mech:1}),1.2], mg_xiulian:[fxD_xiulian,1.1], mg_exit:[fxD_moons,2],
+ c_xuezhe:[fxD_xuezhe,1],
  // 白色通道
  tn_overview:[()=>bWarp({col:'#ffffff'}),1.6], tn_empire:[bEmpire,1.2], tn_brain:[bTunnelBrain,1.6], tn_third:[bThird,2],
  // 不可预见之地
- bk_overview:[()=>bMist({col:'#e8e0ff',n:20,r:7,h:4,s:4,op:.45,core:'#ffffff'}),1.6], bk_expedition:[bExpedition,1,{isle:1}], bk_daowen:[bMosquito,1.1], bk_abu:[bCloth,1.1], bk_builder:[bHellBuilder,1.1], bk_jilu:[bHive,1], c_sarin:[bSarinCard,1.1,{isle:1}],
+ bk_overview:[()=>{const g=bMist({col:'#e8e0ff',n:20,r:7,h:4,s:4,op:.45,core:'#ffffff'});const shards=[];const sm=new THREE.MeshStandardMaterial({color:'#f0e8ff',emissive:'#c8b0ff',emissiveIntensity:.5,transparent:true,opacity:.7,roughness:.2,flatShading:true});
+ for(let i=0;i<14;i++){const s=new THREE.Mesh(i%3===0?new THREE.TetrahedronGeometry(.5,0):i%3===1?ko(.4):new THREE.IcosahedronGeometry(.35,0),sm);const a=h3(i,1,4)*6.28,r=2+h3(i,2,4)*4;s.position.set(Math.cos(a)*r,1+h3(i,3,4)*3,Math.sin(a)*r);s.scale.setScalar(.6+h3(i,4,4));g.add(s);shards.push({s,a,r,y:s.position.y,ph:h3(i,5,4)*6})}
+ const rings=[];for(let i=0;i<2;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(3.2+i*1.4,.04,8,64),GL('#d8c8ff',.5));r.rotation.x=Math.PI/2+(i?.5:-.3);r.position.y=2;g.add(r);rings.push(r)}
+ const a0=g.userData.anim;g.userData.anim=t=>{if(a0)a0(t);for(const q of shards){const a=q.a+t*.12;q.s.position.set(Math.cos(a)*q.r,q.y+Math.sin(t*.6+q.ph)*.4,Math.sin(a)*q.r);q.s.rotation.set(t*.3+q.ph,t*.2,0)}rings.forEach((r,i)=>r.rotation.z=t*(i?-.05:.07))};return g},1.6], bk_expedition:[bExpedition,1,{isle:1}], bk_daowen:[fxD_daowen,1.1], bk_abu:[fxF_abu,1.1], bk_builder:[bHellBuilder,1.1], bk_jilu:[bHive,1], c_sarin:[fxF_sarin,1.1,{isle:1}],
 };
 const ENT_PL=2.2, ENT_SC={space:6,tube:5,path:6};
 const PLANET_ENT={rongqiu:'rongqiu',ximin:'xm_planet',erxi:'ex_planet'};

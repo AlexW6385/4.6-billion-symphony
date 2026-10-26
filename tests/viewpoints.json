@@ -1,0 +1,17 @@
+[
+ {"name":"rongqiu_home","space":"rongqiu"},
+ {"name":"rongqiu_hometree","space":"rongqiu","go":"hometree"},
+ {"name":"rongqiu_hongzhazhe","space":"rongqiu","go":"hongzhazhe","close":1},
+ {"name":"void_home","space":"void"},
+ {"name":"void_lianjie","space":"void","go":"v_lianjie"},
+ {"name":"ximin_home","space":"ximin"},
+ {"name":"ximin_xumin","space":"ximin","go":"xumin","close":1},
+ {"name":"erxi_home","space":"erxi"},
+ {"name":"erxi_birds","space":"erxi","go":"ex_birds","close":1},
+ {"name":"dream_home","space":"dream"},
+ {"name":"under_home","space":"under"},
+ {"name":"under_lin","space":"under","go":"lin","close":1},
+ {"name":"midgard_home","space":"midgard"},
+ {"name":"tunnel_home","space":"tunnel"},
+ {"name":"buke_home","space":"buke"}
+]

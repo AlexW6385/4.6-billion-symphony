@@ -156,7 +156,7 @@ function q4a_bArk(f){const g=new THREE.Group();const Rn=rnd(hashStr(f.w||'ark')+
  hills.forEach((h,i)=>{if(i%3!==1)return;const s=glowSprite('#ff9a50',.45,.55);s.position.set(h[0],.6+h[3],h[1]);g.add(s)});
  const pl=new THREE.PointLight(0xffc080,.6,40);pl.position.y=1;g.add(pl);
  g.userData.swim=1;return g}
-if(typeof SPEC!=='undefined'){SPEC.fangzhou=q4a_bArk}if(typeof KIND!=='undefined'){KIND.ark=q4a_bArk}
+
 
 /* ---------- 10 · the 雕像 egg waits for the camera to settle (it used to fire on arrival, under the title) ---------- */
 let q4a_emT=0;

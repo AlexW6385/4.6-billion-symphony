@@ -179,7 +179,7 @@ function fxA_lavaWorm(f){const g=new THREE.Group();g.userData.segs=[];g.userData
  return g}
 
 /* ---------- swap them in ---------- */
-SPEC.lvtan_beast=fxA_leviathan;SPEC.bingjing=fxA_bingjing;SPEC.mwrc=fxA_mistWorm;SPEC.shawurm=fxA_mistWorm;SPEC.lianyu=fxA_lavaWorm;
+
 
 /* ---------- 古鱿: tiny, a round body under a thin membrane, ten tentacles, and colour that never sits still ----------
    it changes colour to hide, to talk and to show what it feels (white, red, yellow, black when afraid);
@@ -262,7 +262,7 @@ function fxA_yilong(f){const g=bPterosaur(f);const cm=M('#d83a2a',{side:THREE.Do
 /* ---------- 三叶虫: real trilobites instead of a cloud of dots ---------- */
 function fxA_sanye(f){const g=bTrilobite({col:f.col});g.userData.swim=1;return g}
 
-SPEC.guyou=fxA_guyou;SPEC.jianshi=fxA_jianshi;SPEC.kongshuimu=fxA_airJelly;SPEC.jumai=fxA_jumai;SPEC.shenshabus=fxA_shenshabus;SPEC.gulong=fxA_gulong;SPEC.yilong=fxA_yilong;SPEC.sanyechong=fxA_sanye;
+
 
 /* a frill: a part of a sphere's cap tipped back by `tilt`, flattened to `flat`, with n knobs/spikes made by mk(i,outwardDir) along its rim */
 function fxA_shield(R,th,flat,mat,n,mk,pos,tilt){const fg=new THREE.Group();fg.position.copy(pos);fg.rotation.set(0,Math.PI/2,Math.PI/2+tilt);
@@ -393,7 +393,7 @@ function fxA_wyvern(f){const g=new THREE.Group();const ya=f.w==='yalong';const c
  g.userData.anim=t=>{const fl=Math.sin(t*3.2);for(const w of W)w.m.rotation.x=-w.z*(.05+fl*.55);/* the bob goes on the parts, not the root: the herd sets the root's position (q4c) */for(const ch of g.children){if(ch.userData.y0===undefined)ch.userData.y0=ch.position.y;ch.position.y=ch.userData.y0-fl*.06}hg.rotation.z=Math.sin(t*.9)*.08;jaw.rotation.z=-.1-Math.max(0,Math.sin(t*1.1))*.25;tl.rotation.y=Math.sin(t*2)*.18;for(const l of legs)l.rotation.z=.5+Math.sin(t*3.2+1)*.08};
  return g}
 
-SPEC.jiaolong=fxA_jiaolong;SPEC.xm_heijiao=fxA_kentao;SPEC.jingzhui=fxA_jingzhui;SPEC.changyou=fxA_changyou;SPEC.feilong=fxA_wyvern;SPEC.yalong=fxA_wyvern;
+
 
 /* ---------- 刺杀者: a hunter-type arthropod a metre and a half long: six limbs, the front two pairs ending in blades,
    two more blade-claws on the back, a pair of thin limbs with open needle tips for shooting poison darts;
@@ -568,5 +568,5 @@ function fxA_baihaiRider(f){const g=bOstrichRider(f);const body=g.children[0];if
  for(const z of[-1,1])body.add(tubeAlong([V3(.22,2.95,z*.12),V3(.6,2.95,z*.1),V3(1.0,3.08,z*.07),V3(1.22,3.1,z*.05)],.01,lea,10));
  const bt=new THREE.Mesh(new THREE.TorusGeometry(.13,.015,4,12),lea);bt.position.set(1.18,3.12,0);bt.rotation.y=Math.PI/2;body.add(bt);return g}
 
-SPEC.cishazhe=fxA_cishazhe;SPEC.zhenjunguai=fxA_zhenjun;SPEC.dianzhuru=fxA_dianzhuru;SPEC.banyu=fxA_banyu;SPEC.rq_tlant3=fxA_tlant3;SPEC.laoshu=fxA_laoshu;SPEC.bosaidong=fxA_bosaidong;SPEC.lanxing=fxA_lanxing;SPEC.yunbuchong=fxA_yunbu;SPEC.baihai_rider=fxA_baihaiRider;
-if(ENT.rq_tlant3)ENT.rq_tlant3=[fxA_tlant3,ENT.rq_tlant3[1],ENT.rq_tlant3[2]];
+
+

@@ -412,17 +412,27 @@ function bSwarm(f){const n=f.w==='huangchong'?260:f.w==='hongshidie'?140:180,g=n
 function bMaoyu(f){const n=50;const geo=mergeColored([[new THREE.IcosahedronGeometry(.5,1),'#ffffff'],[tg(new THREE.ConeGeometry(.12,.25,4),{p:[.05,.48,.2]}),'#f4f0ea'],[tg(new THREE.ConeGeometry(.12,.25,4),{p:[.05,.48,-.2]}),'#f4f0ea'],[tg(new THREE.SphereGeometry(.07,6,4),{p:[.42,.12,.15]}),'#1a1a1a'],[tg(new THREE.SphereGeometry(.07,6,4),{p:[.42,.12,-.15]}),'#1a1a1a']]);
  const g=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,flatShading:true}),n);g.userData.maoyu=n;g.userData.free=1;return g}
 function bIsland(f){return bRaft(f)}
-const SPEC={lvtan_beast:bLeviathan,xm_silver:(f)=>{const g=bLeviathan(Object.assign({},f,{col:'#c8d4dc'}));return g},ex_jiaojing:bLeviathan,behemoth:bBehemoth,tianjing:bSkyWhale,xm_huanwu:bFlyShark,
- kongshuimu:bJelly,haikong:bJelly,daqi:bJelly,rongqiu_form:bFluff,rq_piaoliu:bFluff,naodai:bMaya,zaonao:bBrain,
- gulong:bDragonkin,baihai:bDragonkin,emerald:(f)=>f.kind==='flyer'?bDragon(Object.assign({},f,{col:'#4f9a6a',rider:1})):bDragonkin(f),rq_xuewu:bDragonkin,ex_baixing:bDragonkin,zhuru:bDragonkin,dianzhuru:bDragonkin,huojilong:bDragonkin,banyu:bDragonkin,
- sulong:bRaptor,baojun:bRaptor,yuandinglong:bSauropod,bosaidong:(f)=>bSauropod(Object.assign({},f,{armor:f.e.includes(4)})),jiaolong:bCeratops,duoji:bCeratops,xm_heijiao:bCeratops,
- jingzhui:bShellBeast,dachuolong:bShellBeast,tairong:bQuadSmall,lanxing:bQuadSmall,yunbuchong:bQuadSmall,cishazhe:bChameleon,
- shaxie:bScorpion,shenshabus:bScorpion,heijiao:bBeetle,liedizhe:bBeetle,shitaijia:bBeetle,lixie:bUpright,rq_gujia:bUpright,rq_hunzhi:bHunzhi,
- jumai:bDragonfly,hongzhazhe:bDragonfly,jufeng:bDragonfly,feilong:bDragon,yalong:bDragon,guanglong:bDragon,xm_tiefu:bDragon,ex_hero:bDragon,yilong:bPterosaur,
- julunchong:bWheel,laoshu:bGolem,chenmo:bGolem,zhenjunguai:bGolem,jiangguai:bGolem,changyou:bRaft,wenyizhishou:bFungalDragon,
- yinjia:(f)=>f.kind==='ship'?bLandShip(f):bDragonkin(f),xm_train:bLandShip,ex_fleet:bLandShip,xumin:bSaucer,fangzhou:bArk,xm_cube:bCube,rq_ranjin:bBurner};
-const KIND={jelly:bJelly,leviathan:bLeviathan,behemoth:bBehemoth,fluff:bFluff,brain:bBrain,worm:bWorm,swarm:bSwarm,flyer:bDragon,fish:bFish,squid:bSquid,arthro:bScorpion,
- quad:(f)=>f.horn?bCeratops(f):f.biped?bDragonkin(f):f.big?bSauropod(f):f.shell?bShellBeast(f):bQuadSmall(f),maoyu:bMaoyu,island:bRaft,dragon:bFungalDragon,ship:bLandShip,golem:bGolem,ufo:bSaucer,ark:bArk,cube:bCube,burner:bBurner};
+const SPEC={lvtan_beast:fxA_leviathan,xm_silver:fxB_xmsilver,ex_jiaojing:fxB_jiaojing,behemoth:bBehemoth2,tianjing:bSkyWhale,xm_huanwu:q4b_fogShark,
+ kongshuimu:fxA_airJelly,haikong:q5m_jelly,daqi:q4b_daqi,rongqiu_form:bFluff,rq_piaoliu:bFluff,naodai:bMaya,zaonao:fxB_zaonao,
+ gulong:fxA_gulong,baihai:fxB_baihai,emerald:(f)=>f.kind==='flyer'?bDragon(Object.assign({},f,{col:'#4f9a6a',rider:1})):bDragonkin(f),rq_xuewu:fxB_xuewu,ex_baixing:fxB_baixing,zhuru:f=>fxB_zhuru(f),dianzhuru:fxA_dianzhuru,huojilong:bDragonkin2,banyu:fxA_banyu,
+ sulong:bRaptor2,baojun:bRaptor2,yuandinglong:bSauropod2,bosaidong:fxA_bosaidong,jiaolong:fxA_jiaolong,duoji:bCeratops2,xm_heijiao:fxA_kentao,
+ jingzhui:fxA_jingzhui,dachuolong:fxB_dachuolong,tairong:q5m_quad,lanxing:fxA_lanxing,yunbuchong:fxA_yunbu,cishazhe:fxA_cishazhe,
+ shaxie:q5m_scorpion,shenshabus:fxA_shenshabus,heijiao:q5m_beetle,liedizhe:q5m_beetle,shitaijia:q4b_mossBeetle,lixie:q5m_upright,rq_gujia:fxB_gujia,rq_hunzhi:fxB_hunzhi,
+ jumai:q5m_dragonfly,hongzhazhe:q5m_dragonfly,jufeng:q5m_dragonfly,feilong:fxA_wyvern,yalong:fxA_wyvern,guanglong:q4b_guanglong,xm_tiefu:bDragon,ex_hero:fxB_hero,yilong:fxA_yilong,
+ julunchong:q5m_wheel,laoshu:fxA_laoshu,chenmo:fxB_chenmo,zhenjunguai:fxA_zhenjun,jiangguai:fxB_jiangguai,changyou:fxA_changyou,wenyizhishou:bFungalDragon,
+ yinjia:(f)=>f.kind==='ship'?bLandShip(f):bDragonkin(f),xm_train:q4b_train,ex_fleet:bLandShip,xumin:bSaucer,fangzhou:q4a_bArk,xm_cube:bCube,rq_ranjin:q4b_burner,
+ bingjing:fxA_bingjing,
+ mwrc:fxA_mistWorm,
+ shawurm:fxA_mistWorm,
+ lianyu:fxA_lavaWorm,
+ guyou:fxA_guyou,
+ jianshi:fxA_jianshi,
+ sanyechong:fxA_sanye,
+ rongyanrong:fxB_rongyanrong,
+ ex_birds:fxB_bird,
+ gouchong:fxB_gouchong};
+const KIND={jelly:q5m_jelly,leviathan:bLeviathan2,behemoth:bBehemoth2,fluff:bFluff,brain:bBrain,worm:bWorm,swarm:q5m_swarm,flyer:bDragon,fish:q5m_fish,squid:q5m_squid,arthro:q5m_scorpion,
+ quad:(f)=>f.horn?bCeratops(f):f.biped?bDragonkin(f):f.big?bSauropod(f):f.shell?bShellBeast(f):bQuadSmall(f),maoyu:bMaoyu,island:bRaft,dragon:bFungalDragon,ship:bLandShip,golem:bGolem,ufo:bSaucer,ark:q4a_bArk,cube:bCube,burner:bBurner};
 function buildCreature(f){const fn=SPEC[f.w]||KIND[f.kind];if(!fn)return null;if(f.kind==='worm'&&!SPEC[f.w])return bWorm(f);if(f.kind==='swarm')return bSwarm(f);if(f.kind==='fish'&&!SPEC[f.w])return bFish(f);if(f.kind==='squid')return bSquid(f);return fn(f)}
 
 /* ---------------- herds ---------------- */

@@ -450,7 +450,7 @@ function fxB_gujia(f){const g=new THREE.Group();const root=new THREE.Group();g.a
  return g}
 
 /* ---------------- 白骸龙: their armour is forged teal metal, polished and shining, not bone; the spear has a plain metal head ---------------- */
-const fxB_baihai0=SPEC.baihai;
+const fxB_baihai0=bDragonkin2;
 function fxB_baihai(f){const g=fxB_baihai0(f);const TEAL=M('#4cb4aa',{metalness:.5,roughness:.22}),TEAL2=M('#3a9c94',{metalness:.5,roughness:.26}),TIP=M('#a8c0bc',{metalness:.5,roughness:.2});
  const bone=new Set(['#d8ceb4','#b0a690','#e8dcc4','#9a9080','#9a968c']);const glow=GL('#9ff2ff');let n=0;
  g.traverse(c=>{if(!c.isMesh)return;const m=c.material;if(m===glow){c.material=TIP;return}if(m&&m.color&&!m.vertexColors&&bone.has('#'+m.color.getHexString())){c.material=(n++%2)?TEAL2:TEAL}});
@@ -483,12 +483,12 @@ function fxB_jianjia(f){const g=new THREE.Group();const root=new THREE.Group();g
  g.userData.anim=t=>{const fq=2.2;for(const l of legs){const p=t*fq+l.ph;l.m.rotation.z=Math.sin(p)*.28;l.m.userData.knee.rotation.z=-.25+Math.max(0,Math.sin(p+1.4))*.35;fxB_footFlat(l.m,l.m.rotation.z,l.m.userData.knee.rotation.z)}
   root.position.y=Math.abs(Math.sin(t*fq))*.02;tail.rotation.y=Math.sin(t*fq*.5)*.25;head.rotation.y=Math.sin(t*.7)*.12};
  return g}
-const fxB_dachuo0=SPEC.dachuolong;
+const fxB_dachuo0=bDachuo;
 /* this record covers both beasts: the odd ones are 大鸵龙, the even ones 坚甲龙 */
 function fxB_dachuolong(f){return fxB_next('dachuolong')%2?fxB_dachuo0(f):fxB_jianjia(f)}
 
 /* ---------------- 血雾大师: a very fat crystal-skinned 翡翠龙 wrapped in a heavy black cloak (no red scarf) ---------------- */
-const fxB_xuewu0=SPEC.rq_xuewu;
+const fxB_xuewu0=bDragonkin2;
 function fxB_xuewu(f){const g=fxB_xuewu0(f);const red=new Set(['c8302a']);const drop=[];
  g.traverse(c=>{if(c.isMesh&&c.material&&c.material.color&&red.has(c.material.color.getHexString()))drop.push(c)});drop.forEach(c=>c.parent.remove(c));
  // remove the crystal pin that held the scarf (an emissive red bead near the throat)
@@ -540,8 +540,8 @@ function fxB_gouchong(f){const g=new THREE.Group();const root=new THREE.Group();
  g.userData.swim=1;return g}
 
 /* ================= registration ================= */
-SPEC.zaonao=fxB_zaonao;SPEC.zhuru=f=>fxB_zhuru(f);SPEC.jiangguai=fxB_jiangguai;
-SPEC.guanglong=fxB_guanglong;SPEC.daqi=fxB_daqi;SPEC.chenmo=fxB_chenmo;
-SPEC.rongyanrong=fxB_rongyanrong;SPEC.ex_hero=fxB_hero;SPEC.ex_baixing=fxB_baixing;SPEC.ex_birds=fxB_bird;SPEC.rq_gujia=fxB_gujia;
-SPEC.baihai=fxB_baihai;SPEC.dachuolong=fxB_dachuolong;SPEC.rq_xuewu=fxB_xuewu;SPEC.rq_hunzhi=fxB_hunzhi;SPEC.gouchong=fxB_gouchong;
-{const fxB_brain0=bBrain;bBrain=f=>f&&f.w==='zaonao'?fxB_zaonao(f):fxB_brain0(f)}SPEC.xm_silver=fxB_xmsilver;SPEC.ex_jiaojing=fxB_jiaojing;
+
+
+
+
+{const fxB_brain0=bBrain;bBrain=f=>f&&f.w==='zaonao'?fxB_zaonao(f):fxB_brain0(f)}

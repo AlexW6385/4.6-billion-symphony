@@ -127,7 +127,6 @@ function bDragonkin2(f){const g=new THREE.Group();const id=f.w;
  if(P.small)g.scale.setScalar(.7);addLegs(g,L);g.userData.tails=[{m:tlg,a:.25,f:3}];stdAnim(g,{fq:8,amp:.5,extra:(t)=>{arms.forEach((a,i)=>a.rotation.z=.3+Math.sin(t*8+i*Math.PI)*.3);hg.rotation.z=Math.sin(t*1.3)*.1}});
  return g}
 /* swap the new bodies in wherever the herds and entries ask for the old ones */
-(()=>{const sw=new Map([[bSauropod,bSauropod2],[bCeratops,bCeratops2],[bRaptor,bRaptor2],[bDragonkin,bDragonkin2]]);for(const T of[SPEC,KIND])for(const k in T)if(sw.has(T[k]))T[k]=sw.get(T[k])})();
 bSauropod=bSauropod2;bCeratops=bCeratops2;bRaptor=bRaptor2;bDragonkin=bDragonkin2;
 
 /* ---------- Lin's flagship: a shark of the air with a hold full of soldiers ---------- */
@@ -202,6 +201,5 @@ function bDachuo(f){const g=bRaptor2(Object.assign({},f,{w:'dachuo',col:f.col||'
  for(const z of[-1,1])g.add(tubeAlong([V3(1.05,1.72,z*.16),V3(.6,1.75,z*.22),V3(.1,1.62,z*.2)],.012,ROPE,8));
  if(f.rider!==false){const r=bDragonkin2({w:'baihai',col:'#ece8de'});r.scale.setScalar(.7);r.position.set(-.15,1.0,0);r.userData.anim=null;g.add(r)}
  return g}
-SPEC.dachuolong=bDachuo;
-(()=>{const sw=new Map([[bBehemoth,bBehemoth2],[bLeviathan,bLeviathan2]]);for(const T of[SPEC,KIND])for(const k in T)if(sw.has(T[k]))T[k]=sw.get(T[k])})();
+
 bBehemoth=bBehemoth2;bLeviathan=bLeviathan2;
