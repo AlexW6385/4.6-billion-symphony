@@ -55,15 +55,9 @@ function q5s_enterSpace(id,opt){q5s_switched();if(SP[id])SP[id].__q5t=q5s_now();
  function setEra(e){q5s_switched();return setEraBase(e)}
 
 
-/* ---- the other worlds, built ahead of time: the build itself is one piece (0.3–2 s of script), so it only runs while a page
-   covers the picture or the tour lingers on a stop; its shaders are then made in slices on the frames after, not in the same
-   frame. nothing is ever built in the open (on a desktop it used to be, after a long untouched stretch: a visible stall) ---- */
-const q5s_PRE={lastBuild:-1e9};
-function q5s_preTick(){if(!CUR||busy||tw||drag||pinch||ptrs.size||document.hidden||!$('#load').classList.contains('done'))return;const now=q5s_now();
- const page=$('#rd').classList.contains('on')||$('#lib').classList.contains('on');const tourDw=TVS.on&&!TVS.paused&&TVS.phase==='dwell'&&TVS.t>1&&TVS.t<TVS.dwell-1.5;
- let ok=page||tourDw;
- if(!ok)return;let id=preNext();if(!id)return;
- try{q5s_PRE.lastBuild=now;const sp=getSpace(id);sp.scene.updateMatrixWorld(true);q5s_compileQueue(sp.scene,camera);perf.skip=3;perf.t=0;perf.n=0;perf.slow=0;q5s_log('prebuild',{id})}catch(e){console.warn('prebuild',id,e)}}
+/* ---- no world is built ahead of time: a build is one piece of 0.3-2 s of script, and there is no moment it would not be
+   felt (behind the library or the reader it froze their scrolling; in the open, the picture). a first visit builds under
+   the loading cover; a world seen before only makes its new shaders in slices ---- */
 
 /* ---- things far away animate at a tenth of the rate (a creature a few pixels across does not need 60 poses a second);
    anything big, anything without a known size and anything with no object keeps its full rate. sp.anims entries may carry
@@ -87,7 +81,7 @@ function q5s_farCull(sp){if(sp.cover&&!sp.cover.__q5w){sp.cover.__q5w=1;const u=
 let q5s_occC=null;function occList(P,Rr){const now=q5s_now();if(q5s_occC&&q5s_occC.sp===CUR&&q5s_occC.R===Rr&&(now-q5s_occC.t<500||q5s_blown()&&now-q5s_occC.t<2500)&&q5s_occC.P.distanceToSquared(P)<(Rr*.15)*(Rr*.15))return q5s_occC.L;const L=q5s_span('occList',()=>occListBase(P,Rr));q5s_occC={sp:CUR,R:Rr,P:P.clone(),t:now,L};return L}
 /* the first occluder list of a world worked out the bounds of every instance of every instanced set (tens of thousands) in one go:
    that is done ahead, a few sets per frame, after arriving */
-function q5s_warm(sp){const sc=sp.scene;if(sc.__q5warm===q5s_adds(sc))return;sc.__q5warm=q5s_adds(sc);const L=[];sc.traverse(o=>{if(o.isInstancedMesh&&o.count>3&&o.geometry)L.push(o)});let i=0;if(L.length)q5s_job('warm:'+sp.id,lim=>{const t0=q5s_now();while(i<L.length&&q5s_now()-t0<(lim||3)){const o=L[i++];try{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere)instCenters(o,g)}catch(e){}}return i>=L.length})}
+function q5s_warm(sp){const sc=sp.scene;if(sc.__q5warm===q5s_adds(sc))return;sc.__q5warm=q5s_adds(sc);const L=[];sc.traverse(o=>{if(o.isMesh&&o.geometry&&(!o.geometry.boundingSphere||o.isInstancedMesh&&o.count>3))L.push(o)});let i=0;if(L.length)q5s_job('warm:'+sp.id,lim=>{const t0=q5s_now();while(i<L.length&&q5s_now()-t0<(lim||3)){const o=L[i++];try{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere&&o.isInstancedMesh&&o.count>3)instCenters(o,g)}catch(e){}}return i>=L.length})}// (every mesh's bounds too: the first jump in a world used to work them all out at once, 50-150 ms)
 
 /* ---- an age change on a planet: the near patch took its new colours in one go (every vertex of a 20k-vertex patch re-sampled);
    now ~3000 vertices a frame, the crossfade covering the rest ---- */
@@ -131,7 +125,7 @@ function q5s_dispose(id){const sp=SP[id];if(!sp||sp===CUR)return;q5s_saved[id]=s
  for(const j of q5s_J.slice())if(j.sc===sp.scene)q5s_J.splice(q5s_J.indexOf(j),1);
  delete SP[id];if(typeof BSP!=='undefined'&&BSP===sp)BSP=CUR&&CUR.type==='planet'?CUR:null;q5s_log('dispose',{id,ng,nm})}
 setInterval(()=>{if(!q5s_tight||!CUR||busy)return;const ids=Object.keys(SP);if(ids.length<4)return;const now=q5s_now();let old=null;for(const id of ids){const sp=SP[id];if(sp===CUR||id==='rongqiu')continue;const t=sp.__q5t||0;if(now-t<180000)continue;if(!old||t<(SP[old].__q5t||0))old=id}if(old)q5s_dispose(old)},30000);
-window.__q5s={dispose:q5s_dispose,jobs:q5s_J,farCull:q5s_farCull,pre:q5s_preTick,get halt(){return q5s_halt},adapt:dt=>adapt(dt),get perf(){return perf},switched:q5s_switched,quiet(){q5s_swT=-1e9},saved:q5s_saved};
+window.__q5s={dispose:q5s_dispose,jobs:q5s_J,farCull:q5s_farCull,get halt(){return q5s_halt},adapt:dt=>adapt(dt),get perf(){return perf},switched:q5s_switched,quiet(){q5s_swT=-1e9},saved:q5s_saved};
 
 /* ---- the near shadow map is redrawn every second or third frame; after a long frame the last map stays one more frame
    (nothing visible changes: the box only moves with the view), unless it is already half a second old ---- */

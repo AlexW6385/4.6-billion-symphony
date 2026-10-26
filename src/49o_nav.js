@@ -8,9 +8,11 @@ const q4c_REG=Object.fromEntries(REGIONS.map(r=>[r.id,r]));
 const q4c_solid=m=>!!(m&&!m.transparent&&m.depthWrite!==false&&m.blending!==THREE.AdditiveBlending&&m.visible!==false);
 let q4c_last={id:null,t:-1e9};
 /* the body that stands for an entry in the current scene: the pick-tagged root nearest the focus point (a shown one if any) */
-function q4c_body(id,c){if(!id)return null;let best=null,bd=1e18,bestH=null,bdH=1e18;const sc=CUR.scene;
- sc.traverse(o=>{if(!o.userData||o.userData.pick!==id||o.isInstancedMesh)return;let v=o,vis=true;while(v){if(v.visible===false){vis=false;break}v=v.parent}o.getWorldPosition(q4c_tmpV);const d=c?q4c_tmpV.distanceToSquared(c):0;
-  if(vis){if(d<bd){bd=d;best=o}}else if(d<bdH){bdH=d;bestH=o}});return best||bestH}
+/* (the pick-tagged objects of a scene, by entry id: one walk per change of the scene's contents, not one per jump) */
+function q4c_picks(sc,fresh){const a=q5s_adds(sc);let I=sc.__q4cPick;if(fresh||!I||I.a!==a){const m=new Map();sc.traverse(o=>{const k=o.userData&&o.userData.pick;if(k&&!o.isInstancedMesh){let L=m.get(k);if(!L)m.set(k,L=[]);L.push(o)}});I=sc.__q4cPick={a,m}}return I.m}
+function q4c_body(id,c,fresh){if(!id)return null;let best=null,bd=1e18,bestH=null,bdH=1e18;const sc=CUR.scene;
+ (q4c_picks(sc,fresh).get(id)||[]).forEach(o=>{if(o.userData.pick!==id)return;let top=o;while(top.parent)top=top.parent;if(top!==sc)return;let v=o,vis=true;while(v){if(v.visible===false){vis=false;break}v=v.parent}o.getWorldPosition(q4c_tmpV);const d=c?q4c_tmpV.distanceToSquared(c):0;
+  if(vis){if(d<bd){bd=d;best=o}}else if(d<bdH){bdH=d;bestH=o}});const r=best||bestH;return r||fresh?r:q4c_body(id,c,true)}
 /* its bounding size, measured once in its own frame (centre offset + radius), so a moving creature is cheap to follow */
 function q4c_bounds(o){const u=o.userData;if(u._q4c)return u._q4c;o.updateMatrixWorld(true);const B=q4c_tmpB.makeEmpty();
  o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||m.visible===false)return;const mt=Array.isArray(m.material)?m.material[0]:m.material;if(!mt||mt.visible===false||mt.blending===THREE.AdditiveBlending||(mt.transparent&&mt.opacity<.25))return;const g=m.geometry;if(!g||!g.attributes||!g.attributes.position)return;if(!g.boundingBox)g.computeBoundingBox();

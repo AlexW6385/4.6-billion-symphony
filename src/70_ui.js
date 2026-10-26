@@ -91,11 +91,19 @@ function openBase(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;
  const rel=R0.map(relA).join('')+(R1.length?`${R1.map(relA).join('')}`:'');
  const goL=w.go&&MB[w.go]?`<a class="go" data-go="${w.go}">进入「${MB[w.go].n}」 →</a>`:'';
  const away=!(here&&(CUR.type!=='planet'||eraOk(w.e)));const goT=away&&!goL?`<a class="go" data-goto="${id}">前往「${MB[mapOf(w)].n}」看看 →</a>`:'';
- cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb ${CATK(w.c)}">${w.c} · ${placeName(w)}</div><h2>${w.n}</h2><p class="s">${w.s}</p>${w.d.split('\n').map(x=>`<p class="d">${x}</p>`).join('')}<div class="meta">${eras}</div>${chapHTML(id)}${rel?`<div class="sec">相关</div><div class="rel">${rel}</div>`:''}${sideHintHTML(id)}${goL}${goT}${cardNavHTML(id)}`;
- cap.classList.add('on');cap.scrollTop=0;
+ cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb ${CATK(w.c)}">${w.c} · ${placeName(w)}</div><h2>${w.n}</h2><p class="s">${w.s}</p>${w.d.split('\n').map(x=>`<p class="d">${x}</p>`).join('')}<div class="meta">${eras}</div>${chapHTML(id)}${rel?`<div class="sec">相关</div><div class="rel">${rel}</div>`:''}${sideHintHTML(id)}${goL}${goT}<a class="share" data-share>分享这个词条</a>${cardNavHTML(id)}`;
+ cap.classList.add('on');cap.scrollTop=0;setHashEntry(id);
  selP=CUR.prox.find(p=>p.w.id===id&&!p.side&&(!p.hide||!p.hide()))||CUR.prox.find(p=>p.w.id===id&&!p.side&&eraOk(p.e))||null}
-function closeCapBase(quiet){cap.classList.remove('on');sel=null;selP=null}
-cap.addEventListener('click',e=>{if(e.target.closest('.x'))return closeCap();const sdh=e.target.closest('[data-sidehint]');if(sdh)return openSide(sdh.dataset.sidehint);const ch=e.target.closest('[data-ch]');if(ch)return openRd(+ch.dataset.ch,sel);const nv=e.target.closest('[data-nav]');if(nv)return cardStep(+nv.dataset.nav);const gt=e.target.closest('[data-goto]');if(gt)return go(gt.dataset.goto);const r=e.target.closest('[data-rel]');if(r)return go(r.dataset.rel);const g=e.target.closest('[data-go]');if(g){const w=W[sel];enterPortal(w)}});
+function closeCapBase(quiet){cap.classList.remove('on');sel=null;selP=null;setHashEntry(null)}
+/* sharing: the address carries the open entry (#e=id), so a copied link opens the exhibition on that entry */
+function hashEntry(){const m=location.hash.match(/^#e=([^&]+)/);if(!m)return null;let id=null;try{id=decodeURIComponent(m[1])}catch(e){}return id&&W[id]?id:null}
+function setHashEntry(id){try{const h=id?'#e='+encodeURIComponent(id):'';if(location.hash!==h)history.replaceState(null,'',location.pathname+location.search+h)}catch(e){}}
+function shareEntry(id){const w=W[id];if(!w)return;setHashEntry(id);const url=location.href;
+ if(COARSE&&navigator.share){navigator.share({title:w.n+' · 进化的四十六亿重奏 展览馆',url}).catch(()=>{});return}
+ const done=()=>hint('链接已复制',1800);
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,()=>hint(url,6000));else hint(url,6000)}
+addEventListener('hashchange',()=>{const id=hashEntry();if(id&&id!==sel)go(id)});
+cap.addEventListener('click',e=>{if(e.target.closest('.x'))return closeCap();if(e.target.closest('[data-share]'))return shareEntry(sel);const sdh=e.target.closest('[data-sidehint]');if(sdh)return openSide(sdh.dataset.sidehint);const ch=e.target.closest('[data-ch]');if(ch)return openRd(+ch.dataset.ch,sel);const nv=e.target.closest('[data-nav]');if(nv)return cardStep(+nv.dataset.nav);const gt=e.target.closest('[data-goto]');if(gt)return go(gt.dataset.goto);const r=e.target.closest('[data-rel]');if(r)return go(r.dataset.rel);const g=e.target.closest('[data-go]');if(g){const w=W[sel];enterPortal(w)}});
 /* after a jump, make sure the thing is actually in sight: if a wall, a tower or a trunk is in the way,
    or the camera would sit inside something, try going round it or a little higher */
 const _crc=new THREE.Raycaster();
@@ -317,13 +325,6 @@ function updViewOff(dt){const W=innerWidth,H=innerHeight;const [tx,ty]=voTarget(
  const k=1-Math.exp(-dt*5);VO.x+=(tx-VO.x)*k;VO.y+=(ty-VO.y)*k;
  if(Math.abs(VO.x)<.5&&Math.abs(VO.y)<.5){if(camera.view&&camera.view.enabled){camera.clearViewOffset()}return}
  camera.setViewOffset(W,H,-VO.x,-VO.y,W,H)}
-/* the other worlds are built (and their shaders made) ahead of time, one at a time, while a page covers the picture, the
-   tour lingers on a stop, or nobody has touched anything for a few seconds, so going there later is quick. a phone keeps fewer */
-const PRE={coarse:matchMedia('(pointer:coarse)').matches,order:['void','rongqiu','ximin','erxi','midgard','dream','tunnel','buke']};
-function preNext(){const C=[];if(TVS.on){for(let k=1;k<=3;k++){const s=TOUR[TVS.i+k];if(s){const m=mapOf(W[s.id]);if(m)C.push(m)}}}
- if(CUR.id!=='void')C.push('void');if(!PRE.coarse||TVS.on)C.push(...PRE.order);
- const built=Object.keys(SP).length;if(PRE.coarse&&built>=4)return null;return C.find(id=>BUILDERS[id]&&!SP[id])||null}
-setInterval(q5s_preTick,1800);// (49p_stable: the build only in covered or long-idle moments, the shaders in slices after)
 /* ---------- the loop ---------- */
 let T=0,last=performance.now(),eraTick=0;
 /* saving power: nothing to draw while a chapter or the library covers the phone screen; fewer frames while a panel
@@ -358,10 +359,11 @@ function loop(now){if(q5s_halt)return;const fc=frameCap(now);
 
 /* ---------- start ---------- */
 initPost();resize();addEventListener('resize',resize);
-const firstVisit=!seen.size&&store.get('rq_era',null)===null;
+const linked=hashEntry();const firstVisit=!linked&&!seen.size&&store.get('rq_era',null)===null;
 setTimeout(()=>{
  if(firstVisit)ERA=1;
  enterSpace('rongqiu',{rig:firstVisit?{a:12,b:-10,alt:4900,head:0,y:0}:null,home:true,era:ERA,after:()=>{
+  if(linked){go(linked);return}
   if(firstVisit){const tc=matchMedia('(pointer:coarse)').matches;const H=[[1800,tc?'单指拖动转动世界，双指缩放':'拖动转动世界，滚轮缩放',3400],[9800,'下方的时间轴可以换一个时代看看',3400],[15000,'靠近以后，发光的小点都是词条，点一下',3600],[21000,'右下角是图书馆：词条、故事、原著章节和番外',3800]];H.forEach(([d,t,ms])=>setTimeout(()=>{if(!$('#cap.on')&&CUR&&CUR.id==='rongqiu'&&!$('#lib.on'))hint(t,ms)},d));flyTo(18,-25,2600,7);setTimeout(()=>{$('#time').classList.add('open');setEra(2);setTimeout(()=>$('#time').classList.remove('open'),5200)},3600)}}});
  requestAnimationFrame(t=>{last=t;loop(t)})},30);
 window.__rq={bc:buildCreature,fll:frameLL,cam:camera,ren:renderer,place(a,b,alt,head){tw=null;vel.a=vel.b=0;Object.assign(rig,{a,b,alt,head:head||0})},stop(){tw=null},go,open:openBase,setEra,enterSpace:q5s_enterSpace,exitToVoid,flyTo,rig,get CUR(){return CUR},get ERA(){return ERA},SP,timeTo:timeToBase,zoomAt,pickProx,egg:eggBase,get tw(){return tw}};
