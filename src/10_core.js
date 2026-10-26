@@ -1,6 +1,6 @@
 /* lines/points whose geometry is still empty must not break ray picking */
 for(const K of['Line','Points']){const f=THREE[K].prototype.raycast;THREE[K].prototype.raycast=function(a,b){const g=this.geometry;if(!g||!g.attributes||!g.attributes.position)return;return f.call(this,a,b)}}
-/* big meshes (ground, walls, tubes) get a small bounding-box tree the first time a ray tests them, so a ray costs a few hundred box tests instead of one test per triangle; only the nearest hit is reported, which is all the callers here look at */
+/* meshes of 800 triangles and more (ground, walls, tubes, trees, buildings) get a small bounding-box tree the first time a ray tests them, so a ray costs a few hundred box tests instead of one test per triangle; only the nearest hit is reported, which is all the callers here look at */
 {const MR=THREE.Mesh.prototype.raycast,_inv=new THREE.Matrix4(),_r=new THREE.Ray(),_s=new THREE.Sphere(),_a=new THREE.Vector3(),_b=new THREE.Vector3(),_c=new THREE.Vector3(),_p=new THREE.Vector3(),_q=new THREE.Vector3(),_w=new THREE.Vector3();
  const LEAF=48;
  function bvhOf(g){const pos=g.attributes.position,ix=g.index;const ver=pos.version+(ix?ix.version*1e6:0);if(g.__bvh&&g.__bvh.ver===ver)return g.__bvh;
@@ -22,12 +22,12 @@ for(const K of['Line','Points']){const f=THREE[K].prototype.raycast;THREE[K].pro
   mk(0,n);
   return g.__bvh={ver,I,V,O,B:new Float32Array(NB),L:Int32Array.from(NL),R:Int32Array.from(NR),S:Int32Array.from(NS),C:Int32Array.from(NC)}}
  // after a world is shown, build the trees for its big meshes in idle moments, one mesh per moment, so the first tap or card never pays for it
- window.__bvhIdle=function(sc){const L=[];const seen=new Set();sc.traverse(o=>{if(!o.isMesh||Array.isArray(o.material)||o.isSkinnedMesh||Object.prototype.hasOwnProperty.call(o,"raycast"))return;const g=o.geometry;if(!g||!g.isBufferGeometry||!g.attributes.position||seen.has(g))return;const nt=(g.index?g.index.count:g.attributes.position.count)/3;if(nt>=3000){seen.add(g);L.push(g)}});
+ window.__bvhIdle=function(sc){const L=[];const seen=new Set();sc.traverse(o=>{if(!o.isMesh||Array.isArray(o.material)||o.isSkinnedMesh||Object.prototype.hasOwnProperty.call(o,"raycast"))return;const g=o.geometry;if(!g||!g.isBufferGeometry||!g.attributes.position||seen.has(g))return;const nt=(g.index?g.index.count:g.attributes.position.count)/3;if(nt>=800){seen.add(g);L.push(g)}});
   const ric=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>50}),200));const step=()=>{if(!L.length)return;const g=L.shift();try{bvhOf(g)}catch(e){}ric(step,{timeout:3000})};ric(step,{timeout:3000})};
  const ST=new Int32Array(256);
  THREE.Mesh.prototype.raycast=function(rc,out){const g=this.geometry,m=this.material;
   if(!g||!g.isBufferGeometry||!m||Array.isArray(m)||this.isSkinnedMesh||!g.attributes.position||(g.morphAttributes&&g.morphAttributes.position)||g.drawRange.start!==0||g.drawRange.count!==Infinity||window.__noBVH)return MR.call(this,rc,out);
-  const nt=(g.index?g.index.count:g.attributes.position.count)/3;if(nt<3000)return MR.call(this,rc,out);
+  const nt=(g.index?g.index.count:g.attributes.position.count)/3;if(nt<800)return MR.call(this,rc,out);
   const mw=this.matrixWorld;if(g.boundingSphere===null)g.computeBoundingSphere();_s.copy(g.boundingSphere).applyMatrix4(mw);if(!rc.ray.intersectsSphere(_s))return;
   _inv.copy(mw).invert();_r.copy(rc.ray).applyMatrix4(_inv);
   const T=bvhOf(g);const o=_r.origin,d=_r.direction;

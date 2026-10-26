@@ -1,9 +1,9 @@
 {
- "note": "tests/audit.cjs over every entry, 2026-10-26. Before Phase 0: 113 failing; moon-view fix: 91; line-of-sight checks using their own ray and poses kept on screen: 22. The 4 \"tiny\" are whole planets seen from orbit (expected).",
+ "note": "tests/audit.cjs over every entry, 2026-10-26. Before Phase 0: 113 failing; moon-view fix: 91; line-of-sight checks using their own ray, poses that keep the entry where it belongs: see counts. The 4 \"tiny\" are whole planets seen from orbit (expected).",
  "entries": 767,
  "counts": {
-  "off_screen": 3,
-  "occluded": 12,
+  "off_screen": 5,
+  "occluded": 11,
   "under_card": 3,
   "tiny": 4,
   "wrong_space": 0,
@@ -11,28 +11,29 @@
  },
  "ids": {
   "off_screen": [
+   "rongqiu_form",
    "huangchong",
-   "banyu",
-   "tianjing"
+   "kuangfeng",
+   "cishazhe",
+   "ud_tree"
   ],
   "occluded": [
    "oasis",
    "aztec",
-   "plague",
+   "shawurm",
    "gunlei",
    "rq_maojing",
-   "kuangfeng",
+   "v_xingmeng",
    "laoshu",
-   "yanshiguai",
    "lieshazhe",
    "tucizhe",
    "ud_spikes",
    "a5_guanli"
   ],
   "under_card": [
-   "rongqiu_form",
    "haikong",
-   "rq_tlant3"
+   "guyou",
+   "xm_train"
   ],
   "tiny": [
    "rongqiu",

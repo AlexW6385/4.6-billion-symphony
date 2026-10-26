@@ -116,15 +116,16 @@ const _oiM=new THREE.Matrix4(),_oiW=new THREE.Matrix4(),_oiS=new THREE.Sphere(),
 function instCenters(o,g){const v=o.instanceMatrix.version,c=o.userData._ic;if(c&&c.v===v&&c.n===o.count&&c.w.equals(o.matrixWorld))return c.C;
  const C=new Float32Array(o.count*4);for(let i=0;i<o.count;i++){o.getMatrixAt(i,_oiM);_oiW.multiplyMatrices(o.matrixWorld,_oiM);_oiS.copy(g.boundingSphere).applyMatrix4(_oiW);C[i*4]=_oiS.center.x;C[i*4+1]=_oiS.center.y;C[i*4+2]=_oiS.center.z;C[i*4+3]=_oiS.radius}
  o.userData._ic={v,n:o.count,w:o.matrixWorld.clone(),C};return C}
-function occListBase(P,R){const L=[];const sc=CUR.scene;
+function occListBase(P,R){const q=occListSteps(P,R);q.step(Infinity);return q.L}
+/* the same list, gathered a slice at a time (step(ms) returns true when the whole world has been walked) */
+function occListSteps(P,R){const L=[];const sc=CUR.scene;const stack=[sc];
  // things hidden only because the camera is far from them still count: they will show when the camera gets there
- const walk=(o,f)=>{if(!o.visible&&!o.userData.distHide)return;f(o);for(const ch of o.children)walk(ch,f)};
- walk(sc,o=>{if(!o.isMesh||!o.geometry)return;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)return;
+ const f=o=>{if(!o.isMesh||!o.geometry)return;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)return;
   const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingSphere)return;
   if(o.isInstancedMesh){const idx=[];const C=instCenters(o,g);const n=Math.min(o.count,C.length>>2);for(let i=0;i<n;i++){const k=i*4,dx=C[k]-P.x,dy=C[k+1]-P.y,dz=C[k+2]-P.z,rr=R+C[k+3];if(dx*dx+dy*dy+dz*dz<rr*rr)idx.push(i)}
    if(idx.length)L.push({isMesh:true,layers:o.layers,src:o,material:o.material,raycast(rc,out){const mw=o.matrixWorld;_oiMesh.geometry=o.geometry;_oiMesh.material=o.material;const ro=rc.ray.origin,rd=rc.ray.direction,far=rc.far;for(const i of idx){const k=i*4,ex=C[k]-ro.x,ey=C[k+1]-ro.y,ez=C[k+2]-ro.z,rr=C[k+3];let t=ex*rd.x+ey*rd.y+ez*rd.z;if(t<-rr||t>far+rr)continue;t=Math.max(0,Math.min(far,t));const qx=ex-rd.x*t,qy=ey-rd.y*t,qz=ez-rd.z*t;if(qx*qx+qy*qy+qz*qz>rr*rr)continue;o.getMatrixAt(i,_oiM);_oiMesh.matrixWorld.multiplyMatrices(mw,_oiM);_oiHits.length=0;_oiMesh.raycast(rc,_oiHits);for(const h of _oiHits){h.instanceId=i;h.object=o;out.push(h)}}}});return}
-  _oiS.copy(g.boundingSphere).applyMatrix4(o.matrixWorld);if(o.userData.terr||_oiS.radius>R*4||_oiS.center.distanceTo(P)<R+_oiS.radius){if(_oiS.radius>R*4)L.push(o);else{const cx=_oiS.center.x,cy=_oiS.center.y,cz=_oiS.center.z,rr=_oiS.radius;L.push({isMesh:true,layers:o.layers,src:o,material:o.material,raycast(rc,out){const ro=rc.ray.origin,rd=rc.ray.direction,ex=cx-ro.x,ey=cy-ro.y,ez=cz-ro.z;let t=ex*rd.x+ey*rd.y+ez*rd.z;if(t<-rr||t>rc.far+rr)return;t=Math.max(0,Math.min(rc.far,t));const qx=ex-rd.x*t,qy=ey-rd.y*t,qz=ez-rd.z*t;if(qx*qx+qy*qy+qz*qz>rr*rr)return;o.raycast(rc,out)}})}}});
- return L}
+  _oiS.copy(g.boundingSphere).applyMatrix4(o.matrixWorld);if(o.userData.terr||_oiS.radius>R*4||_oiS.center.distanceTo(P)<R+_oiS.radius){if(_oiS.radius>R*4)L.push(o);else{const cx=_oiS.center.x,cy=_oiS.center.y,cz=_oiS.center.z,rr=_oiS.radius;L.push({isMesh:true,layers:o.layers,src:o,material:o.material,raycast(rc,out){const ro=rc.ray.origin,rd=rc.ray.direction,ex=cx-ro.x,ey=cy-ro.y,ez=cz-ro.z;let t=ex*rd.x+ey*rd.y+ez*rd.z;if(t<-rr||t>rc.far+rr)return;t=Math.max(0,Math.min(rc.far,t));const qx=ex-rd.x*t,qy=ey-rd.y*t,qz=ez-rd.z*t;if(qx*qx+qy*qy+qz*qz>rr*rr)return;o.raycast(rc,out)}})}}};
+ return{L,step(ms){const t0=q5s_now();let n=0;while(stack.length){const o=stack.pop();if(!o.visible&&!o.userData.distHide)continue;f(o);const ch=o.children;for(let i=ch.length-1;i>=0;i--)stack.push(ch[i]);if(++n>=200){n=0;if(q5s_now()-t0>ms)return false}}return true}}}
 // a line-of-sight test over the whole world: only shown, solid meshes are tried (the callers skip everything else anyway)
 const _vcS=[];function visCast(rc,root){const out=[];const st=_vcS;st.length=0;st.push(root);while(st.length){const o=st.pop();if(!o.visible)continue;
   if(o.isMesh&&o.geometry){const m=Array.isArray(o.material)?o.material[0]:o.material;if(m&&!m.transparent&&m.depthWrite!==false&&m.blending!==THREE.AdditiveBlending&&m.visible!==false&&o.layers.test(rc.layers))o.raycast(rc,out)}
@@ -305,11 +306,6 @@ const perf={t:0,n:0,lvl:0,hold:0};
 /* quality levels: resolution goes first, shadows last, and a level is won back when the frame rate stays high.
    a one-off long frame (a world being built in the background, a shader compiling) is not slowness */
 const PR0=PR;
-/* shadows are never switched off: at the low levels they get a smaller map, a shorter reach and fewer redraws instead */
-function applyLevelBase(){const L=perf.lvl;PR=Math.min(PR0,[PR0,1.5,1.25,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}resize()}
-function adaptBase(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
- if((fps<34||slow>=8)&&perf.lvl<4){perf.lvl++;perf.hold=1;perf.good=0;applyLevel()}
- else if(fps>56&&slow<=1&&perf.lvl>0){if(++perf.good>=4){perf.lvl--;perf.hold=2;perf.good=0;applyLevel()}}else perf.good=0}
 
 /* while a card is open, the picture slides so what you chose sits in the free part of the screen, not under the card */
 const VO={x:0,y:0};
@@ -339,7 +335,7 @@ function frameCap(now){const rdOn=$('#rd').classList.contains('on'),libOn=$('#li
 function loop(now){if(q5s_halt)return;const fc=frameCap(now);
  if(fc===0){last=now;setTimeout(()=>requestAnimationFrame(loop),300);return}
  if(fc<60&&now-last<1000/fc-4){requestAnimationFrame(loop);return}
- const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;q5s_begin();if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==q5s_adds(CUR.scene)&&!q5s_blown()){CUR._sbN=now;try{batchSprites(CUR);noStaleCull(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=q5s_adds(CUR.scene)}
+ const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;q5s_begin();if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==q5s_adds(CUR.scene)&&!q5s_blown()){CUR._sbN=now;try{batchSprites(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=q5s_adds(CUR.scene)}
  if(tw){if(tw.track)q4c_retrack();tw.t+=dt/tw.dur;const k=Math.min(1,tw.t),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;const hop=Math.pow(Math.sin(k*Math.PI),2)*hopOf()*.8;
   rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1){const tr=tw.track;tw=null;if(tr&&tr.settle)q4c_settle(tr)}}
  else if(!drag&&!pinch){if(Math.abs(vel.a)+Math.abs(vel.b)>1e-5){rig.a+=vel.a*dt*60;rig.b+=vel.b*dt*60;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86);else if(CUR.type==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);else{const L=CUR.bound||7000;rig.a=clamp(rig.a,-L,L);rig.b=clamp(rig.b,-L,L)}const dk=Math.exp(-dt*5.5);vel.a*=dk;vel.b*=dk}}

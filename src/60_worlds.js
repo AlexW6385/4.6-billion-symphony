@@ -7,11 +7,6 @@ const XOAS=dirLL(-16,-70),XCOR=dirLL(31,22);
 const XSEAS=[[0,150,20],[-30,-160,12],[50,-120,10],[-50,10,9]].map(b=>({d:dirLL(b[0],b[1]),r:b[2]}));
 function ximinH(p){const n=fbm(p.x*3+11,p.y*3,p.z*3,4);let m=Math.max(landMaskB(p,XB),.16)+(n-.5)*.45;for(const q of XSEAS){const s=angDeg(p,q.d);if(s<q.r)m=Math.min(m,lerp(-.5,m,sm(q.r*.55,q.r,s)))}
  if(m<0)return Math.max(-60,m*120)-2;const oa=angDeg(p,XOAS);if(oa<4.5)return 2+fbm(p.x*30,p.y*30,p.z*30,3)*6;return 5+Math.round(fbm(p.x*12+3,p.y*12,p.z*12,3)*5)*2.6}
-function ximinCBase(p,h,lat,out){if(h<0){out.set('#163a4a').lerp(C('#071a26'),sm(-2,-40,h));return}if(h<2.2){out.set('#8a8a84');return}
- if(angDeg(p,XOAS)<4.5){out.set('#3f8a4a').lerp(C('#2a6a3a'),n3(p.x*40,p.y*40,p.z*40));return}
- const[la,lo]=llDir(p);const g=Math.min(Math.abs(((la/2.2)%1+1)%1-.5),Math.abs(((lo/2.2)%1+1)%1-.5));
- const cell=h3(Math.floor((la+90)/7.5),Math.floor((lo+180)/7.5),3),cell2=h3(Math.floor((la+90)/2.2),Math.floor((lo+180)/2.2),5);const DT=['#6a7078','#7c766a','#5a6068','#8a8f94','#6e6a60','#747a80'];
- out.set('#5f6870').lerp(C('#848e96'),n3(p.x*50,p.y*50,p.z*50)*.5).lerp(C(DT[(cell*6)|0]),.42).lerp(C('#a2a6aa'),cell2>.78?.4:0).lerp(C('#3a3e44'),cell2<.14?.5:0).lerp(C('#7a7466'),sm(.55,.8,n3(p.x*7,p.y*7,p.z*7))*.3);if(angDeg(p,XCOR)<4)out.lerp(C('#141418'),1-sm(2,4,angDeg(p,XCOR)))}
 function oneSet(fn){return Gd=>{const n=Gd.n,a=new Float32Array(n*3),p=V3(),c=new THREE.Color();for(let k=0;k<n;k++){p.set(Gd.P[k*3],Gd.P[k*3+1],Gd.P[k*3+2]);fn(p,Gd.H[k],Math.asin(p.y)/D2R,c);a[k*3]=c.r;a[k*3+1]=c.g;a[k*3+2]=c.b}return{x:a}}}
 function buildXimin(){const sp=makePlanet('ximin',{height:ximinH,colors:oneSet(ximinC),ocean:{deep:'#0b1e24',shal:'#2a4f56',sky:'#a7a498'},atm:'#a49a84',atmK:.7,clouds:{cov:.66,col:'#c9c1b1'},rough:.5,metal:.12,rock:'#4a5056',mott:.45,rockK:.2,bump:.35,envTop:'#8aa0b8',envMid:'#c0c8d0',envBot:'#2a2e34',
   sky:{zen:'#50708c',hor:'#b0bec8',set:'#d8a078'},hemiSky:0xb8c8d8,sunLon:10});BSP=sp;const gh=sp.gh;const land=(la,lo,h)=>h>4&&angDeg(dirLL(la,lo),XOAS)>5;
@@ -231,15 +226,6 @@ function fixVC(o){const done=new Set();o.traverse(m=>{if(!m.isMesh||!m.geometry|
    nearest of the world's own point lights that are showing; those only say where light should be. a change in how many
    lights a scene has makes every lit material build a new shader, so all worlds share one light layout (see lightRig) */
 const LPOOL_K=2,_lw=V3();
-/* which things cast and catch the near shadows: solid lit meshes; small ones cast (a town, a creature, a tree), the
-   ground and big things only catch */
-function shadowScan(sp){if(sp.type!=='planet'||!sp.sunL)return;sp.scene.traverse(o=>{if(!o.isMesh||o.userData.shd)return;o.userData.shd=1;const m=Array.isArray(o.material)?o.material[0]:o.material;
- if(!m||m.isShaderMaterial||m.transparent||m.alphaTest>0||!m.depthWrite||!(m.isMeshStandardMaterial||m.isMeshPhongMaterial||m.isMeshLambertMaterial))return;o.receiveShadow=true;if(o===sp.terr){o.castShadow=true;return}if(o.userData.noShadow)return;
- const g=o.geometry;if(!g)return;if(!g.boundingSphere)g.computeBoundingSphere();const sc=o.scale?Math.max(o.scale.x,o.scale.y,o.scale.z):1;if(g.boundingSphere.radius*sc<70)o.castShadow=true})}
-/* instanced sets and point clouds: three.js tests them against the frustum with the bounds of ONE instance at the
-   set's own origin (or the points as first laid out), so from close up, looking past that origin, a whole set
-   vanished. they are drawn whenever they are visible instead */
-function noStaleCull(sp){sp.scene.traverse(o=>{if((o.isInstancedMesh||o.isPoints)&&o.frustumCulled)o.frustumCulled=false})}
 /* off a planet, zooming in on a world or a star could carry the camera inside it, where its surface faces away and
    it seemed to shrink and vanish: the camera stops just outside any solid body instead */
 const _sv=V3();
@@ -254,10 +240,20 @@ function lightRig(sp){const sc=sp.scene;let nd=0,nh=0;sc.traverse(o=>{if(o.isDir
  for(;nd<2;nd++){const d=new THREE.DirectionalLight(0xffffff,0);d.userData.rig=1;sc.add(d)}
  if(!nh){const h=new THREE.HemisphereLight(0,0,0);h.userData.rig=1;sc.add(h)}
  if(!sc.fog&&sp.type!=='planet')sc.fog=new THREE.FogExp2(0,0)}
-function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;shadowScan(sp);noStaleCull(sp);
- sp.scene.traverse(o=>{if(!o.isPointLight||o.userData.pool||o.userData.pooled)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o)});
- if(!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}}
-function poolStepBase(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==SG_ADDS&&now-lp.t>1500){lp.t=now;poolScan(sp)}if(!lp.P.length)return;
+/* one pass over a world's objects does three things: shadows (shadowScan's rule), no stale frustum culling for instanced sets and
+   point clouds (noStaleCull's), and every point light handed to the pool. a world being built gets the whole pass at once; a
+   world already shown that gained objects gets it in slices of a few milliseconds (it walked tens of thousands of objects
+   in one frame: a 40 ms stall after some jumps) */
+function poolOne(sp,lp,o){if((o.isInstancedMesh||o.isPoints)&&o.frustumCulled)o.frustumCulled=false;
+ if(o.isPointLight){if(o.userData.pool||o.userData.pooled)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o);return}
+ if(sp.type!=='planet'||!sp.sunL||!o.isMesh||o.userData.shd)return;o.userData.shd=1;const m=Array.isArray(o.material)?o.material[0]:o.material;
+ if(!m||m.isShaderMaterial||m.transparent||m.alphaTest>0||!m.depthWrite||!(m.isMeshStandardMaterial||m.isMeshPhongMaterial||m.isMeshLambertMaterial))return;o.receiveShadow=true;if(o===sp.terr){o.castShadow=true;return}if(o.userData.noShadow)return;
+ const g=o.geometry;if(!g)return;if(!g.boundingSphere)g.computeBoundingSphere();const sc=o.scale?Math.max(o.scale.x,o.scale.y,o.scale.z):1;if(g.boundingSphere.radius*sc<70)o.castShadow=true}
+function poolLp(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});if(!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}return lp}
+function poolScan(sp){const lp=poolLp(sp);lp.a=SG_ADDS;sp.scene.traverse(o=>poolOne(sp,lp,o))}
+function poolScanSliced(sp){const lp=poolLp(sp);if(lp.job)return;lp.a=SG_ADDS;const stack=[sp.scene];lp.job=1;
+ q5s_job('pool:'+sp.id,lim=>{const t0=q5s_now();let n=0;while(stack.length){const o=stack.pop();poolOne(sp,lp,o);const ch=o.children;for(let i=ch.length-1;i>=0;i--)stack.push(ch[i]);if(++n>=40){n=0;if(q5s_now()-t0>(lim||3))return false}}lp.job=0;return true})}
+function poolStepBase(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==SG_ADDS&&now-lp.t>1500){lp.t=now;poolScanSliced(sp)}if(!lp.P.length)return;
  const C=camera.position;const pick=[];for(const L of lp.L){if(!L.userData.vis()||!(L.intensity>0)||!L.parent)continue;let x=L.parent,ok=true;while(x){if(!x.visible){ok=false;break}if(!x.parent&&x!==sp.scene)ok=false;x=x.parent}if(!ok)continue;
   _lw.copy(L.position).applyMatrix4(L.parent.matrixWorld);const d=_lw.distanceTo(C);if(L.distance>0&&d>L.distance*6+400)continue;pick.push([d,L,_lw.x,_lw.y,_lw.z])}
  pick.sort((a,b)=>a[0]-b[0]);

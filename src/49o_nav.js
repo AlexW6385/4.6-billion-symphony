@@ -79,12 +79,14 @@ function q4c_aim(P,alt,head,wx,wy,y,init,iters){const t=CUR.type;const sv={a:rig
    and small things that the cutaway will sink while the card is open do not count either */
 let q4c_occ=null;
 const q4c_own=(o,id)=>{let v=o;while(v){if(v.userData&&v.userData.pick===id)return true;v=v.parent}return false};
-function q4c_vis(S,c,skipCut){const cam=camera;const dist=cam.position.distanceTo(c);if(!(dist>1))return 0;
+/* (st, deadline: resumable — after the deadline it keeps its place in st and returns null; at least one ray per call) */
+function q4c_vis(S,c,skipCut,beat,st,deadline){const cam=camera;const dist=cam.position.distanceTo(c);if(!(dist>1))return 0;
  const dir=c.clone().sub(cam.position).normalize();const rt=new THREE.Vector3().crossVectors(dir,cam.up).normalize(),up=new THREE.Vector3().crossVectors(rt,dir).normalize();
  const nrm=CUR.type==='planet'?c.clone().normalize():CUR.type==='tube'?tubeUp(Math.atan2(-c.x,-c.y)/D2R):new THREE.Vector3(0,1,0);
  const rr=Math.max(S.r,1.5);const pts=[c,c.clone().addScaledVector(rt,rr*.6),c.clone().addScaledVector(rt,-rr*.6),c.clone().addScaledVector(up,rr*.6),c.clone().addScaledVector(up,-rr*.45),c.clone().addScaledVector(nrm,rr*.8)];
- let clear=0;const hull=new THREE.Sphere(c,rr*1.08);
- for(const Q of pts){const d=Q.clone().sub(cam.position);const L=d.length();d.normalize();q4c_rc.set(cam.position,d);q4c_rc.camera=cam;
+ let clear=st?st.clear:0;const k0=st?st.i:0;const hull=new THREE.Sphere(c,rr*1.08);
+ let left=pts.length-k0;const goal=beat===undefined?-1:beat*pts.length;// (with beat: stop as soon as this pose can no longer do better than the best so far)
+ for(let k=k0;k<pts.length;k++){const Q=pts[k];if(clear+left<=goal)break;if(st&&deadline&&k>k0&&q5s_now()>deadline){st.i=k;st.clear=clear;return null}left--;const d=Q.clone().sub(cam.position);const L=d.length();d.normalize();q4c_rc.set(cam.position,d);q4c_rc.camera=cam;
   let far=L-1;if(q4c_rc.ray.intersectSphere(hull,q4c_tmpV))far=Math.min(far,cam.position.distanceTo(q4c_tmpV)-.5);q4c_rc.far=Math.max(.5,far);
   let blocked=false;for(const h of occCast(q4c_occ,q4c_rc)){const o=h.object;if(!o.isMesh||q4c_own(o,S.id))continue;if(o===CUR.ocean)continue;// the sea is seen through, it never hides what swims in it
   const m=Array.isArray(o.material)?o.material[0]:o.material;if(!q4c_solid(m))continue;if(!q4c_occ&&!isVis(o))continue;if(skipCut&&!CUT.off&&dist<700&&cuttable(o,S.rc))continue;blocked=true;break}
@@ -98,19 +100,34 @@ function q4c_camFree(S,c){const cam=camera;if(CUR.type==='planet'){const ll=llDi
  for(const dd of[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]){q4c_rc.set(cam.position,q4c_tmpV.set(dd[0],dd[1],dd[2]));q4c_rc.far=4;for(const h of occCast(q4c_occ,q4c_rc))if(bad(h.object))return false}
  return true}
 /* search for a pose with a clear view: the heading turns first; the height changes (down as well as up) only when turning is not enough */
-function q4c_clear(S,c,base,wx,wy,lite){const sv={a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y};const gs=_gS,gt=_gT;const t=CUR.type;const big0=CUT.big;
- q4c_occ=occList(c,Math.max(260,S.r*6,Math.min(2600,base.alt*3.2)));/* (as far out as the camera may stand: a cloud next to the lens hides everything) */let best=null,bs=-1,big=false;try{
-  const heads=lite?[0,.8,-.8,1.6,-1.6]:[0,.8,-.8,1.6,-1.6,2.5,-2.5];const mults=lite?[1,1.3,.75,.5]:t==='tube'?[1,.75,1.4,.5,1.9]:[1,.7,1.4,.5,2,.35,3];
-  const run=()=>{outer:for(const m of mults)for(const h of heads){const alt=clamp(base.alt*m,altMin()+8,altMax());const pose=q4c_aim(c,alt,base.head+h,wx,wy,base.y);Object.assign(rig,{a:pose.a,b:pose.b,alt:pose.alt,head:pose.head,y:pose.y});_gS=null;rigPose();
-   // a pose that cannot keep the thing on screen (the camera held by the ground or a height limit) is no pose at all
-   q4c_tmpV.copy(c).project(camera);const onScr=q4c_tmpV.z<1&&Math.abs(q4c_tmpV.x)<.82&&Math.abs(q4c_tmpV.y)<.82;
-   let sc=onScr?q4c_vis(S,c,true):0;const cf=sc>0?q4c_camFree(S,c):null;if(cf===false)sc=0;if(window.__q4cDbg)window.__q4cDbg.push([m,+h.toFixed(1),+sc.toFixed(2),cf]);sc-=Math.abs(h)*.012+Math.abs(Math.log(m))*.05;
-   if(sc>bs){bs=sc;best=pose}if(sc>=.95)break outer}};
-  run();
-  // enclosed on every side (a creature deep in a clump of trees): let the cutaway take bigger things and look again
-  if(bs<=0&&!lite&&S.id&&!CUT.off){CUT.big=true;big=true;run()}
- }finally{q4c_occ=null;CUT.big=big0;Object.assign(rig,sv);_gS=gs;_gT=gt;rigPose()}
- best=best||base;best.sc=bs;best.big=big;return best}
+/* the search, in steps: each step tries poses for at most a few milliseconds and puts the camera back, so a jump can start
+   flying at once and let the search finish over the next frames (lite: fewer poses; lite 2: the given pose only) */
+function q4c_search(S,c,base,wx,wy,lite){const t=CUR.type;let occ=null;const occR=Math.max(260,S.r*6,Math.min(2600,base.alt*3.2));/* (the occluders, gathered on the first step: as far out as the camera may stand — a cloud next to the lens hides everything) */
+ const heads=lite===2?[0]:lite?[0,.8,-.8,1.6,-1.6]:[0,.8,-.8,1.6,-1.6,2.5,-2.5];const mults=lite===2?[1]:lite?[1,1.3,.75,.5]:t==='tube'?[1,.75,1.4,.5,1.9]:[1,.7,1.4,.5,2,.35,3];
+ const L=[];for(const m of mults)for(const h of heads)L.push([m,h]);
+ let i=0,pass=0,best=null,bs=-1,done=false;
+ // each pose is looked at in two parts (can the thing be seen; is the camera itself in the open), each part one unit of
+ // work, so a step never runs much past its budget
+ let pend=null;
+ const place=pose=>{Object.assign(rig,{a:pose.a,b:pose.b,alt:pose.alt,head:pose.head,y:pose.y});_gS=null;rigPose()};
+ const fin=(x,sc)=>{if(window.__q4cDbg)window.__q4cDbg.push([x.m,+x.h.toFixed(1),+(sc+x.pen).toFixed(2),x.cf]);if(sc>bs){bs=sc;best=x.pose}return sc>=.95};
+ const partA=(m,h)=>{const alt=clamp(base.alt*m,altMin()+8,altMax());const pose=q4c_aim(c,alt,base.head+h,wx,wy,base.y);place(pose);
+  // a pose that cannot put the thing where it belongs on screen (the camera held by the ground or a height limit) is no pose at
+  // all; one that only nearly can pays for the miss
+  const onScr=pose.err<.3;
+  const pen=Math.abs(h)*.012+Math.abs(Math.log(m))*.05+pose.err*.8;const x={m,h,pose,pen,sc:0,cf:null,st:{i:0,clear:0},ph:onScr?'vis':'end'};pend=x;return false};
+ const partB=dl=>{const x=pend;place(x.pose);
+  if(x.ph==='vis'){const v=q4c_vis(S,c,true,bs+x.pen,x.st,dl);if(v===null)return false;x.sc=v;x.ph=v>0&&v-x.pen>bs?'free':'end';return false}
+  if(x.ph==='free'){x.cf=q4c_camFree(S,c);x.ph='end';return false}
+  pend=null;return fin(x,(x.cf===false?0:x.sc)-x.pen)};
+ let occQ=null;
+ return{step(ms){if(done)return true;if(!(ms>0))return false;if(!occ){if(!occQ)occQ=occListSteps(c,occR);if(!occQ.step(ms))return false;occ=occQ.L;if(ms<1e9)return false}const t0=q5s_now();const sv={a:rig.a,b:rig.b,alt:rig.alt,head:rig.head,y:rig.y};const gs=_gS,gt=_gT;const big0=CUT.big;q4c_occ=occ;if(pass)CUT.big=true;
+   try{while(pend||i<L.length){if(!(ms>0)||q5s_now()-t0>ms)break;let hit;if(pend)hit=partB(t0+ms);else{const [m,h]=L[i++];hit=partA(m,h)}if(hit){done=true;break}}
+    // enclosed on every side (a creature deep in a clump of trees): let the cutaway take bigger things and look again
+    if(!done&&!pend&&i>=L.length){if(bs<=0&&!lite&&S.id&&!CUT.off&&!pass){pass=1;i=0}else done=true}}
+   finally{q4c_occ=null;CUT.big=big0;Object.assign(rig,sv);_gS=gs;_gT=gt;rigPose()}return done},
+  result(){const r=best||base;r.sc=bs;r.big=!!pass;return r}}}
+function q4c_clear(S,c,base,wx,wy,lite){const q=q4c_search(S,c,base,wx,wy,lite);while(!q.step(1e9));return q.result()}
 /* how long a flight takes: a short hop for something already in view, up to a few seconds across a world */
 function q4c_dist(to){const t=CUR.type;if(t==='planet')return angDeg(dirLL(rig.a,rig.b),dirLL(to.a,to.b))*R*D2R;if(t==='tube')return Math.hypot(to.a-rig.a,wrap180(to.b-rig.b)*CUR.Rt*D2R,(to.y||0)-rig.y);return Math.hypot(to.a-rig.a,to.b-rig.b,(to.y||0)-rig.y)}
 function q4c_dur(to){const d=q4c_dist(to);const za=Math.abs(Math.log(to.alt/rig.alt)),dh=Math.abs(((to.head-rig.head+Math.PI*3)%(Math.PI*2))-Math.PI);const rel=d/Math.max(40,rig.alt,to.alt);
@@ -123,16 +140,21 @@ function q4c_goto(id,p,opt){opt=opt||{};if(!CUR)return;if(CUR.camOv)moonRelease(
  // a herd member: the one that was clicked, else the member nearest the camera (not the herd's home spot)
  if(!p&&w&&CUR.type==='planet'){const L=CUR.prox.filter(x=>x.w.id===id&&x.herd&&!x.side&&eraOk(x.e)&&herdVisible(CUR,x.herd,ERA));if(L.length){const D=[];for(const x of L){const c=proxCenter(x);if(c)D.push([c.distanceToSquared(camera.position),x])}D.sort((a,b)=>a[0]-b[0]);
   // of the few nearest members, the one that can be seen most clearly (trees no longer step aside for the camera)
-  let bs=-1;const wt0=q4c_want();for(const [,x] of D.slice(0,4)){const S0=q4c_subject(id,x);if(!S0)continue;const c0=S0.c();const a0=q4c_altFor(S0,wt0.fill,c0,wt0.vo?0:wt0.wy);const ps=q4c_clear(S0,c0,q4c_aim(c0,a0,rig.head,wt0.wx,wt0.wy),wt0.wx,wt0.wy,true);if(ps.sc>bs+.05){bs=ps.sc;p=x}}}}
+  let bs=-1;const wt0=q4c_want();for(const [,x] of D.slice(0,4)){const S0=q4c_subject(id,x);if(!S0)continue;const c0=S0.c();const a0=q4c_altFor(S0,wt0.fill,c0,wt0.vo?0:wt0.wy);const ps=q4c_clear(S0,c0,q4c_aim(c0,a0,rig.head,wt0.wx,wt0.wy),wt0.wx,wt0.wy,2);if(ps.sc>bs+.05){bs=ps.sc;p=x}}}}
  const S=q4c_subject(id,p);if(!S)return;if(S.p&&sel===id)selP=S.p;q4c_last={id,t:performance.now()};
  if(CUR.TU&&CUR.canyonTo!==undefined&&Math.abs(CUR.TU.uCanyon.value-CUR.canyonTo)>1e-3){CUR.TU.uCanyon.value=CUR.canyonTo;if(CUR.ocean)CUR.ocean.material.uniforms.uCanyon.value=CUR.canyonTo;if(CUR.cyStep)CUR.cyStep()}
  const c=S.c();const wt=q4c_want();const alt=opt.alt||q4c_altFor(S,wt.fill,c,wt.vo?0:wt.wy);
  let pose=q4c_aim(c,alt,opt.head!==undefined?opt.head:rig.head,wt.wx,wt.wy);
- if(!opt.noClear&&!S.planetLevel)pose=q4c_clear(S,c,pose,wt.wx,wt.wy,!!S.reg);// (a region too: a cloud or a peak in the way is turned away from)
- CUT.req={P:c.clone(),r:S.rc,id,big:!!pose.big};
+ // a clear view: searched for a few milliseconds now; what is left runs over the next frames while the camera is already on
+ // its way, and the flight's end is moved to the clear pose (early in a flight the move does not show)
+ let srch=null;if(!opt.noClear&&!S.planetLevel){const q=q4c_search(S,c,pose,wt.wx,wt.wy,!!S.reg);if(q.step(window.__q4cSync?1e9:0))pose=q.result();else srch=q}// (a region too: a cloud or a peak in the way is turned away from)
+ const req=CUT.req={P:c.clone(),r:S.rc,id,big:!!pose.big};
  CUR.follow=null;
- if(q4c_same(pose)){tw=null;return}
- flyTo(pose.a,pose.b,pose.alt,q4c_dur(pose),pose.y,pose.head);tw.track={S,wx:wt.wx,wy:wt.wy,vo:wt.vo,live:false,settle:S.moving}}
+ const fly=pz=>{flyTo(pz.a,pz.b,pz.alt,q4c_dur(pz),pz.y,pz.head);tw.track={S,wx:wt.wx,wy:wt.wy,vo:wt.vo,live:false,settle:S.moving}};
+ if(q4c_same(pose))tw=null;else fly(pose);
+ if(srch){const sp=CUR,mine=tw;q5s_job('view:'+id,lim=>{if(CUR!==sp||q4c_last.id!==id||(tw&&tw!==mine))return true;if(!srch.step(Math.min(lim||3,3)))return false;
+  const b=srch.result();req.big=!!b.big;if(q4c_same(b))return true;
+  if(tw&&tw===mine&&tw.t<tw.dur*.25){tw.to={a:b.a,b:b.b,alt:b.alt,head:b.head,y:b.y};tw.dur=Math.max(tw.dur,q4c_dur(b))}else fly(b);return true})}}
 /* a moving thing has gone on a little while the camera flew: one short, gentle correction on arrival, then the camera stays */
 function q4c_settle(k){if(!k||!k.S||sel!==k.S.id)return;if(k.vo)q4c_voNow(k);const c=k.S.c();if(!c)return;if(c.distanceTo(TG)>Math.max(60,rig.alt*1.5))return;// (a correction is a small step, never a leap to somewhere else)
  const pose=q4c_aim(c,rig.alt,rig.head,k.wx,k.wy);if(pose.err<.12||q4c_same(pose))return;flyTo(pose.a,pose.b,pose.alt,.9,pose.y,pose.head);tw.track={S:k.S,wx:k.wx,wy:k.wy,vo:k.vo,live:false,settle:false}}
