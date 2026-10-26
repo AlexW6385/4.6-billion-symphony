@@ -67,7 +67,6 @@ const RIVERS=(()=>{const Rn=rnd(4711),out=[],src=[];const d=V3(),e=V3(),nn=V3();
  const H={},key=(v)=>Math.round(v.x*22)+','+Math.round(v.y*22)+','+Math.round(v.z*22);
  out.forEach((L,ri)=>L.forEach((q,i)=>{if(i===0)return;const t=i/(L.length-1);const k=key(q);const a=L[i-1];const ab=q.clone().sub(a);(H[k]=H[k]||[]).push({a,b:q,ab,l2:ab.lengthSq()||1e-12,t,ri})}));
  return{L:out,H,key}})();
-const _rv=V3();
 /* how close a point is to a river, and how far down that river: {k:0..1 inside the channel, t:0..1 downstream, w:half width in degrees} */
 function riverAt(p){const H=RIVERS.H;const cx=Math.round(p.x*22),cy=Math.round(p.y*22),cz=Math.round(p.z*22);let best=null,bd=1e9;
  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)for(let k=-1;k<=1;k++){const L=H[(cx+i)+','+(cy+j)+','+(cz+k)];if(!L)continue;for(const s of L){let u=((p.x-s.a.x)*s.ab.x+(p.y-s.a.y)*s.ab.y+(p.z-s.a.z)*s.ab.z)/s.l2;u=u<0?0:u>1?1:u;const dx=p.x-s.a.x-s.ab.x*u,dy=p.y-s.a.y-s.ab.y*u,dz=p.z-s.a.z-s.ab.z*u;const a=Math.sqrt(dx*dx+dy*dy+dz*dz)/D2R;if(a<bd){bd=a;best=s}}}
@@ -83,7 +82,6 @@ const NR=(lat,lon,r0,r1,col,k)=>({d:dirLL(lat,lon),r0,r1,col,k:k===undefined?1:k
 const LUSH=[NR(25,-6,7,13,PC.dune),NR(20,-13,1,3,PC.dune),NR(15,-1,1.5,3.5,PC.spire),NR(33,11,6,11,PC.teal),NR(29,8,1,2.5,PC.moss),NR(4.6,-3.6,0,3,PC.rock,.75),NR(4.7,1,0,3.2,PC.rock,.8),NR(4.6,5.4,0,2.6,PC.rock,.7),
  NR(6,-76,4,26,PC.lush,.6),NR(4,-72,3,5.5,PC.salt),NR(12,-88,2,5,PC.emer),NR(10,-100,2,5,PC.barren,.85),NR(-12,-78,2,6,PC.savanna,.8),NR(-6,-80,2,5,PC.savanna,.5),NR(26,-66,2,6,PC.dark,.7),
  NR(30,-103,0,5,PC.fung),NR(4,-111,0,4,PC.tundra,.4),NR(-12,70,4,22,PC.succ,.6),NR(-17,76,3,7,PC.dune),NR(-22,83,1,4,PC.moss,.7),NR(-10,88,2,5,PC.dark),NR(-52,-18,4,20,PC.south,.7),NR(14,-60,.3,1.2,PC.mud,.8)];
-const _nt=V3();
 function nearD(p,d,r0,r1){return 1-sm(r0,r1,angDeg(p,d))}
 const DIEYE=dirLL(-17,76);
 /* where woods grow thick: shared by the ground colour and the trees, so forests read even beyond the trees' draw distance */
@@ -265,7 +263,6 @@ const kd=(r)=>lumpRock(r,7);
 function ktube(pts,r,seg,rs){return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),seg||20,r,rs||5,false)}
 function spiralPts(ph,h,r0,r1,turns,n){const pts=[];n=n||12;for(let i=0;i<=n;i++){const t=i/n,a=ph+t*Math.PI*2*turns;const r=lerp(r0,r1,t);pts.push(V3(Math.cos(a)*r,t*h,Math.sin(a)*r))}return pts}
 function vcolY(geo,fn){geo=geo.index?geo.toNonIndexed():geo;const p=geo.attributes.position,n=p.count,c=new Float32Array(n*3),t=new THREE.Color();for(let i=0;i<n;i++){fn(p.getX(i),p.getY(i),p.getZ(i),t);c[i*3]=t.r;c[i*3+1]=t.g;c[i*3+2]=t.b}geo.setAttribute('color',new THREE.BufferAttribute(c,3));if(geo.attributes.uv)geo.deleteAttribute('uv');return geo}
-function mergeV(gs){return THREE.BufferGeometryUtils.mergeBufferGeometries(gs)}
 
 const TREE={
  twist:()=>G([[ktube(spiralPts(0,10,.95,.45,1.4),.34,24),'#5b4733'],[ktube(spiralPts(Math.PI,10,.95,.45,1.4),.3,24),'#4c3b2b'],

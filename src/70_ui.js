@@ -132,7 +132,6 @@ const CUT={L:[],s:0,goal:0,req:null,sp:null,off:true};const _cn=new THREE.Vector
 function cutSet(c,k){k=Math.max(.001,k);if(c.im){c.m0.decompose(_cp,_cq,_cs);_cs.multiplyScalar(k);_cm.compose(_cp,_cq,_cs);c.im.setMatrixAt(c.i,_cm);const ic=c.im.userData._ic,v0=c.im.instanceMatrix.version;c.im.instanceMatrix.needsUpdate=true;if(ic&&ic.v===v0)ic.v=c.im.instanceMatrix.version}else c.o.scale.copy(c.s0).multiplyScalar(k)}
 function cutNow(){for(const c of CUT.L)cutSet(c,1);CUT.L=[];CUT.keys=new Set();CUT.goal=0;CUT.job=null;CUT.big=false}
 function cutRun(){if(!CUT.job)return;try{if(CUT.job.next().done)CUT.job=null}catch(e){CUT.job=null}}
-function cutFind(P,r){const g=cutJob(P,r);while(!g.next().done);}
 // the same search spread over a few frames: the list of nearby solids first, then a few rays at a time
 function* cutJob(P,r){const cam=camera;const dist=cam.position.distanceTo(P);if(dist>700)return;const dir=P.clone().sub(cam.position).normalize();CUT.keys=CUT.keys||new Set();const seen=CUT.keys;
  const rt=new THREE.Vector3().crossVectors(dir,cam.up).normalize(),up=new THREE.Vector3().crossVectors(rt,dir);const cp=cam.position.clone();const OL=occList(P,Math.min(dist,700));yield;let nr=0;
@@ -153,8 +152,6 @@ window.__cut=CUT;
 /* arriving somewhere in deep night: let the day turn there, so what you came to see is lit (the sun glides, it doesn't jump) */
 function dayFor(P){const sp=CUR;if(sp.type!=='planet'||sp.sunLon===undefined||!(sp.dayLen<1e11)||!P)return;const d=P.clone().normalize();if(d.dot(sp.sunDir)>-.05)return;
  const ll=llDir(P);const cur=sp.sunLon+T*360/sp.dayLen;const tgt=ll[1]+32;let dl=((tgt-cur)%360+540)%360-180;sp._sunTw={a:sp.sunLon,b:sp.sunLon+dl,t0:T}}
-/* moving things (herds, trains, fliers): after arriving, the camera keeps them in view while their card is open (49o_nav.js: q4c_follow) */
-function startFollow(p,id){if(!p||!p.c||CUR.camOv)return;CUR.follow={p,id,prev:null}}
 function stopFollow(){if(CUR)CUR.follow=null}
 ['pointerdown','wheel','keydown'].forEach(t=>addEventListener(t,e=>{if(e.target&&e.target.closest&&e.target.closest('#cap,#lib,#rd,#book,#time,#snd'))return;stopFollow()},{passive:true,capture:true}));
 function followStep(dt){q4c_follow(dt)}

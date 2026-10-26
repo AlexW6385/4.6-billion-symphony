@@ -106,11 +106,11 @@ function q5m_fuse(root){if(!THREE.BufferGeometryUtils)return root;const fn=root.
  for(let i=nodes.length-1;i>=0;i--){const o=nodes[i];if(!keep.has(o)&&!o.isMesh&&o.parent&&!o.children.length)o.parent.remove(o)}
  return root}
 /* the old builders, kept for the variants other files already rebuilt on top of them */
-const q5m_quad0=bQuadSmall,q5m_scorp0=bScorpion,q5m_beetle0=bBeetle,q5m_fish0=bFish,q5m_jelly0=bJelly,q5m_dfly0=bDragonfly,q5m_ptero0=bPterosaur,q5m_upright0=bUpright,q5m_squid0=bSquid,q5m_wheel0=bWheel,q5m_swarm0=bSwarm,q5m_huts0=bHuts;
+
 let q5m_eyeK=1;// (大眼龙 asks the salamander for eyes 2.6 times bigger, see the end of this file)
 
 /* ---------------- 苔螈 and the small four-legged default: half a metre of salamander that keeps lifting its head to look round ---------------- */
-function q5m_quad(f){const id=f.w;if(id==='lanxing'||id==='yunbuchong')return q5m_quad0(f);const sal=id==='tairong'||!id||id==='x';
+function bQuadSmall(f){const id=f.w;if(id==='lanxing'||id==='yunbuchong')return bQuadSmallPlain(f);const sal=id==='tairong'||!id||id==='x';
  const g=new THREE.Group();const col=f.col||'#6a8a5a';const o={spots:sal?16:0,stripe:sal?0:6,rough:.5};const mat=M(col,{roughness:.5});
  g.add(q5m_loft([[-.6,.36,0,.17,.22],[-.15,.41,0,.25,.3],[.35,.4,0,.23,.28],[.7,.37,0,.15,.19]],col,Object.assign({n:14,r:10},o)));
  const hg=new THREE.Group();hg.position.set(.68,.37,0);g.add(hg);
@@ -122,7 +122,7 @@ function q5m_quad(f){const id=f.w;if(id==='lanxing'||id==='yunbuchong')return q5
  q5m_crawl(g,{fq:sal?6:8,amp:.4,lift:.5,extra:t=>{const look=sm(.2,.9,Math.sin(t*.45));hg.rotation.z=look*.42;hg.rotation.y=Math.sin(t*.8)*.3*look;tl.rotation.z=-.05+look*.06}});return q5m_fuse(g)}
 
 /* ---------------- 沙漠蝎: three metres, big pincers and, as the book says, no hook on its tail; 深沙巴士 the long flat one ---------------- */
-function q5m_scorpion(f){const id=f.w;const bus=id==='shenshabus',desert=id==='shaxie';const g=new THREE.Group();const col=f.col||'#a0703e';
+function bScorpion(f){const id=f.w;const bus=id==='shenshabus',desert=id==='shaxie';const g=new THREE.Group();const col=f.col||'#a0703e';
  const o={rough:.42,metal:.08};const mat=M(col,{roughness:.42,metalness:.08}),plate=M(q5m_dk(col,.7),{roughness:.4,metalness:.12}),L=[];const n=bus?7:4,st=bus?.42:.38,ry=bus?.17:.2,rzz=bus?.5:.33;
  // the body: one loft from the front of the carapace to the last segment, a domed plate over each segment
  const spec=[];for(let i=-1;i<=n;i++){const k=i<0?.78:i===n?.55:1;spec.push([.95-i*st,.5,0,ry*k,rzz*k])}g.add(q5m_loft(spec,col,Object.assign({n:n*4+4,r:10},o)));
@@ -145,7 +145,7 @@ function q5m_scorpion(f){const id=f.w;const bus=id==='shenshabus',desert=id==='s
  q5m_crawl(g,{fq:9,amp:.28,lift:.45,extra:t=>{arms.forEach((x,i)=>{x.sh.rotation.y=-x.z*(.75+Math.sin(t*1.3+i*2)*.12);x.ch.userData.jaw.rotation.y=x.z*(.1+Math.max(0,Math.sin(t*2.1+i))*.45)});tl.rotation.z=Math.sin(t*1.1)*.06}});return q5m_fuse(g)}
 
 /* ---------------- beetles: 黑角巨蠊 (the black-horned giant cockroach), 裂地者 (the earth-splitter with its saw jaws), the plain one ---------------- */
-function q5m_beetle(f){const id=f.w;const roach=id==='heijiao',saw=id==='liedizhe';const g=new THREE.Group();const col=f.col||'#3a5a3a';
+function bBeetle(f){const id=f.w;const roach=id==='heijiao',saw=id==='liedizhe';const g=new THREE.Group();const col=f.col||'#3a5a3a';
  const o={rough:roach?.3:.36,metal:roach?.3:.18,em:saw?'#4a2a18':'',emI:.25};const mat=M(col,{roughness:o.rough,metalness:o.metal}),dk=M(q5m_dk(col,.55),{roughness:.4,metalness:.2}),legM=M(q5m_dk(col,.45),{roughness:.45});
  const LX=roach?1.9:saw?1.7:1.5,W=roach?.55:saw?.5:.46,H=roach?.26:saw?.44:.38,y0=.46;
  // the underbody and the head
@@ -171,7 +171,7 @@ function q5m_beetle(f){const id=f.w;const roach=id==='heijiao',saw=id==='liedizh
 
 /* ---------------- fish: one skin from snout to tail, the rear half and the tail fin swinging in turn ---------------- */
 function q5m_finMat(col,op){const k='fin|'+col+'|'+(op||.82);return MC[k]||(MC[k]=new THREE.MeshStandardMaterial({color:col,side:THREE.DoubleSide,roughness:.45,transparent:true,opacity:op||.82,depthWrite:false}))}
-function q5m_fish(f){const id=f.w;if(id==='jianshi'||id==='haigui'||id==='rq_maojing')return q5m_fish0(f);// (毛鲸's coat of hair hid its eyes and fins: it keeps the old body)
+function bFish(f){const id=f.w;if(id==='jianshi'||id==='haigui'||id==='rq_maojing')return bFishPlain(f);// (毛鲸's coat of hair hid its eyes and fins: it keeps the old body)
  const g=new THREE.Group();const col=f.col||'#55606a',glow=f.glow;
  const eel=id==='shanyao',dunk=id==='dengshi',horn=id==='chongfeng',fur=id==='rq_maojing';
  const o={stripe:(eel||fur||dunk)?0:9,rough:fur?.8:.35,metal:glow?0:.18,em:glow?col:'',emI:.35,bellyK:'#ffffff',backK:'#b8b4ac'};const fin=q5m_finMat(q5m_dk(col,.85));
@@ -225,7 +225,7 @@ function q5m_fish(f){const id=f.w;if(id==='jianshi'||id==='haigui'||id==='rq_mao
  if(!f.sky)g.userData.swim=1;return q5m_fuse(g)}
 
 /* ---------------- 海空水母 and the plain jellyfish: a frilled bell, ring canals, four ruffled oral arms; 海空水母 carries the white dragons' basket ---------------- */
-function q5m_jelly(f){if(f.w==='daqi')return q5m_jelly0(f);const big=f.w==='haikong';const g=new THREE.Group();const col=f.col||'#bfe9ff';
+function bJelly(f){if(f.w==='daqi')return bJellyPlain(f);const big=f.w==='haikong';const g=new THREE.Group();const col=f.col||'#bfe9ff';
  const prof=[];for(let i=0;i<=12;i++){const t=i/12;prof.push(new THREE.Vector2(Math.sin(t*Math.PI*.56)*(1+.1*Math.pow(t,6)),Math.cos(t*Math.PI*.5)*.9-(t>.86?(t-.86)*1.4:0)))}
  const bg=new THREE.LatheGeometry(prof,24);{const p=bg.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),y=p.getY(i);const r=Math.hypot(x,z);if(r<.01)continue;const a=Math.atan2(z,x);const k=sm(.45,1.05,r)*(.06*Math.sin(a*12)+.03*Math.sin(a*5+1));p.setXYZ(i,x*(1+k),y+k*.5*sm(.9,1.1,r),z*(1+k))}bg.computeVertexNormals()}
  const bm=new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.32,transparent:true,opacity:.52,side:THREE.DoubleSide,roughness:.12,depthWrite:false});const bell=new THREE.Mesh(bg,bm);g.add(bell);
@@ -253,7 +253,7 @@ function q5m_jelly(f){if(f.w==='daqi')return q5m_jelly0(f);const big=f.w==='haik
 
 /* ---------------- 巨脉蜻蜓 and the plain dragonfly, 巨蜂 the two-metre bee, 轰炸者 the bomber ---------------- */
 function q5m_bandColors(mesh,fn){const g=mesh.geometry,p=g.attributes.position,c=g.attributes.color;const t=new THREE.Color();for(let i=0;i<p.count;i++){t.setRGB(c.getX(i),c.getY(i),c.getZ(i));fn(t,p.getX(i),p.getY(i),p.getZ(i));c.setXYZ(i,t.r,t.g,t.b)}c.needsUpdate=true}
-function q5m_dragonfly(f){const id=f.w;const bomb=id==='hongzhazhe',bee=id==='jufeng';const g=new THREE.Group();const col=f.col||(bee?'#d8a030':'#3a6a8a');
+function bDragonfly(f){const id=f.w;const bomb=id==='hongzhazhe',bee=id==='jufeng';const g=new THREE.Group();const col=f.col||(bee?'#d8a030':'#3a6a8a');
  const o={rough:bee?.5:.3,metal:bee?0:.2};const dk=M(q5m_dk(col,.45),{roughness:.4}),legM=M(q5m_dk(col,.35),{roughness:.45});
  const L=[],legs=(n,x0,dx,y,z,l1,l2,l3,r,o2)=>{for(let i=0;i<n*2;i++){const s=i%2?1:-1,k=Math.floor(i/2);const l=q5m_ileg(l1,l2,l3,r,legM,Object.assign({h:.3,up:.3,tar:.5,rz:(1-k)*.55},o2||{}));l.position.set(x0-k*dx,y,s*z);l.scale.z=s;g.add(l);L.push({m:l,ph:k*1.3+(s>0?Math.PI:0),a:.25})}};
  if(bomb){// 轰炸者: built on the giant dragonfly, but gas sacs grow where the wings would be and the tail is far thicker, full of the organs
@@ -297,7 +297,7 @@ function q5m_dragonfly(f){const id=f.w;const bomb=id==='hongzhazhe',bee=id==='ju
  for(const l of L)delete l.m.userData.knee;addWings(g,W2);q5m_crawl(g,{extra:t=>{ab.rotation.z=Math.sin(t*2.1)*.06;hd.rotation.y=Math.sin(t*.9)*.15;if(g.userData.jaws)for(const j of g.userData.jaws)j.m.rotation.y=j.z*(-.1-Math.max(0,Math.sin(t*2.4))*.35)}});return q5m_fuse(g)}
 
 /* ---------------- 炸弹翼龙: a seven-metre span on arm and finger bones, a long toothless beak ---------------- */
-function q5m_ptero(f){const g=new THREE.Group();const col=f.col||'#b8643a';const o={rough:.6};const mat=M(col,{roughness:.6}),mem=M(q5m_dk(col,.9),{side:THREE.DoubleSide,roughness:.72}),bone=M(q5m_dk(col,.7),{roughness:.5});
+function bPterosaur(f){const g=new THREE.Group();const col=f.col||'#b8643a';const o={rough:.6};const mat=M(col,{roughness:.6}),mem=M(q5m_dk(col,.9),{side:THREE.DoubleSide,roughness:.72}),bone=M(q5m_dk(col,.7),{roughness:.5});
  g.add(q5m_loft([[.5,0,0,.1,.1],[.25,.05,0,.18,.16],[-.1,.04,0,.17,.15],[-.42,0,0,.08,.07],[-.6,-.02,0,.02,.02]],col,Object.assign({n:8,r:6},o)));
  const nk=new THREE.Group();nk.position.set(.48,.02,0);g.add(nk);
  // neck, skull and the long upper beak in one skin; the lower beak opens
@@ -313,7 +313,7 @@ function q5m_ptero(f){const g=new THREE.Group();const col=f.col||'#b8643a';const
  addWings(g,W2);stdAnim(g,{wf:2,wa:.45,extra:t=>{nk.rotation.z=Math.sin(t*1.2)*.06;jaw.rotation.z=-Math.max(0,Math.sin(t*.8))*.2;for(const w of W2)w.m.rotation.y=w.s*Math.sin(t*2-.6)*.08}});return q5m_fuse(g)}
 
 /* ---------------- 立蝎: the scorpions that stand up — plated torso, pincer arms, two clawed legs, a tail carried behind ---------------- */
-function q5m_upright(f){if(f.w==='rq_gujia')return q5m_upright0(f);const g=new THREE.Group();const col=f.col||'#b08a5a';
+function bUpright(f){if(f.w==='rq_gujia')return bUprightPlain(f);const g=new THREE.Group();const col=f.col||'#b08a5a';
  const o={rough:.45,metal:.05,stripe:7};const mat=M(col,{roughness:.45}),plate=M(q5m_dk(col,.7),{roughness:.4,metalness:.1});
  g.add(q5m_loft([[-.05,.95,0,.22,.26],[0,1.2,0,.3,.33],[.08,1.5,0,.3,.33],[.15,1.75,0,.22,.26],[.2,1.95,0,.12,.16]],col,Object.assign({n:12,r:10},o)));
  const pg=q5m_sphG(1,8,3,0,Math.PI,0,Math.PI*.45);for(let i=0;i<4;i++){const p=new THREE.Mesh(pg,plate);p.scale.set(.15,.3,.33-Math.abs(i-1.5)*.03);p.position.set(-.08+i*.06,1.08+i*.21,0);p.rotation.set(0,-Math.PI/2,-.35);g.add(p)}
@@ -335,7 +335,7 @@ function q5m_upright(f){if(f.w==='rq_gujia')return q5m_upright0(f);const g=new T
  stdAnim(g,{fq:7,amp:.45,extra:t=>{arms.forEach((x,i)=>{x.sh.rotation.z=-.9+Math.sin(t*1.4+i*2)*.15;x.ch.userData.jaw.rotation.y=x.z*(.1+Math.max(0,Math.sin(t*1.9+i))*.4)});hd.rotation.y=Math.sin(t*.7)*.2;tl.rotation.z=Math.sin(t*1.3)*.05}});return q5m_fuse(g)}
 
 /* ---------------- squid: a tapered mantle with fins, big eyes, eight arms and two longer tentacles with clubs, colour that drifts ---------------- */
-function q5m_squid(f){const g=new THREE.Group();const col=f.col||'#c86a5a';const skin=new THREE.MeshStandardMaterial({color:col,vertexColors:true,roughness:.4,emissive:'#5a2a8a',emissiveIntensity:.2});const o={mat:skin};
+function bSquid(f){const g=new THREE.Group();const col=f.col||'#c86a5a';const skin=new THREE.MeshStandardMaterial({color:col,vertexColors:true,roughness:.4,emissive:'#5a2a8a',emissiveIntensity:.2});const o={mat:skin};
  const mt=q5m_loft([[-1.05,0,0,.03,.03],[-.75,0,0,.16,.14],[-.35,0,0,.27,.24],[.05,0,0,.3,.27],[.42,0,0,.27,.25]],col,Object.assign({n:12,r:10},o));g.add(mt);
  const finM=M(q5m_dk(col,.8),{side:THREE.DoubleSide,roughness:.4});for(const z of[-1,1]){const fn=new THREE.Mesh(q5m_wg(.35,.5,'fin'),finM);fn.position.set(-.85,0,z*.1);fn.rotation.z=Math.PI;fn.rotation.y=Math.PI;if(z<0)fn.scale.z=-1;g.add(fn)}
  const hd=new THREE.Group();hd.position.x=.44;g.add(hd);hd.add(q5m_loft([[0,0,0,.26,.24],[.2,0,0,.24,.23],[.4,-.01,0,.17,.17]],col,Object.assign({n:6,r:10},o)));
@@ -346,7 +346,7 @@ function q5m_squid(f){const g=new THREE.Group();const col=f.col||'#c86a5a';const
  g.userData.anim=t=>{arms.forEach((a,i)=>{a.rotation.y=Math.sin(t*2+i)*.22;a.rotation.z=Math.cos(t*1.7+i)*.18});const k=1+Math.sin(t*2.2)*.05;mt.scale.set(1,k,k);skin.emissive.setHSL((t*.05)%1,.6,.25)};g.userData.swim=1;return q5m_fuse(g)}
 
 /* ---------------- 巨轮虫: a centipede curled into a two-metre wheel, sickle hooks on its back plates, legs tucked inside ---------------- */
-function q5m_wheel(f){const g=new THREE.Group();const col=f.col||'#6a4a2a';const o={rough:.45};const bone=M('#d8c8a0',{roughness:.45}),leg=M(q5m_dk(col,.6),{roughness:.5});
+function bWheel(f){const g=new THREE.Group();const col=f.col||'#6a4a2a';const o={rough:.45};const bone=M('#d8c8a0',{roughness:.45}),leg=M(q5m_dk(col,.6),{roughness:.5});
  const w=new THREE.Group();w.position.y=1.08;g.add(w);const N=18,R0=.66;const spec=[];for(let i=0;i<=N*2;i++){const a=i/(N*2)*6.283;const k=i%2;spec.push([Math.cos(a)*R0,Math.sin(a)*R0,0,.17+(k?.04:-.03),.24+(k?.05:-.04)])}
  w.add(q5m_loft(spec,col,Object.assign({n:N*3,r:8},o)));
  for(let i=0;i<N;i++){const a=(i+.5)/N*6.283,ca=Math.cos(a),sa=Math.sin(a);const P=(rad,tng)=>V3(ca*rad-sa*tng,sa*rad+ca*tng,0);
@@ -368,7 +368,7 @@ function q5m_bugTex(kind){if(q5m_bugTexC[kind])return q5m_bugTexC[kind];const t=
   else if(kind==='wing'){el(0,2,4,15);el(0,-10,5,5);const wa=-.4+.5*Math.sin(ph);for(const s of[-1,1]){el(s*13,-2,14,4.5,s*wa,.55);el(s*9,3,9,3.5,s*(wa+.5),.45)}ln(-2,-14,-8,-24);ln(2,-14,8,-24)}
   else{el(0,4,6,11);el(0,-8,5,6);el(0,-17,4,4);for(let i=0;i<3;i++)for(const s of[-1,1]){const k=Math.sin(ph+i*2.1)*4;ln(s*4,-6+i*7,s*16,-12+i*7+k);ln(s*16,-12+i*7+k,s*20,-4+i*7+k)}ln(-2,-20,-9,-28);ln(2,-20,9,-28)}
   x.restore()}});t.needsUpdate=true;return q5m_bugTexC[kind]=t}
-function q5m_swarm(f){const id=f.w;const n=id==='huangchong'?260:id==='hongshidie'?140:180,g=new THREE.BufferGeometry(),a=new Float32Array(n*3);g.setAttribute('position',new THREE.BufferAttribute(a,3));
+function bSwarm(f){const id=f.w;const n=id==='huangchong'?260:id==='hongshidie'?140:180,g=new THREE.BufferGeometry(),a=new Float32Array(n*3);g.setAttribute('position',new THREE.BufferAttribute(a,3));
  const r=new Float32Array(n*3);for(let i=0;i<n;i++){r[i*3]=.65+h3(i,1,5)*.75;r[i*3+1]=h3(i,2,5)*6.283;r[i*3+2]=(f.alt?8:3)+h3(i,3,5)*4}g.setAttribute('aR',new THREE.BufferAttribute(r,3));
  const glowy=id==='hongshidie'||id==='kuangfeng';const kind=id==='hongshidie'?'butterfly':(f.alt||id==='huangchong'||id==='kuangfeng')?'wing':'bug';
  const m=new THREE.PointsMaterial({map:q5m_bugTex(kind),color:f.col,size:f.alt?(glowy?2.2:1.6):1.1,transparent:true,depthWrite:false,blending:glowy?THREE.AdditiveBlending:THREE.NormalBlending,opacity:glowy?1:.95,alphaTest:.04});
@@ -381,7 +381,7 @@ function q5m_swarm(f){const id=f.w;const n=id==='huangchong'?260:id==='hongshidi
  return p}
 
 /* ---------------- huts: the mounds get a stone-framed doorway and a few stones pressed into their walls (cone huts and cabins as before) ---------------- */
-function q5m_huts(o){o=Object.assign({n:8,r:2.6,col:'#8a7a5a',roof:'#5a4a3a',kind:'cone'},o||{});if(o.kind!=='mound')return q5m_huts0(o);const g=new THREE.Group();
+function bHuts(o){o=Object.assign({n:8,r:2.6,col:'#8a7a5a',roof:'#5a4a3a',kind:'cone'},o||{});if(o.kind!=='mound')return bHutsPlain(o);const g=new THREE.Group();
  const wall=M(o.col,{roughness:.9}),dark=M('#1a120c'),stone=M(q5m_dk(o.col,.72),{roughness:.95});
  for(let i=0;i<o.n;i++){const a=i/o.n*6.28+h3(i,1,9),d=o.r*(.4+h3(i,2,9)*.6);const h=new THREE.Group();
   h.add(new THREE.Mesh(q5m_sphG(.8,12,8,0,6.283,0,1.57),wall));
@@ -406,7 +406,7 @@ function q5m_lamp(P){const h=P.h||2.6;return G([[kcy(.07,.09,h,6),P.metal,{p:[0,
 {const K=STREETKIT.dragon;if(K){const P={wood:'#8a6a40',wood2:'#6a5030',metal:BEAM,glass:'#ffcf7a',load:'#a08050',sack:'#c8b088'};K.cart=q5m_cart(P);K.crate=q5m_crate(P);K.lamp=q5m_lamp(P)}}
 
 /* ---------------- swap the new bodies in ---------------- */
-bQuadSmall=q5m_quad;bScorpion=q5m_scorpion;bBeetle=q5m_beetle;bFish=q5m_fish;bJelly=q5m_jelly;bDragonfly=q5m_dragonfly;bPterosaur=q5m_ptero;bUpright=q5m_upright;bSquid=q5m_squid;bWheel=q5m_wheel;bSwarm=q5m_swarm;bHuts=q5m_huts;
+
 // 巨脉蜻蜓 had its legs added on top of the old body (49c); the new body has its own
 
 // 大眼龙 makes the salamander's eyes 2.6 times bigger by looking for the old body's eye spheres; the new body takes the size instead

@@ -242,10 +242,6 @@ function fxA_airJelly(f){const g=new THREE.Group();const col=f.col||'#bfe9ff';
    for(let j=0;j<NS;j++){const nx=px+Math.sin(t*1.3+i+j*.6)*.04,nz=pz+Math.cos(t*1.1+i*1.3+j*.5)*.04,ny=py-.13;tp[q++]=px;tp[q++]=py;tp[q++]=pz;tp[q++]=nx;tp[q++]=ny;tp[q++]=nz;px=nx;py=ny;pz=nz}}tgeo.attributes.position.needsUpdate=true};
  return g}
 
-/* ---------- 巨脉蜻蜓: as before, but with the three pairs of legs on its thick chest ---------- */
-function fxA_jumai(f){const g=bDragonfly(f);const lm=M(C(f.col||'#3a6a8a').multiplyScalar(.6).getStyle(),{roughness:.4,metalness:.2});
- for(const[x,sw]of[[.44,.5],[.32,0],[.2,-.5]])for(const z of[-1,1]){const P0=V3(x,-.16,z*.1);g.add(fxA_jlimb([P0,V3(x+sw*.2,-.3,z*.3),V3(x+sw*.35-.05,-.55,z*.36),V3(x+sw*.45-.12,-.62,z*.34)],[.03,.026,.018,.01],lm))}
- return g}
 
 /* ---------- 深沙巴士: its spring-like tail has no shell, only bare red muscle wound in coils ---------- */
 function fxA_shenshabus(f){const g=bScorpion(f);const tl=g.userData.tails&&g.userData.tails[0]&&g.userData.tails[0].m;if(!tl)return g;
@@ -472,31 +468,6 @@ function fxA_banyu(f){const g=new THREE.Group();const col='#1e2428';const o={bac
   g.add(l);L.push({m:l,ph:(arm?0:Math.PI)+(z>0?Math.PI:0),a:.4})}
  addLegs(g,L);g.userData.tails=[{m:tl,a:.4,f:3.5}];stdAnim(g,{fq:6,amp:.35,extra:t=>{hg.rotation.z=Math.sin(t*1.3)*.08}});return g}
 
-/* ---------- the scholar's flying machine: really a wooden frame, a rotor turning on top (it creaks as if about to fall apart),
-   seat for one, a pull-lever, the engine the only part not of wood and driven by living power ---------- */
-function fxA_tlant3(f){const g=new THREE.Group();const wd=M('#8a6a44',{roughness:.85}),wd2=M('#6a5034',{roughness:.9}),rope=M('#c8b080',{roughness:.9}),eng=M('#9a5a4a',{roughness:.5});
- const R=(a,b,r,m)=>g.add(fxA_rod(V3(...a),V3(...b),r||.03,r||.03,m||wd,5));
- const X=[.55,-.55],Y=[.05,.85],Z=[.32,-.32];
- for(const x of X)for(const z of Z)R([x,Y[0],z],[x,Y[1],z]);
- for(const y of Y){for(const z of Z)R([X[0],y,z],[X[1],y,z]);for(const x of X)R([x,y,Z[0]],[x,y,Z[1]])}
- for(const z of Z){R([X[0],Y[0],z],[X[1],Y[1],z],.02,wd2);R([X[1],Y[0],z],[0,.45,z],.02,wd2)}
- R([.55,.85,.32],[.55,.05,-.32],.02,wd2);R([-.55,.85,.32],[-.55,.05,-.32],.02,wd2);
- // skids
- for(const z of[-.38,.38]){R([.75,-.18,z],[-.7,-.18,z],.035);R([.4,-.18,z],[.4,.05,z*.84],.025);R([-.4,-.18,z],[-.4,.05,z*.84],.025);const tipM=fxA_rod(V3(.75,-.18,z),V3(.88,-.08,z),.035,.03,wd,5);g.add(tipM)}
- // seat, lever, gauge
- const seat=new THREE.Mesh(kb(.36,.06,.4),wd2);seat.position.set(-.1,.3,0);g.add(seat);const back=new THREE.Mesh(kb(.06,.4,.4),wd2);back.position.set(-.3,.5,0);g.add(back);
- R([.18,.3,.08],[.3,.62,.08],.015,wd2);g.add(at(sph(0,.03,.03,.03,6,M('#3a2a1a')),.3,.63,.08));
- const dial=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.02,12),wd);dial.rotation.z=Math.PI/2;dial.position.set(.5,.7,-.1);g.add(dial);const ndl=new THREE.Mesh(kb(.005,.06,.008),M('#c8c8c8',{metalness:.8,roughness:.3}));ndl.position.set(.512,.7,-.1);g.add(ndl);
- const pilot=bFig({h:.5,skin:'#b8c8c8',cloth:'#5a6a7a',head:'big'});pilot.position.set(-.08,.33,0);g.add(pilot);
- // the living engine behind the seat, and the shaft up to the rotor
- const en=sph(0,.2,.17,.2,12,eng);en.position.set(-.35,.95,0);g.add(en);for(let i=0;i<3;i++){const b=new THREE.Mesh(new THREE.TorusGeometry(.2,.015,4,14),rope);b.rotation.y=Math.PI/2;b.position.set(-.35+(i-1)*.1,.95,0);b.scale.set(1,.85,1);g.add(b)}
- R([-.2,.85,0],[-.2,1.45,0],.035);R([.2,.85,.3],[-.2,1.3,0],.015,rope);R([.2,.85,-.3],[-.2,1.3,0],.015,rope);
- const rot=new THREE.Group();rot.position.set(-.2,1.48,0);g.add(rot);rot.add(cyl(.06,.06,.08,wd2,8));for(const s of[-1,1]){const bl=new THREE.Mesh(kb(1.6,.02,.12),wd);bl.position.x=s*.82;bl.rotation.x=s*.08;rot.add(bl)}
- // tail boom: two rods to a small tail rotor
- R([-.55,.85,.2],[-1.65,.7,0],.025);R([-.55,.45,.2],[-1.65,.7,0],.02,wd2);R([-.55,.85,-.2],[-1.65,.7,0],.025);R([-.55,.45,-.2],[-1.65,.7,0],.02,wd2);
- for(let i=1;i<4;i++){const x=-.55-i*.27,k=1-i/4;R([x,.85-i*.04,.2*k],[x,.45+i*.06,-.2*k],.012,wd2)}
- const tr=new THREE.Group();tr.position.set(-1.68,.7,.04);g.add(tr);for(const s of[-1,1]){const b=new THREE.Mesh(kb(.03,.32,.05),wd);b.position.y=s*.16;tr.add(b)}
- g.userData.noSkin=1;g.userData.anim=t=>{rot.rotation.y=t*11;tr.rotation.z=t*20;ndl.rotation.x=Math.sin(t*3)*.6;g.rotation.z=Math.sin(t*.8)*.05;g.rotation.x=Math.sin(t*1.7)*.03;g.position.y=Math.sin(t*9)*.008};return g}
 
 /* ---------- 酪树: an infected tree that survived and now walks on its roots; brainless but full of linked nerve knots,
    and in a fight it swats with its thick branches ---------- */

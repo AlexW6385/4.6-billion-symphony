@@ -14,9 +14,6 @@ function trunkGeo(o){const seg=o.seg||32,rings=o.rings||28,pos=[],col=[],idx=[];
    cc.copy(c1).lerp(c0,rid*(.75+.25*nn));if(t<(o.mossT||.3)&&Math.sin(a)>.1)cc.lerp(cm,(1-t/(o.mossT||.3))*.75*Math.sin(a));col.push(cc.r,cc.g,cc.b)}}
  for(let i=0;i<rings;i++)for(let j=0;j<seg;j++){const a=i*(seg+1)+j,b=a+1,c=a+seg+1,d=c+1;idx.push(a,c,b,b,c,d)}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();return g}
-/* a limb: a lofted branch that tapers, from a to b bending up through mid */
-function limbGeo(a,m,b,r0,r1,o){const pts=[a,m,b];const sp=[];for(let i=0;i<5;i++){const t=i/4;const p=new THREE.CatmullRomCurve3(pts).getPoint(t);const r=lerp(r0,r1,t);sp.push([p.x,p.y,p.z,r*1.05,r])}
- return loftGeo(sp,Object.assign({n:22,r:10,back:'#6a5440',belly:'#3e3024'},o||{}))}
 
 function rqHomeTree(sp){fxG_homeTree(sp)}// rebuilt in 49i_fixG: a branchless column with a pit and lake in its cap
 
