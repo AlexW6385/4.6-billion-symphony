@@ -24,7 +24,7 @@ function sphereGeo(G){const{N,M,n,H,P}=G;const pos=new Float32Array(n*3);for(let
  g.boundingSphere=new THREE.Sphere(V3(0,0,0),R+260);return g}
 
 /* procedural surface detail for any MeshStandardMaterial (terrain, ice, rock) */
-function detailMat(m,o){o=o||{};m.bumpMap=bumpDummy;m.bumpScale=o.bump===undefined?1:o.bump;
+function detailMatBase(m,o){o=o||{};m.bumpMap=bumpDummy;m.bumpScale=o.bump===undefined?1:o.bump;
  const U={uMix:{value:0},uCanyon:{value:0},uHK:{value:1},uSnow:{value:o.snow===undefined?1e4:o.snow},uRock:{value:C(o.rock||'#6e6458')},uRockK:{value:o.rockK===undefined?1:o.rockK},uMott:{value:o.mott===undefined?1:o.mott},uFreq:{value:o.freq||1},uT:GT};
  m.userData.U=U;
  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);
@@ -116,7 +116,7 @@ function atmMats(col){const U={uCol:{value:C(col)},uSun:{value:V3(1,0,0)},uK:{va
 }`});
  return{U,outer,inner}}
 
-function cloudMat(o){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,
+function cloudMatBase(o){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,
  uniforms:Object.assign(THREE.UniformsUtils.clone(THREE.UniformsLib.fog),{uT:GT,uSun:{value:V3(1,0,0)},uA:{value:1},uCov:{value:o.cov===undefined?.52:o.cov},uCol:{value:C(o.col||'#ffffff')},uSeed:{value:o.seed||0}}),
  vertexShader:`varying vec3 vOP,vW;
 #include <fog_pars_vertex>
@@ -197,7 +197,7 @@ function makeEnv(top,mid,bot,blobs){const T=C(top),Mi=C(mid),B=C(bot),c=new THRE
 /* after a space is built: give every standard material the environment, metals more of it */
 function envAll(sc,k,km){sc.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms){if(m.isMeshStandardMaterial&&m.envMapIntensity===1&&!m.userData.envSet){m.envMapIntensity=m.metalness>.35?(km||1.1):(k||.35);m.userData.envSet=1}}})}
 /* towers with windows that light up at dusk */
-function towerMat(o){o=Object.assign({},o||{});const wc=o.win||'#ffd27a';delete o.win;const m=VC(Object.assign({roughness:.45,metalness:.5},o));const U={uNight:{value:0},uWin:{value:C(wc)}};m.userData.U=U;
+function towerMatBase(o){o=Object.assign({},o||{});const wc=o.win||'#ffd27a';delete o.win;const m=VC(Object.assign({roughness:.45,metalness:.5},o));const U={uNight:{value:0},uWin:{value:C(wc)}};m.userData.U=U;
  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);sh.vertexShader='varying vec3 vWP;varying vec3 vWN;\n'+sh.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n#ifdef USE_INSTANCING\nvWP=(modelMatrix*instanceMatrix*vec4(transformed,1.)).xyz;vWN=normalize(mat3(modelMatrix*instanceMatrix)*objectNormal);\n#else\nvWP=(modelMatrix*vec4(transformed,1.)).xyz;vWN=normalize(mat3(modelMatrix)*objectNormal);\n#endif');
   sh.fragmentShader='uniform float uNight;uniform vec3 uWin;varying vec3 vWP;varying vec3 vWN;\n'+sh.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
  {vec3 up=normalize(vWP);float side=1.-abs(dot(normalize(vWN),up));vec3 q=vWP*1.25;vec3 cell=floor(q);vec3 f=fract(q);float h=fract(sin(dot(cell,vec3(12.9898,78.233,37.719)))*43758.5453);
@@ -215,7 +215,7 @@ function scatter(n,lat,lon,r,seed,test){const Rn=rnd(seed),out=[];let k=0;while(
 const onLand=(la,lo,h)=>h>1.6, inSea=(la,lo,h)=>h<=.3;
 function addE(o,eras,noCarry){return addTo(BSP,o,eras,noCarry)}
 /* instanced placement with our own culling (r128 culls instanced meshes by the base geometry only) */
-function inst(geo,mat,pts,setter,eras,opt){opt=opt||{};const n=Math.max(1,pts.length);const im=new THREE.InstancedMesh(geo,mat,n);const o=new THREE.Object3D();const c=V3();
+function instBase(geo,mat,pts,setter,eras,opt){opt=opt||{};const n=Math.max(1,pts.length);const im=new THREE.InstancedMesh(geo,mat,n);const o=new THREE.Object3D();const c=V3();
  pts.forEach((p,i)=>{o.position.set(0,0,0);o.quaternion.identity();o.scale.set(1,1,1);setter(o,p,i);o.updateMatrix();im.setMatrixAt(i,o.matrix);c.add(o.position);if(opt.tint){const t=opt.tint(p,i);if(t)im.setColorAt(i,t)}});
  if(opt.tint&&!im.instanceColor)im.setColorAt(0,C('#ffffff'));if(!pts.length)im.count=0;im.frustumCulled=false;c.multiplyScalar(1/n);let r=0;const v=V3();for(let i=0;i<pts.length;i++){im.getMatrixAt(i,_m4);v.setFromMatrixPosition(_m4);r=Math.max(r,v.distanceTo(c))}
  if(im.instanceColor)im.instanceColor.needsUpdate=true;
@@ -226,7 +226,7 @@ function px(id,pos,r,extra){return prox(BSP,id,pos,r,extra)}
 /* parts are copied before they are moved, so a shared cached shape (sgeo) is never bent for everyone else */
 function G(parts){return mergeColored(parts.map(([g,c,f])=>[f?tg(g.clone(),f):g,c]))}
 const VC=(o)=>new THREE.MeshStandardMaterial(Object.assign({vertexColors:true,roughness:.85},o||{}));
-function swayMat(o,k){const m=VC(o);const U={uT:GT,uSw:{value:k||.02}};m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);sh.vertexShader='uniform float uT,uSw;\n'+sh.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+function swayMatBase(o,k){const m=VC(o);const U={uT:GT,uSw:{value:k||.02}};m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);sh.vertexShader='uniform float uT,uSw;\n'+sh.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
 #ifdef USE_INSTANCING
 vec3 ip=instanceMatrix[3].xyz;
 #else
@@ -243,12 +243,12 @@ float sw=sin(uT*1.6+ip.x*.11+ip.z*.13)*.6+sin(uT*2.7+ip.y*.17)*.3+sin(uT*5.3+ip.
 
 /* the sun's shadow box sits over the spot you look at, sized to how high you are; up high, at night, or when the
    machine is slow it is parked out in space (an empty box: nothing is shadowed, and nothing has to rebuild its shader) */
-function shadowFollow(sp,sun,sdot){const c=sun.shadow.camera,want=SHD.on&&CUR===sp&&rig.alt<SHD.max&&sdot>-.1;
+function shadowFollowBase(sp,sun,sdot){const c=sun.shadow.camera,want=SHD.on&&CUR===sp&&rig.alt<SHD.max&&sdot>-.1;
  if(want){const h=clamp(rig.alt*1.5,18,900);if(Math.abs(c.right-h)>h*.1){c.left=-h;c.right=h;c.top=h;c.bottom=-h;c.near=h*.5;c.far=h*10;c.updateProjectionMatrix();sun.shadow.normalBias=h*2/SHD.ms*1.4}if(sun.shadow.mapSize.x!==SHD.ms){sun.shadow.mapSize.set(SHD.ms,SHD.ms);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
   sun.target.position.copy(S_);sun.position.copy(S_).addScaledVector(sp.sunDir,h*5);sun.userData.pk=false;if(++SHD.f%(SHD.every||(SHD.ms>1024?2:3))===0||busy||tw)renderer.shadowMap.needsUpdate=true}
  else if(!sun.userData.pk){sun.userData.pk=true;sun.target.position.copy(sp.sunDir).multiplyScalar(40000);sun.position.copy(sun.target.position).addScaledVector(sp.sunDir,600);renderer.shadowMap.needsUpdate=true}}
 /* ---------------- the builder ---------------- */
-function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'planet',sc);BSP=sp;sp.culls=[];sp.cfg=cfg;sp.R=R;
+function makePlanetBase(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'planet',sc);BSP=sp;sp.culls=[];sp.cfg=cfg;sp.R=R;
  // light
  const sun=new THREE.DirectionalLight(0xfff0d8,cfg.sunI||1.08);sc.add(sun);sc.add(sun.target);sun.castShadow=true;sun.shadow.mapSize.set(SHD.ms,SHD.ms);sun.shadow.bias=-.0003;
  const moonL=new THREE.DirectionalLight(0x8fb4ff,.0);sc.add(moonL);sc.add(moonL.target);
@@ -332,7 +332,7 @@ function makePlanet(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,'pla
 const _dd=V3(),UP_Y=V3(0,1,0),_warmH=new THREE.Color('#ffb070');
 
 /* era → which objects show (planet rule: things that lasted to the end of book two carry on into book three) */
-function applyPlanetEra(sp,e){for(const x of sp.eraObjs){const v=x.e.includes(e)||(e===13&&x.e.includes(12))||(sp.id==='rongqiu'&&e>=6&&!x.noCarry&&x.e.includes(5)&&!x.e.some(z=>z>=6));x.o.userData.eraHide=!v;x.o.visible=v}
+function applyPlanetEraBase(sp,e){for(const x of sp.eraObjs){const v=x.e.includes(e)||(e===13&&x.e.includes(12))||(sp.id==='rongqiu'&&e>=6&&!x.noCarry&&x.e.includes(5)&&!x.e.some(z=>z>=6));x.o.userData.eraHide=!v;x.o.visible=v}
  for(const h of sp.herds){const v=herdVisible(sp,h,e);h.eraVis=v;h.near=undefined;h.list.forEach(x=>x.o.visible=false)}
  if(sp.cfg.colorKey)sp.setColors(sp.cfg.colorKey(e));if(sp.cfg.canyonOf)sp.setCanyon(sp.cfg.canyonOf(e));if(sp.onEra)sp.onEra(e)}
 
@@ -351,7 +351,7 @@ function coverGeos(){
  return{tuft:G(tuft),tall:G(tall),fern:G(fern),flower:G(flower),rock:G(rock),shroom:G(shroom),succ:G(succ),reed:G(reed)}}
 let COVERG=null;const CVC=new Map();
 /* biomeFn(dir,h,lat,era,out) fills weights 0..1 for each kind and optional tint colours */
-function makeCover(sp,biomeFn){COVERG=COVERG||coverGeos();
+function makeCoverBase(sp,biomeFn){COVERG=COVERG||coverGeos();
  const K=[{k:'tuft',n:2200,s:[1,1.8],sway:.12},{k:'tall',n:900,s:[1,1.6],sway:.06},{k:'fern',n:500,s:[1,2.2],sway:.05},{k:'flower',n:600,s:[.8,1.3],sway:.12},{k:'rock',n:260,s:[.6,2.4],sway:0},{k:'shroom',n:260,s:[.8,2],sway:0,glow:1},{k:'succ',n:260,s:[.8,2.2],sway:0},{k:'reed',n:400,s:[1,1.4],sway:.05}];
  const groups=K.map(o=>{const mat=o.sway?swayMat({roughness:.9},o.sway):VC({roughness:.8,emissive:o.glow?'#2a6a5a':'#000000',emissiveIntensity:o.glow?.6:0});
   const im=new THREE.InstancedMesh(COVERG[o.k],mat,o.n);for(let i=0;i<o.n;i++)im.setColorAt(i,C('#ffffff'));im.count=0;im.frustumCulled=false;sp.scene.add(im);return Object.assign({im},o)});

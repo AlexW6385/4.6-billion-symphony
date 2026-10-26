@@ -30,7 +30,7 @@ function q3_clip(){const sp=CUR;if(!sp)return;let n=.4,f=120000;const cp=camera.
  else n=close?.3:clamp(rig.alt*.003,.3,3);
  if(window.__q3clip===0){n=.4;f=120000}
  if(Math.abs(camera.near-n)>n*.04||camera.far!==f){camera.near=n;camera.far=f;camera.updateProjectionMatrix()}}
-const q3_rp0=rigPose;rigPose=function(){q3_rp0();q3_clip();q3_fogStep()};
+function rigPose(){rigPoseBase();q3_clip();q3_fogStep()}
 
 /* ---------------- ambient occlusion ----------------
    worked out at half resolution from the scene's own depth (no second drawing of the scene): the normal from the
@@ -119,8 +119,8 @@ function q3_grade(){const U=finalPass.uniforms,sp=CUR;if(!sp)return;const now=pe
   // reach only as far as the haze lets you see the ground clearly
   const fg=sp.scene.fog;Q3AO.mA.uniforms.uMaxD.value=fg&&fg.isFog&&fg.near<1e5?clamp(fg.near*1.6,120,600):360}}
 /* the composer's two buffers each get a depth texture (the scene pass draws into one or the other in turn) */
-const q3_ip0=initPost;
-initPost=function(){q3_ip0();if(!composer||!POST.on)return;
+
+function initPost(){initPostBase();if(!composer||!POST.on)return;
  {const fr=finalPass.render.bind(finalPass);finalPass.render=function(r,wb,rb,dt,mm){try{q3_grade();finalPass.uniforms.tDepth.value=rb.depthTexture||null}catch(e){}return fr(r,wb,rb,dt,mm)}}
  try{if(!renderer.capabilities.isWebGL2)return;
   for(const rt of[composer.renderTarget1,composer.renderTarget2]){const dt=new THREE.DepthTexture();dt.type=THREE.UnsignedIntType;dt.format=THREE.DepthFormat;rt.depthTexture=dt;rt.depthBuffer=true}
@@ -131,7 +131,7 @@ initPost=function(){q3_ip0();if(!composer||!POST.on)return;
   renderPass.render=function(r,wb,rb,dt,mm){const other=rb===composer.renderTarget1?composer.renderTarget2:composer.renderTarget1;
    const ok=!fxaaPass&&last.rt===other&&!!other.depthTexture&&Q3T[q3_tier()].water>0&&window.__q3pd!==0;Q3PD.value=ok?other.depthTexture:null;Q3PN.value.set(last.n,last.f,ok?1:0);Q3PVP.value.copy(last.vp);
    const res=rr(r,wb,rb,dt,mm);last.rt=rb;last.vp.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);last.n=camera.near;last.f=camera.far;return res}}
- catch(e){console.warn('q3 post',e);Q3AO=null}};
+ catch(e){console.warn('q3 post',e);Q3AO=null}}
 
 /* ---------------- aerial perspective and ground fog ----------------
    the fog every material shares learns where the sun is: warmer toward it, bluer away from it, with a soft forward glow;
@@ -163,7 +163,7 @@ const Q3FOG={q3FSun:{value:V3(1,0,0)},q3FW:{value:new THREE.Color(1,1,1)},q3FC:{
 #endif
 `}
 {const ob=THREE.Material.prototype.onBuild;THREE.Material.prototype.onBuild=function(sh,r){if(this.fog!==false&&sh&&sh.uniforms&&sh.uniforms.fogColor)Object.assign(sh.uniforms,Q3FOG);if(ob)ob.call(this,sh,r)}}
-function q3_fogStep(){const sp=CUR;const F=Q3FOG;if(!sp||sp.type!=='planet'||!sp.sunDir||window.__q3fog===0){F.q3FK.value=0;F.q3HF.value.w=0;return}
+function q3_fogStepBase(){const sp=CUR;const F=Q3FOG;if(!sp||sp.type!=='planet'||!sp.sunDir||window.__q3fog===0){F.q3FK.value=0;F.q3HF.value.w=0;return}
  const fg=sp.scene.fog,alt=rig.alt;const gold=sp.goldK||0,day=sp.dayK===undefined?1:sp.dayK;F.q3FSun.value.copy(sp.sunDir);
  F.q3FK.value=sm(1700,300,alt)*(.45+.55*day);
  F.q3FW.value.setRGB(1.1+.22*gold,1.01-.02*gold,.86-.16*gold);F.q3FC.value.setRGB(.9-.05*gold,.97,1.1+.06*gold);
@@ -174,8 +174,8 @@ function q3_fogStep(){const sp=CUR;const F=Q3FOG;if(!sp||sp.type!=='planet'||!sp
 const _q3wh=new THREE.Color(1,1,1),_q3gd=new THREE.Color('#ffc8a0');
 
 /* ---------------- clouds: a bright edge toward the sun, soft self-shadow ---------------- */
-const q3_cm0=cloudMat;
-cloudMat=function(o){const m=q3_cm0(o);m.uniforms.uQ3=Q3Q;
+
+function cloudMat(o){const m=cloudMatBase(o);m.uniforms.uQ3=Q3Q;
  m.fragmentShader=m.fragmentShader.replace('uniform float uT,uA,uCov,uSeed;','uniform float uT,uA,uCov,uSeed;uniform vec4 uQ3;').replace('gl_FragColor=vec4(c,a*uA*(.5+.5*th)*.95*(.3+.7*l));',`
  {vec3 Vd=normalize(vW-cameraPosition);float f1=max(dot(Vd,uSun),0.);float fw=f1*f1*f1;
   // the sun shining through thin cloud edges
@@ -184,12 +184,12 @@ cloudMat=function(o){const m=q3_cm0(o);m.uniforms.uQ3=Q3Q;
   if(uQ3.x>.5){vec3 st=normalize(uSun-p*sd+vec3(1e-4));vec3 bs=bb+st*.16;float n2=fb3(bs)*.66+fb3(bs*2.6+w*1.4+vec3(4.1))*.26;c*=1.-.34*clamp((n2-n)*6.,0.,1.)*l*(1.-fw*.6);}
   // thick cloud is a little greyer underneath its lit top
   c*=mix(1.,.86,th*th*(1.-l*.4));}
- gl_FragColor=vec4(c,a*uA*(.5+.5*th)*.95*(.3+.7*l));`);return m};
-const q3_cu0=rqCumulus;
-rqCumulus=function(sp){q3_cu0(sp);const P=sp.cumulus;if(!P)return;const m=P.material;
+ gl_FragColor=vec4(c,a*uA*(.5+.5*th)*.95*(.3+.7*l));`);return m}
+
+function rqCumulus(sp){rqCumulusBase(sp);const P=sp.cumulus;if(!P)return;const m=P.material;
  m.vertexShader=m.vertexShader.replace('varying float vL,vY,vA,vS;','varying float vL,vY,vA,vS,vF;').replace('vY=aY;','vY=aY;vF=max(dot(normalize(w.xyz-cameraPosition),uSun),0.);');
  m.fragmentShader=m.fragmentShader.replace('varying float vL,vY,vA,vS;','varying float vL,vY,vA,vS,vF;').replace('gl_FragColor=vec4(c,min(1.,t.a*1.05)*vA*.85);',
-  '{float f3=vF*vF*vF,f10=pow(vF,10.);c+=vec3(1.,.93,.8)*(f3*.45+f10*1.3)*(1.-smoothstep(.4,.95,t.a))*vL;c*=1.+f3*.12*vL;}c*=mix(.9,1.,vY);{float dk=1.-smoothstep(0.,.38,abs(vS-.02));c=mix(c,vec3(1.,.7,.58)*(.75+.25*vY),dk*.34*(.35+.65*vY));c*=mix(1.,.8+.2*vY,dk);}gl_FragColor=vec4(c,min(1.,t.a*1.05)*vA*.85);');m.needsUpdate=true};
+  '{float f3=vF*vF*vF,f10=pow(vF,10.);c+=vec3(1.,.93,.8)*(f3*.45+f10*1.3)*(1.-smoothstep(.4,.95,t.a))*vL;c*=1.+f3*.12*vL;}c*=mix(.9,1.,vY);{float dk=1.-smoothstep(0.,.38,abs(vS-.02));c=mix(c,vec3(1.,.7,.58)*(.75+.25*vY),dk*.34*(.35+.65*vY));c*=mix(1.,.8+.2*vY,dk);}gl_FragColor=vec4(c,min(1.,t.a*1.05)*vA*.85);');m.needsUpdate=true}
 
 /* ---------------- rivers and lakes: water like the sea's ----------------
    the live sky in them (shared with the sea), the sun's glint, ripples drifting downstream; how deep the water is under
@@ -240,22 +240,22 @@ void main(){vec3 up=normalize(vW);vec3 V=normalize(cameraPosition-vW);float dist
  gl_FragColor=vec4(col,a);
 #include <fog_fragment>
 }`})}
-const q3_rv0=rqRivers;
-rqRivers=function(sp){q3_rv0(sp);if(!sp.ocean)return;const m=q3_waterMat(sp,{ice:sp.riverU&&sp.riverU.uIce});
+
+function rqRivers(sp){rqRiversBase(sp);if(!sp.ocean)return;const m=q3_waterMat(sp,{ice:sp.riverU&&sp.riverU.uIce});
  sp.scene.children.forEach(o=>{if(o.isMesh&&o.material&&o.material.customProgramCacheKey&&o.material.customProgramCacheKey()==='river'){o.userData.q3old=o.material;o.material=m;
   // the downstream direction at each vertex (the ribbon is laid as pairs of bank points from source to mouth)
   const P=o.geometry.attributes.position.array,n=P.length/6,T=new Float32Array(P.length);for(let i=0;i<n;i++){const a=Math.max(0,i-1)*6,b=Math.min(n-1,i+1)*6;let x=P[b]-P[a],y=P[b+1]-P[a+1],z=P[b+2]-P[a+2];const l=Math.hypot(x,y,z)||1;x/=l;y/=l;z/=l;for(const k of[0,3]){T[i*6+k]=x;T[i*6+k+1]=y;T[i*6+k+2]=z}}
-  o.geometry.setAttribute('aT',new THREE.BufferAttribute(T,3))}})};
-const q3_lk0=lake;
-lake=function(la,lo,r,alt,col,eras){const g=q3_lk0(la,lo,r,alt,col,eras);const sp=BSP;if(!sp||!sp.ocean||sp.type!=='planet')return g;const ms=g.children[0];if(!ms||!ms.isMesh)return g;
+  o.geometry.setAttribute('aT',new THREE.BufferAttribute(T,3))}})}
+
+function lake(la,lo,r,alt,col,eras){const g=lakeBase(la,lo,r,alt,col,eras);const sp=BSP;if(!sp||!sp.ocean||sp.type!=='planet')return g;const ms=g.children[0];if(!ms||!ms.isMesh)return g;
  const c=col?C(col):C('#2f7f96');const m=q3_waterMat(sp,{lake:1,shal:'#'+c.clone().multiplyScalar(1.05).getHexString(),deep:'#'+c.clone().multiplyScalar(.45).getHexString(),bed:col?'#'+c.clone().multiplyScalar(.5).getHexString():'#3a4030'});
- ms.userData.q3old=ms.material;ms.material=m;ms.renderOrder=2;return g};
+ ms.userData.q3old=ms.material;ms.material=m;ms.renderOrder=2;return g}
 
 /* ---------------- buildings: masonry, planks, panels and tiles by kit, dirt toward the ground ----------------
    worked out in each building's own (unscaled) coordinates, so the courses line up on every copy of a kit */
 const Q3KIT={dragon:0,white:1,silver:2,grand:3,forge:4,future:5};
-const q3_tw0=towerMat;
-towerMat=function(o){o=Object.assign({},o||{});const kit=o.kit;delete o.kit;const m=q3_tw0(o);const ob=m.onBeforeCompile;
+
+function q3_towerMat(o){o=Object.assign({},o||{});const kit=o.kit;delete o.kit;const m=towerMatBase(o);const ob=m.onBeforeCompile;
  const K=Q3KIT[kit]!==undefined?Q3KIT[kit]:((o.metalness||0)>.45?6:7);m.userData.U.uKit={value:K};
  m.onBeforeCompile=sh=>{ob(sh);sh.uniforms.uKit=m.userData.U.uKit;sh.uniforms.uQ3=Q3Q;
   sh.vertexShader='varying vec3 q3LP,q3LN;\n'+sh.vertexShader.replace('#include <fog_vertex>','#include <fog_vertex>\nq3LP=position;q3LN=normal;');
@@ -300,10 +300,8 @@ towerMat=function(o){o=Object.assign({},o||{});const kit=o.kit;delete o.kit;cons
    float dirt=(1.-smoothstep(.2,1.25,v+(vn3(p*2.3)-.5)*.5))*(1.-flt);
    c*=mix(vec3(1.),k,kA);c=mix(c,c*vec3(.7,.64,.56),dirt*.55*kA+dirt*.25*(1.-kA));
    diffuseColor.rgb=c;}}`)};
- m.customProgramCacheKey=()=>'tower3';return m};
+ m.customProgramCacheKey=()=>'tower3';return m}
 
 /* ---------------- per planet, per frame ---------------- */
-const q3_gs0=getSpace;
-getSpace=function(id){const had=!!SP[id];const sp=q3_gs0(id);if(!had&&sp&&sp.type==='planet')anim(sp,null,()=>q3_step(sp));return sp};
 function q3_step(sp){if(CUR!==sp)return;const T=Q3T[q3_tier()];const Q=Q3Q.value;
  if(!window.__q3Q){Q.x=T.cloud;Q.y=T.water;Q.z=T.bld;Q2Q.value.z=T.bld}if(window.__q3rock!==undefined)Q2Q.value.z=window.__q3rock;}

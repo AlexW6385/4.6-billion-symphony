@@ -68,7 +68,7 @@ function bDragonFig(o){const g=bDragonkin({w:o.base||'dx',col:o.col||'#8a8070',e
 
 /* ---------- cells, colonies and things of the first sea ---------- */
 // o: {n,col,core,spikes,fur,crystal,glow,size,membrane}
-function bCells(o){o=Object.assign({n:24,col:'#8affc8',size:1},o||{});const g=new THREE.Group();const Rn=rnd(hashStr(o.col)+o.n);
+function bCellsBase(o){o=Object.assign({n:24,col:'#8affc8',size:1},o||{});const g=new THREE.Group();const Rn=rnd(hashStr(o.col)+o.n);
  const mem=new THREE.MeshStandardMaterial({color:o.col,transparent:true,opacity:.42,roughness:.15,emissive:o.col,emissiveIntensity:.25,depthWrite:false});const nuc=M(o.core||'#3a6a4a',{roughness:.5});
  const cells=[];for(let i=0;i<o.n;i++){const r=o.size*(.18+Rn()*.22);const v=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize().multiplyScalar(o.size*Math.cbrt(Rn())*1.1);const c=new THREE.Mesh(sgeo(12),mem);c.position.copy(v);c.scale.setScalar(r);g.add(c);
   const n=new THREE.Mesh(sgeo(8),nuc);n.position.copy(v);n.scale.setScalar(r*.38);g.add(n);cells.push({c,n,ph:Rn()*6,v:v.clone(),r});

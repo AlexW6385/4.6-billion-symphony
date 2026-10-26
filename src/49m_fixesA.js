@@ -22,8 +22,8 @@ function q4a_fieldMat(sp){const tm=sp.terr.material;
  m.envMapIntensity=tm.envMapIntensity;m.userData.envSet=1;return m}
 
 /* ---------- 2 · ground cover from the air: blades lit like the ground, shorter, lighter and fewer above ~90 ---------- */
-const q4a_mc0=makeCover;
-makeCover=function(sp,fn){const cover=q4a_mc0(sp,fn);try{q4a_coverFix(sp,cover)}catch(e){console.warn('q4a cover',e)}return cover};
+
+function makeCover(sp,fn){const cover=q2_makeCover(sp,fn);try{q4a_coverFix(sp,cover)}catch(e){console.warn('q4a cover',e)}return cover}
 function q4a_coverFix(sp,cover){
  // the blades' normals lean up (once, on the shared geometry): seen from above they then take the ground's light instead of
  // the dark of their own sideways faces, which read as black scratches
@@ -39,8 +39,8 @@ function q4a_coverFix(sp,cover){
 
 /* ---------- 4 · buildings: a sky-light fill on the shaded side, rows of windows on the glass-and-steel kits ---------- */
 const Q4FILL={value:new THREE.Color(.1,.1,.1)};
-const q4a_tw0=towerMat;
-towerMat=function(o){const m=q4a_tw0(o);const ob=m.onBeforeCompile;
+
+function q4a_towerMat(o){const m=q3_towerMat(o);const ob=m.onBeforeCompile;
  m.onBeforeCompile=sh=>{ob(sh);sh.uniforms.uQ4Fill=Q4FILL;
   // the world-space scale of this copy along its own axes, so the windows keep their size on a kit stretched four times taller
   sh.vertexShader='varying vec3 q4S;\n'+sh.vertexShader.replace('#include <fog_vertex>','#include <fog_vertex>\n#ifdef USE_INSTANCING\nmat3 q4m=mat3(modelMatrix*instanceMatrix);\n#else\nmat3 q4m=mat3(modelMatrix);\n#endif\nq4S=vec3(length(q4m[0]),length(q4m[1]),length(q4m[2]));');
@@ -59,7 +59,7 @@ towerMat=function(o){const m=q4a_tw0(o);const ob=m.onBeforeCompile;
  totalEmissiveRadiance+=diffuseColor.rgb*uQ4Fill*(.7+.3*max(dot(normalize(vWN),normalize(vWP)),0.));`)
    // the scattered specks of light stay for the other kits; the window bays light up by their own dice
    .replace('totalEmissiveRadiance+=uWin*win*(.08+.75*uNight)*(.55+.45*h);','totalEmissiveRadiance+=uWin*win*(.08+.75*uNight)*(.55+.45*h)*(1.-step(4.5,uKit)*step(uKit,6.5));{vec3 nl2=normalize(q3LN);vec3 p2=q3LP*q4S;vec2 cq=floor(vec2(abs(nl2.x)>abs(nl2.z)?p2.z:p2.x,p2.y)/vec2(1.05,1.2));float h2=fract(sin(dot(cq,vec2(12.9898,78.233)))*43758.5453);totalEmissiveRadiance+=uWin*q4win*step(.42,h2)*(.04+.8*uNight)*(.6+.4*h2);}')};
- m.customProgramCacheKey=()=>'tower4';return m};
+ m.customProgramCacheKey=()=>'tower4';return m}
 
 /* ---------- 5 · the camera keeps out of walls, pillars, roots and ridges ----------
    after the rig has placed the camera: a few rays from just above the point looked at back toward the camera, against the solid
@@ -90,30 +90,30 @@ function q4a_push(){const sp=CUR;if(!sp||sp.type!=='planet'||sp.camOv||window.__
  // eased, and small changes ignored, so a ray grazing a surface cannot make the view twitch
  if(Math.abs(tgt-Q4P.k)>.04)Q4P.k+=(tgt-Q4P.k)*(tgt>Q4P.k?.25:.06);else if(tgt<.01)Q4P.k*=.9;
  if(Q4P.k>1e-3){camera.position.copy(_q4a).addScaledVector(_q4b,dist*(1-Q4P.k));camera.lookAt(TG);camera.updateMatrixWorld()}}
-const q4a_cs0=cutStep;
-cutStep=function(dt){try{q4a_push();q4a_fill()}catch(e){}q4a_cs0(dt)};
+
+function cutStep(dt){try{q4a_push();q4a_fill()}catch(e){}cutStepBase(dt)}
 /* the building fill follows the sun of the world you are in */
 function q4a_fill(){const sp=CUR;if(!sp)return;if(sp.type==='planet'&&sp.sunL){const d=sp.dayK===undefined?1:sp.dayK;Q4FILL.value.copy(sp.sunL.color).multiplyScalar(sp.sunL.intensity*.19*(.3+.7*d));Q4FILL.value.addScalar(.02)}else Q4FILL.value.setScalar(.1)}
 
 /* ---------- 8 · 虚民母球: a metal planet, not a glossy patchwork; its one green oasis has grass and mixed trees ---------- */
-const q4a_mp0=makePlanet;
-makePlanet=function(id,cfg){if(id==='ximin')Object.assign(cfg,{rough:.68,metal:.1,plate:1,atm:'#8a9aaa',atmK:.5,mott:.6,hemiSky:0xc0ccd8});
- const sp=q4a_mp0(id,cfg);
+
+function makePlanet(id,cfg){if(id==='ximin')Object.assign(cfg,{rough:.68,metal:.1,plate:1,atm:'#8a9aaa',atmK:.5,mott:.6,hemiSky:0xc0ccd8});
+ const sp=makePlanetBase(id,cfg);
  if(id==='ximin')makeCover(sp,q4a_ximinBiome);
- return sp};
+ return sp}
 function q4a_ximinBiome(d,h,lat,e,W){const oa=angDeg(d,XOAS);if(oa>4.6||h<2.2)return;const k=1-sm(3.4,4.6,oa);W.tuft=.55*k;W.tuftC='#ffffff';W.flower=.05*k;W.flowerC=['#f4e6a0','#ffffff','#e9a0c0'][(h*7|0)%3];W.rock=.03;if(n3(d.x*40,d.y*40,d.z*40)>.62){W.fern=.25*k}}
 /* the ground colour: soft grey districts instead of hard-edged cells, dark seams of the old streets, the oasis blending out over its rim */
-ximinC=function(p,h,lat,out){if(h<0){out.set('#163a4a').lerp(C('#071a26'),sm(-2,-40,h));return}if(h<2.2){out.set('#8a8a84');return}
+function ximinC(p,h,lat,out){if(h<0){out.set('#163a4a').lerp(C('#071a26'),sm(-2,-40,h));return}if(h<2.2){out.set('#8a8a84');return}
  const oa=angDeg(p,XOAS);if(oa<4.6){const k=1-sm(3.3,4.6,oa);const g=C('#5f8a48').lerp(C('#3f7a40'),n3(p.x*40,p.y*40,p.z*40)).lerp(C('#8a8a5a'),sm(.55,.8,n3(p.x*22+3,p.y*22,p.z*22))*.5);
   out.set('#6a6e70').lerp(C('#848a8c'),n3(p.x*50,p.y*50,p.z*50)*.5).lerp(g,k);return}
  const[la,lo]=llDir(p);const cell2=h3(Math.floor((la+90)/2.2),Math.floor((lo+180)/2.2),5);
  const dist=n3(p.x*2.3+9,p.y*2.3,p.z*2.3),dist2=n3(p.x*5.1,p.y*5.1+2,p.z*5.1);
  out.set('#5f6870').lerp(C('#848e96'),n3(p.x*50,p.y*50,p.z*50)*.5).lerp(C('#767472'),sm(.35,.7,dist)*.4).lerp(C('#4e565e'),sm(.6,.85,dist2)*.4)
   .lerp(C('#a2a6aa'),cell2>.84?.25:0).lerp(C('#3a3e44'),cell2<.1?.3:0).lerp(C('#7a7466'),sm(.55,.8,n3(p.x*7,p.y*7,p.z*7))*.25);
- if(angDeg(p,XCOR)<4)out.lerp(C('#141418'),1-sm(2,4,angDeg(p,XCOR)))};
+ if(angDeg(p,XCOR)<4)out.lerp(C('#141418'),1-sm(2,4,angDeg(p,XCOR)))}
 /* the plating: panels in a grid on every face, dark seams between them, each panel its own shade, rust in the hollows */
-const q4a_pm0=q2_planetMat;
-q2_planetMat=function(m,o){o=o||{};const plate=!!(o.plate||(BSP&&BSP.cfg&&BSP.cfg.plate));const r=q4a_pm0(m,o);if(!plate)return r;
+
+function q2_planetMat(m,o){o=o||{};const plate=!!(o.plate||(BSP&&BSP.cfg&&BSP.cfg.plate));const r=q2_planetMatBase(m,o);if(!plate)return r;
  const ob=r.onBeforeCompile,ck=r.customProgramCacheKey;
  r.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader.replace(' diffuseColor.rgb=col;',`
  {float pk=(1.-rk)*(1.-q2sn)*land*(1.-veg)*(1.-sand);
@@ -125,7 +125,7 @@ q2_planetMat=function(m,o){o=o||{};const plate=!!(o.plate||(BSP&&BSP.cfg&&BSP.cf
   pc=mix(pc,pc*vec3(1.1,.88,.7),smoothstep(.62,.86,q2M.a)*.45*(1.-smoothstep(0.,.25,fwp)));
   pc*=1.-seam*.4;col=mix(col,pc,pk*.9);}
  diffuseColor.rgb=col;`)};
- r.customProgramCacheKey=()=>ck()+'p';return r};
+ r.customProgramCacheKey=()=>ck()+'p';return r}
 
 /* ---------- 9 · 方舟: three island-sized vessels (卷二《远航的准备》): a rock-shell hull nearly four hundred metres long, tiers of
    decks joined by passages, the top one open under the sky with soil, rocky hills whose flat round tops open for the troops, warm
@@ -164,7 +164,7 @@ function q4a_emeraldEgg(sp){if(tw||busy){q4a_emT=0;return}const p=sp.prox.find(q
  const now=performance.now();if(!q4a_emT)q4a_emT=now;else if(now-q4a_emT>2200)egg('emerald')}
 
 /* ---------- 7 · dusk haze: away from the low sun the haze goes cooler and a little darker, so the sea keeps its depth ---------- */
-const q4a_fs0=q3_fogStep;
-q3_fogStep=function(){q4a_fs0();const sp=CUR;if(!sp||sp.type!=='planet')return;const g=sp.goldK||0;if(g>0){Q3FOG.q3FC.value.multiplyScalar(1-.22*g);Q3FOG.q3FC.value.b*=1+.08*g;Q3FOG.q3FW.value.multiplyScalar(1+.06*g)}};
+
+function q3_fogStep(){q3_fogStepBase();const sp=CUR;if(!sp||sp.type!=='planet')return;const g=sp.goldK||0;if(g>0){Q3FOG.q3FC.value.multiplyScalar(1-.22*g);Q3FOG.q3FC.value.b*=1+.08*g;Q3FOG.q3FW.value.multiplyScalar(1+.06*g)}}
 
 window.__q4a={push:Q4P,fill:Q4FILL,town:q4a_town};

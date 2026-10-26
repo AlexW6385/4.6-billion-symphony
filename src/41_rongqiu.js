@@ -142,7 +142,7 @@ function rqBiome(d,h,lat,e,W){if(e===1)return;const al=Math.abs(lat);
  if(e===4){W.tuft*=.4;W.tuftC='#d8e0d0';W.flower=0;W.fern=(W.fern||0)*.3}}
 
 /* ---------- rivers you can see: a ribbon of moving water laid along each traced course ---------- */
-function rqRivers(sp){const G=sp.G;const U={uT:GT,uIce:{value:0}};
+function rqRiversBase(sp){const G=sp.G;const U={uT:GT,uIce:{value:0}};
  const mat=new THREE.MeshStandardMaterial({color:'#2f7590',roughness:.1,metalness:.45,transparent:true,opacity:.92,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3,envMapIntensity:1.4});
  mat.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);sh.vertexShader='varying vec2 vRU;\n'+sh.vertexShader.replace('#include <uv_vertex>','#include <uv_vertex>\nvRU=uv;');
   sh.fragmentShader='uniform float uT,uIce;varying vec2 vRU;\n'+sh.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
@@ -219,7 +219,7 @@ function rqRocks(sp){const Rn=rnd(3131),gh=sp.ghRaw,d=V3();const kit=[0,1,2].map
 /* ---------- fair-weather clouds: heaps of soft puffs, lit by the sun from the side it is on ---------- */
 const puffTex=canvasTex(128,128,(x)=>{const Rn=rnd(77);for(let i=0;i<60;i++){const a=Rn()*6.28,r=Math.pow(Rn(),.7)*34,px=64+Math.cos(a)*r,py=60+Math.sin(a)*r*.75,rr=7+Rn()*14*(1-r/40);const g=x.createRadialGradient(px,py,0,px,py,rr);g.addColorStop(0,'rgba(255,255,255,.34)');g.addColorStop(.7,'rgba(255,255,255,.12)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
  const im=x.getImageData(0,0,128,128),dd=im.data;for(let y=0;y<128;y++)for(let xx=0;xx<128;xx++){const k=(y*128+xx)*4;const r=Math.hypot(xx-64,(y-62)*1.2)/62;const v=Math.min(1,dd[k+3]/255*1.5),f=Math.max(0,1-r*r);dd[k+3]=255*Math.min(1,Math.pow(v,1.15)*1.1)*f*f}x.putImageData(im,0,0)});
-function rqCumulus(sp){const Rn=rnd(5150);const pos=[],sz=[],yy=[],d=V3(),up=V3(),ex=V3(),nx=V3();const SEA=dirLL(-12,74);
+function rqCumulusBase(sp){const Rn=rnd(5150);const pos=[],sz=[],yy=[],d=V3(),up=V3(),ex=V3(),nx=V3();const SEA=dirLL(-12,74);
  for(let c=0,tries=0;c<170&&tries<20000;tries++){d.set(Rn()*2-1,Rn()*2-1,Rn()*2-1);if(d.lengthSq()>1||d.lengthSq()<.02)continue;d.normalize();const lat=Math.asin(d.y)/D2R;if(Math.abs(lat)>68)continue;
   const cf=fbm(d.x*4.5+7,d.y*4.5,d.z*4.5-3,3);if(cf<.52+Rn()*.08)continue;if(angDeg(d,SEA)<16)continue;c++;
   up.copy(d);nx.set(0,1,0).addScaledVector(up,-up.y);if(nx.lengthSq()<1e-6)nx.set(1,0,0);nx.normalize();ex.copy(nx).cross(up);
@@ -306,7 +306,7 @@ function glowArc(pa,pb,w,col,eras,alt,op,sea){const g=new THREE.Group();const A=
  g.renderOrder=2;addE(g,eras);const mid=A.clone().add(B).normalize().multiplyScalar(R+30);cull(g,mid,angDeg(A,B)*R*D2R*.6+40,2400);return g}
 /* a flat lake surface */
 const lakeMat=new THREE.MeshStandardMaterial({color:'#2f7f96',roughness:.08,metalness:.35,transparent:true,opacity:.86});
-const LAKEZ=[];function lake(la,lo,r,alt,col,eras){LAKEZ.push([dirLL(la,lo),r/R/D2R*1.15]);const m=new THREE.Mesh(new THREE.CircleGeometry(r,40),col?new THREE.MeshStandardMaterial({color:col,roughness:.1,metalness:.3,transparent:true,opacity:.88,emissive:col,emissiveIntensity:.15}):lakeMat);m.rotation.x=-Math.PI/2;const g=new THREE.Group();g.add(m);fr(la,lo,alt,0,g,false);g.position.setLength(R+alt);addE(g,eras);return g}
+const LAKEZ=[];function lakeBase(la,lo,r,alt,col,eras){LAKEZ.push([dirLL(la,lo),r/R/D2R*1.15]);const m=new THREE.Mesh(new THREE.CircleGeometry(r,40),col?new THREE.MeshStandardMaterial({color:col,roughness:.1,metalness:.3,transparent:true,opacity:.88,emissive:col,emissiveIntensity:.15}):lakeMat);m.rotation.x=-Math.PI/2;const g=new THREE.Group();g.add(m);fr(la,lo,alt,0,g,false);g.position.setLength(R+alt);addE(g,eras);return g}
 /* soft fog banks made of sprites */
 function fogBank(la,lo,r,n,alt,col,op,seed,eras,size){const g=new THREE.Group();const Rn=rnd(seed);const mtl=new THREE.SpriteMaterial({map:smokeTex,color:col||'#eef2f4',transparent:true,opacity:op||.5,depthWrite:false});
  const L=[];for(let i=0;i<n;i++){const a=Rn()*6.28,d=Math.sqrt(Rn())*r;const lat=la+Math.cos(a)*d,lon=lo+Math.sin(a)*d/Math.cos(la*D2R);const s=new THREE.Sprite(mtl);const sz=(size||40)*(.6+Rn()*.9);s.scale.set(sz,sz*.55,1);

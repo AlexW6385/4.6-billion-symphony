@@ -171,15 +171,15 @@ sndBtn.addEventListener('click',e=>{e.stopPropagation();sndToggle()});document.b
 #snd:hover{opacity:.95}#snd svg{width:17px;height:17px}#snd .m{display:none}#snd.off .m{display:inline}#snd.off .w{display:none}#snd.off{opacity:.4}
 body.pale #snd{background:rgba(255,255,255,.55);color:#1d2328}`;document.head.appendChild(st)}
 /* ---- answer what happens ---- */
-{const o0=open;open=function(id){const was=cap.classList.contains('on');o0(id);snd(was?'page':'open')};
- const c0=closeCap;closeCap=function(q){const was=cap.classList.contains('on');c0(q);if(was&&!q)snd('close')};
- const s0=openSide;openSide=function(id){s0(id);snd('side')};
- const e0=egg;egg=function(id,silent){const n=!found.has(id);e0(id,silent);if(n&&!silent)snd('egg')};
- const t0=timeTo;timeTo=function(e){const p=ERA;t0(e);if(ERA!==p||CUR.type!=='planet')snd('era')};
- const n0=enterSpace;enterSpace=function(id,opt){const go=CUR&&!busy&&MB[id];n0(id,opt);if(go)snd('enter')};
- const r0=openRd;openRd=function(k,from){snd('page');return r0(k,from)};
+function open(id){const was=cap.classList.contains('on');openBase(id);snd(was?'page':'open')}
+ function closeCap(q){const was=cap.classList.contains('on');closeCapBase(q);if(was&&!q)snd('close')}
+ function openSide(id){egz_openSide(id);snd('side')}
+ function egg(id,silent){const n=!found.has(id);eggBase(id,silent);if(n&&!silent)snd('egg')}
+ function timeTo(e){const p=ERA;timeToBase(e);if(ERA!==p||CUR.type!=='planet')snd('era')}
+ function enterSpace(id,opt){const go=CUR&&!busy&&MB[id];q5s_enterSpace(id,opt);if(go)snd('enter')}
+ function openRd(k,from){snd('page');return openRdBase(k,from)}
  $('#book').addEventListener('click',()=>snd('lib'));$('#lib nav').addEventListener('click',()=>snd('tap'));
- const h0=updateHover;let hovLast=null;updateHover=function(){h0();if(hov&&hov!==hovLast)snd('hover');hovLast=hov}}
+ let snd_hovLast=null;function updateHover(){updateHoverBase();if(hov&&hov!==snd_hovLast)snd('hover');snd_hovLast=hov}
 async function sndOffline(dur,plan){const sr=44100;const oc=new OfflineAudioContext(2,Math.ceil(sr*dur),sr);const keep={ctx:SND.ctx,master:SND.master,mus:SND.mus,fx:SND.fx,rev:SND.rev,noise:SND.noise,layer:SND.layer,key:SND.key,on:SND.on,last:SND.last,lastAny:SND.lastAny,iv:SND.iv};
  SND.ctx=null;SND.offline=true;SND.vt=0;SND.on=true;SND.layer=null;SND.key='';SND.last={};SND.lastAny=0;const AC=window.AudioContext;window.AudioContext=function(){return oc};const wk=window.webkitAudioContext;window.webkitAudioContext=null;
  const si=window.setInterval;window.setInterval=()=>0;try{sndInit()}finally{window.AudioContext=AC;window.webkitAudioContext=wk;window.setInterval=si}SND.master.gain.value=.9;

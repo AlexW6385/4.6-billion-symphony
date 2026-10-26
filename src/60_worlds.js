@@ -7,7 +7,7 @@ const XOAS=dirLL(-16,-70),XCOR=dirLL(31,22);
 const XSEAS=[[0,150,20],[-30,-160,12],[50,-120,10],[-50,10,9]].map(b=>({d:dirLL(b[0],b[1]),r:b[2]}));
 function ximinH(p){const n=fbm(p.x*3+11,p.y*3,p.z*3,4);let m=Math.max(landMaskB(p,XB),.16)+(n-.5)*.45;for(const q of XSEAS){const s=angDeg(p,q.d);if(s<q.r)m=Math.min(m,lerp(-.5,m,sm(q.r*.55,q.r,s)))}
  if(m<0)return Math.max(-60,m*120)-2;const oa=angDeg(p,XOAS);if(oa<4.5)return 2+fbm(p.x*30,p.y*30,p.z*30,3)*6;return 5+Math.round(fbm(p.x*12+3,p.y*12,p.z*12,3)*5)*2.6}
-function ximinC(p,h,lat,out){if(h<0){out.set('#163a4a').lerp(C('#071a26'),sm(-2,-40,h));return}if(h<2.2){out.set('#8a8a84');return}
+function ximinCBase(p,h,lat,out){if(h<0){out.set('#163a4a').lerp(C('#071a26'),sm(-2,-40,h));return}if(h<2.2){out.set('#8a8a84');return}
  if(angDeg(p,XOAS)<4.5){out.set('#3f8a4a').lerp(C('#2a6a3a'),n3(p.x*40,p.y*40,p.z*40));return}
  const[la,lo]=llDir(p);const g=Math.min(Math.abs(((la/2.2)%1+1)%1-.5),Math.abs(((lo/2.2)%1+1)%1-.5));
  const cell=h3(Math.floor((la+90)/7.5),Math.floor((lo+180)/7.5),3),cell2=h3(Math.floor((la+90)/2.2),Math.floor((lo+180)/2.2),5);const DT=['#6a7078','#7c766a','#5a6068','#8a8f94','#6e6a60','#747a80'];
@@ -248,12 +248,23 @@ window.__solidPush=sp=>{let L=sp._solids;if(L===undefined){L=sp._solids=[];for(c
 function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;shadowScan(sp);noStaleCull(sp);
  sp.scene.traverse(o=>{if(!o.isPointLight||o.userData.pool||o.userData.pooled||o.parent===sp.scene)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o)});
  if(lp.L.length&&!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}}
-function poolStep(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==SG_ADDS&&now-lp.t>1500){lp.t=now;poolScan(sp)}if(!lp.P.length)return;
+function poolStepBase(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==SG_ADDS&&now-lp.t>1500){lp.t=now;poolScan(sp)}if(!lp.P.length)return;
  const C=camera.position;const pick=[];for(const L of lp.L){if(!L.userData.vis()||!(L.intensity>0)||!L.parent)continue;let x=L.parent,ok=true;while(x){if(!x.visible){ok=false;break}if(!x.parent&&x!==sp.scene)ok=false;x=x.parent}if(!ok)continue;
   _lw.copy(L.position).applyMatrix4(L.parent.matrixWorld);const d=_lw.distanceTo(C);if(L.distance>0&&d>L.distance*6+400)continue;pick.push([d,L,_lw.x,_lw.y,_lw.z])}
  pick.sort((a,b)=>a[0]-b[0]);
  for(let i=0;i<lp.P.length;i++){const q=lp.P[i],e=pick[i];if(!e){q.intensity=0;continue}const L=e[1];q.position.set(e[2],e[3],e[4]);q.color.copy(L.color);q.intensity=L.intensity;q.distance=L.distance;q.decay=L.decay}}
-function getSpace(id){if(SP[id])return SP[id];const sp=BUILDERS[id]();envAll(sp.scene);fixVC(sp.scene);poolScan(sp);if(sp.type==='planet')applyPlanetEra(sp,clampEra(sp,ERA));if(CUR&&CUR!==sp&&CUR.type==='planet')BSP=CUR;return sp}
+/* a world, built on first use. after the build: a planet's finer near ground (q2_setup, not on 虚民母球's plating), its
+   per-frame light and air (q3_step), every world's softer surfaces (q4b_frame), the eggs hung on it; the build is timed
+   for the profiler and a world let go to save memory gets its remembered spot back */
+function getSpace(id){if(SP[id])return SP[id];
+ const sp=q5s_span('build:'+id,()=>{const sp=BUILDERS[id]();envAll(sp.scene);fixVC(sp.scene);poolScan(sp);if(sp.type==='planet')applyPlanetEra(sp,clampEra(sp,ERA));if(CUR&&CUR!==sp&&CUR.type==='planet')BSP=CUR;
+  if(sp.type==='planet'&&sp.terr&&!Q2_NOPATCH.has(id))try{q2_setup(sp)}catch(e){console.warn('q2',id,e)}
+  if(sp.type==='planet')anim(sp,null,()=>q3_step(sp));
+  anim(sp,null,()=>q4b_frame(sp));
+  return sp});
+ sp.scene.__q5id=id;sp.__q5t=q5s_now();if(q5s_saved[id]&&!sp.saved)sp.saved=q5s_saved[id];
+ try{egz_built(sp)}catch(e){console.warn('eggs',id,e)}
+ return sp}
 function clampEra(sp,e){const L=MB[sp.id].e;if(L.includes(e))return e;return L.reduce((a,b)=>Math.abs(b-e)<Math.abs(a-e)?b:a)}
 /* where to stand when arriving in a space */
 const HOME={rongqiu:{a:18,b:-25,alt:2600},ximin:{a:22,b:0,alt:2600},erxi:{a:34,b:-10,alt:2600},under:{a:820,b:0,alt:400,y:0}};

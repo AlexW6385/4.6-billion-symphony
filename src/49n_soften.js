@@ -103,25 +103,23 @@ function q4b_frame(sp){if(CUR!==sp)return;const ti=q4b_tier(),Q=Q4BU.q4bQ.value,
   // the sky light itself a little stronger than before: the shade side was reading as flat grey
   sp.hemi.intensity*=1.2}
  else S.set(.5,.6,.8,.1)}
-const q4b_gs0=getSpace;
-getSpace=function(id){const had=!!SP[id];const sp=q4b_gs0(id);if(!had&&sp)anim(sp,null,()=>q4b_frame(sp));return sp};
 window.__q4b={U:Q4BU};
 
 /* ---------------- 3. light response ----------------
    the shadow's normal bias grew with the shadow box, so at 100–300 up small props sat on a gap of light; a smaller bias
    plus a touch of depth bias keeps them grounded without acne */
-const q4b_sf0=shadowFollow;
-shadowFollow=function(sp,sun,sdot){q4b_sf0(sp,sun,sdot);if(!sun.userData.pk){const h=sun.shadow.camera.right;sun.shadow.normalBias=h*2/SHD.ms*.7;sun.shadow.bias=-.00018}};
+
+function q4b_shadowFollow(sp,sun,sdot){shadowFollowBase(sp,sun,sdot);if(!sun.userData.pk){const h=sun.shadow.camera.right;sun.shadow.normalBias=h*2/SHD.ms*.7;sun.shadow.bias=-.00018}}
 
 /* the generic bump (roots, rocks, ice, the creator's roots): its finest octave was a whole unit of height over a tenth of a
    unit, so up close the normal flipped from pixel to pixel and read as static. The octaves now fade out as they shrink
    below a few pixels, and the slope is scaled to something a surface could have */
-const q4b_dm0=detailMat;
-detailMat=function(m,o){const r=q4b_dm0(m,o);if(o&&o.planet)return r;const ob=r.onBeforeCompile;
+
+function detailMat(m,o){const r=q2_detailMat(m,o);if(o&&o.planet)return r;const ob=r.onBeforeCompile;
  r.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader
   .replace('float hTer(vec3 p){p*=uFreq;float h=vn3(p*.33)*1.1+vn3(p*1.25)*.38+vn3(p*4.1)*.12;','float hTer(vec3 p){p*=uFreq;float fw=length(fwidth(p));float h=vn3(p*.33)*.7+vn3(p*1.25)*.3*(1.-smoothstep(.2,.6,fw))+vn3(p*4.1)*.08*(1.-smoothstep(.05,.15,fw));')
   .replace('vec2 dHdxy_fwd(){float d=length(vViewPosition);float k=(1.-smoothstep(50.,750.,d))*bumpScale;float h=hTer(vOP);','vec2 dHdxy_fwd(){float d=length(vViewPosition);float k=(1.-smoothstep(50.,750.,d))*bumpScale*.5;float h=hTer(vOP);')};
- const ck=r.customProgramCacheKey;r.customProgramCacheKey=()=>'q4b'+(ck?ck.call(r):'');return r};
+ const ck=r.customProgramCacheKey;r.customProgramCacheKey=()=>'q4b'+(ck?ck.call(r):'');return r}
 
 /* ---------------- 4. trees ----------------
    (a) the forests' near kits switch to a smoother "close" kit (crown lumps at twice the mesh density) inside ~60 units, where
@@ -138,25 +136,25 @@ function q4b_crownN(det){return function(blobs,cc,rc,seed){const gs=[];const v=V
  return gs}}
 const q4b_crown2=q4b_crownN(2);
 const Q4B_CLOSE=new Map();
-const q4b_tk0=q2_treeKits;
-q2_treeKits=function(KITS,NEAR){q4b_tk0(KITS,NEAR);if(q4b_tier()>=3)return;
- try{const K2={};for(const k in KITS)K2[k]=KITS[k].clone();const N2={};q2_crown=q4b_crown2;q4b_tk0(K2,N2);q2_crown=q4b_crown1;
-  for(const k in N2)if(NEAR[k])Q4B_CLOSE.set(NEAR[k],N2[k])}catch(e){q2_crown=q4b_crown1;console.warn('q4b close kits',e)}};
+
+function q2_treeKits(KITS,NEAR){q2_treeKitsBase(KITS,NEAR);if(q4b_tier()>=3)return;
+ try{const K2={};for(const k in KITS)K2[k]=KITS[k].clone();const N2={};q2_crown=q4b_crown2;q2_treeKitsBase(K2,N2);q2_crown=q4b_crown1;
+  for(const k in N2)if(NEAR[k])Q4B_CLOSE.set(NEAR[k],N2[k])}catch(e){q2_crown=q4b_crown1;console.warn('q4b close kits',e)}}
 /* the near and close kits are drawn from the same groups; each copy decides in the vertex shader which of the two shows it,
    by its own distance to the camera (so a wide group near the camera does not switch wholesale) */
-const q4b_sw1=swayMat;
-swayMat=function(o,k){const m=q4b_sw1(o,k);const ob=m.onBeforeCompile;const U=m.userData.U=m.userData.U||{};U.uLod={value:new THREE.Vector2(0,1e9)};m.userData.q4bArgs=[o,k];
+
+function swayMat(o,k){const m=q2_swayMat(o,k);const ob=m.onBeforeCompile;const U=m.userData.U=m.userData.U||{};U.uLod={value:new THREE.Vector2(0,1e9)};m.userData.q4bArgs=[o,k];
  m.onBeforeCompile=sh=>{ob(sh);sh.uniforms.uLod=U.uLod;sh.vertexShader='uniform vec2 uLod;\n'+sh.vertexShader.replace('#include <project_vertex>',`#ifdef USE_INSTANCING
 {vec3 q4ip=(modelMatrix*instanceMatrix)[3].xyz;float q4dl=distance(q4ip,cameraPosition);if(q4dl<uLod.x||q4dl>=uLod.y)transformed=vec3(0.);}
 #endif
-#include <project_vertex>`)};m.customProgramCacheKey=()=>'sway2q4';return m};
+#include <project_vertex>`)};m.customProgramCacheKey=()=>'sway2q4';return m}
 const Q4B_LOD=62,Q4B_LODM=new WeakMap();
 /* one near material and one close material per tree material, each with its own distance window */
 function q4b_lodMat(mat,lo,hi){if(!mat.userData.q4bArgs)return mat;let L=Q4B_LODM.get(mat);if(!L)Q4B_LODM.set(mat,L={});const key=lo+'|'+hi;if(L[key])return L[key];const m=swayMat(...mat.userData.q4bArgs);m.userData.U.uLod.value.set(lo,hi);m.userData.envSet=mat.userData.envSet;return L[key]=m}
-const q4b_inst0=inst;
-inst=function(geo,mat,pts,setter,eras,opt){const cl=Q4B_CLOSE.get(geo);if(!cl||!mat.userData.q4bArgs)return q4b_inst0(geo,mat,pts,setter,eras,opt);
- const r=q4b_inst0(geo,q4b_lodMat(mat,Q4B_LOD,1e9),pts,setter,eras,opt);
- const c=q4b_inst0(cl,q4b_lodMat(mat,0,Q4B_LOD),pts,setter,eras,Object.assign({},opt,{far:Q4B_LOD+10}));c.userData.noShadow=1;c.castShadow=false;return r};
+
+function inst(geo,mat,pts,setter,eras,opt){const cl=Q4B_CLOSE.get(geo);if(!cl||!mat.userData.q4bArgs)return instBase(geo,mat,pts,setter,eras,opt);
+ const r=instBase(geo,q4b_lodMat(mat,Q4B_LOD,1e9),pts,setter,eras,opt);
+ const c=instBase(cl,q4b_lodMat(mat,0,Q4B_LOD),pts,setter,eras,Object.assign({},opt,{far:Q4B_LOD+10}));c.userData.noShadow=1;c.castShadow=false;return r}
 /* a crown for the TREE kinds: the shaded lumps tinted with the kind's own green (they are drawn with and without a tint) */
 function q4b_crownG(blobs,cc,rc,seed,col){const c=C(col);return q4b_crownN(1)(blobs,cc,rc,seed).map(g=>{const a=g.attributes.color;for(let i=0;i<a.count;i++)a.setXYZ(i,a.getX(i)*c.r,a.getY(i)*c.g,a.getZ(i)*c.b);return g})}
 function q4b_merge(gs){return THREE.BufferGeometryUtils.mergeBufferGeometries(gs.map(g=>{g=g.index?g.toNonIndexed():g;if(g.attributes.uv)g.deleteAttribute('uv');return g}))}
@@ -279,7 +277,7 @@ function q4b_skyShip(){const g=new THREE.Group();const met=M('#d8e0e8',{metalnes
 
 /* 绿毯: the green carpet on the sea floor was one flat stamp; now a bed of overlapping fronds, darker in the seams, lit by
    the sun through the water and thinning toward the edge */
-{const e0=rqEarly;rqEarly=function(sp){e0(sp);const g=sp._lvcap;if(!g||!g.children[0])return;const cap=g.children[0];const U={uT:GT,uSun:{value:V3(1,0,0)}};
+function rqEarly(sp){rqEarlyBase(sp);const g=sp._lvcap;if(!g||!g.children[0])return;const cap=g.children[0];const U={uT:GT,uSun:{value:V3(1,0,0)}};
  cap.material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:U,
   vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:GLSL_NOISE+`uniform float uT;uniform vec3 uSun;varying vec3 vP;void main(){vec3 n=normalize(vP);float d=acos(clamp(n.y,-1.,1.))/0.157;
@@ -288,15 +286,15 @@ function q4b_skyShip(){const g=new THREE.Group();const met=M('#d8e0e8',{metalnes
    float seam=smoothstep(.3,.55,mid)*smoothstep(.75,.5,mid);vec3 c=mix(vec3(.1,.38,.18),vec3(.36,.72,.3),mid);c=mix(c,c*.55,seam*.7);c*=.85+.3*fine;
    float l=.55+.45*max(dot(normalize(vec3(n.x,n.y+.4,n.z)),uSun),0.);c*=l;c+=vec3(.08,.16,.06)*pow(max(dot(n,uSun),0.),3.);
    gl_FragColor=vec4(c,cov*(.5+.25*fine));}`});
- const qi=g.quaternion.clone().invert();anim(sp,null,()=>{if(sp.sunDir)U.uSun.value.copy(sp.sunDir).applyQuaternion(qi)})}}
+ const qi=g.quaternion.clone().invert();anim(sp,null,()=>{if(sp.sunDir)U.uSun.value.copy(sp.sunDir).applyQuaternion(qi)})}
 
 /* cells (琳, 晶菌 …): the membrane shows its curve, with a thin cytoplasm inside and a few organelles round the nucleus */
-{const c0=bCells;bCells=function(o){const g=c0(o);o=Object.assign({n:24,col:'#8affc8',size:1},o||{});const cyto=new THREE.MeshStandardMaterial({color:o.col,transparent:true,opacity:.14,roughness:.4,depthWrite:false,side:THREE.BackSide});
+function bCells(o){const g=bCellsBase(o);o=Object.assign({n:24,col:'#8affc8',size:1},o||{});const cyto=new THREE.MeshStandardMaterial({color:o.col,transparent:true,opacity:.14,roughness:.4,depthWrite:false,side:THREE.BackSide});
  const nuc=C(o.core||'#3a6a4a');const org=M('#'+nuc.clone().offsetHSL(.04,.1,.12).getHexString(),{roughness:.6});let k=0;
  g.children.slice().forEach(c=>{if(!c.isMesh||c.material.opacity!==.42)return;c.material.roughness=.22;const inner=new THREE.Mesh(sgeo(14),cyto);inner.scale.setScalar(.92);c.add(inner);
-  for(let i=0;i<3;i++){const s=new THREE.Mesh(sgeo(8),org);s.position.set(h3(k,i,1)-.5,h3(k,i,2)-.5,h3(k,i,3)-.5).normalize().multiplyScalar(.6);s.scale.setScalar(.11);c.add(s)}k++});return g}}
+  for(let i=0;i<3;i++){const s=new THREE.Mesh(sgeo(8),org);s.position.set(h3(k,i,1)-.5,h3(k,i,2)-.5,h3(k,i,3)-.5).normalize().multiplyScalar(.6);s.scale.setScalar(.11);c.add(s)}k++});return g}
 
 /* buildings: the masonry/plank pattern faded out only when its joints were already much thinner than a pixel, so at
    20–60 units walls read as static; it now fades while the joints are still a few pixels wide */
-{const tw0=towerMat;towerMat=function(o){const m=tw0(o);const ob=m.onBeforeCompile;m.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader.replace('float kA=1.-smoothstep(.025,.11,fwp);','float kA=1.-smoothstep(.009,.042,fwp);')};
- const ck=m.customProgramCacheKey;m.customProgramCacheKey=()=>'q4b'+(ck?ck.call(m):'');return m}}
+function towerMat(o){const m=q4a_towerMat(o);const ob=m.onBeforeCompile;m.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader.replace('float kA=1.-smoothstep(.025,.11,fwp);','float kA=1.-smoothstep(.009,.042,fwp);')};
+ const ck=m.customProgramCacheKey;m.customProgramCacheKey=()=>'q4b'+(ck?ck.call(m):'');return m}

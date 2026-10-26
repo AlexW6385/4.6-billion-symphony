@@ -20,7 +20,7 @@ function bestEra(w,mapId){const me=MB[mapId].e;let L=(w.e||[]).filter(e=>me.incl
  {const F=(window.FAUNA||[]).filter(f=>f.w===w.id&&(f.m||'rongqiu')===mapId);if(F.length){const L2=L.filter(e=>F.some(f=>!f.e||f.e.includes(e)));if(L2.length)L=L2}}if(L.includes(ERA))return ERA;return L.reduce((a,b)=>Math.abs(b-ERA)<Math.abs(a-ERA)?b:a)}
 function isVis(o){let p=o;while(p){if(p.visible===false)return false;p=p.parent}return true}
 let tT=0;function toast(t,s){const el=$('#toast');el.innerHTML=(t?`<b>${t}</b>`:'')+(s||'');el.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('on'),5200)}
-function egg(id,silent){const g=EGGS.find(e=>e.id===id);if(!g)return;const n=!found.has(id);if(n){found.add(id);store.set('rq_eggs',[...found]);$('#book').classList.add('new');if(libTab==='egg'&&$('#lib').classList.contains('on'))renderLib()}if(!silent&&(n||g.t))toast((n?'彩蛋 · ':'')+g.n,g.t)}
+function eggBase(id,silent){const g=EGGS.find(e=>e.id===id);if(!g)return;const n=!found.has(id);if(n){found.add(id);store.set('rq_eggs',[...found]);$('#book').classList.add('new');if(libTab==='egg'&&$('#lib').classList.contains('on'))renderLib()}if(!silent&&(n||g.t))toast((n?'彩蛋 · ':'')+g.n,g.t)}
 function markSeen(id){if(!seen.has(id)){seen.add(id);store.set('rq_seen',[...seen])}}
 let titleT=0;function showTitle(a,b,ms){const el=$('#title');el.querySelector('b').textContent=a;el.querySelector('span').textContent=b||'';el.classList.add('on');clearTimeout(titleT);titleT=setTimeout(()=>el.classList.remove('on'),ms||4200)}
 let hintT=0;function hint(s,ms){hintEl.textContent=s;hintEl.classList.add('on');clearTimeout(hintT);hintT=setTimeout(()=>hintEl.classList.remove('on'),ms||2600)}
@@ -29,7 +29,7 @@ let hintT=0;function hint(s,ms){hintEl.textContent=s;hintEl.classList.add('on');
 let busy=false,fadeK=0,fadeTo=0;
 function spaceTitle(sp){const m=MB[sp.id];return[m.n,`${m.sub} · ${ERAN[ERA]}`]}
 let pendEnter=null;
-function enterSpace(id,opt){opt=opt||{};if(busy){pendEnter=[id,opt];pendGo=null;return}if(CUR&&CUR.camOv)CUR.camOv=null;const m=MB[id];if(!m)return;busy=true;fadeTo=1;closeCap(true);
+function enterSpaceBase(id,opt){opt=opt||{};if(busy){pendEnter=[id,opt];pendGo=null;return}if(CUR&&CUR.camOv)CUR.camOv=null;const m=MB[id];if(!m)return;busy=true;fadeTo=1;closeCap(true);
  const go=()=>{const first=!SP[id];const run=()=>{const sp=getSpace(id);if(CUR&&CUR!==sp)CUR.saved={...rig,era:ERA};const prev=CUR;CUR=sp;if(renderPass)renderPass.scene=sp.scene;sp.scene.add(selRing);
    tw=null;vel.a=vel.b=0;
    // a space you have been to before comes back in the age you left it in; only a first visit takes the nearest age to the current one
@@ -73,16 +73,16 @@ function buildTime(){const L=eraListFor(CUR);const tr=$('#time .track');tr.inner
  syncTime()}
 function syncTime(){$('#time .cur').textContent=ERAN[ERA]||'';[...$('#time .track').children].forEach(b=>b.classList.toggle('on',+b.dataset.e===ERA))}
 $('#time .track').addEventListener('click',e=>{const b=e.target.closest('.tk');if(!b)return;timeTo(+b.dataset.e)});
-function timeTo(e){const ok=MB[CUR.id]&&MB[CUR.id].e;if(ok&&ok.length&&!ok.includes(e))e=ok.reduce((b,x)=>Math.abs(x-e)<Math.abs(b-e)?x:b,ok[0]);if(CUR.type==='planet'){if(e===ERA)return;setEra(e)}else{ERA=e;syncTime();const tgt=eraSpot(CUR,e);if(tgt)flyTo(tgt.a,tgt.b,tgt.alt,2.4,tgt.y)}}
+function timeToBase(e){const ok=MB[CUR.id]&&MB[CUR.id].e;if(ok&&ok.length&&!ok.includes(e))e=ok.reduce((b,x)=>Math.abs(x-e)<Math.abs(b-e)?x:b,ok[0]);if(CUR.type==='planet'){if(e===ERA)return;setEra(e)}else{ERA=e;syncTime();const tgt=eraSpot(CUR,e);if(tgt)flyTo(tgt.a,tgt.b,tgt.alt,2.4,tgt.y)}}
 function eraSpot(sp,e){if(sp.id==='void'){const c=e===10&&false?NG_C:SECTORS[e].c;return{a:-c[2],b:c[0],alt:2200,y:0}}const h=homeFor(sp,e);
  // in a tube, stand at the middle of that era's stretch so the era indicator agrees with where you are
  if(sp.type==='tube'){const ok=MB[sp.id].e;const L=WIKI.filter(w=>mapOf(w)===sp.id&&(w.e.find(x=>ok.includes(x))||w.e[0])===e);if(L.length)h.a=L.reduce((s,w)=>s+(w.z||0),0)/L.length}
  return h}
-function setEra(e){cutNow();if(CUR.type!=='planet'){ERA=e;syncTime();return}ERA=e;store.set('rq_era',e);applyPlanetEra(CUR,e);syncTime();showTitle(MB[CUR.id].n,`${EB[e].n} · ${EB[e].ch}`,3600);if(sel&&!eraOk(W[sel].e))closeCap()}
+function setEraBase(e){cutNow();if(CUR.type!=='planet'){ERA=e;syncTime();return}ERA=e;store.set('rq_era',e);applyPlanetEra(CUR,e);syncTime();showTitle(MB[CUR.id].n,`${EB[e].n} · ${EB[e].ch}`,3600);if(sel&&!eraOk(W[sel].e))closeCap()}
 
 /* ---------- the story card ---------- */
 let sel=null,selP=null;const cap=$('#cap');
-function open(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;markSeen(id);
+function openBase(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;markSeen(id);
  const E=w.e||[];const eras=E.length>3?`${ERAN[E[0]]} — ${ERAN[E[E.length-1]]}`:E.map(e=>ERAN[e]).join(' · ');const here=mapOf(w)===CUR.id;
  const relA=r=>`<a data-rel="${r}">${W[r].n}${mapOf(W[r])!==mapOf(w)?`<i>${MB[mapOf(W[r])].n}</i>`:''}</a>`;const R0=(w.rel||[]).filter(r=>W[r]);
  const R1=((window.__RELX||{})[id]||[]).filter(r=>!R0.includes(r)&&r!==id).slice(0,8);
@@ -92,7 +92,7 @@ function open(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;mark
  cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb ${CATK(w.c)}">${w.c} · ${placeName(w)}</div><h2>${w.n}</h2><p class="s">${w.s}</p>${w.d.split('\n').map(x=>`<p class="d">${x}</p>`).join('')}<div class="meta">${eras}</div>${chapHTML(id)}${rel?`<div class="sec">相关</div><div class="rel">${rel}</div>`:''}${sideHintHTML(id)}${goL}${goT}${cardNavHTML(id)}`;
  cap.classList.add('on');cap.scrollTop=0;
  selP=CUR.prox.find(p=>p.w.id===id&&!p.side&&(!p.hide||!p.hide()))||CUR.prox.find(p=>p.w.id===id&&!p.side&&eraOk(p.e))||null}
-function closeCap(quiet){cap.classList.remove('on');sel=null;selP=null}
+function closeCapBase(quiet){cap.classList.remove('on');sel=null;selP=null}
 cap.addEventListener('click',e=>{if(e.target.closest('.x'))return closeCap();const sdh=e.target.closest('[data-sidehint]');if(sdh)return openSide(sdh.dataset.sidehint);const ch=e.target.closest('[data-ch]');if(ch)return openRd(+ch.dataset.ch,sel);const nv=e.target.closest('[data-nav]');if(nv)return cardStep(+nv.dataset.nav);const gt=e.target.closest('[data-goto]');if(gt)return go(gt.dataset.goto);const r=e.target.closest('[data-rel]');if(r)return go(r.dataset.rel);const g=e.target.closest('[data-go]');if(g){const w=W[sel];enterPortal(w)}});
 /* after a jump, make sure the thing is actually in sight: if a wall, a tower or a trunk is in the way,
    or the camera would sit inside something, try going round it or a little higher */
@@ -106,7 +106,7 @@ const _oiM=new THREE.Matrix4(),_oiW=new THREE.Matrix4(),_oiS=new THREE.Sphere(),
 function instCenters(o,g){const v=o.instanceMatrix.version,c=o.userData._ic;if(c&&c.v===v&&c.n===o.count&&c.w.equals(o.matrixWorld))return c.C;
  const C=new Float32Array(o.count*4);for(let i=0;i<o.count;i++){o.getMatrixAt(i,_oiM);_oiW.multiplyMatrices(o.matrixWorld,_oiM);_oiS.copy(g.boundingSphere).applyMatrix4(_oiW);C[i*4]=_oiS.center.x;C[i*4+1]=_oiS.center.y;C[i*4+2]=_oiS.center.z;C[i*4+3]=_oiS.radius}
  o.userData._ic={v,n:o.count,w:o.matrixWorld.clone(),C};return C}
-function occList(P,R){const L=[];const sc=CUR.scene;
+function occListBase(P,R){const L=[];const sc=CUR.scene;
  // things hidden only because the camera is far from them still count: they will show when the camera gets there
  const walk=(o,f)=>{if(!o.visible&&!o.userData.distHide)return;f(o);for(const ch of o.children)walk(ch,f)};
  walk(sc,o=>{if(!o.isMesh||!o.geometry)return;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent||m.depthWrite===false||m.blending===THREE.AdditiveBlending||m.visible===false)return;
@@ -142,7 +142,7 @@ function* cutJob(P,r){const cam=camera;const dist=cam.position.distanceTo(P);if(
    if(CUR.type==='planet'&&h.point.distanceTo(P)<Math.max(r*3,30)&&_cn.copy(h.point).sub(P).dot(_cn2.copy(P).normalize())<r*.3)break;
    if(!cuttable(o,r))break;if(o.isInstancedMesh){if(h.instanceId==null)continue;const key=o.uuid+':'+h.instanceId;if(seen.has(key))continue;seen.add(key);const m0=new THREE.Matrix4();o.getMatrixAt(h.instanceId,m0);CUT.L.push({im:o,i:h.instanceId,m0,s:0})}
    else{if(seen.has(o.uuid))continue;seen.add(o.uuid);CUT.L.push({o,s0:o.scale.clone(),s:0})}if(CUT.L.length>220)return}}}
-function cutStep(dt){if(CUT.off){if(CUT.L.length||CUT.req){CUT.req=null;cutNow()}return}if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.big=!!q.big;CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
+function cutStepBase(dt){if(CUT.off){if(CUT.L.length||CUT.req){CUT.req=null;cutNow()}return}if(CUT.sp!==CUR){cutNow();CUT.sp=CUR}if(CUT.req){if(tw||CUR.camOv){CUT.goal=0}else{const q=CUT.req;CUT.req=null;cutNow();if(sel===q.id){CUT.big=!!q.big;CUT.job=cutJob(q.P,q.r);cutRun();CUT.id=q.id;CUT.goal=1;CUT.t=0}}}else cutRun();
  if(CUT.goal===1&&sel!==CUT.id)CUT.goal=0;
  // following something that moves: every second, whatever new got in the way sinks too
  const F=CUR.follow;if(CUT.goal===1&&F&&F.id===CUT.id&&!tw){CUT.t=(CUT.t||0)+dt;if(CUT.t>1&&!CUT.job){CUT.t=0;const c=proxCenter(F.p);if(c){CUT.job=cutJob(c.clone(),F.p.r||4);cutRun()}}}
@@ -277,7 +277,7 @@ const keys={};addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'){if(e
 /* ---------- hover, every frame ---------- */
 const hoverEl=$('#hover');let hovFrame=0;
 const NOHOVER=matchMedia('(hover: none)').matches;
-function updateHover(){if(!mouse.in||drag||ptrs.size>1||busy||NOHOVER){if(hov||hovPlace){hov=null;hovPlace=null;hoverEl.classList.remove('on');canvas.classList.remove('point')}return}
+function updateHoverBase(){if(!mouse.in||drag||ptrs.size>1||busy||NOHOVER){if(hov||hovPlace){hov=null;hovPlace=null;hoverEl.classList.remove('on');canvas.classList.remove('point')}return}
  if(++hovFrame%2)return;const p=pickProx(mouse.x,mouse.y);let place=null;if(!p&&CUR.type==='planet')place=placeAt(mouse.x,mouse.y);
  if(p!==hov||place!==hovPlace){hov=p;hovPlace=place;maoyuHover=!!(p&&p.mao);if(p&&p.mao&&!found.has('maoyu'))setTimeout(()=>{if(maoyuHover)egg('maoyu')},380);
   if(p){hoverEl.className='on';hoverEl.innerHTML=`${esc(p.w.n)}<small>${esc(p.w.c)}</small>`}else if(place){hoverEl.className='on place';hoverEl.innerHTML=esc(place.n)}else hoverEl.className=''}
@@ -296,8 +296,8 @@ const perf={t:0,n:0,lvl:0,hold:0};
    a one-off long frame (a world being built in the background, a shader compiling) is not slowness */
 const PR0=PR;
 /* shadows are never switched off: at the low levels they get a smaller map, a shorter reach and fewer redraws instead */
-function applyLevel(){const L=perf.lvl;PR=Math.min(PR0,[PR0,1.5,1.25,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}resize()}
-function adapt(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
+function applyLevelBase(){const L=perf.lvl;PR=Math.min(PR0,[PR0,1.5,1.25,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}resize()}
+function adaptBase(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
  if((fps<34||slow>=8)&&perf.lvl<4){perf.lvl++;perf.hold=1;perf.good=0;applyLevel()}
  else if(fps>56&&slow<=1&&perf.lvl>0){if(++perf.good>=4){perf.lvl--;perf.hold=2;perf.good=0;applyLevel()}}else perf.good=0}
 
@@ -362,5 +362,5 @@ setTimeout(()=>{
  enterSpace('rongqiu',{rig:firstVisit?{a:12,b:-10,alt:4900,head:0,y:0}:null,home:true,era:ERA,after:()=>{
   if(firstVisit){const tc=matchMedia('(pointer:coarse)').matches;const H=[[1800,tc?'单指拖动转动世界，双指缩放':'拖动转动世界，滚轮缩放',3400],[9800,'下方的时间轴可以换一个时代看看',3400],[15000,'靠近以后，发光的小点都是词条，点一下',3600],[21000,'右下角是图书馆：词条、故事、原著章节和番外',3800]];H.forEach(([d,t,ms])=>setTimeout(()=>{if(!$('#cap.on')&&CUR&&CUR.id==='rongqiu'&&!$('#lib.on'))hint(t,ms)},d));flyTo(18,-25,2600,7);setTimeout(()=>{$('#time').classList.add('open');setEra(2);setTimeout(()=>$('#time').classList.remove('open'),5200)},3600)}}});
  requestAnimationFrame(t=>{last=t;loop(t)})},30);
-window.__rq={bc:buildCreature,fll:frameLL,cam:camera,ren:renderer,place(a,b,alt,head){tw=null;vel.a=vel.b=0;Object.assign(rig,{a,b,alt,head:head||0})},stop(){tw=null},go,open,setEra,enterSpace,exitToVoid,flyTo,rig,get CUR(){return CUR},get ERA(){return ERA},SP,timeTo,zoomAt,pickProx,egg,get tw(){return tw}};
+window.__rq={bc:buildCreature,fll:frameLL,cam:camera,ren:renderer,place(a,b,alt,head){tw=null;vel.a=vel.b=0;Object.assign(rig,{a,b,alt,head:head||0})},stop(){tw=null},go,open:openBase,setEra,enterSpace:q5s_enterSpace,exitToVoid,flyTo,rig,get CUR(){return CUR},get ERA(){return ERA},SP,timeTo:timeToBase,zoomAt,pickProx,egg:eggBase,get tw(){return tw}};
 Object.assign(window.__rq,{dbg:{selP:()=>selP,posOf,sizeOf,proxCenter,rigPose,flyEntry,ensureClear,q4c:{aim:q4c_aim,vis:q4c_vis,want:q4c_want,subject:q4c_subject,goto:q4c_goto,clear:q4c_clear},busy:()=>busy,pickProx,eraOk,dayFor,SHD,getSpace,tables:()=>({SPEC,ENT,KIND}),sunAt:lon=>{CUR.sunLon=lon-T*360/CUR.dayLen}}});

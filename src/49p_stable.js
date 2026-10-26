@@ -20,7 +20,7 @@ function q5s_blown(){return q5s_P.lastMs>40}
 function q5s_guard(owner,key,f){try{return f()}catch(e){const u=owner.__q5err||(owner.__q5err={});if(!u[key]){u[key]=1;console.warn('q5s: '+key+' failed, disabled',e);q5s_log('err',{what:key,msg:String(e&&e.message||e).slice(0,120)})}}}// (a world's own update keeps being called: a passing error must not stop its sun and sky for good)
 let q5s_anims=null;// (the anim pass, below: each callback guarded, far things at a lower rate)
 /* ---- spans round the big one-off jobs, so a long frame says what it was doing ---- */
-{const a0=applyPlanetEra;applyPlanetEra=function(sp,e){return q5s_span('era:'+sp.id+':'+e,()=>a0(sp,e))}}
+function applyPlanetEra(sp,e){return q5s_span('era:'+sp.id+':'+e,()=>applyPlanetEraBase(sp,e))}
 
 /* ---- what was added to which scene: a per-root counter, so one world being built in the background no longer makes
    the shown world rescan itself (poolScan / batchSprites / noStaleCull walked all of it: 30-45 ms spikes) ---- */
@@ -28,7 +28,7 @@ let q5s_anims=null;// (the anim pass, below: each callback guarded, far things a
 // the selection ring moves from world to world with every arrival: that is not new content
 if(typeof selRing!=='undefined'&&selRing)selRing.userData.q5quiet=1;
 function q5s_adds(sc){return sc.__q5adds||0}
-{const p0=poolStep;poolStep=function(sp,now){const lp=sp._lp;if(lp){if(lp.a!==SG_ADDS&&q5s_adds(sp.scene)===(lp.q5a||0))lp.a=SG_ADDS;if(lp.a!==SG_ADDS&&q5s_blown())return}const r=p0(sp,now);const l2=sp._lp;if(l2&&l2.a===SG_ADDS)l2.q5a=q5s_adds(sp.scene);return r}}
+function poolStep(sp,now){const lp=sp._lp;if(lp){if(lp.a!==SG_ADDS&&q5s_adds(sp.scene)===(lp.q5a||0))lp.a=SG_ADDS;if(lp.a!==SG_ADDS&&q5s_blown())return}const r=poolStepBase(sp,now);const l2=sp._lp;if(l2&&l2.a===SG_ADDS)l2.q5a=q5s_adds(sp.scene);return r}
 
 /* ---- per-frame job queue: small slices of deferred work (shader compiles, recolours), ≤ 6 ms a frame, nothing on a frame
    that follows a long one ---- */
@@ -51,9 +51,9 @@ renderer.compile=function(sc,cam){if(sc.__q5c){q5s_compileQueue(sc,cam);return}s
 
 /* ---- when a world or an age changes: a quiet period for the quality control and the background builder ---- */
 let q5s_swT=-1e9;function q5s_switched(){q5s_swT=q5s_now()}
-{const e0=enterSpace;enterSpace=function(id,opt){q5s_switched();if(SP[id])SP[id].__q5t=q5s_now();return e0(id,opt)}
- const s0=setEra;setEra=function(e){q5s_switched();return s0(e)}
- const g1=getSpace;getSpace=function(id){if(SP[id])return g1(id);const sp=q5s_span('build:'+id,()=>g1(id));if(sp){sp.scene.__q5id=id;sp.__q5t=q5s_now();if(q5s_saved[id]&&!sp.saved)sp.saved=q5s_saved[id]}return sp}}
+function q5s_enterSpace(id,opt){q5s_switched();if(SP[id])SP[id].__q5t=q5s_now();return enterSpaceBase(id,opt)}
+ function setEra(e){q5s_switched();return setEraBase(e)}
+
 
 /* ---- the other worlds, built ahead of time: the build itself is one piece (0.3–2 s of script), so it only runs while a page
    covers the picture or the tour lingers, or — on a desktop — after a long untouched stretch of fast frames; its shaders are then
@@ -86,32 +86,32 @@ function q5s_farCull(sp){if(sp.cover&&!sp.cover.__q5w){sp.cover.__q5w=1;const u=
 
 /* ---- the occluder list (line-of-sight tests while following, the cutaway): the same list is reused for half a second when
    asked again for nearly the same spot, and a frame that follows a long one gets the last list rather than a fresh walk ---- */
-{const o0=occList;let C=null;occList=function(P,Rr){const now=q5s_now();if(C&&C.sp===CUR&&C.R===Rr&&(now-C.t<500||q5s_blown()&&now-C.t<2500)&&C.P.distanceToSquared(P)<(Rr*.15)*(Rr*.15))return C.L;const L=q5s_span('occList',()=>o0(P,Rr));C={sp:CUR,R:Rr,P:P.clone(),t:now,L};return L}}
+let q5s_occC=null;function occList(P,Rr){const now=q5s_now();if(q5s_occC&&q5s_occC.sp===CUR&&q5s_occC.R===Rr&&(now-q5s_occC.t<500||q5s_blown()&&now-q5s_occC.t<2500)&&q5s_occC.P.distanceToSquared(P)<(Rr*.15)*(Rr*.15))return q5s_occC.L;const L=q5s_span('occList',()=>occListBase(P,Rr));q5s_occC={sp:CUR,R:Rr,P:P.clone(),t:now,L};return L}
 /* the first occluder list of a world worked out the bounds of every instance of every instanced set (tens of thousands) in one go:
    that is done ahead, a few sets per frame, after arriving */
 function q5s_warm(sp){const sc=sp.scene;if(sc.__q5warm===q5s_adds(sc))return;sc.__q5warm=q5s_adds(sc);const L=[];sc.traverse(o=>{if(o.isInstancedMesh&&o.count>3&&o.geometry)L.push(o)});let i=0;if(L.length)q5s_job('warm:'+sp.id,lim=>{const t0=q5s_now();while(i<L.length&&q5s_now()-t0<(lim||3)){const o=L[i++];try{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere)instCenters(o,g)}catch(e){}}return i>=L.length})}
 
 /* ---- an age change on a planet: the near patch took its new colours in one go (every vertex of a 20k-vertex patch re-sampled);
    now ~3000 vertices a frame, the crossfade covering the rest ---- */
-{const r0=q2_recolour;q2_recolour=function(P){const cu=P.cur;if(!cu||cu.B.nv<4000)return r0(P);const sp=P.sp,B=cu.B,n=cu.n,Gd=sp.G,M=Gd.M,GN=Gd.N,ca=sp.terr.geometry.attributes.color.array,cb=sp.terr.geometry.attributes.aCol2.array;const d=V3();let vi=0;
+function q2_recolour(P){const cu=P.cur;if(!cu||cu.B.nv<4000)return q2_recolourBase(P);const sp=P.sp,B=cu.B,n=cu.n,Gd=sp.G,M=Gd.M,GN=Gd.N,ca=sp.terr.geometry.attributes.color.array,cb=sp.terr.geometry.attributes.aCol2.array;const d=V3();let vi=0;
  const step=(lim)=>{if(P.cur!==cu){return true}const t0=q5s_now(),tl=lim||q5s_slice();let e=Math.min(B.nv,vi+256);for(;vi<e;vi++){if(vi===e-1&&e<B.nv&&q5s_now()-t0<tl)e=Math.min(B.nv,e+256);d.set(B.pos[vi*3],B.pos[vi*3+1],B.pos[vi*3+2]).normalize();const fi=faceOf(d),f=FACES[fi],dn=d.dot(f.n);const a=Math.atan(d.dot(f.u)/dn)*1.2732395,b=Math.atan(d.dot(f.v)/dn)*1.2732395;
    const x=clamp((a+1)*.5*GN,0,GN-1e-4),y=clamp((b+1)*.5*GN,0,GN-1e-4);const ci=x|0,cj=y|0,fx=x-ci,fy=y-cj;const k=fi*M*M+cj*M+ci;const wE=B.wE[vi];
    let ta,tb,tc,td;if(fx+fy<1){ta=1-fx-fy;tb=fx;tc=fy;td=0}else{ta=0;tb=1-fy;tc=1-fx;td=fx+fy-1}const wa=ta+((1-fx)*(1-fy)-ta)*wE,wb=tb+(fx*(1-fy)-tb)*wE,wc=tc+((1-fx)*fy-tc)*wE,wd=td+(fx*fy-td)*wE;
    for(let q=0;q<3;q++){B.ca[vi*3+q]=ca[k*3+q]*wa+ca[(k+1)*3+q]*wb+ca[(k+M)*3+q]*wc+ca[(k+M+1)*3+q]*wd;B.cb[vi*3+q]=cb[k*3+q]*wa+cb[(k+1)*3+q]*wb+cb[(k+M)*3+q]*wc+cb[(k+M+1)*3+q]*wd}if(B.tw[vi]>0)q4a_tread(B,vi,B.tw[vi])}
   B.geo.attributes.color.needsUpdate=true;B.geo.attributes.aCol2.needsUpdate=true;return vi>=B.nv};
- step(2);if(vi<B.nv)q5s_job('recolour',step)}}
+ step(2);if(vi<B.nv)q5s_job('recolour',step)}
 
 /* ---- quality control, steadier: a level goes down only after two slow windows in a row, comes back only after six fast ones,
    never within 4 s of a world or age change, and a level that was just left for being slow is not tried again for a minute
    (twice as long each time it flips back). resolution (and so the render targets) only changes when the level's resolution differs ---- */
-applyLevel=function(){const L=perf.lvl,p0=PR;PR=Math.min(PR0,[PR0,1.3,1.15,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}if(PR!==p0)window.__q5resize=1};// (the resize waits for the next frame's render: done here, after this frame was drawn, it left one blank frame — a black flash)
-adapt=function(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}const now=q5s_now();if(now-q5s_swT<4000){perf.t=0;perf.n=0;perf.slow=0;perf.bad=0;return}
+function applyLevel(){const L=perf.lvl,p0=PR;PR=Math.min(PR0,[PR0,1.3,1.15,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}if(PR!==p0)window.__q5resize=1}// (the resize waits for the next frame's render: done here, after this frame was drawn, it left one blank frame — a black flash)
+function adapt(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}const now=q5s_now();if(now-q5s_swT<4000){perf.t=0;perf.n=0;perf.slow=0;perf.bad=0;return}
  perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
  const up=perf.q5up||(perf.q5up={});perf.bad=perf.bad||0;perf.good=perf.good||0;
  if((fps<Q5DOWN||slow>=8)&&perf.lvl<4){perf.good=0;if(++perf.bad>=2){perf.bad=0;up[perf.lvl]=now;perf.lvl++;perf.hold=1;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,why:'slow'})}}
  else if(fps>56&&slow<=1&&perf.lvl>0){perf.bad=0;const back=perf.lvl-1,wait=60000*Math.pow(2,perf.q5osc||0);if(up[back]&&now-up[back]<wait){perf.good=0;return}
   if(++perf.good>=6){perf.good=0;if(up[back])perf.q5osc=(perf.q5osc||0)+1;perf.lvl--;perf.hold=2;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,why:'fast'})}}
- else{perf.good=0;if(!(fps<Q5DOWN||slow>=8))perf.bad=0}};
+ else{perf.good=0;if(!(fps<Q5DOWN||slow>=8))perf.bad=0}}
 /* a modest phone starts one step down (a phone already caps its resolution at 1.3, its shadow map at 1024, and its detail two steps below the best) */
 if(COARSE&&((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)))setTimeout(()=>{if(perf.lvl===0){perf.lvl=1;applyLevel();q5s_log('level',{to:1,why:'phone'})}},0);
 
@@ -137,10 +137,10 @@ window.__q5s={dispose:q5s_dispose,jobs:q5s_J,farCull:q5s_farCull,pre:q5s_preTick
 
 /* ---- the near shadow map is redrawn every second or third frame; after a long frame the last map stays one more frame
    (nothing visible changes: the box only moves with the view), unless it is already half a second old ---- */
-{const s0=shadowFollow;let lastT=0;shadowFollow=function(sp,sun,sdot){s0(sp,sun,sdot);if(renderer.shadowMap.needsUpdate){const now=q5s_now();if(q5s_blown()&&!busy&&!tw&&now-lastT<500)renderer.shadowMap.needsUpdate=false;else lastT=now}}}
+let q5s_shLastT=0;function shadowFollow(sp,sun,sdot){q4b_shadowFollow(sp,sun,sdot);if(renderer.shadowMap.needsUpdate){const now=q5s_now();if(q5s_blown()&&!busy&&!tw&&now-q5s_shLastT<500)renderer.shadowMap.needsUpdate=false;else q5s_shLastT=now}}
 
 /* ---- how long one slice of a background rebuild (the near patch, its grass, the ground cover) may take in a frame ---- */
 function q5s_slice(){return q5s_blown()?1.5:COARSE?3.5:5}
-{const j0=q2_jobStart;q2_jobStart=function(P,c,T,ti){return q5s_span('q2start',()=>j0(P,c,T,ti))}
- const s0=q2_jobStep;q2_jobStep=function(J){const st=J.stage;return q5s_span('q2s'+st,()=>s0(J))}}
-{const l0=q2_lines;q2_lines=function(sp,c,deg){return q5s_span('q2lines',()=>l0(sp,c,deg))}}
+function q2_jobStart(P,c,T,ti){return q5s_span('q2start',()=>q2_jobStartBase(P,c,T,ti))}
+ function q2_jobStep(J){const st=J.stage;return q5s_span('q2s'+st,()=>q2_jobStepBase(J))}
+function q2_lines(sp,c,deg){return q5s_span('q2lines',()=>q2_linesBase(sp,c,deg))}

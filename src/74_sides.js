@@ -3271,7 +3271,7 @@ function placeSides(sp){if(sp._sides)return;sp._sides=[];spaceLin(sp);if(!placeS
   const ph=Math.random()*6;anim(sp,g,t=>{const nr=camera.position.distanceTo(g.position)<farD;g.children.forEach(c=>{if(c!==gl){c.visible=nr;if(nr)c.position.y=Math.sin(t*1.4+ph)*.8}});if(nr)roll.rotation.x=t*.8;gl.material.opacity=(sideFound.has(s.id)?.3:.6)+Math.sin(t*2+ph)*.15});
   prox(sp,s.at,p,sp.type==='planet'?9:24,{e:s.e,side:s.id,click:()=>openSide(s.id),only:1});sp._sides.push(g)}
  if(sp.type==='planet')for(const s2 of sp._sides)s2.visible=true;if(sp.type==='planet')sp._sides.forEach(g=>{const s=g.userData.side;if(s)g.visible=s.e.includes(ERA)})}
-function openSide(id){const s=SB[id];if(!s)return;const w=W[s.at];const n=!sideFound.has(id);sideFound.add(id);store.set('rq_sides',[...sideFound]);if(n){$('#book').classList.add('new')}
+function openSideBase(id){const s=SB[id];if(!s)return;const w=W[s.at];const n=!sideFound.has(id);sideFound.add(id);store.set('rq_sides',[...sideFound]);if(n){$('#book').classList.add('new')}
  sel=null;const i=SIDES.indexOf(s);
  cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb side">番外 · ${esc(shortN(w.n))} · ${s.e.map(e=>ERAN[e]).slice(0,2).join(' · ')}</div><h2>${esc(s.t)}</h2>${s.d.map(p=>`<p class="d">${esc(p)}</p>`).join('')}
   <p class="sidenote">这是为这座展览馆写的番外小故事，不是原文。</p><div class="rel"><a data-rel="${s.at}">回到「${esc(shortN(w.n))}」</a></div>
@@ -3293,4 +3293,4 @@ function sideLibHTML(q){const read=s=>sideFound.has(s.id);
  return`<p class="lead">为这座展览馆写的番外小故事，每一篇都连在它所属的词条上，在词条卡片里也能点开。<a data-side="__rand" style="margin-left:.5em;color:var(--gold);cursor:pointer;white-space:nowrap">随手翻一篇 →</a></p>`+
   `<div class="count">${SIDES.length} 篇</div>`+
   MAPS.filter(m=>g[m.id]).map(m=>{const o=sideOpen.has(m.id);return`<button class="grp${o?' open':''}" data-sg="${m.id}">${m.n}<small>${g[m.id].length}</small></button>`+(o?g[m.id].map(row).join(''):'')}).join('')}
-Object.assign(window.__rq,{goSide,openSide,SIDES});
+Object.assign(window.__rq,{goSide,openSide:egz_openSide,SIDES});

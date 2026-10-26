@@ -62,7 +62,6 @@ function egz_yao(){const n=egz_cnt('yaosha');toast('造脑怪',egz_YAO[egz_yi++%
 
 /* ---------- small things added to the worlds ---------- */
 const egz_v=V3(),egz_v2=V3();
-const egz_gs0=getSpace;getSpace=function(id){const had=!!SP[id];const sp=egz_gs0(id);if(!had)try{egz_built(sp)}catch(e){console.warn('eggs',id,e)}return sp};
 function egz_built(sp){if(sp.id==='rongqiu')egz_rongqiu(sp);else if(sp.id==='void')egz_void(sp);else if(sp.id==='dream')egz_dream(sp)}
 function egz_spr(col,s,op){const g=glowSprite(col,s,op);g.userData.noBatch=1;return g}
 function egz_rongqiu(sp){
@@ -129,4 +128,4 @@ setInterval(()=>{if(!CUR||busy||document.hidden)return;const sp=CUR;
 // the password, said in the library's search box
 setTimeout(()=>{const q=$('#q');if(q)q.addEventListener('input',()=>{if(q.value.replace(/[\s，。！？、,.!?~～…“”"'‘’：:;；·—-]/g,'')==='天空是有顶的')egg('tianding')})},0);
 // both fried-egg side stories read
-const egz_os0=openSide;openSide=function(id){egz_os0(id);if((id==='sd_fizz'||id==='sd_eggseller')&&sideFound.has('sd_fizz')&&sideFound.has('sd_eggseller'))egz_late('egg',2200)};
+function egz_openSide(id){openSideBase(id);if((id==='sd_fizz'||id==='sd_eggseller')&&sideFound.has('sd_fizz')&&sideFound.has('sd_eggseller'))egz_late('egg',2200)}

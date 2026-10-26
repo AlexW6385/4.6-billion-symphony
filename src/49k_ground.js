@@ -154,7 +154,7 @@ const Q2_GLSL_COLOR=`#include <color_fragment>
  float cs=smoothstep(.46,.72,fb3(vOP*.0105+vec3(uT*.012,uT*.003,uT*.008)));diffuseColor.rgb*=1.-cs*.2*land*(1.-smoothstep(350.,1500.,dd));
 #endif
  }`;
-function q2_planetMat(m,o){o=o||{};m.bumpMap=bumpDummy;m.bumpScale=o.bump===undefined?1:o.bump;const base=!!o.cross,patch=!!o.patch;
+function q2_planetMatBase(m,o){o=o||{};m.bumpMap=bumpDummy;m.bumpScale=o.bump===undefined?1:o.bump;const base=!!o.cross,patch=!!o.patch;
  const U=o.U||{uMix:{value:0},uCanyon:{value:0},uHK:{value:1},uSnow:{value:o.snow===undefined?1e4:o.snow},uRock:{value:C(o.rock||'#6e6458')},uRockK:{value:o.rockK===undefined?1:o.rockK},uMott:{value:o.mott===undefined?1:o.mott},uFreq:{value:o.freq||1},uT:GT};
  Object.assign(U,{uDet:U.uDet||{value:q2_detTex()},uQ:Q2Q,uPC:U.uPC||{value:V3(0,1,0)},uPR:U.uPR||{value:2},uPRo:U.uPRo||{value:-2}});m.userData.U=U;
  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);
@@ -166,12 +166,12 @@ function q2_planetMat(m,o){o=o||{};m.bumpMap=bumpDummy;m.bumpScale=o.bump===unde
    .replace('#include <color_fragment>',Q2_GLSL_COLOR)
    .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.3,q2wet);roughnessFactor=mix(roughnessFactor,.66,q2sn*.6);')};
  m.customProgramCacheKey=()=>'q2g'+(base?1:0)+(patch?1:0)+(o.canyon?1:0);return m}
-const q2_dm0=detailMat;
-detailMat=function(m,o){if(o&&o.planet)return q2_planetMat(m,o);return q2_dm0(m,o)};
+
+function q2_detailMat(m,o){if(o&&o.planet)return q2_planetMat(m,o);return detailMatBase(m,o)}
 
 /* ---- trees: the swaying material learns translucency toward the sun and a bark grain ---- */
-const q2_sw0=swayMat;
-swayMat=function(o,k){const m=q2_sw0(o,k);const ob=m.onBeforeCompile;
+
+function q2_swayMat(o,k){const m=swayMatBase(o,k);const ob=m.onBeforeCompile;
  m.onBeforeCompile=sh=>{ob(sh);sh.uniforms.uSunW=Q2SUN;sh.uniforms.uSunC=Q2SUNC;
   // the leaf shade varies smoothly instead of in blocky cells (they read as facets from close up)
   sh.fragmentShader='uniform vec3 uSunW,uSunC;\n'+sh.fragmentShader.replace('vec3 q=floor(vLP*1.4);float n=fract(sin(dot(q,vec3(12.9898,78.233,37.719)))*43758.5453);vec3 q2=floor(vLP*.18);float n2=fract(sin(dot(q2,vec3(39.3468,11.135,83.155)))*43758.5453);','float n=smoothstep(.15,.85,vn3(vLP*1.7));float n2=vn3(vLP*.22+vec3(3.1));')
@@ -184,17 +184,15 @@ swayMat=function(o,k){const m=q2_sw0(o,k);const ob=m.onBeforeCompile;
   float back=pow(max(dot(V,uSunW),0.),5.);float rim=1.-abs(dot(Nw,V));
   totalEmissiveRadiance+=lf*diffuseColor.rgb*uSunC*(back*(.3+.5*rim)+max(-dot(Nw,uSunW),0.)*.1);}`);
   sh.fragmentShader=sh.fragmentShader.indexOf('float vn3(')<0?sh.fragmentShader.replace('uniform vec3 uSunW,uSunC;\n','uniform vec3 uSunW,uSunC;\n'+GLSL_NOISE):sh.fragmentShader};
- m.customProgramCacheKey=()=>'sway2q';return m};
+ m.customProgramCacheKey=()=>'sway2q';return m}
 
 /* ---- cover: remember the biome so the grass can read it ---- */
-const q2_mc0=makeCover;
-makeCover=function(sp,fn){sp.q2Biome=fn;return q2_mc0(sp,fn)};
+
+function q2_makeCover(sp,fn){sp.q2Biome=fn;return makeCoverBase(sp,fn)}
 
 /* ---------------- after a planet is built ---------------- */
-const q2_gs0=getSpace;
 /* worlds whose ground is not soil (the metal-plated 虚民母球): the finer ground patch would paint plain earth over their plating */
 const Q2_NOPATCH=new Set(['ximin']);
-getSpace=function(id){const had=!!SP[id];const sp=q2_gs0(id);if(!had&&sp&&sp.type==='planet'&&sp.terr&&!Q2_NOPATCH.has(id))try{q2_setup(sp)}catch(e){console.warn('q2',id,e)}return sp};
 
 function q2_setup(sp){const Gd=sp.G,geo=sp.terr.geometry,n=Gd.n,M=Gd.M,NN=Gd.N;
  // forest floor (from where the trees stand) and wet ground (river banks) for every grid point
@@ -252,7 +250,7 @@ function q2_step(sp){const P=sp.q2;if(!P)return;const ti=q2_tier(),T=Q2T[ti];
  if(P.job)P.job.step(P.job);
  const gp=P.cur&&P.grass&&rig.alt<Q2A.grass;if(gp&&P.cur.gc){Q2W.uGC.value.copy(P.cur.gc);Q2W.uGR.value=P.cur.rg}if(P.grass)for(let k=0;k<2;k++){const on=!!gp&&k===P.ga;P.grass[k].visible=on&&P.grass[k].count>0;P.flw[k].visible=on&&P.flw[k].count>0}sp.q2gr=gp&&P.cur?P.cur.rg/(R*D2R):0}
 
-function q2_jobStart(P,c,T,ti){const sp=P.sp,Gd=sp.G;const back=P.act===0?1:0;const n=T.pn,Rp=T.pr;const B=q2_buf(P,back,n);
+function q2_jobStartBase(P,c,T,ti){const sp=P.sp,Gd=sp.G;const back=P.act===0?1:0;const n=T.pn,Rp=T.pr;const B=q2_buf(P,back,n);
  const Nn=V3(0,1,0).addScaledVector(c,-c.y);if(Nn.lengthSq()<1e-6)Nn.set(1,0,0);Nn.normalize();const E=Nn.clone().cross(c).negate();
  const rin=Rp*.955-2,alt=Math.max(rig.alt,14);const rg=clamp(26+alt*1.05,36,Rp*.86)*T.rg;
  const degR=(Rp*1.5)/(R*D2R);
@@ -281,7 +279,7 @@ const Q2C=[0,0,0];const q2cr=(p0,p1,p2,p3,t)=>p1+.5*t*(p2-p0+t*(2*p0-5*p1+4*p2-p
 function q2_cls(c){const s=c[0]+c[1]+c[2]+.001,mx=Math.max(c[0],c[1],c[2]),mn=Math.min(c[0],c[1],c[2]),sat=(mx-mn)/(mx+.001),lum=c[0]*.3+c[1]*.59+c[2]*.11;
  const veg=sm(.352,.392,c[1]/s)*sm(.06,.16,sat),sand=sm(.1,.24,c[0]-c[2])*sm(.4,.58,lum)*(1-veg),snow=sm(.64,.8,lum)*(1-sm(.1,.22,sat));Q2C[0]=veg;Q2C[1]=sand;Q2C[2]=snow;return Q2C}
 const _q2d=V3(),_q2c=[0,0,0];
-function q2_jobStep(J){const P=J.P,sp=P.sp,B=J.B,n=J.n,Gd=sp.G,GN=Gd.N,M=Gd.M,H=Gd.H,CY=Gd.CY,cy=J.cy,NR=sp.terr.geometry.attributes.normal.array,QQ=sp.q2Q;
+function q2_jobStepBase(J){const P=J.P,sp=P.sp,B=J.B,n=J.n,Gd=sp.G,GN=Gd.N,M=Gd.M,H=Gd.H,CY=Gd.CY,cy=J.cy,NR=sp.terr.geometry.attributes.normal.array,QQ=sp.q2Q;
  if(J.stage===0){let j1=n+1;const d=_q2d,c3=_q2c;const Rp=J.Rp,rin=J.rin;const t0=q5s_now(),lim=q5s_slice();// (49p_stable: rows until the slice's time is used)
   const hv=k=>H[k]-(CY?CY[k]*cy:0);
   for(let j=J.row;j<j1;j++){if(j>J.row&&q5s_now()-t0>lim){j1=j;break}const v=j/n*2-1,gy=Rp*(Q2GA*v+(1-Q2GA)*v*v*v);for(let i=0;i<=n;i++){const u=i/n*2-1,gx=Rp*(Q2GA*u+(1-Q2GA)*u*u*u);const vi=j*(n+1)+i;
@@ -336,7 +334,7 @@ function q2_bio(J,gx,gy){const BN=J.BN,o=Q2BI;if(!J.bio.length){o.t=o.tall=o.f=0
  const a=J.bio[j*(BN+1)+i],b=J.bio[j*(BN+1)+i+1],c=J.bio[(j+1)*(BN+1)+i],d=J.bio[(j+1)*(BN+1)+i+1];const L=(k)=>(a[k]*(1-fx)+b[k]*fx)*(1-fy)+(c[k]*(1-fx)+d[k]*fx)*fy;
  const nb=fx<.5?(fy<.5?a:c):(fy<.5?b:d);o.t=L('t');o.tall=L('tall');o.f=L('f');o.tc=nb.tc;o.fc=nb.fc;return o}
 /* new colours for the patch in place (era change) */
-function q2_recolour(P){const sp=P.sp,cu=P.cur;if(!cu)return;const B=cu.B,n=cu.n,Gd=sp.G,M=Gd.M,GN=Gd.N,ca=sp.terr.geometry.attributes.color.array,cb=sp.terr.geometry.attributes.aCol2.array;const d=V3();
+function q2_recolourBase(P){const sp=P.sp,cu=P.cur;if(!cu)return;const B=cu.B,n=cu.n,Gd=sp.G,M=Gd.M,GN=Gd.N,ca=sp.terr.geometry.attributes.color.array,cb=sp.terr.geometry.attributes.aCol2.array;const d=V3();
  for(let vi=0;vi<B.nv;vi++){d.set(B.pos[vi*3],B.pos[vi*3+1],B.pos[vi*3+2]).normalize();const fi=faceOf(d),f=FACES[fi],dn=d.dot(f.n);const a=Math.atan(d.dot(f.u)/dn)*1.2732395,b=Math.atan(d.dot(f.v)/dn)*1.2732395;
   const x=clamp((a+1)*.5*GN,0,GN-1e-4),y=clamp((b+1)*.5*GN,0,GN-1e-4);const ci=x|0,cj=y|0,fx=x-ci,fy=y-cj;const k=fi*M*M+cj*M+ci;const wE=B.wE[vi];
   let ta,tb,tc,td;if(fx+fy<1){ta=1-fx-fy;tb=fx;tc=fy;td=0}else{ta=0;tb=1-fy;tc=1-fx;td=fx+fy-1}const wa=ta+((1-fx)*(1-fy)-ta)*wE,wb=tb+(fx*(1-fy)-tb)*wE,wc=tc+((1-fx)*fy-tc)*wE,wd=td+(fx*fy-td)*wE;
@@ -347,7 +345,7 @@ function q2_at(cu,d){const cd=d.dot(cu.C);if(cd<.5)return -1;const x=d.dot(cu.E)
  const inv=s=>{const p=Q2GA/(1-Q2GA),q=-s/(cu.r*(1-Q2GA)),D=Math.sqrt(q*q/4+p*p*p/27);return Math.cbrt(-q/2+D)+Math.cbrt(-q/2-D)};
  const n=cu.n,fx=(inv(x)+1)*.5*n,fy=(inv(y)+1)*.5*n;const i=clamp(fx|0,0,n-1),j=clamp(fy|0,0,n-1);cu._fx=fx-i;cu._fy=fy-j;return j*(n+1)+i}
 /* the river and road segments near a spot, and whether a point lies on one (for the ground cover) */
-function q2_lines(sp,c,deg){if(!sp.q2Lines||!sp.q2Lines.length)return null;const L=sp.q2Lines.filter(l=>(!l.eras||l.eras.includes(ERA))&&(angDeg(l.a,c)<deg+1||angDeg(l.b,c)<deg+1)).map(l=>{const ab=l.b.clone().sub(l.a);
+function q2_linesBase(sp,c,deg){if(!sp.q2Lines||!sp.q2Lines.length)return null;const L=sp.q2Lines.filter(l=>(!l.eras||l.eras.includes(ERA))&&(angDeg(l.a,c)<deg+1||angDeg(l.b,c)<deg+1)).map(l=>{const ab=l.b.clone().sub(l.a);
   const w=l.w*(l.lv!==undefined?.8:1.3)*D2R;return{a:l.a,ab,l2:ab.lengthSq()||1e-12,m:l.a.clone().add(l.b).multiplyScalar(.5),rr:Math.sqrt(ab.lengthSq())*.5+w,w2:w*w}});return L.length?L:null}
 function q2_onLine(L,d){for(const l of L){const mx=d.x-l.m.x,my=d.y-l.m.y,mz=d.z-l.m.z;if(mx*mx+my*my+mz*mz>l.rr*l.rr)continue;
   let t=((d.x-l.a.x)*l.ab.x+(d.y-l.a.y)*l.ab.y+(d.z-l.a.z)*l.ab.z)/l.l2;t=t<0?0:t>1?1:t;const ex=d.x-l.a.x-l.ab.x*t,ey=d.y-l.a.y-l.ab.y*t,ez=d.z-l.a.z-l.ab.z*t;if(ex*ex+ey*ey+ez*ez<l.w2)return true}return false}
@@ -477,7 +475,7 @@ function q2_tier2(r,h,y,K,seed){const pos=[],col=[],nrm=[];const top=[0,y+h,0];c
  // the underside faces down
  const N=g.attributes.normal;for(let i=0;i<N.count;i++){if(i%12>=9)N.setXYZ(i,N.getX(i)*.4,-.9,N.getZ(i)*.4)}return g}
 function q2_bark(g){const P=g.attributes.position,c=g.attributes.color;for(let i=0;i<P.count;i++){const s=.82+.3*clamp(P.getY(i)/4,0,1);c.setXYZ(i,c.getX(i)*s,c.getY(i)*s,c.getZ(i)*s)}return g}
-function q2_treeKits(KITS,NEAR){try{
+function q2_treeKitsBase(KITS,NEAR){try{
  const M=gs=>THREE.BufferGeometryUtils.mergeBufferGeometries(gs.map(g=>{g=g.index?g.toNonIndexed():g;if(g.attributes.uv)g.deleteAttribute('uv');return g}));
  const trunk=(parts)=>q2_bark(mergeColored(parts.map(([g,c,f])=>[f?tg(g,f):g,c])));
  // broadleaf: a short trunk with three limbs and a crown of nine lumps

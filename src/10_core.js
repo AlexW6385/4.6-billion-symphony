@@ -152,7 +152,7 @@ const FinalShader={uniforms:{tDiffuse:{value:null},uVig:{value:.5},uTime:{value:
   c+=(fract(sin(dot(vUv*vec2(1311.7,977.3)+fract(uTime),vec2(12.9898,78.233)))*43758.5453)-.5)*.016;
   c=mix(c,uFadeCol,uFade);gl_FragColor=vec4(c,1.);}`};
 let composer=null,renderPass=null,bloomPass=null,finalPass=null,fxaaPass=null;
-function initPost(){if(!POST.on)return;try{const w=innerWidth,h=innerHeight;const half=renderer.capabilities.isWebGL2;
+function initPostBase(){if(!POST.on)return;try{const w=innerWidth,h=innerHeight;const half=renderer.capabilities.isWebGL2;
  const ro={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:half?THREE.HalfFloatType:THREE.UnsignedByteType};
  // real edge smoothing (multisampling: 4x on an ordinary screen, 2x on a dense one) where the GPU can, instead of the blur of FXAA
  let rt=null;if(half&&!COARSE&&THREE.WebGLMultisampleRenderTarget){try{rt=new THREE.WebGLMultisampleRenderTarget(w*PR,h*PR,ro);rt.samples=PR>1.25?2:4;POST.msaa=true}catch(e){rt=null}}
@@ -193,7 +193,7 @@ function surf(sp,a,b){const t=sp.type;
  else if(t==='tube'){UP.copy(tubeUp(b));NO.set(0,0,1);S_.copy(tubePt(sp.Rt,a,b,rig.y+(sp.wallR?Math.max(0,sp.wallR(a,b)):0)))}
  else{UP.set(0,1,0);NO.set(0,0,-1);S_.set(b,rig.y,-a)}}
 let _gS=null,_gT=0,_gSp=null;
-function rigPose(){const sp=CUR;const tilt=tiltOf(sp.type,rig.alt);surf(sp,rig.a,rig.b);
+function rigPoseBase(){const sp=CUR;const tilt=tiltOf(sp.type,rig.alt);surf(sp,rig.a,rig.b);
  if(sp.type==='planet'){const now=performance.now(),L=S_.length();if(_gS===null||_gSp!==sp||Math.abs(L-_gS)>160)_gS=L;else{const dt=Math.min(.1,(now-_gT)/1000);_gS+=(L-_gS)*(1-Math.exp(-dt*7))}_gT=now;_gSp=sp;S_.setLength(_gS)}
  TG.copy(S_);
  EA.copy(NO).cross(UP).negate();BK.copy(NO).multiplyScalar(-Math.cos(rig.head)).addScaledVector(EA,-Math.sin(rig.head));

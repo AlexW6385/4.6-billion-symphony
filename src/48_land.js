@@ -87,7 +87,7 @@ function roadNet(sp,pairs,eras,o){o=o||{};const gh=sp.gh,Rn=rnd(o.seed||3131);co
  return road}
 
 /* ---------- the earliest ages: the sea is where everything is happening ---------- */
-function rqEarly(sp){const Rn=rnd(1717);const Y=V3(0,1,0);
+function rqEarlyBase(sp){const Rn=rnd(1717);const Y=V3(0,1,0);
  // 绿毯: the green carpet on the sea floor, seen through the water as drifting green
  {const cap=new THREE.Mesh(new THREE.SphereGeometry(R+.18,96,48,0,Math.PI*2,0,9*D2R),new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:GT},
    vertexShader:'varying vec3 vP;varying vec2 vU;void main(){vP=position;vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',

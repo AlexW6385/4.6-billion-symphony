@@ -105,7 +105,7 @@ function openToc(v){if(rdK<0||!CH[rdK])return;const c=CH[rdK];v=v||rdToc||c.v;rd
   <div class="eb">目录 · ${VOLN[v]}${VOLNM[v]?' '+esc(VOLNM[v]):''} · ${VOLLEN[v]} 章</div><div class="vtabs">${VOLS.map(o=>o.v).map(n=>`<button data-tv="${n}" class="${n===v?'on':''}" title="${esc(VOLNM[n]||'')}">${VOLN[n]}</button>`).join('')}</div>
   <ol class="toc">${L.join('')}</ol>`;
  rd.classList.add('on');rd.classList.remove('read');rd.scrollTop=0;const li=rd.querySelector('li.cur');if(li)rd.scrollTop=Math.max(0,li.offsetTop-rd.clientHeight*.4)}
-async function openRd(k,from){if(!CH[k])return;rdK=k;rdToc=false;if(from!==undefined)rdFrom=from;if(!NOVEL&&!novelTried){if(!rd.classList.contains('on')){rd.innerHTML='<button class="x" aria-label="关闭">×</button><p class="sec">翻开中…</p>';rd.classList.add('on')}await ensureNovel()}if(rdK!==k)return;const c=CH[k];const vl=VOLLEN[c.v];const body=NOVEL?chapterText(k):null;
+async function openRdBase(k,from){if(!CH[k])return;rdK=k;rdToc=false;if(from!==undefined)rdFrom=from;if(!NOVEL&&!novelTried){if(!rd.classList.contains('on')){rd.innerHTML='<button class="x" aria-label="关闭">×</button><p class="sec">翻开中…</p>';rd.classList.add('on')}await ensureNovel()}if(rdK!==k)return;const c=CH[k];const vl=VOLLEN[c.v];const body=NOVEL?chapterText(k):null;
  const ents=chEnts(k);const pl=CHP[k];let near='';try{localStorage.setItem('rq_lastch',String(k))}catch(e){}
  if(!ents.length){let a=-1,b=-1;for(let j=k-1;j>=0&&j>k-400;j--)if(chEnts(j).length){a=j;break}for(let j=k+1;j<CH.length&&j<k+400;j++)if(chEnts(j).length){b=j;break}
   near=`<p class="none">这一章还没有收录条目。${a>=0||b>=0?'离它最近、收录了条目的章节：':''}</p><div class="chips">${[a,b].filter(x=>x>=0).map(x=>`<a data-rk="${x}">《${esc(CH[x].t)}》<i>第${CH[x].n}章</i></a>`).join('')}</div>`}
@@ -159,7 +159,7 @@ function chapLibHTML(q){if(q){const L=[];CH.forEach((c,k)=>{if(!c.dup&&c.t.inclu
   if(B.v!==lastV){if(!chOpen.has(E.id))h+=volH(B.v);lastV=B.v}}
  return h}
 function chRow(k,vol){const c=CH[k],n=chEnts(k).length,pl=CHP[k];return`<button class="chr" data-rch="${k}"><b>${vol?VOLN[c.v]+' ':''}${c.n}</b>${esc(c.t)}${pl&&!pl.inh?`<em>${esc(shortN(W[pl.id].n))}</em>`:''}</button>`}
-Object.assign(window.__rq,{openRd,loadNovelFile,CH,chEnts,CHP,goChapterPlace});
+Object.assign(window.__rq,{openRd:openRdBase,loadNovelFile,CH,chEnts,CHP,goChapterPlace});
 Object.assign(window.__rq,{cardStep:d=>cardStep(d),sel:()=>sel,chapLibHTML,W});
 
 /* look for a stored copy of the book while the visitor is still looking around, so the first chapter opens at once */
