@@ -142,7 +142,9 @@ The implementing agent updates this section at the end of every session. Phases 
 - ✅ Baseline: `tests/baseline/perf.json` (perf5 per space); fixed viewpoints in `tests/viewpoints.json` (`tests/shots.cjs`); `tests/fingerprint.cjs`. (Screenshots are not stored in the repo: regenerate from a tagged build.)
 - ◐ World-switch hitch: programs shared across worlds (1–9 new per switch after the first planet / non-planet visit); fade-in waits for warm-up frames; no prebuild stalls. Still open: a first visit to a world builds and compiles under the loading cover (1–2 s). Next ideas: async program linking (KHR_parallel_shader_compile; three r128 links synchronously in `getProgram`), slicing the builders.
 - ✅ Interaction path walked on desktop and phone (`tests/path.cjs`): library/reader stalls removed, first jumps cheap; sharing added.
-- Remaining before Phase 0 is done: audit pass recorded, release tag `v1.1` with CHANGELOG, the live site checked on desktop and phone.
+- ◐ Audit (`tests/baseline/audit.json`): 113 of 767 entries failed before Phase 0; the moon view swallowing jumps is fixed (→ 91). Left: 13 off-screen after a jump (mostly fast fliers and two large regions), ~70 with something solid between camera and entry (towers on 虚民母球, trunks underground, a few markers that sit away from their model, e.g. 绿洲湖). These are interaction bugs: next in line.
+- `CHANGELOG.md` has v1.1. The tag and GitHub release could not be pushed from the agent's session (tag pushes are refused there); cut them from a normal checkout: `git tag -a v1.1 c54ddad` and a release with the CHANGELOG text.
+- Phase 1 needs read access to `rongqiu-source` from the agent's session.
 
 **Phase 1 — Coverage index**
 - Using the novel (search-first) and the existing entries, build `rongqiu-source/exhibition/coverage.md`: every named place in the book, which space it belongs to (or needs), whether it is enterable, which entries exist for it, and which are missing or thin (`thin.mjs`). Rank missing content by importance.
