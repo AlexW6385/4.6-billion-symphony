@@ -129,3 +129,8 @@ setInterval(()=>{if(!CUR||busy||document.hidden)return;const sp=CUR;
 setTimeout(()=>{const q=$('#q');if(q)q.addEventListener('input',()=>{if(q.value.replace(/[\s，。！？、,.!?~～…“”"'‘’：:;；·—-]/g,'')==='天空是有顶的')egg('tianding')})},0);
 // both fried-egg side stories read
 function egz_openSide(id){openSideBase(id);if((id==='sd_fizz'||id==='sd_eggseller')&&sideFound.has('sd_fizz')&&sideFound.has('sd_eggseller'))egz_late('egg',2200)}
+
+/* ---------- 10 · the 雕像 egg waits for the camera to settle (it used to fire on arrival, under the title) ---------- */
+let q4a_emT=0;
+function q4a_emeraldEgg(sp){if(tw||busy){q4a_emT=0;return}const p=sp.prox.find(q=>q.w.id==='emeraldcity');if(!(p&&camera.position.distanceTo(p.pos)<34)){q4a_emT=0;return}
+ const now=performance.now();if(!q4a_emT)q4a_emT=now;else if(now-q4a_emT>2200)egg('emerald')}

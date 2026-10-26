@@ -144,3 +144,11 @@ function q5s_slice(){return q5s_blown()?1.5:COARSE?3.5:5}
 function q2_jobStart(P,c,T,ti){return q5s_span('q2start',()=>q2_jobStartBase(P,c,T,ti))}
  function q2_jobStep(J){const st=J.stage;return q5s_span('q2s'+st,()=>q2_jobStepBase(J))}
 function q2_lines(sp,c,deg){return q5s_span('q2lines',()=>q2_linesBase(sp,c,deg))}
+
+/* ---- quality defaults: an exhibition first, smooth and quick before anything else.
+   shadows always stay (their map, reach and redraw rate step down with the quality level); grass, the near ground patch,
+   ambient occlusion, cloud self-shadow, micro-grain and close tree detail start one step below the best (a phone two);
+   the quality drops a step as soon as the frame rate stays under Q5DOWN ---- */
+function Q5OFF(){return window.__q5off!==undefined?window.__q5off:1}
+const Q5DOWN=42;
+setTimeout(()=>{try{Object.assign(window.__rq.dbg,{post:()=>({bloomPass,composer,finalPass,fxaaPass}),setLvl:L=>{perf.lvl=L;applyLevel()},perf:()=>perf,tw:()=>tw})}catch(e){}},0);

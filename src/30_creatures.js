@@ -1773,3 +1773,33 @@ function q5m_lamp(P){const h=P.h||2.6;return G([[kcy(.07,.09,h,6),P.metal,{p:[0,
 
 // 大眼龙 makes the salamander's eyes 2.6 times bigger by looking for the old body's eye spheres; the new body takes the size instead
 function q5m_bigEyeLizard(){q5m_eyeK=2.6;try{return bBigEyeLizard.apply(this,arguments)}finally{q5m_eyeK=1}}
+
+/* ---------- 9 · 方舟: three island-sized vessels (卷二《远航的准备》): a rock-shell hull nearly four hundred metres long, tiers of
+   decks joined by passages, the top one open under the sky with soil, rocky hills whose flat round tops open for the troops, warm
+   stones among them, 冥河巨炮 round the rim, fins and water jets below, and the warm light of the holds through the shell ---------- */
+function q4a_bArk(f){const g=new THREE.Group();const Rn=rnd(hashStr(f.w||'ark')+3);
+ const shell='#5e5d58',shellD='#45443f',rock='#716b62',earth='#665846',snow='#dfe5e8';
+ // the hull: a long flattened lens, darker below the waterline, ringed by the shell's plates
+ const P=[[tg(sgeo(24).clone(),{s:[2.3,.34,.74]}),shell,{p:[0,.02,0]}],[tg(sgeo(16).clone(),{s:[2.34,.14,.78]}),shellD,{p:[0,-.16,0]}]];
+ for(let i=0;i<7;i++)P.push([kcy(.5,.5,.04,14),shellD,{p:[-1.3+i*.45,.0,0],r:[0,0,Math.PI/2],s:[1,1,1]}]);
+ // two tiers above it, the upper one soil under open sky
+ P.push([tg(sgeo(20).clone(),{s:[1.9,.14,.58]}),rock,{p:[0,.36,0]}],[tg(sgeo(20).clone(),{s:[1.5,.11,.46]}),earth,{p:[0,.5,0]}]);
+ // passages up through the tiers, ventilation stacks, the rim's cannon
+ for(let i=0;i<8;i++){const a=i/8*6.283;P.push([kcy(.03,.045,.2,6),'#4a4f52',{p:[Math.cos(a)*1.72,.48,Math.sin(a)*.5],r:[Math.sin(a)*.7,0,-Math.cos(a)*.7]}])}
+ for(let i=0;i<5;i++)P.push([kcy(.05,.07,.16,7),shellD,{p:[-1.4+i*.6,.52,(i%2?.3:-.3)]}]);
+ // rocky hills on the deck, flat round tops, some snow on them (it is the age of snow), two warm from the stones inside
+ const hills=[];for(let i=0;i<7;i++){const x=-1.05+i*.35+(Rn()-.5)*.15,z=(Rn()-.5)*.5,rb=.16+Rn()*.12,hh=.22+Rn()*.3;hills.push([x,z,rb,hh]);
+  P.push([kcy(rb*.45,rb,hh,8),rock,{p:[x,.56+hh/2,z]}]);P.push([kcy(rb*.5,rb*.56,.02,8),i%3===1?'#4a4038':snow,{p:[x,.56+hh+.01,z]}]);
+  if(i%2)P.push([tg(sgeo(10).clone(),{s:[rb*.9,.035,rb*.8]}),snow,{p:[x+rb*.3,.59,z+rb*.3]}])}
+ // low stone walls and planted plots between the hills, the dragons' fields on the shark's back
+ for(let i=0;i<9;i++){const x=-1.2+Rn()*2.4,z=(Rn()-.5)*.66;P.push([kb(.2+Rn()*.2,.015,.12+Rn()*.1),i%2?'#7d8a4e':'#8c7a5a',{p:[x,.585,z],r:[0,Rn()*3,0]}])}
+ // fins for steering, a tail fin, the jets' housings
+ P.push([kb(.8,.03,.5),'#505c5a',{p:[.3,-.05,.8],r:[0,-.2,-.15]}],[kb(.8,.03,.5),'#505c5a',{p:[.3,-.05,-.8],r:[0,.2,-.15]}],[tg(kc(.26,.7,4),{r:[0,0,Math.PI/2]}),'#505c5a',{p:[-2.5,.02,0],s:[1,.5,1]}]);
+ for(let i=0;i<3;i++)P.push([kcy(.08,.1,.3,8),shellD,{p:[-2.25,-.1,(i-1)*.3],r:[0,0,Math.PI/2]}]);
+ const body=new THREE.Mesh(G(P),VC({roughness:.9}));body.castShadow=true;body.receiveShadow=true;g.add(body);
+ // the holds' light through ports along the tiers, warm; the warm stones glow on two hilltops
+ const W=[];for(let s=-1;s<=1;s+=2)for(let i=0;i<9;i++){const t=i/8;const x=-1.5+t*3,z=s*(.6-Math.abs(t-.5)*.18);W.push([kb(.05,.025,.02),'#ffd090',{p:[x,.26,z]}])}
+ const win=new THREE.Mesh(G(W),new THREE.MeshStandardMaterial({vertexColors:true,emissive:'#ffc880',emissiveIntensity:.9,roughness:.6}));win.userData.noSkin=1;g.add(win);
+ hills.forEach((h,i)=>{if(i%3!==1)return;const s=glowSprite('#ff9a50',.45,.55);s.position.set(h[0],.6+h[3],h[1]);g.add(s)});
+ const pl=new THREE.PointLight(0xffc080,.6,40);pl.position.y=1;g.add(pl);
+ g.userData.swim=1;return g}

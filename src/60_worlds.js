@@ -318,3 +318,35 @@ function fxG_deepNet(sp){const g=new THREE.Group();const C0=[2,152];const N=[],L
  for(let i=0;i<14;i++){const a=Rn()*6.283,d=i?.4+Rn()*2:0;const la=C0[0]+Math.cos(a)*d,lo=C0[1]+Math.sin(a)*d;const h=sp.ghRaw(la,lo);N.push(dirLL(la,lo).multiplyScalar(R+h+3.2))}
  for(let i=1;i<N.length;i++){let best=0,bd=1e9;for(let j=0;j<i;j++){const dd=N[i].distanceTo(N[j]);if(dd<bd){bd=dd;best=j}}L.push([i,best])}L.push([3,9],[5,12]);
  const an=fxG_tubeNet(g,N,L,1.1,{hub:3.2});addE(g,[7]);cull(g,up.clone().multiplyScalar(R-20),70,1800);anim(sp,g,an);if(g.userData.towerMat)sp.towerMats=(sp.towerMats||[]).concat([g.userData.towerMat])}
+
+/* ---------- 8 · 虚民母球: a metal planet, not a glossy patchwork; its one green oasis has grass and mixed trees ---------- */
+
+function makePlanet(id,cfg){if(id==='ximin')Object.assign(cfg,{rough:.68,metal:.1,plate:1,atm:'#8a9aaa',atmK:.5,mott:.6,hemiSky:0xc0ccd8});
+ const sp=makePlanetBase(id,cfg);
+ if(id==='ximin')makeCover(sp,q4a_ximinBiome);
+ return sp}
+function q4a_ximinBiome(d,h,lat,e,W){const oa=angDeg(d,XOAS);if(oa>4.6||h<2.2)return;const k=1-sm(3.4,4.6,oa);W.tuft=.55*k;W.tuftC='#ffffff';W.flower=.05*k;W.flowerC=['#f4e6a0','#ffffff','#e9a0c0'][(h*7|0)%3];W.rock=.03;if(n3(d.x*40,d.y*40,d.z*40)>.62){W.fern=.25*k}}
+/* the ground colour: soft grey districts instead of hard-edged cells, dark seams of the old streets, the oasis blending out over its rim */
+function ximinC(p,h,lat,out){if(h<0){out.set('#163a4a').lerp(C('#071a26'),sm(-2,-40,h));return}if(h<2.2){out.set('#8a8a84');return}
+ const oa=angDeg(p,XOAS);if(oa<4.6){const k=1-sm(3.3,4.6,oa);const g=C('#5f8a48').lerp(C('#3f7a40'),n3(p.x*40,p.y*40,p.z*40)).lerp(C('#8a8a5a'),sm(.55,.8,n3(p.x*22+3,p.y*22,p.z*22))*.5);
+  out.set('#6a6e70').lerp(C('#848a8c'),n3(p.x*50,p.y*50,p.z*50)*.5).lerp(g,k);return}
+ const[la,lo]=llDir(p);const cell2=h3(Math.floor((la+90)/2.2),Math.floor((lo+180)/2.2),5);
+ const dist=n3(p.x*2.3+9,p.y*2.3,p.z*2.3),dist2=n3(p.x*5.1,p.y*5.1+2,p.z*5.1);
+ out.set('#5f6870').lerp(C('#848e96'),n3(p.x*50,p.y*50,p.z*50)*.5).lerp(C('#767472'),sm(.35,.7,dist)*.4).lerp(C('#4e565e'),sm(.6,.85,dist2)*.4)
+  .lerp(C('#a2a6aa'),cell2>.84?.25:0).lerp(C('#3a3e44'),cell2<.1?.3:0).lerp(C('#7a7466'),sm(.55,.8,n3(p.x*7,p.y*7,p.z*7))*.25);
+ if(angDeg(p,XCOR)<4)out.lerp(C('#141418'),1-sm(2,4,angDeg(p,XCOR)))}
+/* the plating: panels in a grid on every face, dark seams between them, each panel its own shade, rust in the hollows */
+
+function q2_planetMat(m,o){o=o||{};const plate=!!(o.plate||(BSP&&BSP.cfg&&BSP.cfg.plate));const r=q2_planetMatBase(m,o);if(!plate)return r;
+ const ob=r.onBeforeCompile,ck=r.customProgramCacheKey;
+ r.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader.replace(' diffuseColor.rgb=col;',`
+ {float pk=(1.-rk)*(1.-q2sn)*land*(1.-veg)*(1.-sand);
+  vec3 pp=vOP*.21;vec3 fp=fract(pp);vec3 cp=floor(pp);float fwp=length(fwidth(vOP))*.21;float swd=max(.035,fwp*1.6);
+  vec3 ln=1.-smoothstep(vec3(0.),vec3(swd),min(fp,1.-fp));
+  float seam=q2w.x*max(ln.y,ln.z)+q2w.y*max(ln.x,ln.z)+q2w.z*max(ln.x,ln.y);seam*=1.-smoothstep(.1,.3,fwp);
+  float hsh=fract(sin(dot(cp,vec3(12.9898,78.233,37.719)))*43758.5453);
+  vec3 pc=col*(.86+.26*hsh)*(.9+.2*vn3(vOP*.035));
+  pc=mix(pc,pc*vec3(1.1,.88,.7),smoothstep(.62,.86,q2M.a)*.45*(1.-smoothstep(0.,.25,fwp)));
+  pc*=1.-seam*.4;col=mix(col,pc,pk*.9);}
+ diffuseColor.rgb=col;`)};
+ r.customProgramCacheKey=()=>ck()+'p';return r}

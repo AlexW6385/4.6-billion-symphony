@@ -69,23 +69,6 @@ class Q3AOPass extends THREE.Pass{constructor(){super();this.needsSwap=false;
 let Q3AO=null;
 function q3_aoWanted(){if(window.__q3ao!==undefined)return !!window.__q3ao;if(!Q3AO||COARSE)return false;const T=Q3T[q3_tier()];return T.ao>0}
 
-/* ---------------- the last pass: AO, exposure, a gentle filmic curve, mood, warmth toward the sun, cool shadows ---------------- */
-Object.assign(FinalShader.uniforms,{tAO:{value:null},tDepth:{value:null},uAOK:{value:0},uAOT:{value:new THREE.Vector2(1,1)},uN:{value:.4},uF:{value:1e5},
- uExp:{value:1},uGain:{value:new THREE.Color(1,1,1)},uLift:{value:new THREE.Color(0,0,0)},uSat:{value:1.06},uCon:{value:0},uWarm:{value:new THREE.Color(1,1,1)},uSunP:{value:V3(.5,.5,0)},uAsp:{value:1.6},uDbg:{value:0}});
-FinalShader.fragmentShader=`uniform sampler2D tDiffuse,tAO,tDepth;uniform float uVig,uTime,uFade,uAOK,uN,uF,uExp,uSat,uCon,uAsp,uDbg;uniform vec2 uAOT;uniform vec3 uFadeCol,uGain,uLift,uWarm,uSunP;varying vec2 vUv;
- void main(){vec3 c=max(texture2D(tDiffuse,vUv).rgb,0.);
-  if(uAOK>0.){float d=texture2D(tDepth,vUv).x;if(d<.999999){float z=uN*uF/(uF-d*(uF-uN));vec2 hp=vUv/uAOT-.5;vec2 b=floor(hp),f=hp-b;float a=0.,ws=0.;
-    for(int j=0;j<2;j++)for(int i=0;i<2;i++){vec2 o=vec2(float(i),float(j));vec4 s=texture2D(tAO,(b+o+.5)*uAOT);float w=(i==1?f.x:1.-f.x)*(j==1?f.y:1.-f.y)+.002;float dz=min(abs(s.g-z)/(z*.03+.05),1e3);w/=1.+dz*dz;a+=s.r*w;ws+=w;}
-    float ao=ws>1e-3?a/ws:1.;if(uDbg>0.){gl_FragColor=vec4(vec3(ao),1.);return;}c*=mix(vec3(1.),vec3(ao)+(1.-ao)*vec3(.0,.035,.1),uAOK);}}
-  {float l0=dot(c,vec3(.299,.587,.114));c*=uExp*mix(uGain,vec3(1.),smoothstep(.5,.95,l0));}
-  {vec2 sd=(vUv-uSunP.xy)*vec2(uAsp,1.);float sw=exp(-dot(sd,sd)*1.6)*uSunP.z;c*=mix(vec3(1.),uWarm,sw);}
-  vec3 hi=.74+.26*(1.-exp(-(c-.74)/.26));c=mix(c,hi,step(.74,c));// (the shoulder starts lower: snow, cloud and pale stone kept burning out to flat white)
-  c=clamp(c,0.,1.);c=mix(c,c*c*(3.-2.*c),uCon);
-  float l=dot(c,vec3(.299,.587,.114));c+=uLift*pow(1.-smoothstep(0.,.42,l),2.);
-  l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);
-  float dv=distance(vUv,vec2(.5));c*=1.-uVig*smoothstep(.42,1.,dv);
-  c+=(fract(sin(dot(vUv*vec2(1311.7,977.3)+fract(uTime),vec2(12.9898,78.233)))*43758.5453)-.5)*.016;
-  c=mix(c,uFadeCol,uFade);gl_FragColor=vec4(c,1.);}`;
 /* the mood of each world and age: exposure, a colour gain, how far the shadows lift and toward what, saturation, contrast */
 const Q3MOOD={
  def:{e:1,g:[1,1,1],l:[.012,.02,.034],s:1.06,c:.12},
@@ -305,3 +288,31 @@ function q3_towerMat(o){o=Object.assign({},o||{});const kit=o.kit;delete o.kit;c
 /* ---------------- per planet, per frame ---------------- */
 function q3_step(sp){if(CUR!==sp)return;const T=Q3T[q3_tier()];const Q=Q3Q.value;
  if(!window.__q3Q){Q.x=T.cloud;Q.y=T.water;Q.z=T.bld;Q2Q.value.z=T.bld}if(window.__q3rock!==undefined)Q2Q.value.z=window.__q3rock;}
+
+/* ---------- 4 · buildings: a sky-light fill on the shaded side, rows of windows on the glass-and-steel kits ---------- */
+const Q4FILL={value:new THREE.Color(.1,.1,.1)};
+
+function q4a_towerMat(o){const m=q3_towerMat(o);const ob=m.onBeforeCompile;
+ m.onBeforeCompile=sh=>{ob(sh);sh.uniforms.uQ4Fill=Q4FILL;
+  // the world-space scale of this copy along its own axes, so the windows keep their size on a kit stretched four times taller
+  sh.vertexShader='varying vec3 q4S;\n'+sh.vertexShader.replace('#include <fog_vertex>','#include <fog_vertex>\n#ifdef USE_INSTANCING\nmat3 q4m=mat3(modelMatrix*instanceMatrix);\n#else\nmat3 q4m=mat3(modelMatrix);\n#endif\nq4S=vec3(length(q4m[0]),length(q4m[1]),length(q4m[2]));');
+  sh.fragmentShader='uniform vec3 uQ4Fill;varying vec3 q4S;float q4win=0.;\n'+sh.fragmentShader
+   // the glass-and-steel kits (尔什's towns, 虚民母球's towers): bays of windows laid out in metres on the building's own faces,
+   // from its foot up; dark glass by day, most of them lit after dark
+   .replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
+ if(uKit>4.5&&uKit<6.5){vec3 nl=normalize(q3LN);float wall=1.-smoothstep(.3,.55,abs(nl.y));float lum=dot(diffuseColor.rgb,vec3(.3,.59,.11));
+  if(wall>0.&&lum>.45){vec3 p=q3LP*q4S;float u=abs(nl.x)>abs(nl.z)?p.z:p.x;float v=p.y;vec2 cs=vec2(1.05,1.2);vec2 f=fract(vec2(u,v)/cs);float fw=length(fwidth(vec2(u,v)))/cs.x;
+   float aa=max(fw*1.5,.02);float wx=smoothstep(.24-aa,.24+aa,f.x)*(1.-smoothstep(.74-aa,.74+aa,f.x)),wy=smoothstep(.26-aa,.26+aa,f.y)*(1.-smoothstep(.68-aa,.68+aa,f.y));
+   q4win=wx*wy*wall*(1.-smoothstep(.12,.3,fw))*step(.3,v);
+   diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.15,.19,.25),q4win*.85);roughnessFactor=mix(roughnessFactor,.18,q4win);}}`)
+   .replace('#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\nmetalnessFactor=mix(metalnessFactor,.1,q4win);')
+   // the fill: what the sky and the ground throw back onto walls (a little more on surfaces that face up)
+   .replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+ totalEmissiveRadiance+=diffuseColor.rgb*uQ4Fill*(.7+.3*max(dot(normalize(vWN),normalize(vWP)),0.));`)
+   // the scattered specks of light stay for the other kits; the window bays light up by their own dice
+   .replace('totalEmissiveRadiance+=uWin*win*(.08+.75*uNight)*(.55+.45*h);','totalEmissiveRadiance+=uWin*win*(.08+.75*uNight)*(.55+.45*h)*(1.-step(4.5,uKit)*step(uKit,6.5));{vec3 nl2=normalize(q3LN);vec3 p2=q3LP*q4S;vec2 cq=floor(vec2(abs(nl2.x)>abs(nl2.z)?p2.z:p2.x,p2.y)/vec2(1.05,1.2));float h2=fract(sin(dot(cq,vec2(12.9898,78.233)))*43758.5453);totalEmissiveRadiance+=uWin*q4win*step(.42,h2)*(.04+.8*uNight)*(.6+.4*h2);}')};
+ m.customProgramCacheKey=()=>'tower4';return m}
+
+/* ---------- 7 · dusk haze: away from the low sun the haze goes cooler and a little darker, so the sea keeps its depth ---------- */
+
+function q3_fogStep(){q3_fogStepBase();const sp=CUR;if(!sp||sp.type!=='planet')return;const g=sp.goldK||0;if(g>0){Q3FOG.q3FC.value.multiplyScalar(1-.22*g);Q3FOG.q3FC.value.b*=1+.08*g;Q3FOG.q3FW.value.multiplyScalar(1+.06*g)}}

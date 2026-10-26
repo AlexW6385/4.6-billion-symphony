@@ -475,13 +475,13 @@ function q2_tier2(r,h,y,K,seed){const pos=[],col=[],nrm=[];const top=[0,y+h,0];c
  // the underside faces down
  const N=g.attributes.normal;for(let i=0;i<N.count;i++){if(i%12>=9)N.setXYZ(i,N.getX(i)*.4,-.9,N.getZ(i)*.4)}return g}
 function q2_bark(g){const P=g.attributes.position,c=g.attributes.color;for(let i=0;i<P.count;i++){const s=.82+.3*clamp(P.getY(i)/4,0,1);c.setXYZ(i,c.getX(i)*s,c.getY(i)*s,c.getZ(i)*s)}return g}
-function q2_treeKitsBase(KITS,NEAR){try{
+function q2_treeKitsBase(KITS,NEAR,crown){crown=crown||q2_crown;try{
  const M=gs=>THREE.BufferGeometryUtils.mergeBufferGeometries(gs.map(g=>{g=g.index?g.toNonIndexed():g;if(g.attributes.uv)g.deleteAttribute('uv');return g}));
  const trunk=(parts)=>q2_bark(mergeColored(parts.map(([g,c,f])=>[f?tg(g,f):g,c])));
  // broadleaf: a short trunk with three limbs and a crown of nine lumps
  {const bl=[[0,4.7,0,1.45,.82]];for(let i=0;i<8;i++){const a=i*2.4+.3,up=i<5?0:1;const rr=up?.75:1.2;bl.push([Math.cos(a)*rr,4.15+up*1.05+(i%2)*.25,Math.sin(a)*rr,up?.85:.95+(i%3)*.08,.84])}
   const t=trunk([[kcy(.16,.32,3.4,8),'#5e4a36',{p:[0,1.7,0]}],[kcy(.06,.12,1.9,6),'#5e4a36',{p:[.55,3.2,.1],r:[0,0,-.8]}],[kcy(.05,.1,1.7,6),'#5e4a36',{p:[-.45,3.05,-.25],r:[.35,0,.85]}],[kcy(.05,.09,1.5,6),'#5e4a36',{p:[.05,3.3,.55],r:[.85,0,0]}],[kcy(.34,.42,.3,8),'#54412f',{p:[0,.12,0]}]]);
-  NEAR.broad=M([t,...q2_crown(bl,[0,4.6,0],2.4,1)])}
+  NEAR.broad=M([t,...crown(bl,[0,4.6,0],2.4,1)])}
  // conifer: six drooping tiers on a straight trunk
  {const P=[trunk([[kcy(.1,.26,2.6,8),'#4f3c2a',{p:[0,1.3,0]}]])];const tiers=[[1.95,1.5,1.6],[1.7,1.45,2.55],[1.45,1.4,3.45],[1.18,1.3,4.3],[.9,1.2,5.1],[.58,1.15,5.85]];
   tiers.forEach(([r,h,y],i)=>P.push(q2_tier2(r,h,y,i<4?14:10,i*.7)));const tipc=new THREE.ConeGeometry(.22,.8,6);tipc.translate(0,7.2,0);P.push(mergeColored([[tipc,'#ffffff']]));NEAR.conifer=M(P)}
@@ -498,3 +498,35 @@ function q2_treeKitsBase(KITS,NEAR){try{
 }catch(e){console.warn('q2 trees',e)}}
 // for the test scripts: window.__q2tier forces a quality step, __q2off turns the patch off, __q2Q freezes the detail switches
 window.__q2={at:q2_at,dh:q2dh,T:Q2T,A:Q2A,Q:Q2Q};
+
+/* ---------- 1 · town ground: trodden earth with a third of the turf left, ragged at the edge ---------- */
+/* how trodden the ground is at d (0..1): all through the middle of a town, fading out with a noisy edge short of the wall.
+   (q2_jobStep stores it per patch vertex; q2_clear separately keeps 30% of the grass, and q2_grassFill makes it short) */
+function q4a_town(towns,d){let t=0;const px=d.x*R,py=d.y*R,pz=d.z*R;
+ for(const e of towns){const a=angDeg(d,e.d)/e.deg;if(a>1.25)continue;
+  const nz=q2n(px/9+1.7,py/9,pz/9)-.5;const k=1-sm(.5,1.06,a+nz*.34);if(k<=0)continue;
+  const k2=q2n(px/3.1,py/3.1+4.2,pz/3.1);t=Math.max(t,k*(.55+.45*k2))}
+ return t}
+/* the patch colour of a trodden vertex: toward a warm earth, lighter where the ground was light (snow, sand) */
+function q4a_tread(B,vi,tw){for(const A of[B.ca,B.cb]){const r=A[vi*3],g=A[vi*3+1],b=A[vi*3+2];const l=r*.3+g*.59+b*.11;const s=.72+.5*l;const k=tw*.85;
+ A[vi*3]=r+(.56*s-r)*k;A[vi*3+1]=g+(.47*s-g)*k;A[vi*3+2]=b+(.35*s-b)*k}}
+/* the fields outside a town are drawn with the planet's own ground material (same light, same detail texture as the turf) */
+function q4a_fieldMat(sp){const tm=sp.terr.material;
+ const m=q2_planetMat(new THREE.MeshStandardMaterial({vertexColors:true,roughness:tm.roughness,metalness:tm.metalness,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}),{U:sp.TU,bump:(tm.bumpScale||1)*.6});
+ m.envMapIntensity=tm.envMapIntensity;m.userData.envSet=1;return m}
+
+/* ---------- 2 · ground cover from the air: blades lit like the ground, shorter, lighter and fewer above ~90 ---------- */
+
+function makeCover(sp,fn){const cover=q2_makeCover(sp,fn);try{q4a_coverFix(sp,cover)}catch(e){console.warn('q4a cover',e)}return cover}
+function q4a_coverFix(sp,cover){
+ // the blades' normals lean up (once, on the shared geometry): seen from above they then take the ground's light instead of
+ // the dark of their own sideways faces, which read as black scratches
+ if(COVERG&&!COVERG.q4a){COVERG.q4a=1;for(const k of['tuft','tall','reed']){const g=COVERG[k];if(!g)continue;const N=g.attributes.normal;
+  for(let i=0;i<N.count;i++){const x=N.getX(i)*.35,y=N.getY(i)*.35+.8,z=N.getZ(i)*.35;const l=Math.hypot(x,y,z)||1;N.setXYZ(i,x/l,y/l,z/l)}N.needsUpdate=true}}
+ const U={uQ4H:{value:1},uQ4L:{value:0}};
+ for(const g of cover.groups){if(g.k!=='tuft'&&g.k!=='tall')continue;g.n0=g.n;const m=g.im.material;const ob=m.onBeforeCompile;
+  m.onBeforeCompile=sh=>{ob(sh);Object.assign(sh.uniforms,U);
+   sh.vertexShader='uniform float uQ4H;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.y*=uQ4H;');
+   sh.fragmentShader='uniform float uQ4L;\n'+sh.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*1.1+vec3(.03,.035,.015),uQ4L);')};
+  m.customProgramCacheKey=()=>'sway2q4a'+g.k}
+ anim(sp,null,()=>{const f=sm(90,260,rig.alt);U.uQ4H.value=1-.55*f;U.uQ4L.value=f*.6;for(const g of cover.groups){if(g.n0===undefined)continue;g.n=Math.max(40,Math.round(g.n0*(1-.8*f)))}})}

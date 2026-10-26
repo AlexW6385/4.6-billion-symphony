@@ -24,11 +24,9 @@
 49_sky.js
 49k_ground.js
 49l_light.js
-49m_fixesA.js
 49n_soften.js
 49o_nav.js
 49p_stable.js
-49q_lean.js
 49z_eggs.js
 70_ui.js
 71_tour.js

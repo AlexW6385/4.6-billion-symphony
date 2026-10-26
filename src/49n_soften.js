@@ -125,7 +125,6 @@ function detailMat(m,o){const r=q2_detailMat(m,o);if(o&&o.planet)return r;const 
    (a) the forests' near kits switch to a smoother "close" kit (crown lumps at twice the mesh density) inside ~60 units, where
        the step-2 crowns still showed their facets; (b) the tree kinds used by the jungle, the towns and the lone trees
        (TREE.*) get the same rounded, shaded crowns instead of flat icosahedron lumps */
-const q4b_crown1=q2_crown;
 function q4b_crownN(det){return function(blobs,cc,rc,seed){const gs=[];const v=V3(),nb=V3(),nc=V3();let yb=1e9,yt=-1e9;for(const b of blobs){yb=Math.min(yb,b[1]-b[3]);yt=Math.max(yt,b[1]+b[3])}
  blobs.forEach((b,bi)=>{const g=new THREE.IcosahedronGeometry(1,det);const P=g.attributes.position,N=g.attributes.normal,n=P.count,col=new Float32Array(n*3);
   for(let i=0;i<n;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).normalize();nb.copy(v);const k=1+(n3(v.x*1.7+bi*3.1+seed,v.y*1.7,v.z*1.7)-.5)*.42+(n3(v.x*4.3+seed,v.y*4.3+bi,v.z*4.3)-.5)*.1;
@@ -138,8 +137,8 @@ const q4b_crown2=q4b_crownN(2);
 const Q4B_CLOSE=new Map();
 
 function q2_treeKits(KITS,NEAR){q2_treeKitsBase(KITS,NEAR);if(q4b_tier()>=3)return;
- try{const K2={};for(const k in KITS)K2[k]=KITS[k].clone();const N2={};q2_crown=q4b_crown2;q2_treeKitsBase(K2,N2);q2_crown=q4b_crown1;
-  for(const k in N2)if(NEAR[k])Q4B_CLOSE.set(NEAR[k],N2[k])}catch(e){q2_crown=q4b_crown1;console.warn('q4b close kits',e)}}
+ try{const K2={};for(const k in KITS)K2[k]=KITS[k].clone();const N2={};q2_treeKitsBase(K2,N2,q4b_crown2);
+  for(const k in N2)if(NEAR[k])Q4B_CLOSE.set(NEAR[k],N2[k])}catch(e){console.warn('q4b close kits',e)}}
 /* the near and close kits are drawn from the same groups; each copy decides in the vertex shader which of the two shows it,
    by its own distance to the camera (so a wide group near the camera does not switch wholesale) */
 

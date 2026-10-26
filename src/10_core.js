@@ -144,11 +144,24 @@ renderer.shadowMap.enabled=true;renderer.shadowMap.type=matchMedia('(pointer:coa
 const SHD={on:true,f:0,max:1500,ms:matchMedia('(pointer:coarse)').matches?1024:2048};
 const camera=new THREE.PerspectiveCamera(45,1,.4,120000);
 const POST={on:!!(THREE.EffectComposer&&THREE.UnrealBloomPass&&THREE.ShaderPass)};
-const FinalShader={uniforms:{tDiffuse:{value:null},uVig:{value:.5},uTime:{value:0},uFade:{value:0},uFadeCol:{value:new THREE.Color(0,0,0)}},
+/* the last pass: ambient occlusion, exposure, a gentle filmic curve, the mood of the world and age, warmth toward the sun,
+   cool shadows, vignette and the fade between worlds (its uniforms are driven from 49l_light) */
+const FinalShader={uniforms:{tDiffuse:{value:null},uVig:{value:.5},uTime:{value:0},uFade:{value:0},uFadeCol:{value:new THREE.Color(0,0,0)},
+ tAO:{value:null},tDepth:{value:null},uAOK:{value:0},uAOT:{value:new THREE.Vector2(1,1)},uN:{value:.4},uF:{value:1e5},
+ uExp:{value:1},uGain:{value:new THREE.Color(1,1,1)},uLift:{value:new THREE.Color(0,0,0)},uSat:{value:1.06},uCon:{value:0},uWarm:{value:new THREE.Color(1,1,1)},uSunP:{value:V3(.5,.5,0)},uAsp:{value:1.6},uDbg:{value:0}},
  vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
- fragmentShader:`uniform sampler2D tDiffuse;uniform float uVig,uTime,uFade;uniform vec3 uFadeCol;varying vec2 vUv;
- void main(){vec3 c=max(texture2D(tDiffuse,vUv).rgb,0.);vec3 hi=.82+.18*(1.-exp(-(c-.82)/.18));c=mix(c,hi,step(.82,c));float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,1.06);
-  float d=distance(vUv,vec2(.5));c*=1.-uVig*smoothstep(.42,1.,d);
+ fragmentShader:`uniform sampler2D tDiffuse,tAO,tDepth;uniform float uVig,uTime,uFade,uAOK,uN,uF,uExp,uSat,uCon,uAsp,uDbg;uniform vec2 uAOT;uniform vec3 uFadeCol,uGain,uLift,uWarm,uSunP;varying vec2 vUv;
+ void main(){vec3 c=max(texture2D(tDiffuse,vUv).rgb,0.);
+  if(uAOK>0.){float d=texture2D(tDepth,vUv).x;if(d<.999999){float z=uN*uF/(uF-d*(uF-uN));vec2 hp=vUv/uAOT-.5;vec2 b=floor(hp),f=hp-b;float a=0.,ws=0.;
+    for(int j=0;j<2;j++)for(int i=0;i<2;i++){vec2 o=vec2(float(i),float(j));vec4 s=texture2D(tAO,(b+o+.5)*uAOT);float w=(i==1?f.x:1.-f.x)*(j==1?f.y:1.-f.y)+.002;float dz=min(abs(s.g-z)/(z*.03+.05),1e3);w/=1.+dz*dz;a+=s.r*w;ws+=w;}
+    float ao=ws>1e-3?a/ws:1.;if(uDbg>0.){gl_FragColor=vec4(vec3(ao),1.);return;}c*=mix(vec3(1.),vec3(ao)+(1.-ao)*vec3(.0,.035,.1),uAOK);}}
+  {float l0=dot(c,vec3(.299,.587,.114));c*=uExp*mix(uGain,vec3(1.),smoothstep(.5,.95,l0));}
+  {vec2 sd=(vUv-uSunP.xy)*vec2(uAsp,1.);float sw=exp(-dot(sd,sd)*1.6)*uSunP.z;c*=mix(vec3(1.),uWarm,sw);}
+  vec3 hi=.74+.26*(1.-exp(-(c-.74)/.26));c=mix(c,hi,step(.74,c));// (the shoulder starts lower: snow, cloud and pale stone kept burning out to flat white)
+  c=clamp(c,0.,1.);c=mix(c,c*c*(3.-2.*c),uCon);
+  float l=dot(c,vec3(.299,.587,.114));c+=uLift*pow(1.-smoothstep(0.,.42,l),2.);
+  l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);
+  float dv=distance(vUv,vec2(.5));c*=1.-uVig*smoothstep(.42,1.,dv);
   c+=(fract(sin(dot(vUv*vec2(1311.7,977.3)+fract(uTime),vec2(12.9898,78.233)))*43758.5453)-.5)*.016;
   c=mix(c,uFadeCol,uFade);gl_FragColor=vec4(c,1.);}`};
 let composer=null,renderPass=null,bloomPass=null,finalPass=null,fxaaPass=null;
