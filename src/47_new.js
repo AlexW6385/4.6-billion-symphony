@@ -101,3 +101,80 @@ Object.assign(ENT,{
  ruibing:[bStoneBirds,1,{isle:1}], zhicao:[fxG_smartGrass,1.1,{isle:1}], shengyan:[bLivingRock,1.4], luxi:[fxG_lucy,1.6], huannaoyu:[fxG_merfolk,1,{isle:1}], wendingchong:[bStabilizers,1], yinyan:[bHiddenEye,.9],
  qiyi:[fxG_airAnts,1,{isle:1}], henggu:[fxG_ancientMud,1,{isle:1}], caise:[fxG_rainbowSlug,1.1], tunman:[bGulper,1.6], yongheng:[bEternalEye,1.6], hongtianxie:[bBoomCrabs,1], tuya:[bBaldCrow,1.1]});
 SPEC.rq_tlant3=()=>fxE_heli();
+
+/* ================================================================
+   small bodies from the misc list
+   ================================================================ */
+/* ---------- small bodies from the misc list ---------- */
+/* 航母: grey hardened skin over a long body; two great muscular tentacles, one from each flank, each ending in a hard
+   round head set with saw teeth (the hammers), swung forward; two flat swimming tentacles; a big water jet at the back;
+   small eye-stalks at the front; the devourers it carries swimming round it */
+function fxG_carrier(){const g=new THREE.Group();const skin=M('#7a7a74',{roughness:.5}),dark=M('#5a5a56',{roughness:.45}),tooth=M('#e8e2cc',{roughness:.3});
+ const b=sph(0,2.7,1.05,1.3,24,skin);b.position.y=.6;g.add(b);const belly=sph(0,2.4,.75,1.12,18,M('#9a9890',{roughness:.6}));belly.position.y=.38;g.add(belly);
+ for(let i=0;i<8;i++){const h=new THREE.Mesh(new THREE.CircleGeometry(.16,10),M('#2a2a28'));const a=-.8+i*.23;h.position.set(-1+i*.32,.6+Math.sin(a+1.5)*1.0,Math.cos(a+1.5)*1.22);h.lookAt(h.position.clone().multiplyScalar(2).setY(h.position.y*2-.6));g.add(h)}
+ const stalks=[];for(const z of[-1,1]){const st=new THREE.Group();st.add(tubeAlong([V3(0,0,0),V3(.4,.45,z*.2),V3(.8,.7,z*.35)],.07,skin,10));const e=sph(0,.16,.16,.16,12,M('#f4f0e0',{roughness:.2}));e.position.set(.84,.72,z*.36);st.add(e);const pu=eye(.08);pu.position.set(.98,.74,z*.38);st.add(pu);st.position.set(2.4,.85,z*.35);g.add(st);stalks.push(st)}
+ const arms=[];for(const z of[-1,1]){const a=new THREE.Group();a.add(tubeAlong([V3(0,0,0),V3(.6,.5,z*.5),V3(1.6,.9,z*.6),V3(2.7,.8,z*.4)],.2,skin,16));
+  const hd=sph(0,.42,.42,.42,14,dark);hd.position.set(2.95,.8,z*.38);a.add(hd);for(let k=0;k<14;k++){const v=V3(h3(k,1,z+3)-.3,h3(k,2,z+3)-.5,h3(k,3,z+3)-.5).normalize();const t=cone(.05,.22,tooth,4);t.position.copy(hd.position).addScaledVector(v,.42);t.quaternion.setFromUnitVectors(V3(0,1,0),v);a.add(t)}
+  a.position.set(1.1,.7,z*1.05);g.add(a);arms.push({a,z})}
+ const fins=[];for(const z of[-1,1]){const f=new THREE.Mesh(new THREE.SphereGeometry(1,12,6),M('#6e6e68',{roughness:.5}));f.scale.set(1.3,.07,.55);const p=new THREE.Group();p.add(f);f.position.z=z*.6;p.position.set(-.5,.25,z*1.15);g.add(p);fins.push({p,z})}
+ const jet=cyl(.36,.5,.6,dark,12);jet.rotation.z=Math.PI/2;jet.position.set(-2.8,.55,0);g.add(jet);g.add(at(emitter({n:50,life:1.6,speed:1.8,spread:.2,size:.6,dir:[-1,0,0],col:'#e8f8ff',op:.5,area:[.2,.3,.3]}),-3.2,.55,0));
+ const dv=[];for(let i=0;i<5;i++){const d=bDevourerOne(.18+i*.04);g.add(d);dv.push({d,a:i*1.25})}
+ g.userData.anim=t=>{arms.forEach(x=>{const k=Math.max(0,Math.sin(t*.8+(x.z>0?0:1.7)));x.a.rotation.y=-x.z*(.15+k*.25);x.a.rotation.z=.15-k*.35});fins.forEach(x=>x.p.rotation.x=x.z*Math.sin(t*2.2)*.35);
+  stalks.forEach((s,i)=>s.rotation.y=Math.sin(t*.9+i)*.2);dv.forEach((x,i)=>{const a=x.a+t*.5;x.d.position.set(Math.cos(a)*3.8,.6+Math.sin(t+i)*.6,Math.sin(a)*2.8);x.d.rotation.y=-a-Math.PI/2;x.d.userData.anim(t+i)})};return g}
+/* 绿毯伞 · 播种者: the umbrella carpets on their long stalks, and the sower, a small dragonfly-like flyer with the carpet seed
+   in its tail, darting among them; where it has just set one down, a new seedling */
+function fxG_umbrellas(){const g=new THREE.Group();for(let i=0;i<7;i++){const u=new THREE.Group();const h=1+h3(i,1,5)*1.4;const st=cyl(.04,.06,h,M('#5a7a3a'),6);st.position.y=h/2;u.add(st);const cap=new THREE.Mesh(new THREE.SphereGeometry(.7,16,6,0,6.283,0,1.1),M('#4aa84a',{roughness:.6,emissive:'#1a5a1a',emissiveIntensity:.25,side:THREE.DoubleSide}));cap.scale.y=.35;cap.position.y=h;u.add(cap);
+  const a=h3(i,2,5)*6.28,r=Math.sqrt(h3(i,3,5))*2.6;u.position.set(Math.cos(a)*r,0,Math.sin(a)*r);g.add(u)}
+ {const s=new THREE.Group();const st=cyl(.02,.03,.3,M('#5a7a3a'),5);st.position.y=.15;s.add(st);const c=new THREE.Mesh(new THREE.SphereGeometry(.18,10,4,0,6.283,0,1.1),M('#5ab85a',{roughness:.6,side:THREE.DoubleSide}));c.scale.y=.4;c.position.y=.3;s.add(c);s.position.set(1.9,0,1.3);g.add(s)}
+ const fly=bDragonfly({w:'x',col:'#4a7a5a'});fly.scale.setScalar(.55);g.add(fly);const seed=sph(0,.1,.1,.16,8,M('#7ac85a',{roughness:.4}));g.add(seed);
+ g.userData.anim=t=>{const a=t*.7;fly.position.set(Math.cos(a)*1.9,1.5+Math.sin(t*1.7)*.4,Math.sin(a*1.3)*1.6);fly.rotation.y=-a-Math.PI/2;fly.userData.anim&&fly.userData.anim(t);seed.position.copy(fly.position).add(V3(0,-.12,0))};return g}
+/* 智草: a dense lawn of fine WHITE grass on an underground floor, among dark dead roots of the creator; a blade touched
+   pulls back into the ground (one patch ducks down now and then) */
+function fxG_smartGrass(){const g=new THREE.Group();const root=M('#5b4a3a',{roughness:.9});
+ for(let i=0;i<5;i++){const x=-3+i*1.5;g.add(tubeAlong([V3(x,-.2,-1.6),V3(x+.3,.6,-.8),V3(x-.2,1,.2),V3(x+.2,.5,1.2),V3(x,-.2,1.8)],.12+(i%2)*.05,root,14))}
+ g.add(tubeAlong([V3(-3.8,.3,0),V3(-1,.5,.3),V3(1.4,.35,-.2),V3(3.8,.2,0)],.2,root,16));
+ const gm=swayMat({emissive:'#a8a49a',emissiveIntensity:.12},.05);const blades=G(Array.from({length:9},(_,i)=>{const b=new THREE.ConeGeometry(.035,.95,3,1);b.translate(0,.47,0);return[b,i%2?'#f2eee4':'#e6e0d2',{p:[(h3(i,1,2)-.5)*.3,0,(h3(i,2,2)-.5)*.3],r:[(i-4)*.08,i,0]}]}));
+ const im=new THREE.InstancedMesh(blades,gm,420);const o=new THREE.Object3D();const duck=[];for(let i=0;i<420;i++){const x=(h3(i,3,8)-.5)*7.4,z=(h3(i,4,8)-.5)*3.6;o.position.set(x,0,z);o.rotation.y=i;o.scale.setScalar(.9+h3(i,5,8)*.5);o.updateMatrix();im.setMatrixAt(i,o.matrix);if(Math.hypot(x-1.6,z-.4)<.8)duck.push([i,o.matrix.clone(),o.scale.x])}
+ g.add(im);const m4=new THREE.Matrix4(),sc=V3(),q=new THREE.Quaternion(),ps=V3();
+ g.userData.anim=t=>{const k=Math.max(0,Math.sin(t*.7))**4;for(const [i,m,s] of duck){m.decompose(ps,q,sc);sc.set(s,s*(1-.85*k),s);m4.compose(ps,q,sc);im.setMatrixAt(i,m4)}im.instanceMatrix.needsUpdate=true};return g}
+/* 露西: a station shaped like an 尔什民's head, a lumpy mass of rock; its cities lie inside great hollows in it, rocky
+   caves with the buried ruins of earlier dwellers; a few openings show the city lights within */
+function fxG_lucy(){const g=new THREE.Group();const geo=new THREE.IcosahedronGeometry(1,4);const p=geo.attributes.position;const v=V3();
+ for(let i=0;i<p.count;i++){v.set(p.getX(i),p.getY(i),p.getZ(i));let k=1+(n3(v.x*1.8+1,v.y*1.8,v.z*1.8)-.5)*.32;if(v.x>.55&&Math.abs(v.y)<.35)k+=.12*(1-Math.abs(v.y)/.35);if(v.y<-.4)k*=.9;v.multiplyScalar(k);v.x*=1.15;v.y*=1.2;p.setXYZ(i,v.x*3,v.y*3,v.z*3)}geo.computeVertexNormals();
+ g.add(new THREE.Mesh(geo,detailMat(new THREE.MeshStandardMaterial({color:'#7a7268',roughness:.95,flatShading:true}),{bump:1.2,freq:2})));
+ const tm=towerMat({metalness:.4,roughness:.4,win:'#ffe8b0'});const holes=[[.4,.5,.75],[-.3,.1,.95],[.6,-.35,.7]];
+ for(const [x,y,z] of holes){const d=V3(x,y,z).normalize();const c=d.clone().multiplyScalar(3.05);const mouth=new THREE.Mesh(new THREE.CircleGeometry(.75,16),new THREE.MeshBasicMaterial({color:'#1a1410'}));mouth.position.copy(c);mouth.lookAt(c.clone().multiplyScalar(2));g.add(mouth);
+  const city=new THREE.Group();for(let j=0;j<7;j++){const bl=new THREE.Mesh(mergeColored([[new THREE.BoxGeometry(.14,1,.14).translate(0,.5,0),'#c8d0d8']]),tm);bl.scale.y=.25+h3(j,x*9,2)*.5;bl.position.set((h3(j,1,x*7)-.5)*.9,-.45,(h3(j,2,y*7)-.5)*.5);city.add(bl)}
+  city.position.copy(d.clone().multiplyScalar(2.95));city.lookAt(d.clone().multiplyScalar(6));city.rotateX(Math.PI/2);g.add(city);const gl=glowSprite('#ffd890',1.6,.7);gl.position.copy(d.clone().multiplyScalar(3.1));g.add(gl)}
+ g.userData.towerMat=tm;g.userData.anim=t=>{g.rotation.y=t*.02};return g}
+/* 气蚁: over a metre long; the front half a long sharp spear on a few legs, the back half swollen like a balloon */
+function fxG_airAnts(){const g=new THREE.Group();const vent=new THREE.Mesh(new THREE.TorusGeometry(1.2,.35,8,24),detailMat(M('#6a5a4a',{roughness:.95,flatShading:true}).clone(),{bump:1}));vent.rotation.x=Math.PI/2;g.add(vent);const hole=new THREE.Mesh(new THREE.CircleGeometry(1.15,24),GL('#9affd8',.5));hole.rotation.x=-Math.PI/2;hole.position.y=.05;g.add(hole);
+ g.add(at(emitter({n:80,life:3,speed:2,spread:.3,size:1.2,dir:[0,1,0],col:'#c8ffe8',op:.35,tex:smokeTex,area:[1.6,.2,1.6]}),0,.2,0));const sh=M('#3a3a34',{roughness:.35,metalness:.2});const as=[];
+ for(let i=0;i<7;i++){const a=new THREE.Group();const sp2=cone(.075,1.25,sh,6);sp2.rotation.z=-Math.PI/2;sp2.position.set(.78,.26,0);a.add(sp2);const nk=sph(0,.12,.08,.08,8,sh);nk.position.set(.12,.24,0);a.add(nk);
+  const bal=sph(0,.36,.32,.32,14,new THREE.MeshStandardMaterial({color:'#e8d8b8',transparent:true,opacity:.78,roughness:.2}));bal.position.set(-.38,.42,0);a.add(bal);
+  for(let k=0;k<4;k++){const l=limb(.24,.014,.01,sh);l.position.set(.05+(k%2)*.22,.2,(k<2?-1:1)*.05);l.rotation.x=(k<2?-1:1)*.8;a.add(l)}
+  const an=i/7*6.28;a.position.set(Math.cos(an)*2.3,0,Math.sin(an)*2.3);a.rotation.y=-an;g.add(a);as.push({a,bal})}
+ g.userData.anim=t=>as.forEach((x,i)=>x.bal.scale.setScalar(1+Math.sin(t*.7+i)*.06));return g}
+/* 恒古之泥: the relic is just an irregular stone the size of the other model-sand grains, carried on the body of one red
+   slime among a crowd of red slimes, on the white sand of the model-sand sea */
+function fxG_ancientMud(){const g=new THREE.Group();const sand=new THREE.Mesh(new THREE.CircleGeometry(3.4,32),M('#f0ece2',{roughness:1}));sand.rotation.x=-Math.PI/2;sand.position.y=.01;g.add(sand);
+ const rs=[];for(let i=0;i<9;i++){const r=bAmoeba({col:'#c83a2a',op:.75,dot:'#5a0a0a'});r.scale.setScalar(i?.32:.4);g.add(r);rs.push({r,a:i/8*6.28,d:i?1.6+(i%3)*.4:0})}
+ const st=new THREE.Mesh(lumpRock(.16,3),M('#7a6e60',{roughness:.9,flatShading:true}));g.add(st);
+ g.userData.anim=t=>{rs.forEach((x,i)=>{x.r.position.set(Math.cos(x.a+t*.05)*x.d,Math.abs(Math.sin(t*2+i))*.12,Math.sin(x.a+t*.05)*x.d);x.r.userData.anim(t+i)});st.position.set(0,.62+Math.abs(Math.sin(t*2))*.12,0)};return g}
+/* 彩色舰长: bursting out of a one-metre bee, a brilliantly many-coloured slug that crawls fast along the ground,
+   sucking in the stunned bees and growing as it goes; the rings are its signal to stop */
+function fxG_rainbowSlug(){const g=new THREE.Group();const geo=new THREE.SphereGeometry(1,28,14);const p=geo.attributes.position,cs=[];const c=new THREE.Color();
+ for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const tx=(x+1)/2;let yy=y*.42;if(yy<-.12)yy=-.12+(yy+.12)*.25;const w=.5+.5*Math.sin(Math.PI*Math.pow(tx,.8));p.setXYZ(i,x*1.8,yy*w+.3,z*.5*w);c.setHSL(((x*1.6+y*.3)+10)%1,.85,.58);cs.push(c.r,c.g,c.b)}
+ geo.setAttribute('color',new THREE.Float32BufferAttribute(cs,3));geo.computeVertexNormals();const body=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.25,metalness:.1,emissive:'#3a2a5a',emissiveIntensity:.25}));g.add(body);
+ for(const z of[-1,1]){const st=tubeAlong([V3(1.6,.4,z*.08),V3(1.85,.75,z*.16)],.03,M('#ff8ad8'),6);g.add(st);const k=glowEye(.05,'#fff4c0');k.position.set(1.86,.77,z*.16);g.add(k)}
+ // the burst bee it came out of
+ {const hk=new THREE.Group();const sh=M('#3a3020',{roughness:.6,side:THREE.DoubleSide});for(let k=0;k<3;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(.45,10,6,k*2.1,1.5,0,1.8),sh);s.position.y=.4;hk.add(s)}const w=new THREE.Mesh(new THREE.PlaneGeometry(.7,.3),M('#d8e8f0',{transparent:true,opacity:.5,side:THREE.DoubleSide}));w.position.set(.2,.7,.3);w.rotation.x=-.6;hk.add(w);hk.position.set(-3,0,.4);g.add(hk)}
+ const rings=[];for(let i=0;i<4;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(1.2,.04,4,40),GL(['#ff7ab8','#ffd25a','#7affb8','#7ab8ff'][i],.6));r.position.set(0,1.2,0);g.add(r);rings.push(r)}
+ g.add(shadow(1.4));g.userData.anim=t=>{body.scale.set(1+Math.sin(t*3)*.04,1-Math.sin(t*3)*.03,1);body.material.emissiveIntensity=.2+Math.sin(t*.7)*.08;rings.forEach((r,i)=>{const q=(t*.3+i/4)%1;r.scale.setScalar(.8+q*3);r.material.opacity=.6*(1-q);r.rotation.x=Math.PI/2+i*.3})};return g}
+/* 换脑鱼: the two brains are inside the skull; outside there is only a slightly wide, double-domed head in the skin's colour */
+function fxG_merfolk(){const g=new THREE.Group();const fs=[];for(let i=0;i<3;i++){const f=new THREE.Group();const sk=M(['#6a9aa8','#7a8ab8','#5a9a8a'][i],{roughness:.4});
+  const tail=tubeAlong([V3(0,1.2,0),V3(-.4,.5,0),V3(-1.2,.15,0),V3(-2.2,.1,0)],.22,sk,16);f.add(tail);const fin=new THREE.Mesh(wingGeo(.6,.6,'fin').rotateX(-Math.PI/2),sk);fin.position.set(-2.3,.15,0);f.add(fin);
+  const tor=sph(0,.3,.55,.28,12,sk);tor.position.y=1.6;f.add(tor);{const hd=sph(0,.29,.3,.34,14,sk);hd.position.y=2.4;f.add(hd)}for(const z of[-1,1]){const dm=sph(0,.22,.2,.2,12,sk);dm.position.set(-.03,2.55,z*.12);f.add(dm);const e=eye(.05);e.position.set(.26,2.4,z*.13);f.add(e);const a=leg2(.4,.35,.05,sk,-.6);a.position.set(.05,1.95,z*.32);f.add(a)}
+  f.position.set((i-1)*1.8,0,Math.sin(i*2)*.8);f.rotation.y=i-1;g.add(f);fs.push({f,tail})}g.add(shadow(2.4));g.userData.anim=t=>fs.forEach((x,i)=>{x.tail.rotation.y=Math.sin(t*1.5+i)*.12;x.f.position.y=Math.abs(Math.sin(t*.8+i))*.08});return g}
+
+// 护卫者 is the revived 圆盾蠕虫: the same body as the rebuilt one (its own pincer-tipped limbs under the dome head)

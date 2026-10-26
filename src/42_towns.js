@@ -219,3 +219,8 @@ const TOWN_SITES=[
  [-49,-28.6,{name:'mine',style:'dragon',r:.8,n:24,eras:[6,7,8],noCarry:true,people:12,pCol:'#3a8a5a',towers:0}]];
 const TOWNC=TOWN_SITES.map(([la,lo,o])=>[dirLL(la,lo),o.r*1.02]);
 function rqTowns(sp){sp.nightMats=sp.nightMats||[];sp.entClr=sp.entClr||[];for(const [la,lo,o] of TOWN_SITES){const deg=o.r*.92;sp.entClr.push({d:dirLL(la,lo),deg,cs:Math.cos(deg*D2R),eras:o.eras||null,town:1})}sp.towns=TOWN_SITES.map(([la,lo,o])=>Object.assign({name:o.name},town(sp,la,lo,o)));rqCityDetail(sp)}
+
+/* ================================================================
+   dragon-town street props in the creatures' finer style
+   ================================================================ */
+{const K=STREETKIT.dragon;if(K){const P={wood:'#8a6a40',wood2:'#6a5030',metal:BEAM,glass:'#ffcf7a',load:'#a08050',sack:'#c8b088'};K.cart=q5m_cart(P);K.crate=q5m_crate(P);K.lamp=q5m_lamp(P)}}

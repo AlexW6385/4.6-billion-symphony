@@ -286,3 +286,24 @@ function nightLights(sp,col,N,seed){const Rn=rnd(seed),G=sp.G;if(!G)return;const
       vA=smoothstep(.04,-.16,dot(d,uSun))*(1.-smoothstep(260.,700.,dd));gl_PointSize=clamp(uS*2.2/dd,1.,4.);}`,
     fragmentShader:'uniform vec3 uC;varying float vA;void main(){vec2 c=gl_PointCoord-.5;float a=smoothstep(.5,.0,length(c));gl_FragColor=vec4(mix(uC,vec3(1.),.4)*a*vA*1.6,1.);}'});
    const tr=new THREE.Points(g2,m2);tr.frustumCulled=false;tr.renderOrder=3;sp.scene.add(tr);sp._traffic=n}}}
+
+/* ================================================================
+   深海之城: the 虚民 city in glass tubes on the deep sea floor
+   ================================================================ */
+/* ---------- 深海之城 (虚民): the city lives inside transparent tubes on the deep sea floor, walls of pressure glass, with
+   traffic running through them and the buildings standing inside ---------- */
+function fxG_tubeNet(g,nodes,links,R0,o){o=o||{};const glass=new THREE.MeshStandardMaterial({color:'#bfe8f4',transparent:true,opacity:.3,roughness:.05,metalness:.3,depthWrite:false,side:THREE.DoubleSide});
+ const rib=M('#8a9aa4',{metalness:.7,roughness:.3});const tm=towerMat({metalness:.4,roughness:.35,win:'#ffe8b0'});const cars=[];const Y=V3(0,1,0);
+ for(const [a,b] of links){const A=nodes[a],B=nodes[b];const d=B.clone().sub(A),L=d.length();const t=new THREE.Mesh(new THREE.CylinderGeometry(R0,R0,L,16,1,true),glass);t.position.copy(A).addScaledVector(d,.5);t.quaternion.setFromUnitVectors(Y,d.clone().normalize());t.renderOrder=2;g.add(t);
+  for(let k=1;k<L/(R0*2.4);k++){const r=new THREE.Mesh(new THREE.TorusGeometry(R0*1.02,R0*.06,4,16),rib);r.position.copy(A).addScaledVector(d,k*R0*2.4/L);r.quaternion.setFromUnitVectors(V3(0,0,1),d.clone().normalize());g.add(r)}
+  for(let k=0;k<2;k++){const c=new THREE.Mesh(new THREE.SphereGeometry(R0*.28,8,6),GL(k?'#ffd890':'#9ad8ff',.95));c.scale.set(1,.6,1);g.add(c);cars.push({c,A,B,ph:Math.random(),s:(k?1:-1)*(.08+Math.random()*.06)})}}
+ for(let i=0;i<nodes.length;i++){const N=nodes[i];const s=R0*(o.hub||2.6);const d=new THREE.Mesh(new THREE.SphereGeometry(s,20,12),glass);d.position.copy(N);d.renderOrder=2;g.add(d);
+  for(let j=0;j<6;j++){const b=new THREE.Mesh(mergeColored([[new THREE.BoxGeometry(1,1,1).translate(0,.5,0),'#c8d0d8']]),tm);const a=j/6*6.283+i;b.scale.set(s*.22,s*(.4+h3(i,j,3)*.9),s*.22);b.position.set(N.x+Math.cos(a)*s*.45,N.y-s*.55,N.z+Math.sin(a)*s*.45);g.add(b)}
+  const fl=new THREE.Mesh(new THREE.CircleGeometry(s*.86,20),M('#5a6268'));fl.rotation.x=-Math.PI/2;fl.position.set(N.x,N.y-s*.55,N.z);g.add(fl)}
+ g.userData.towerMat=tm;return t=>cars.forEach(x=>{const u=((x.ph+t*x.s)%1+1)%1;x.c.position.copy(x.A).lerp(x.B,u)})}
+function fxG_deepCity(){const g=new THREE.Group();const N=[V3(0,1.4,0),V3(3.4,1.2,1.2),V3(-3,1.3,1.8),V3(.6,1.2,-3.4),V3(-2.6,1.4,-2.6),V3(3.6,1.6,-2.4)];
+ const an=fxG_tubeNet(g,N,[[0,1],[0,2],[0,3],[0,4],[3,5],[1,5],[2,4]],.32,{hub:2.6}); g.userData.anim=an;return g}
+function fxG_deepNet(sp){const g=new THREE.Group();const C0=[2,152];const N=[],L=[];const Rn=rnd(3210);const up=dirLL(...C0);
+ for(let i=0;i<14;i++){const a=Rn()*6.283,d=i?.4+Rn()*2:0;const la=C0[0]+Math.cos(a)*d,lo=C0[1]+Math.sin(a)*d;const h=sp.ghRaw(la,lo);N.push(dirLL(la,lo).multiplyScalar(R+h+3.2))}
+ for(let i=1;i<N.length;i++){let best=0,bd=1e9;for(let j=0;j<i;j++){const dd=N[i].distanceTo(N[j]);if(dd<bd){bd=dd;best=j}}L.push([i,best])}L.push([3,9],[5,12]);
+ const an=fxG_tubeNet(g,N,L,1.1,{hub:3.2});addE(g,[7]);cull(g,up.clone().multiplyScalar(R-20),70,1800);anim(sp,g,an);if(g.userData.towerMat)sp.towerMats=(sp.towerMats||[]).concat([g.userData.towerMat])}

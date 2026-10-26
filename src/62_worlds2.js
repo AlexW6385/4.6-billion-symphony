@@ -59,3 +59,23 @@ function erxiMore(sp){const gh=sp.gh;const Rn=rnd(4242);sp.entClr=sp.entClr||[];
   for(const key in chunks)inst(geoC(k),fm,chunks[key],(o,p)=>{frameLL(sp,p[0],p[1],-.3,p[3]*6.28,o);const s=(k==='conifer'?1.1:1)*(.8+p[3]*.8);o.scale.set(s,s*(.85+((p[3]*7.7)%1)*.4),s)},null,
    {tint:p=>(k==='conifer'?C('#2e5a3c'):k==='palm'?C('#5a9a40'):C('#447a3a')).offsetHSL((p[3]-.5)*.06,(p[3]-.5)*.1,(p[3]-.5)*.12),far:1900})}
  sp.forestN=pts.broad.length+pts.conifer.length+pts.palm.length}
+
+/* ================================================================
+   尔什 towns: carts, floating clouds, sprinklers and boards
+   ================================================================ */
+/* ---------- 尔什 towns: 峡风要塞's carts drawn by big shaggy beasts; 天宫市's sky full of little floating clouds that carry
+   sprinklers, potted plants and advertising boards ---------- */
+function fxG_erxi(sp){
+ {const fur=G([[tg(new THREE.SphereGeometry(1,10,8),{s:[1.5,1,.9]}),'#7a6048',{p:[1.6,1.6,0]}],[tg(new THREE.SphereGeometry(.55,8,6),{}),'#6a5038',{p:[3.1,1.9,0]}],[kc(.1,.5,4),'#e8e0c8',{p:[3.4,2.3,.3],r:[0,0,-1]}],[kc(.1,.5,4),'#e8e0c8',{p:[3.4,2.3,-.3],r:[0,0,-1]}],
+   ...[[2.4,.45],[2.4,-.45],[.8,.45],[.8,-.45]].map(([x,z])=>[kcy(.22,.18,1.1,6),'#5a4430',{p:[x,.55,z]}]),
+   [kb(2.6,.9,1.6),'#8a6a40',{p:[-1.2,1.1,0]}],[kb(2.8,.12,1.8),'#6a4a2a',{p:[-1.2,1.6,0]}],[tg(new THREE.TorusGeometry(.55,.1,5,12),{}),'#3a2a1a',{p:[-1.6,.55,.85]}],[tg(new THREE.TorusGeometry(.55,.1,5,12),{}),'#3a2a1a',{p:[-1.6,.55,-.85]}],[kb(1.6,.08,.08),'#5a4030',{p:[.4,1.05,.4]}],[kb(1.6,.08,.08),'#5a4030',{p:[.4,1.05,-.4]}]]);
+  const pts=[];const Rn=rnd(7824);for(let i=0;i<9;i++){const a=Rn()*6.283,d=.15+Rn()*1;const la=78+Math.cos(a)*d,lo=-24+Math.sin(a)*d/Math.cos(78*D2R);if(sp.ghRaw(la,lo)>1.5)pts.push([la,lo,0,Rn()])}
+  inst(fur,VC({roughness:.85}),pts,(o,p)=>{frameLL(sp,p[0],p[1],0,p[3]*6.28,o);o.scale.setScalar(1.1)},[8,9],{far:900})}
+ {const g=new THREE.Group();const cm=new THREE.SpriteMaterial({map:smokeTex,color:'#ffffff',transparent:true,opacity:.85,depthWrite:false});const L=[];const Rn=rnd(4512);const ads=['#ff6ab8','#6ad0ff','#ffd04a','#7affb0'];
+  for(let i=0;i<16;i++){const c=new THREE.Group();for(let k=0;k<5;k++){const s=new THREE.Sprite(cm);const sz=4+Rn()*3;s.scale.set(sz,sz*.55,1);s.position.set((Rn()-.5)*4,(Rn()-.5)*.8,(Rn()-.5)*3);c.add(s)}
+   const kind=i%3;if(kind===0){const sp2=new THREE.Mesh(kcy(.12,.12,1.2,6),M('#8a949c',{metalness:.7}));sp2.position.y=-1;c.add(sp2);c.add(at(emitter({n:40,life:1.4,speed:1.5,spread:.5,size:.5,dir:[0,-1,0],col:'#d8f0ff',op:.5,area:[.5,.2,.5],grav:.8}),0,-1.6,0))}
+   else if(kind===1){const pot=new THREE.Mesh(G([[kcy(.5,.4,.6,8),'#a86a4a',{p:[0,.3,0]}],[kcy(.06,.08,1.2,5),'#5a4632',{p:[0,1,0]}],[ki(.7,1),'#4a9a4a',{p:[0,1.8,0]}]]),VC());pot.position.y=.2;c.add(pot)}
+   else{const bd=new THREE.Mesh(kb(4,2,.12),new THREE.MeshBasicMaterial({color:ads[i%4]}));bd.position.y=-1.8;c.add(bd);const fr2=new THREE.Mesh(kb(4.3,2.3,.08),M('#3a4044'));fr2.position.set(0,-1.8,-.06);c.add(fr2)}
+   const a=Rn()*6.283,d=Rn()*1.8;L.push({c,la:45+Math.cos(a)*d,lo:12+Math.sin(a)*d/Math.cos(45*D2R),alt:24+Rn()*26,ph:Rn()*6});g.add(c)}
+  sp.scene.add(g);addE(g,[8,9,10,11,12]);anim(sp,g,t=>{if(rig.alt>1600)return;L.forEach(x=>frameLL(sp,x.la+Math.sin(t*.03+x.ph)*.15,x.lo+Math.cos(t*.025+x.ph)*.2,x.alt+Math.sin(t*.5+x.ph)*1.5,x.ph,x.c))})}}
+// under the surface, seen through the water

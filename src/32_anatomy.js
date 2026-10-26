@@ -44,7 +44,7 @@ function jarm(l1,l2,r,mat,bend){const g=new THREE.Group();g.add(new THREE.Mesh(m
 function mouthEye(g,x,y,z,r,c){for(const s of[-1,1]){const e=sph(0,r,r,r,10,M(c||'#0c0c10',{roughness:.08}));e.position.set(x,y,s*z);g.add(e);const lid=new THREE.Mesh(new THREE.SphereGeometry(r*1.25,10,6,0,Math.PI*2,0,Math.PI*.42),M('#4a4434'));lid.position.set(x,y+r*.15,s*z);lid.rotation.z=-.4;g.add(lid)}}
 
 /* ---------- long-necked giants ---------- */
-function bSauropod2(f){const g=new THREE.Group();const col=f.col||'#7a7a62',pois=f.w==='bosaidong';const o={back:col,belly:C(col).lerp(C('#e8e0c8'),.45).getStyle(),stripe:pois?0:7,spots:pois?40:0,spotC:'#2a4a2a'};const mat=M(col,{roughness:.72});
+function bSauropod(f){const g=new THREE.Group();const col=f.col||'#7a7a62',pois=f.w==='bosaidong';const o={back:col,belly:C(col).lerp(C('#e8e0c8'),.45).getStyle(),stripe:pois?0:7,spots:pois?40:0,spotC:'#2a4a2a'};const mat=M(col,{roughness:.72});
  const body=loft([[-1.7,1.95,0,.5,.45],[-1,2.15,0,.78,.7],[0,2.25,0,.88,.78],[.85,2.15,0,.8,.7],[1.5,2.25,0,.5,.45]],Object.assign({n:28},o));g.add(body);
  const ng=new THREE.Group();ng.position.set(1.3,2.2,0);g.add(ng);
  ng.add(loft([[0,0,0,.48,.42],[.55,.5,0,.32,.3],[.95,1.25,0,.24,.23],[1.2,2.0,0,.2,.19],[1.42,2.5,0,.17,.16],[1.62,2.72,0,.15,.14]],Object.assign({n:30},o,{stripe:0})));
@@ -57,7 +57,7 @@ function bSauropod2(f){const g=new THREE.Group();const col=f.col||'#7a7a62',pois
  g.scale.setScalar(.88);addLegs(g,L);g.userData.tails=[{m:tlg,a:.12,f:1.2}];stdAnim(g,{fq:3.2,amp:.26,extra:(t)=>{ng.rotation.z=Math.sin(t*.5)*.08;ng.rotation.y=Math.sin(t*.37)*.16;tlg.rotation.z=Math.sin(t*.8)*.04}});return g}
 
 /* ---------- horned and frilled ---------- */
-function bCeratops2(f){const g=new THREE.Group();const col=f.col||'#7a6a4a',black=f.w==='xm_heijiao',many=f.w==='duoji'||black;const o={back:col,belly:C(col).lerp(C('#e0d4b8'),.4).getStyle(),stripe:5,metal:black?.4:0,rough:black?.35:.68};const mat=M(col,{roughness:.7,metalness:black?.4:0}),horn=M('#ece2c8',{roughness:.4});
+function bCeratops(f){const g=new THREE.Group();const col=f.col||'#7a6a4a',black=f.w==='xm_heijiao',many=f.w==='duoji'||black;const o={back:col,belly:C(col).lerp(C('#e0d4b8'),.4).getStyle(),stripe:5,metal:black?.4:0,rough:black?.35:.68};const mat=M(col,{roughness:.7,metalness:black?.4:0}),horn=M('#ece2c8',{roughness:.4});
  g.add(loft([[-1.45,1.0,0,.36,.34],[-.75,1.18,0,.62,.6],[0,1.22,0,.68,.66],[.65,1.12,0,.6,.56],[1.05,1.0,0,.42,.4]],Object.assign({n:26},o)));
  const hg=new THREE.Group();hg.position.set(1.0,1.02,0);g.add(hg);
  hg.add(loft([[0,0,0,.4,.38],[.35,-.04,0,.36,.32],[.7,-.15,0,.25,.2],[.95,-.3,0,.12,.1]],Object.assign({n:16},o,{stripe:0})));
@@ -73,7 +73,7 @@ function bCeratops2(f){const g=new THREE.Group();const col=f.col||'#7a6a4a',blac
  addLegs(g,L);g.userData.tails=[{m:tl,a:.25,f:3}];stdAnim(g,{fq:5.5,amp:.35,extra:t=>{hg.rotation.z=Math.sin(t*.9)*.06;hg.rotation.y=Math.sin(t*.6)*.1}});return g}
 
 /* ---------- running hunters on two legs ---------- */
-function bRaptor2(f){const g=new THREE.Group();const big=f.w==='baojun';const col=f.col||'#8a6a3a';const o={back:col,belly:C(col).lerp(C('#e8dcc4'),.45).getStyle(),stripe:big?0:9};const mat=M(col,{roughness:.62});
+function bRaptor(f){const g=new THREE.Group();const big=f.w==='baojun';const col=f.col||'#8a6a3a';const o={back:col,belly:C(col).lerp(C('#e8dcc4'),.45).getStyle(),stripe:big?0:9};const mat=M(col,{roughness:.62});
  const k=big?1.25:1;
  g.add(loft([[-.55,1.22*k,0,.24*k,.2*k],[-.1,1.28*k,0,.36*k,.3*k],[.35,1.33*k,0,.36*k,.3*k],[.62,1.45*k,0,.24*k,.2*k],[.8,1.66*k,0,.15*k,.14*k]],Object.assign({n:22},o)));
  const hg=new THREE.Group();hg.position.set(.8,1.7*k,0);g.add(hg);const hk=big?1.7:1;
@@ -88,7 +88,7 @@ function bRaptor2(f){const g=new THREE.Group();const big=f.w==='baojun';const co
  addLegs(g,L);g.userData.tails=[{m:tlg,a:.18,f:4}];stdAnim(g,{fq:8,amp:.55,extra:t=>{jaw.rotation.z=-Math.max(0,Math.sin(t*1.7))*.25;hg.rotation.z=Math.sin(t*1.1)*.08}});return g}
 
 /* ---------- dragon-folk: upright, long-snouted, with tails ---------- */
-function bDragonkin2(f){const g=new THREE.Group();const id=f.w;
+function bDragonkin(f){const g=new THREE.Group();const id=f.w;
  const P={gulong:{c:'#8f8a80',st:'#ece6d4',sp:1},baihai:{c:'#ece8de',eye:'#8fffe8',sp:1,staff:1,patch:1,st:'#9a968c'},emerald:{c:'#2e9a5e',m:.35,round:1,sp:1,skull:1},rq_xuewu:{c:'#2f8a58',m:.35,round:1,scarf:1},
   ex_baixing:{c:'#f4f8ff',eye:'#bfe8ff',glow:1},zhuru:{c:'#3a2a20',small:1,pipe:1},dianzhuru:{c:'#3e3450',small:1,teeth:1},huojilong:{c:'#c84a2a',small:1,beak:1},banyu:{c:'#6a8a8a',fish:1},yinjia:{c:'#a4b0b8',m:.7,sp:1,silver:1}}[id]||{c:f.col||'#8a8070'};
  const col=P.c;const o={back:col,belly:C(col).lerp(C(P.glow?'#ffffff':'#f0e6cc'),.4).getStyle(),stripe:P.round?0:6,metal:P.m||0,rough:P.m?.35:.66,em:P.glow?col:''};const mat=M(col,{roughness:P.m?.35:.66,metalness:P.m||0});
@@ -127,10 +127,10 @@ function bDragonkin2(f){const g=new THREE.Group();const id=f.w;
  if(P.small)g.scale.setScalar(.7);addLegs(g,L);g.userData.tails=[{m:tlg,a:.25,f:3}];stdAnim(g,{fq:8,amp:.5,extra:(t)=>{arms.forEach((a,i)=>a.rotation.z=.3+Math.sin(t*8+i*Math.PI)*.3);hg.rotation.z=Math.sin(t*1.3)*.1}});
  return g}
 /* swap the new bodies in wherever the herds and entries ask for the old ones */
-bSauropod=bSauropod2;bCeratops=bCeratops2;bRaptor=bRaptor2;bDragonkin=bDragonkin2;
+
 
 /* ---------- Lin's flagship: a shark of the air with a hold full of soldiers ---------- */
-function bBehemoth2(f){const g=new THREE.Group();const col=f.col||'#6c7d6a';const o={back:C(col).offsetHSL(0,0,.06).getStyle(),belly:C(col).lerp(C('#eef4ee'),.65).getStyle(),stripe:0,spots:60,spotC:C(col).multiplyScalar(.6).getStyle(),rough:.55,em:C(col).multiplyScalar(.75).getStyle()};
+function bBehemoth(f){const g=new THREE.Group();const col=f.col||'#6c7d6a';const o={back:C(col).offsetHSL(0,0,.06).getStyle(),belly:C(col).lerp(C('#eef4ee'),.65).getStyle(),stripe:0,spots:60,spotC:C(col).multiplyScalar(.6).getStyle(),rough:.55,em:C(col).multiplyScalar(.75).getStyle()};
  const dark=M(C(col).multiplyScalar(.6).getStyle(),{roughness:.5}),fin=M(C(col).getStyle(),{roughness:.55,side:THREE.DoubleSide});
  g.add(loft([[2.55,.02,0,.06,.06],[2.25,.06,0,.3,.32],[1.7,.1,0,.5,.55],[.9,.14,0,.64,.72],[0,.12,0,.66,.74],[-.9,.08,0,.56,.6],[-1.7,.04,0,.36,.36],[-2.3,.02,0,.18,.17],[-2.6,0,0,.1,.1]],Object.assign({n:60,r:20},o)));
  // the underside: a long pale keel and the doors of the troop hold
@@ -161,7 +161,7 @@ function bBehemoth2(f){const g=new THREE.Group();const col=f.col||'#6c7d6a';cons
 
 /* ---------- the leviathan as the book has it: a broad disc three metres and more across, eyes hung beneath,
    feeling tentacles, gas sacs, a lantern; later a shell over the back and wings that unfold from slits in its sides ---------- */
-function bLeviathan2(f){const g=new THREE.Group();const col=f.col||'#41606a';const top=C(col),bel=C(col).lerp(C('#d8e8e0'),.55);
+function bLeviathan(f){const g=new THREE.Group();const col=f.col||'#41606a';const top=C(col),bel=C(col).lerp(C('#d8e8e0'),.55);
  const shellM=M(C(col).multiplyScalar(.75).getStyle(),{roughness:.4,metalness:.15}),skin=M(col,{roughness:.5}),bone=M('#e9e2cc',{roughness:.4});
  // the disc: a lathe, thick in the middle, thin at the rim, darker above and pale below
  const prof=[];for(let i=0;i<=16;i++){const t=i/16;const r=Math.sin(t*Math.PI*.5)*1.6;const y=(1-t)*.42+t*0;prof.push(new THREE.Vector2(Math.max(.01,r),y))}
@@ -194,12 +194,12 @@ function bLeviathan2(f){const g=new THREE.Group();const col=f.col||'#41606a';con
  return g}
 /* 大鸵龙: the white dragons' two-legged mount — a big running dinosaur with a hide pad on its back,
    a rope bridle tied round its head and reins to pull it straight; some carry a rider */
-function bDachuo(f){const g=bRaptor2(Object.assign({},f,{w:'dachuo',col:f.col||'#8a7a5a'}));const HIDE=M('#6a4a30',{roughness:.9}),ROPE=M('#c8b080',{roughness:.9});
+function bDachuo(f){const g=bRaptor(Object.assign({},f,{w:'dachuo',col:f.col||'#8a7a5a'}));const HIDE=M('#6a4a30',{roughness:.9}),ROPE=M('#c8b080',{roughness:.9});
  const pad=new THREE.Mesh(new THREE.SphereGeometry(1,14,8,0,Math.PI*2,0,Math.PI*.32),HIDE);pad.scale.set(.62,.5,.42);pad.position.set(-.05,1.5,0);g.add(pad);
  for(const z of[-1,1]){const fr=new THREE.Mesh(new THREE.PlaneGeometry(.5,.35),M('#5a3a24',{side:THREE.DoubleSide}));fr.position.set(-.05,1.35,z*.36);fr.rotation.x=z*.25;g.add(fr)}
  const br=new THREE.Mesh(new THREE.TorusGeometry(.17,.018,4,14),ROPE);br.position.set(1.05,1.72,0);br.rotation.y=Math.PI/2;g.add(br);
  for(const z of[-1,1])g.add(tubeAlong([V3(1.05,1.72,z*.16),V3(.6,1.75,z*.22),V3(.1,1.62,z*.2)],.012,ROPE,8));
- if(f.rider!==false){const r=bDragonkin2({w:'baihai',col:'#ece8de'});r.scale.setScalar(.7);r.position.set(-.15,1.0,0);r.userData.anim=null;g.add(r)}
+ if(f.rider!==false){const r=bDragonkin({w:'baihai',col:'#ece8de'});r.scale.setScalar(.7);r.position.set(-.15,1.0,0);r.userData.anim=null;g.add(r)}
  return g}
 
-bBehemoth=bBehemoth2;bLeviathan=bLeviathan2;
+
