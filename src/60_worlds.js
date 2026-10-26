@@ -227,8 +227,9 @@ function buildPath(id){const m=MB[id];const sc=new THREE.Scene();const sp=newSpa
 const BUILDERS={rongqiu:buildRongqiu,void:buildVoid,ximin:buildXimin,erxi:buildErxi,midgard:()=>buildTube('midgard'),tunnel:()=>buildTube('tunnel'),dream:()=>buildPath('dream'),buke:()=>buildPath('buke')};
 // a vertex-coloured material on geometry with no colours draws black; give such geometry plain white
 function fixVC(o){const done=new Set();o.traverse(m=>{if(!m.isMesh||!m.geometry||done.has(m.geometry))return;const ms=Array.isArray(m.material)?m.material:[m.material];if(!ms.some(x=>x&&x.vertexColors))return;const g=m.geometry;done.add(g);if(g.attributes.color||!g.attributes.position)return;const n=g.attributes.position.count;g.setAttribute('color',new THREE.Float32BufferAttribute(new Float32Array(n*3).fill(1),3))})}
-/* point lights: lights hung straight in a world stay as they are (they never come or go); for the ones inside things that show and hide, each world keeps two real lights that never come or go, and every frame hands them to the nearest little lights that are showing.
-   the scene's own point lights only say where light should be. a change in how many lights are showing made every lit material rebuild its shader */
+/* point lights: every world keeps exactly two real point lights that never come or go, and every frame hands them to the
+   nearest of the world's own point lights that are showing; those only say where light should be. a change in how many
+   lights a scene has makes every lit material build a new shader, so all worlds share one light layout (see lightRig) */
 const LPOOL_K=2,_lw=V3();
 /* which things cast and catch the near shadows: solid lit meshes; small ones cast (a town, a creature, a tree), the
    ground and big things only catch */
@@ -245,9 +246,17 @@ const _sv=V3();
 window.__solidPush=sp=>{let L=sp._solids;if(L===undefined){L=sp._solids=[];for(const w of WIKI){if(mapOf(w)!==sp.id||!w.k||!SOLID[w.k])continue;const r=(w.kp&&w.kp.r)||sizeOf(w);if(r>4)L.push({w,r})}}
  if(!L.length)return;let moved=false;for(const s of L){if(s.w.e&&!s.w.e.includes(ERA))continue;const c=s.c||(s.c=posOf(s.w));_sv.copy(camera.position).sub(c);const d=_sv.length(),m=s.r*1.12;if(d<m){camera.position.copy(c).addScaledVector(d>1e-3?_sv.divideScalar(d):V3(0,1,0),m);moved=true}}
  if(moved)camera.lookAt(TG)};
+/* one light layout for every world, so the shader programs made for one world serve the next: two directional lights,
+   one hemisphere light, the two pooled point lights, and the same kind of fog (linear on the planets, exponential
+   elsewhere; a world without fog gets exponential fog of density 0). only the planets' sun casts shadows, so planets
+   share programs with planets and the other worlds with each other. missing lights are added dark */
+function lightRig(sp){const sc=sp.scene;let nd=0,nh=0;sc.traverse(o=>{if(o.isDirectionalLight)nd++;else if(o.isHemisphereLight)nh++});
+ for(;nd<2;nd++){const d=new THREE.DirectionalLight(0xffffff,0);d.userData.rig=1;sc.add(d)}
+ if(!nh){const h=new THREE.HemisphereLight(0,0,0);h.userData.rig=1;sc.add(h)}
+ if(!sc.fog&&sp.type!=='planet')sc.fog=new THREE.FogExp2(0,0)}
 function poolScan(sp){const lp=sp._lp||(sp._lp={L:[],P:[],a:-1,t:0});lp.a=SG_ADDS;shadowScan(sp);noStaleCull(sp);
- sp.scene.traverse(o=>{if(!o.isPointLight||o.userData.pool||o.userData.pooled||o.parent===sp.scene)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o)});
- if(lp.L.length&&!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}}
+ sp.scene.traverse(o=>{if(!o.isPointLight||o.userData.pool||o.userData.pooled)return;o.userData.pooled=1;let v=o.visible;Object.defineProperty(o,'visible',{get(){return false},set(x){v=x},configurable:true});o.userData.vis=()=>v;lp.L.push(o)});
+ if(!lp.P.length)for(let i=0;i<LPOOL_K;i++){const q=new THREE.PointLight(0xffffff,0,1);q.userData.pool=1;sp.scene.add(q);lp.P.push(q)}}
 function poolStepBase(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a!==SG_ADDS&&now-lp.t>1500){lp.t=now;poolScan(sp)}if(!lp.P.length)return;
  const C=camera.position;const pick=[];for(const L of lp.L){if(!L.userData.vis()||!(L.intensity>0)||!L.parent)continue;let x=L.parent,ok=true;while(x){if(!x.visible){ok=false;break}if(!x.parent&&x!==sp.scene)ok=false;x=x.parent}if(!ok)continue;
   _lw.copy(L.position).applyMatrix4(L.parent.matrixWorld);const d=_lw.distanceTo(C);if(L.distance>0&&d>L.distance*6+400)continue;pick.push([d,L,_lw.x,_lw.y,_lw.z])}
@@ -257,7 +266,7 @@ function poolStepBase(sp,now){const lp=sp._lp;if(!lp)return poolScan(sp);if(lp.a
    per-frame light and air (q3_step), every world's softer surfaces (q4b_frame), the eggs hung on it; the build is timed
    for the profiler and a world let go to save memory gets its remembered spot back */
 function getSpace(id){if(SP[id])return SP[id];
- const sp=q5s_span('build:'+id,()=>{const sp=BUILDERS[id]();envAll(sp.scene);fixVC(sp.scene);poolScan(sp);if(sp.type==='planet')applyPlanetEra(sp,clampEra(sp,ERA));if(CUR&&CUR!==sp&&CUR.type==='planet')BSP=CUR;
+ const sp=q5s_span('build:'+id,()=>{const sp=BUILDERS[id]();lightRig(sp);envAll(sp.scene);fixVC(sp.scene);poolScan(sp);if(sp.type==='planet')applyPlanetEra(sp,clampEra(sp,ERA));if(CUR&&CUR!==sp&&CUR.type==='planet')BSP=CUR;
   if(sp.type==='planet'&&sp.terr&&!Q2_NOPATCH.has(id))try{q2_setup(sp)}catch(e){console.warn('q2',id,e)}
   if(sp.type==='planet')anim(sp,null,()=>q3_step(sp));
   anim(sp,null,()=>q4b_frame(sp));

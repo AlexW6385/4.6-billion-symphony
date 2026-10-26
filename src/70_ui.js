@@ -44,7 +44,9 @@ function enterSpaceBase(id,opt){opt=opt||{};if(busy){pendEnter=[id,opt];pendGo=n
    buildLabels(sp);buildTime();rigPose();pushOut=0;
    document.body.classList.toggle('pale',!!MB[id].white);const[t1,t2]=spaceTitle(sp);setTimeout(()=>showTitle(t1,t2),350);
    MW_ALL=true;sp.scene.updateMatrixWorld();try{renderer.compile(sp.scene,camera)}catch(e){}if(first&&window.__bvhIdle)setTimeout(()=>window.__bvhIdle(sp.scene),1500);
-   fadeTo=0;busy=false;requestAnimationFrame(()=>$('#load').classList.add('done'));
+   // the first frames of a world make what renderer.compile does not (shadow and depth programs, texture uploads): they are
+   // drawn while the picture is still dark, and the fade only starts once they are done, so it never stalls half-way
+   busy=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!busy)fadeTo=0;$('#load').classList.add('done')}));
    // a newer request came in while this one was loading: that one wins, this one's follow-up is dropped
    if(pendGo){const g=pendGo;pendGo=null;pendEnter=null;setTimeout(()=>goLater(g),60);return}
    if(pendEnter){const [i2,o2]=pendEnter;pendEnter=null;setTimeout(()=>enterSpace(i2,o2),60);return}if(opt.after)setTimeout(opt.after,250)};

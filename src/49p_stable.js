@@ -56,15 +56,13 @@ function q5s_enterSpace(id,opt){q5s_switched();if(SP[id])SP[id].__q5t=q5s_now();
 
 
 /* ---- the other worlds, built ahead of time: the build itself is one piece (0.3–2 s of script), so it only runs while a page
-   covers the picture or the tour lingers, or — on a desktop — after a long untouched stretch of fast frames; its shaders are then
-   made in slices on the frames after, not in the same frame. a phone never builds in the open ---- */
+   covers the picture or the tour lingers on a stop; its shaders are then made in slices on the frames after, not in the same
+   frame. nothing is ever built in the open (on a desktop it used to be, after a long untouched stretch: a visible stall) ---- */
 const q5s_PRE={lastBuild:-1e9};
 function q5s_preTick(){if(!CUR||busy||tw||drag||pinch||ptrs.size||document.hidden||!$('#load').classList.contains('done'))return;const now=q5s_now();
  const page=$('#rd').classList.contains('on')||$('#lib').classList.contains('on');const tourDw=TVS.on&&!TVS.paused&&TVS.phase==='dwell'&&TVS.t>1&&TVS.t<TVS.dwell-1.5;
  let ok=page||tourDw;
- if(!ok){if(COARSE||TVS.on)return;const idle=performance.now()-lastInput>8000;const rg=q5s_P.ring;let fast=rg.length>=30;for(let i=rg.length-30;fast&&i<rg.length;i++)if(rg[i]>25)fast=false;
-  ok=idle&&fast&&now-q5s_swT>10000&&now-q5s_PRE.lastBuild>20000&&!q5s_J.length}
- if(!ok)return;let id=preNext();if(!id)return;if(!page&&!tourDw&&id!=='void')return;// in the open only the void (the usual next stop) is worth a pause
+ if(!ok)return;let id=preNext();if(!id)return;
  try{q5s_PRE.lastBuild=now;const sp=getSpace(id);sp.scene.updateMatrixWorld(true);q5s_compileQueue(sp.scene,camera);perf.skip=3;perf.t=0;perf.n=0;perf.slow=0;q5s_log('prebuild',{id})}catch(e){console.warn('prebuild',id,e)}}
 
 /* ---- things far away animate at a tenth of the rate (a creature a few pixels across does not need 60 poses a second);
