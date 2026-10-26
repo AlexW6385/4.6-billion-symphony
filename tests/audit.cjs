@@ -1,5 +1,5 @@
 // jump to every entry and measure what the camera actually shows. node audit.js out.json [map] [from] [to]
-const {chromium}=require('playwright');const fs=require('fs');const W=(require('path').join(__dirname,'..','dist')+'/');
+const {chromium}=require('playwright');const fs=require('fs');const W=((process.env.DIST||require('path').join(__dirname,'..','dist'))+'/');
 const OUT=process.argv[2],MAP=process.argv[3]||'',FROM=+(process.argv[4]||0),TO=+(process.argv[5]||1e9);
 const VW=+(process.env.VW||1100),VH=+(process.env.VH||700),MOB=!!process.env.TOUCH;
 (async()=>{const b=await chromium.launch({...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--use-gl=swiftshader','--enable-webgl','--ignore-gpu-blocklist','--enable-unsafe-swiftshader']});
