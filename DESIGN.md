@@ -121,6 +121,11 @@ Append-only: date, decision, reason.
 - 2026-10-26 — The novel is read search-first from `rongqiu-source`, with working notes kept there, to save tokens. Reason: 34 MB of text; cost.
 - 2026-10-26 — This document is the brief for autonomous work; the agent decides §9 items itself.
 - 2026-10-26 — One evolving motif across spaces and eras; music retreats when panels are open; muted by default on phones. Reason: coherence as an exhibition; smoothness and autoplay rules.
+- 2026-10-26 — Patch layers folded: no file reassigns another file's function; an extension of a function is a named stage (`xBase` ← `q3_x` ← `x`) that calls the previous one; `SPEC`/`KIND`/`ENT` keys are written once. Layers that were whole subsystems (`49k_ground`, `49l_light`, `49n_soften`, `49o_nav`, `49p_stable`, `49z_eggs`) stay as modules under their subject; grab-bag layers (`fixA`…`fixH`, `q_models`, `fixesA`, `lean`) are dissolved into their homes. Reason: §9; one place per behaviour without a risky rewrite of working systems.
+- 2026-10-26 — Refactors that must not change the picture are verified with `tests/fingerprint.cjs` (every model and every scene object, deterministic) and `tests/shots.cjs` (pixel comparison at fixed viewpoints). Reason: a 2 MB single scope cannot be checked by reading.
+- 2026-10-26 — Every world has the same light layout (2 directional, 1 hemisphere, 2 pooled point lights, one fog kind per world type); missing lights are added dark; all point lights go through the pool (the underground's 17 and Midgard's 10 now light through the nearest two). Reason: shader programs are shared across worlds (new programs per switch 18–49 → 1–9); small lighting change accepted.
+- 2026-10-26 — No world is built ahead of time; a first visit builds under the loading cover. Reason: a build is a 0.3–2 s block of script with no invisible moment to run it (it froze the library and reader, or the picture).
+- 2026-10-26 — Entries are shareable by link (`#e=id`). Reason: DESIGN listed sharing as an interaction; it did not exist.
 
 ## 11. Roadmap and status
 
@@ -133,10 +138,11 @@ The implementing agent updates this section at the end of every session. Phases 
 - `DESIGN.md` (this brief), 2026-10-26.
 
 **Phase 0 — Debt and smoothness baseline**
-- Fold the `49*_fix*` patch layers into their home files (see §9; high-risk tier of §7a). Update `docs/架构.md`.
-- Record a baseline: `perf5.cjs` per space, `audit.cjs`, screenshots at fixed viewpoints; store under `tests/baseline/` (small).
-- Fix the world-switch shader-compile hitch and any other hitch the baseline shows.
-- Walk every interaction path (enter space → entry → card → related → library → chapter → reader → share → back) on both layouts; fix anything that is not silky.
+- ✅ Fold the patch layers (2026-10-26): no `fix*` layer remains, no function is reassigned across files; `docs/架构.md` updated. Fingerprint and screenshots identical before/after.
+- ✅ Baseline: `tests/baseline/perf.json` (perf5 per space); fixed viewpoints in `tests/viewpoints.json` (`tests/shots.cjs`); `tests/fingerprint.cjs`. (Screenshots are not stored in the repo: regenerate from a tagged build.)
+- ◐ World-switch hitch: programs shared across worlds (1–9 new per switch after the first planet / non-planet visit); fade-in waits for warm-up frames; no prebuild stalls. Still open: a first visit to a world builds and compiles under the loading cover (1–2 s). Next ideas: async program linking (KHR_parallel_shader_compile; three r128 links synchronously in `getProgram`), slicing the builders.
+- ✅ Interaction path walked on desktop and phone (`tests/path.cjs`): library/reader stalls removed, first jumps cheap; sharing added.
+- Remaining before Phase 0 is done: audit pass recorded, release tag `v1.1` with CHANGELOG, the live site checked on desktop and phone.
 
 **Phase 1 — Coverage index**
 - Using the novel (search-first) and the existing entries, build `rongqiu-source/exhibition/coverage.md`: every named place in the book, which space it belongs to (or needs), whether it is enterable, which entries exist for it, and which are missing or thin (`thin.mjs`). Rank missing content by importance.
