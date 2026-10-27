@@ -16,7 +16,9 @@ function bMayaNest(){const g=new THREE.Group();g.add(bHuts({n:6,r:2.4,col:'#7a6a
  g.userData.anim=t=>{br.userData.anim&&br.userData.anim(t);qs.forEach((x,i)=>{const a=x.a+t*.25;x.b.position.set(Math.cos(a)*2.6,0,Math.sin(a)*2.6);x.b.rotation.y=-a-Math.PI/2;x.b.userData.anim&&x.b.userData.anim(t)})};return g}
 function bPlague(){const g=new THREE.Group();for(let i=0;i<9;i++){const m=new THREE.Mesh(geoC(i%2?'mush':'mush2'),VC({emissive:'#5a2a8a',emissiveIntensity:.25}));m.position.set((h3(i,1,3)-.5)*4,0,(h3(i,2,3)-.5)*4);m.scale.setScalar(.12+h3(i,3,3)*.12);g.add(m)}
  const cap=new THREE.Mesh(new THREE.SphereGeometry(1.4,16,8,0,6.283,0,1.4),M('#8a4ac8',{roughness:.6,emissive:'#4a1a7a',emissiveIntensity:.3}));cap.scale.y=.5;cap.position.y=1.8;g.add(cap);const st=cyl(.25,.4,1.8,M('#d8c8e0'),8);st.position.y=.9;g.add(st);
- g.add(emitter({n:60,life:4,speed:.5,spread:1,size:.6,dir:[0,1,0],col:'#c88aff',op:.7,area:[4,1,4],wander:.6}));const sw=emitter({n:90,life:3,speed:2,spread:1.2,size:.35,dir:[0,1,0],col:'#7a3aa8',op:.9,add:false,area:[2,2,2],wander:2});sw.position.y=3;g.add(sw);return g}
+ g.add(emitter({n:60,life:4,speed:.5,spread:1,size:.6,dir:[0,1,0],col:'#c88aff',op:.7,area:[4,1,4],wander:.6}));const sw=emitter({n:90,life:3,speed:2,spread:1.2,size:.35,dir:[0,1,0],col:'#7a3aa8',op:.9,add:false,area:[2,2,2],wander:2});sw.position.y=3;g.add(sw);
+ // the fungus beats like a heart (two knocks, then a pause), the cap swelling and glowing with each one
+ g.userData.anim=t=>{const q=(t*.8)%1,h=Math.exp(-(q-.05)*(q-.05)*500)+.6*Math.exp(-(q-.24)*(q-.24)*500);cap.scale.set(1+h*.05,.5*(1+h*.09),1+h*.05);cap.material.emissiveIntensity=.3+h*.4};return g}
 function bSupplier(){const g=new THREE.Group();const b=bDragonfly({w:'jumai',col:'#5a7a4a'});b.scale.setScalar(2);g.add(b);const sac=sph(0,.5,.4,.4,12,new THREE.MeshStandardMaterial({color:'#9aff7a',transparent:true,opacity:.55,emissive:'#4ac83a',emissiveIntensity:.4,depthWrite:false}));sac.position.set(-.3,-.1,0);g.add(sac);
  g.add(at(emitter({n:40,life:3,speed:1.5,spread:.3,size:.35,dir:[0,-1,0],col:'#9aff7a',op:.95,area:[.3,.2,.3],grav:.2}),0,-.3,0));g.userData.anim=t=>{b.userData.anim&&b.userData.anim(t);g.position.y=Math.sin(t*.8)*.3};return g}
 function bSacs(){const g=new THREE.Group();const s=[];for(let i=0;i<6;i++){const k=new THREE.Group();const b=sph(0,.3,.28,.28,12,new THREE.MeshStandardMaterial({color:'#d8e870',transparent:true,opacity:.75,emissive:'#7a8a20',emissiveIntensity:.3,roughness:.2}));b.position.y=.35;k.add(b);
@@ -115,7 +117,7 @@ const ENT={
  ex_nuo:[fxF_nuo,1], ex_travel:[bTravel,2,{alt:20}], ex_endsign:[bQuake,2.2], c_veronica:[fxF_veronica,1], c_bilu:[fxF_bilu,1],
  // 虚空
  v_spike:[bMoleMonkey,1,{isle:1}], v_huhe_guard:[fxD_huhe,1,{isle:1}], v_guancha:[bStoneEye,1,{isle:1}], v_se:[fxD_se,1,{isle:1}], v_yanzhu:[bRockSpiders,1,{isle:1}], v_yuanling:[fxD_yuanling,1.1],
- v_fudao:[fxD_fudao,1.1], v_yanpi:[fxD_yanpi,1,{isle:1}], v_gouluo:[bHookWheel,1,{isle:1,walk:1}], v_yangzhi:[bLimbKeepers,1,{isle:1}], v_cangyi:[fxD_cangyi,1.1,{isle:1}], v_rosalie:[fxF_rosalie,1,{isle:1}],
+ v_fudao:[fxD_fudao,1.1], v_yanpi:[fxD_yanpi,1,{isle:1,walk:1}], v_gouluo:[bHookWheel,1,{isle:1,walk:1}], v_yangzhi:[bLimbKeepers,1,{isle:1}], v_cangyi:[fxD_cangyi,1.1,{isle:1}], v_rosalie:[fxF_rosalie,1,{isle:1}],
  v_piaobohao:[fxP_driftFortress,2],
  v_hundun:[fxP_chaos,3],
  v_bingshan:[fxP_voidIceberg,3],
@@ -133,7 +135,7 @@ const ENT={
  bk_zhizaota:[fxP_makerTower,1.6],
  dr_road:[bArch,1.3], dr_edge:[fxD_edge,1.4], c_tentacle:[bTentacleGuide,1.1,{isle:1}], dr_doom:[bDoom,1.4], dr_jumper:[fxD_jumper,1.1], dr_zhaoji:[bCaller,1.2], dr_tako:[fxF_takoHope,1.1,{isle:1}],
  // 米德加尔特
- mg_overview:[()=>bWarp({col:'#c8b8a0'}),1.5], mg_chene:[()=>fxD_croc({}),1.2,{walk:1}], mg_mini:[()=>fxD_croc({tiny:1,mech:1}),.7], mg_mech:[()=>bDustCroc({mech:1}),1.2], mg_xiulian:[fxD_xiulian,1.1], mg_exit:[fxD_moons,2],
+ mg_overview:[()=>bWarp({col:'#c8b8a0'}),1.5], mg_chene:[()=>fxD_croc({}),1.2,{walk:1}], mg_mini:[()=>fxD_croc({tiny:1,mech:1}),.7,{walk:1}], mg_mech:[()=>bDustCroc({mech:1}),1.2,{walk:1}], mg_xiulian:[fxD_xiulian,1.1], mg_exit:[fxD_moons,2],
  c_xuezhe:[fxD_xuezhe,1],
  // 白色通道
  tn_overview:[()=>bWarp({col:'#ffffff'}),1.6], tn_empire:[bEmpire,1.2], tn_brain:[bTunnelBrain,1.6], tn_third:[bThird,2],
@@ -621,8 +623,10 @@ function fxC_yuandun(){const g=new THREE.Group();const dome=detailMat(M('#8e8678
  // ten jointed limbs, five a side, all set under the rim of the head, each ending in a pincer with teeth on its inner edges
  const L=[];for(let k=0;k<5;k++)for(const z of[-1,1]){const a=(k-2)/2*1.0;const l=leg2(.55,.6,.055,lim,-1.1);l.position.set(1.15,.62+Math.abs(k-2)*.06,z*(.12+k*.1));l.rotation.set(z*(.35+k*.12),0,.55-k*.12);g.add(l);
   const pin=new THREE.Group();for(const s of[-1,1]){const p=cone(.04,.26,lim,4);p.position.set(0,-.12,s*.045);p.rotation.set(Math.PI+s*.3,0,0);pin.add(p);for(let i=0;i<3;i++){const tt=cone(.012,.05,bl,3);tt.position.set(0,-.06-i*.05,s*.02);tt.rotation.x=-s*Math.PI/2;pin.add(tt)}}
-  pin.position.y=-.6;l.userData.knee.add(pin);L.push({m:l,ph:k*.9+(z>0?0:Math.PI),a:.22,k:-1.1})}
- addLegs(g,L);g.add(shadow(2,-1));stdAnim(g,{fq:3,amp:.3});return g}
+  pin.position.y=-.6;l.userData.knee.add(pin);L.push({m:l,ph:k*.9+(z>0?0:Math.PI),a:.22,k:-1.1,rz:l.rotation.z})}
+ addLegs(g,L);g.add(shadow(2,-1));stdAnim(g,{fq:3,amp:.3,extra:t=>{if(g.userData.legs)return;
+  // not walking: the limbs take turns reaching out and pulling back to the mouth, the head shoves forward now and then
+  for(let i=0;i<L.length;i++){const c=Math.sin(t*1.4+L[i].ph);L[i].m.rotation.z=L[i].rz+c*.25;L[i].m.userData.knee.rotation.z=-1.1-Math.max(0,-c)*.5}hd.position.x=1.25+Math.max(0,Math.sin(t*.5))**6*.12}});return g}
 
 /* ---------- 螳螂虾 (the land-going one): six metres, grey and half see-through shell, eyes coloured like a rainbow on
    stalks, thick walking limbs on its sides, swimming legs grown sturdy, a tail it coils before launching itself ---------- */
@@ -767,7 +771,9 @@ function fxC_anying(){const g=new THREE.Group();const sh=M('#151518',{roughness:
   const r=leg2(.4,.42,.05,sh,.9);r.position.set(-.3,-.02,z*.13);r.rotation.set(z*.7,0,-.35+(z>0?-.2:.15));body.add(r);
   L.push({m:f,ph:z>0?0:.6,a:.6},{m:r,ph:z>0?Math.PI:Math.PI+.6,a:.6})}
  addLegs(g,L);g.add(shadow(1));
- stdAnim(g,{fq:9,amp:.5,extra:t=>{body.position.y=.42+Math.abs(Math.sin(t*9))*.02;tail.rotation.y=Math.sin(t*4.5)*.18;tail.rotation.z=Math.sin(t*9)*.05;hd.rotation.y=Math.sin(t*.9)*.25}});return g}
+ stdAnim(g,{fq:9,amp:.5,extra:t=>{if(g.userData.legs){body.position.y=.42+Math.abs(Math.sin(t*9))*.02;tail.rotation.y=Math.sin(t*4.5)*.18;tail.rotation.z=Math.sin(t*9)*.05;hd.rotation.y=Math.sin(t*.9)*.25;return}
+  // still: crouched and watching, tail held up; every so often a quick stab of the tail, as at the land shark
+  const q=(t*.14)%1,st=q>.86&&q<.94?Math.sin((q-.86)/.08*Math.PI):0;body.position.y=.4+Math.sin(t*1.6)*.01;body.rotation.z=-st*.12;tail.rotation.z=-.35+st*.9;tail.rotation.y=Math.sin(t*.8)*.12;hd.rotation.y=Math.sin(t*.45)*.45;hd.rotation.z=Math.sin(t*.31)*.08}});return g}
 
 /* ---------- 喷沙虫: a giant that gulps sand at the mouth, swells its abdomen with it and blasts it out of the abdomen's
    rear, as dust screens or as packed sand balls, turning the abdomen to aim (up at fliers, or to lob) ---------- */
@@ -784,7 +790,10 @@ function fxC_pensha(){const g=new THREE.Group();const sk=M('#a8865a',{roughness:
  const sp=emitter({n:140,life:2,speed:5,spread:.35,size:1.8,dir:[-1,.6,0],col:'#e0bb84',op:.55,add:false,tex:smokeTex,area:[.15,.15,.15]});sp.position.set(-2.5,1.4,0);g.add(sp);
  const L=[];for(let k=0;k<3;k++)for(const z of[-1,1]){const l=leg2(.6,.7,.07,dk,.9);l.position.set(.8-k*.3,.8,z*.4);l.rotation.x=z*.8;g.add(l);L.push({m:l,ph:k+(z>0?Math.PI:0),a:.25})}
  addLegs(g,L);g.add(shadow(1.8,-.6));
- stdAnim(g,{fq:3,amp:.25,extra:t=>{const k=(Math.sin(t*.9)+1)/2;ab.scale.set(1.15+k*.12,.85+k*.1,.9+k*.1);abd.rotation.z=Math.sin(t*.4)*.12}});return g}
+ const U=sp.material.uniforms.uOp,e=u=>u*u*(3-2*u);ab.scale.set(1.15,.85,.9);
+ // about every ten seconds: the abdomen swells, blasts the sand out of the rear in one go, then gulps sand and air again
+ stdAnim(g,{fq:3,amp:.25,extra:t=>{const q=(t*.1)%1,k=q<.72?e(q/.72):q<.8?1-e((q-.72)/.08):0,b=q<.72?0:Math.exp(-(q-.72)*14);abd.scale.set(1+k*.22,1+k*.28,1+k*.25);
+  abd.rotation.z=Math.sin(t*.4)*.06-b*.12;noz.scale.setScalar(1+b*.25);U.value=.04+.6*b}});return g}
 
 /* ---------- 真菌领主: a huge fat larva of a lower body dragged along on eight pairs of legs, with a mantis-like upper body
    reared up four metres, three pairs of sharp claws, three big compound eyes on top of the head and antennae that give
@@ -844,7 +853,9 @@ function fxC_baozha(){const g=new THREE.Group();const b=sph(0,.9,.86,.9,18,M('#4
  const sm2=M('#ffffff',{vertexColors:true,roughness:.5});const N=520,dirs=[];for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,r=Math.sqrt(1-y*y),a=i*2.39996;dirs.push(V3(Math.cos(a)*r,y,Math.sin(a)*r))}
  const C0=V3(0,.88,0);const im=fxC_inst(sg,sm2,dirs.map(d=>[C0.clone().addScaledVector(d,.88),fxC_q(d),1]));g.add(im);
  g.add(shadow(1));const o=new THREE.Object3D();
- g.userData.anim=t=>{const k=Math.max(0,Math.sin(t*.7))**40;if(k<.001&&im.userData.k===0)return;im.userData.k=k<.001?0:k;
+ const e=u=>u*u*(3-2*u);g.userData.anim=t=>{const p=(t*.7/6.2832)%1,a=p<.3?0:p<.45?.9*e((p-.3)/.15):p<.65?.9:p<.95?.9*(1-e((p-.65)/.3)):0,dx=-a*.88;
+  b.position.x=dx;b.rotation.z=a;im.rotation.z=a;im.position.set(dx+.88*Math.sin(a),.88-.88*Math.cos(a),0);
+  const k=Math.max(0,Math.sin(t*.7))**40;if(k<.001&&im.userData.k===0)return;im.userData.k=k<.001?0:k;
   dirs.forEach((d,i)=>{const e=(i%3===0)?k:k*.35;o.position.copy(C0).addScaledVector(d,.88+e*.5);o.quaternion.copy(fxC_q(d));o.scale.set(1,1+e*8,1);o.updateMatrix();im.setMatrixAt(i,o.matrix)});im.instanceMatrix.needsUpdate=true};
  return g}
 
@@ -894,7 +905,10 @@ function fxC_kongjiang(){const g=new THREE.Group();const sh=detailMat(M('#7a6a4a
 /* ---------- 滚雷: Lin's rolling trooper: armour that can be charged with current, set with hooked barbs ---------- */
 function fxC_gunlei(){const g=bThunderBall();const b=g.children[0];const bm=M('#c8d0d8',{metalness:.6,roughness:.25});const hg=new THREE.ConeGeometry(.05,.28,4).translate(0,.14,0).rotateZ(.35);
  const L=[];for(let i=0;i<60;i++){const y=1-2*(i+.5)/60,r=Math.sqrt(1-y*y),a=i*2.4;const d=V3(Math.cos(a)*r,y,Math.sin(a)*r);L.push([d.clone().multiplyScalar(.97),fxC_q(d),1])}
- const im=fxC_inst(hg,bm,L);im.scale.setScalar(1/1);b.add(im);return g}
+ const im=fxC_inst(hg,bm,L);im.scale.setScalar(1/1);b.add(im);
+ // it gets about by rolling: it sits sparking, suddenly rolls off a few metres, then trundles back
+ const sh=g.children.find(c=>c.material===shadowMat),piv=new THREE.Group();piv.position.y=1;g.children.filter(c=>c!==sh).forEach(c=>{c.position.y-=1;piv.add(c)});g.add(piv);const a0=g.userData.anim,e=u=>u*u*(3-2*u);
+ g.userData.anim=t=>{a0(t);b.rotation.z=0;const q=(t*.12)%1,x=(q<.4?0:q<.55?3*e((q-.4)/.15):q<.8?3:3*(1-e((q-.8)/.2)))-1.5;piv.position.x=x;piv.rotation.z=-x;if(sh)sh.position.x=x};return g}
 
 /* ---------- 声探者: small, simply built probes, made in numbers, that walk about sounding out caves for traps ---------- */
 function fxC_shengtan(){const g=new THREE.Group();const sk=M('#8aa8b8',{roughness:.4}),sac=EM('#9ad8ff',.45,{roughness:.2});const ws=[];const L=[];
@@ -1629,7 +1643,9 @@ function fxE_flea(){const root=new THREE.Group(),g=new THREE.Group();root.add(g)
  const legs=[];for(let i=0;i<5;i++)for(const z of[-1,1]){const l=leg2(.28,.3,.025,sh2,-.9);l.position.set(.35-i*.18,-.35,z*.12);l.rotation.x=-z*.35;g.add(l);for(let k=0;k<3;k++){const b=cone(.012,.06,fang,3);b.position.set(.02,-.08-k*.08,0);b.rotation.z=-1.2;l.userData.knee.add(b)}legs.push({l,ph:i*.5,z})}
  // the jet it swims by
  const jet=emitter({n:40,life:.9,speed:1.6,spread:.15,size:.25,dir:[-1,0,0],col:'#d8f4ff',op:.5,area:[.05,.05,.05]});jet.position.set(-.62,0,0);g.add(jet);
- root.userData.anim=t=>{const p=(t*1.2)%1;const kick=Math.max(0,1-p*3);g.position.set(Math.sin(t*.5)*.1,1.0+Math.sin(t*.8)*.12,0);g.rotation.z=Math.sin(t*.8)*.08-kick*.05;
+ const U=jet.material.uniforms.uOp;
+ // it swims by jetting: each squirt shoves it forward, then it coasts back while the legs work
+ root.userData.anim=t=>{const p=(t*1.2)%1;const kick=Math.max(0,1-p*3);U.value=.15+.45*kick;g.position.set(Math.sin(t*.5)*.1+(p<.15?Math.sin(p/.15*Math.PI/2):1-(p-.15)/.85)*.12,1.0+Math.sin(t*.8)*.12,0);g.rotation.z=Math.sin(t*.8)*.08-kick*.05;
   legs.forEach(x=>{const o=.5+.5*Math.sin(t*2.2+x.ph);x.l.rotation.z=-.4-o*.5;x.l.userData.knee.rotation.z=-.6-o*.6})};
  return root}
 
