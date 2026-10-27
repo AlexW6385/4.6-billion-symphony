@@ -19,7 +19,7 @@ function evPoints(n,seed,mat){const Rn=rnd(seed),p=new Float32Array(n*3),s=new F
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('sd',new THREE.BufferAttribute(s,3));
  const P=new THREE.Points(g,mat);P.frustumCulled=false;P.renderOrder=4;return P}
 /* things falling from the sky: each speck drops along a slanted line and starts again, a short bright head */
-function evFallMat(o){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+function evFallMat(o){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:o.dark?THREE.NormalBlending:THREE.AdditiveBlending,
  uniforms:{uT:GT,uS:PSCALE,uC:{value:C(o.col)},uC2:{value:C(o.col2||o.col)},uR:{value:V3(o.rx,o.h,o.rz)},uK:{value:o.speed||.1},uZ:{value:o.size||6},uL:{value:V3(o.slant||0,0,0)}},
  vertexShader:`uniform float uT,uS,uK,uZ;uniform vec3 uR,uL;attribute vec3 sd;varying float vA;varying float vH;
   void main(){float f=fract(uT*uK*(.6+sd.z*.8)+sd.x*7.);
@@ -27,7 +27,11 @@ function evFallMat(o){return new THREE.ShaderMaterial({transparent:true,depthWri
    vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;vH=f;
    vA=smoothstep(0.,.08,f)*smoothstep(1.,.9,f)*step(.35,fract(sd.z*13.+floor(uT*uK*(.6+sd.z*.8)+sd.x*7.)*.37))*smoothstep(12000.,800.,-mv.z);
    gl_PointSize=clamp(uS*uZ/-mv.z,1.5,14.);}`,
- fragmentShader:'uniform vec3 uC,uC2;varying float vA;varying float vH;void main(){vec2 c=gl_PointCoord-.5;float a=smoothstep(.5,.0,length(c));gl_FragColor=vec4(mix(uC,uC2,vH)*a*vA*1.4,1.);}'})}
+ fragmentShader:'uniform vec3 uC,uC2;varying float vA;varying float vH;void main(){vec2 c=gl_PointCoord-.5;float a=smoothstep(.5,.0,length(c));'+(o.dark?'gl_FragColor=vec4(mix(uC,uC2,vH),smoothstep(.5,.3,length(c))*vA);}':'gl_FragColor=vec4(mix(uC,uC2,vH)*a*vA*1.4,1.);}')})}
+/* 尔什's sky cracks (age 10): out of the frozen space behind them, mud and explosives fall onto the city below */
+function erEvents(sp,g,pts){const f=new THREE.Group();f.position.copy(pts[8]);f.position.y-=150;g.add(f);
+ f.add(evPoints(320,861,evFallMat({dark:1,col:'#6a5440',col2:'#3a2c20',rx:16,h:150,rz:5,speed:.16,size:6})));
+ evFlashes(sp,f,3,30,[40,6,12],'#ffa040',862)}
 /* a few flashes inside a cloud: each sprite waits, then blinks twice */
 function evFlashes(sp,g,n,sz,box,col,seed){const Rn=rnd(seed),F=[];for(let i=0;i<n;i++){const s=glowSprite(col,sz,0);s.position.set((Rn()-.5)*box[0],(Rn()-.3)*box[1],(Rn()-.5)*box[2]);g.add(s);F.push({s,t:Rn()*6})}
  anim(sp,g,(t,dt)=>{for(const f of F){f.t-=dt;if(f.t<-.5){f.t=2+Math.random()*7;f.s.position.set((Math.random()-.5)*box[0],(Math.random()-.3)*box[1],(Math.random()-.5)*box[2])}
