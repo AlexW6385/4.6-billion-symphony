@@ -183,3 +183,31 @@ function entryKits(sp){WIKI.filter(w=>w.m===sp.id&&w.ll&&!ENT[w.id]&&w.k&&w.k!==
  ENT[w.id]=[()=>{const g=makeShape(w,sp,false);const b=new THREE.Box3().setFromObject(g),sz=b.getSize(V3());const k=1/Math.max(1e-3,Math.max(sz.x,sz.y,sz.z));g.scale.multiplyScalar(k);
   const w0=new THREE.Group();g.position.y=-b.min.y*k;w0.add(g);return w0},(w.kp&&w.kp.big)||4,{alt:w.alt||0}]})}
 for(const id in W3){BUILDERS[id]=()=>buildW3(id);HOME[id]=W3[id].home}
+/* 秩序之域 (age 11): a road that goes down through the layers — the graveyard of giant sea-cucumber corpses in the void, the furnished
+   second layer, the dark-red corpse heap, green tunnels round an underground lake, the black-cube layer, the rubble of layer 66,
+   the gold-lit hall of layer 99. Entries stand at their layer: `layer` picks the point on the road */
+ROAD.order=t=>V3(Math.sin(t*Math.PI*5)*620,500-t*2600,Math.cos(t*Math.PI*5)*620);
+const ORDER_T={1:.05,2:.16,3:.27,4:.37,5:.45,6:.55,7:.65,66:.8,99:.94};
+BUILDERS.order=()=>buildPath('order');HOME.order={a:-620,b:0,alt:1400,head:0,y:300};
+function orderMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(616);
+ // layer 1: black spiny corpses of giant sea cucumbers drifting round the top of the road
+ {const body=new THREE.CylinderGeometry(1,1,5,10);const spine=new THREE.ConeGeometry(.25,1.4,5);
+  const P=[];for(let i=0;i<46;i++){const p=road(Rn()*.12);P.push([p.x+(Rn()-.5)*1400,p.y+(Rn()-.5)*500,p.z+(Rn()-.5)*1400,8+Rn()*Rn()*40,Rn()*6,Rn()*6])}
+  const bm=new THREE.MeshStandardMaterial({color:'#18161a',roughness:.7,metalness:.2});const o=new THREE.Object3D();
+  const ib=new THREE.InstancedMesh(body,bm,P.length),is=new THREE.InstancedMesh(spine,bm,P.length*14);let k=0;
+  P.forEach((q,i)=>{o.position.set(q[0],q[1],q[2]);o.rotation.set(q[4],q[5],0);o.scale.setScalar(q[3]);o.updateMatrix();ib.setMatrixAt(i,o.matrix);const base=o.matrix.clone();
+   for(let j=0;j<14;j++){const m=new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Rn()*6,0,Rn()*6)).setPosition((Rn()-.5)*1.4,(Rn()-.5)*4,(Rn()-.5)*1.4);is.setMatrixAt(k++,base.clone().multiply(m))}});
+  ib.frustumCulled=is.frustumCulled=false;sc.add(ib);sc.add(is)}
+ // the deeper layers: a soft light of their own colour round their stretch of the road
+ const glow=(t0,t1,col,n,size)=>{const a=[];for(let i=0;i<n;i++){const p=road(t0+Rn()*(t1-t0));a.push(V3(p.x+(Rn()-.5)*700,p.y+(Rn()-.5)*260,p.z+(Rn()-.5)*700))}sc.add(sparkles(a,col,size,.7,.6))};
+ glow(.13,.2,'#ffe8c0',300,8);glow(.22,.32,'#ff3a2a',500,9);glow(.33,.5,'#4aff8a',500,7);glow(.75,.86,'#a8a8b8',400,6);glow(.9,1,'#ffd860',700,12);
+ // layer 4–5: green-walled tunnel rings along the road
+ {const ring=new THREE.TorusGeometry(60,6,6,20);const im=new THREE.InstancedMesh(ring,new THREE.MeshStandardMaterial({color:'#1e4a2a',emissive:'#0a3a1a',emissiveIntensity:.6,roughness:.8}),40);const o=new THREE.Object3D();
+  for(let i=0;i<40;i++){const t=.33+i/40*.17,p=road(t),q=road(t+.002).sub(p).normalize();o.position.copy(p);o.lookAt(p.clone().add(q));o.scale.setScalar(1+Rn()*.3);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im)}
+ // layer 7: black cubes with glowing slits beside the road; layer 66: rubble; layer 99: a floor of silver under gold light
+ {const im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:'#121216',roughness:.4,metalness:.5,emissive:'#3a2a10',emissiveIntensity:.2}),30);const o=new THREE.Object3D();
+  for(let i=0;i<30;i++){const p=road(.6+Rn()*.1);o.position.set(p.x+(Rn()-.5)*600,p.y+(Rn()-.5)*200,p.z+(Rn()-.5)*600);o.rotation.set(0,Rn()*3,0);o.scale.setScalar(20+Rn()*60);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im)}
+ {const im=new THREE.InstancedMesh(lumpRock(1,3).clone(),new THREE.MeshStandardMaterial({color:'#4a4648',roughness:.9,flatShading:true}),160);const o=new THREE.Object3D();
+  for(let i=0;i<160;i++){const p=road(.76+Rn()*.1);o.position.set(p.x+(Rn()-.5)*900,p.y+(Rn()-.5)*400,p.z+(Rn()-.5)*900);o.rotation.set(Rn()*3,Rn()*3,0);o.scale.setScalar(4+Rn()*Rn()*40);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im)}
+ {const p=road(.96);const fl=new THREE.Mesh(new THREE.CylinderGeometry(420,420,6,48),new THREE.MeshStandardMaterial({color:'#d8dce4',metalness:.8,roughness:.2,emissive:'#5a4a20',emissiveIntensity:.3}));fl.position.set(p.x,p.y-30,p.z);sc.add(fl);
+  const gl=glowSprite('#ffd870',1400,.35);gl.position.set(p.x,p.y+300,p.z);sc.add(gl)}}
