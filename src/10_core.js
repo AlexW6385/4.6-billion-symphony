@@ -3,27 +3,37 @@ for(const K of['Line','Points']){const f=THREE[K].prototype.raycast;THREE[K].pro
 /* meshes of 800 triangles and more (ground, walls, tubes, trees, buildings) get a small bounding-box tree the first time a ray tests them, so a ray costs a few hundred box tests instead of one test per triangle; only the nearest hit is reported, which is all the callers here look at */
 {const MR=THREE.Mesh.prototype.raycast,_inv=new THREE.Matrix4(),_r=new THREE.Ray(),_s=new THREE.Sphere(),_a=new THREE.Vector3(),_b=new THREE.Vector3(),_c=new THREE.Vector3(),_p=new THREE.Vector3(),_q=new THREE.Vector3(),_w=new THREE.Vector3();
  const LEAF=48;
+ // the tree is built by a generator that can stop every few thousand triangles: in an idle moment it runs only while the
+ // moment lasts (the planet's ground, 600 k triangles, used to take one 350 ms block), and a ray that needs it now runs it through
  function bvhOf(g){const pos=g.attributes.position,ix=g.index;const ver=pos.version+(ix?ix.version*1e6:0);if(g.__bvh&&g.__bvh.ver===ver)return g.__bvh;
+  const it=bvhGen(g,ver);while(!it.next().done);return g.__bvh}
+ function* bvhGen(g,ver){const pos=g.attributes.position,ix=g.index;const SL=8000;
   const n=((ix?ix.count:pos.count)/3)|0;let I;if(ix&&!ix.isInterleavedBufferAttribute&&ix.array.length>=n*3)I=ix.array;else{I=new Uint32Array(n*3);for(let t=0;t<n*3;t++)I[t]=ix?ix.getX(t):t}
   let V;if(!pos.isInterleavedBufferAttribute&&pos.itemSize===3&&!pos.normalized&&pos.array instanceof Float32Array)V=pos.array;else{V=new Float32Array(pos.count*3);for(let i=0;i<pos.count;i++){V[i*3]=pos.getX(i);V[i*3+1]=pos.getY(i);V[i*3+2]=pos.getZ(i)}}
   const TB=new Float32Array(n*6),CE=new Float32Array(n*3);
   for(let t=0;t<n;t++){let x0=1e30,y0=1e30,z0=1e30,x1=-1e30,y1=-1e30,z1=-1e30;for(let k=0;k<3;k++){const v=I[t*3+k]*3,x=V[v],y=V[v+1],z=V[v+2];if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;if(z<z0)z0=z;if(z>z1)z1=z}
-   const q=t*6;TB[q]=x0;TB[q+1]=y0;TB[q+2]=z0;TB[q+3]=x1;TB[q+4]=y1;TB[q+5]=z1;CE[t*3]=(x0+x1)/2;CE[t*3+1]=(y0+y1)/2;CE[t*3+2]=(z0+z1)/2}
+   const q=t*6;TB[q]=x0;TB[q+1]=y0;TB[q+2]=z0;TB[q+3]=x1;TB[q+4]=y1;TB[q+5]=z1;CE[t*3]=(x0+x1)/2;CE[t*3+1]=(y0+y1)/2;CE[t*3+2]=(z0+z1)/2;if(t%SL===SL-1)yield}
   const O=new Uint32Array(n);for(let t=0;t<n;t++)O[t]=t;
   const NB=[],NL=[],NR=[],NS=[],NC=[];
-  const mk=(s,e)=>{const id=NL.length;NL.push(-1);NR.push(-1);NS.push(s);NC.push(e-s);let x0=1e30,y0=1e30,z0=1e30,x1=-1e30,y1=-1e30,z1=-1e30,cx0=1e30,cy0=1e30,cz0=1e30,cx1=-1e30,cy1=-1e30,cz1=-1e30;
+  // nodes are made from a stack of ranges; each new node is linked to its parent when it is made
+  const stk=[[0,n,-1,0]];let work=0;
+  while(stk.length){const [s,e,par,side]=stk.pop();const id=NL.length;NL.push(-1);NR.push(-1);NS.push(s);NC.push(e-s);if(par>=0){if(side)NR[par]=id;else NL[par]=id}
+   let x0=1e30,y0=1e30,z0=1e30,x1=-1e30,y1=-1e30,z1=-1e30,cx0=1e30,cy0=1e30,cz0=1e30,cx1=-1e30,cy1=-1e30,cz1=-1e30;
    for(let i=s;i<e;i++){const t=O[i],b=t*6;if(TB[b]<x0)x0=TB[b];if(TB[b+1]<y0)y0=TB[b+1];if(TB[b+2]<z0)z0=TB[b+2];if(TB[b+3]>x1)x1=TB[b+3];if(TB[b+4]>y1)y1=TB[b+4];if(TB[b+5]>z1)z1=TB[b+5];
-    const c=t*3;if(CE[c]<cx0)cx0=CE[c];if(CE[c]>cx1)cx1=CE[c];if(CE[c+1]<cy0)cy0=CE[c+1];if(CE[c+1]>cy1)cy1=CE[c+1];if(CE[c+2]<cz0)cz0=CE[c+2];if(CE[c+2]>cz1)cz1=CE[c+2]}
-   NB.push(x0,y0,z0,x1,y1,z1);if(e-s<=LEAF)return id;
-   const dx=cx1-cx0,dy=cy1-cy0,dz=cz1-cz0;const ax=dx>=dy&&dx>=dz?0:dy>=dz?1:2;const mid=ax===0?(cx0+cx1)/2:ax===1?(cy0+cy1)/2:(cz0+cz1)/2;
-   let i=s,j=e-1;while(i<=j){if(CE[O[i]*3+ax]<mid)i++;else{const t=O[i];O[i]=O[j];O[j]=t;j--}}
-   let m=i;if(m===s||m===e)m=(s+e)>>1;
-   const l=mk(s,m),r=mk(m,e);NL[id]=l;NR[id]=r;return id};
-  mk(0,n);
-  return g.__bvh={ver,I,V,O,B:new Float32Array(NB),L:Int32Array.from(NL),R:Int32Array.from(NR),S:Int32Array.from(NS),C:Int32Array.from(NC)}}
+    const c=t*3;if(CE[c]<cx0)cx0=CE[c];if(CE[c]>cx1)cx1=CE[c];if(CE[c+1]<cy0)cy0=CE[c+1];if(CE[c+1]>cy1)cy1=CE[c+1];if(CE[c+2]<cz0)cz0=CE[c+2];if(CE[c+2]>cz1)cz1=CE[c+2];if((i-s)%SL===SL-1)yield}
+   NB.push(x0,y0,z0,x1,y1,z1);work+=e-s;
+   if(e-s>LEAF){const dx=cx1-cx0,dy=cy1-cy0,dz=cz1-cz0;const ax=dx>=dy&&dx>=dz?0:dy>=dz?1:2;const mid=ax===0?(cx0+cx1)/2:ax===1?(cy0+cy1)/2:(cz0+cz1)/2;
+    let i=s,j=e-1,k=0;while(i<=j){if(CE[O[i]*3+ax]<mid)i++;else{const t=O[i];O[i]=O[j];O[j]=t;j--}if(++k%SL===0)yield}
+    let m=i;if(m===s||m===e)m=(s+e)>>1;stk.push([m,e,id,1],[s,m,id,0])}
+   if(work>SL*2){work=0;yield}}
+  g.__bvh={ver,I,V,O,B:new Float32Array(NB),L:Int32Array.from(NL),R:Int32Array.from(NR),S:Int32Array.from(NS),C:Int32Array.from(NC)}}
  // after a world is shown, build the trees for its big meshes in idle moments, one mesh per moment, so the first tap or card never pays for it
  window.__bvhIdle=function(sc){const L=[];const seen=new Set();sc.traverse(o=>{if(!o.isMesh||Array.isArray(o.material)||o.isSkinnedMesh||Object.prototype.hasOwnProperty.call(o,"raycast"))return;const g=o.geometry;if(!g||!g.isBufferGeometry||!g.attributes.position||seen.has(g))return;const nt=(g.index?g.index.count:g.attributes.position.count)/3;if(nt>=800){seen.add(g);L.push(g)}});
-  const ric=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>50}),200));const step=()=>{if(!L.length)return;const g=L.shift();try{bvhOf(g)}catch(e){}ric(step,{timeout:3000})};ric(step,{timeout:3000})};
+  const ric=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>50}),200));let it=null,ig=null;
+  const step=dl=>{const t0=performance.now(),left=()=>dl&&dl.timeRemaining?dl.timeRemaining():8;
+   try{while(left()>1.5&&performance.now()-t0<12){if(!it){if(!L.length)return;ig=L.shift();const p=ig.attributes.position,x=ig.index;const ver=p.version+(x?x.version*1e6:0);if(ig.__bvh&&ig.__bvh.ver===ver)continue;it=bvhGen(ig,ver)}
+    if(ig.__bvh&&it.__done){it=null;continue}if(it.next().done)it=null}}catch(e){it=null}
+   ric(step,{timeout:3000})};ric(step,{timeout:3000})};
  const ST=new Int32Array(256);
  THREE.Mesh.prototype.raycast=function(rc,out){const g=this.geometry,m=this.material;
   if(!g||!g.isBufferGeometry||!m||Array.isArray(m)||this.isSkinnedMesh||!g.attributes.position||(g.morphAttributes&&g.morphAttributes.position)||g.drawRange.start!==0||g.drawRange.count!==Infinity||window.__noBVH)return MR.call(this,rc,out);
