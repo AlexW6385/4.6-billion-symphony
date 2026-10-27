@@ -133,6 +133,26 @@ W3.starbus={home:{a:10,b:0,alt:2600},sunLon:30,
  sky:{zen:'#2a2a30',hor:'#7a7470',set:'#c08060',nightZ:'#050506',nightH:'#151416'},envTop:'#8a8a90',envMid:'#c8ccd0',envBot:'#3a3a3a',sunI:.85,
  props:[{geo:'cyl',n:340,col:'#141416',metal:.6,rough:.3,scale:[.5,1.1],stretch:[1,26,1]}]};
 const SB_C=dirLL(10,0);
+/* 织梦者之地 (ages 7–8): a lone world adrift in the void, drowned in an ocean of black fog made of grit; stone pillars hundreds of
+   metres high stand out of it as if built, and the soft mud of the land evaporates up into the fog, so the land sinks year by year */
+W3.zhimeng={home:{a:12,b:30,alt:2600},sunLon:20,dayLen:1e12,sunI:.7,
+ height:p=>{const n=fbm(p.x*2.6+12,p.y*2.6,p.z*2.6,5);if(n<.5)return -6-(.5-n)*20;return 1+(n-.5)*24},
+ col:(p,h,lat,o)=>{if(h<0){o.set('#1a1a1e');return}o.set('#5a4a3a').lerp(C('#3a3028'),n3(p.x*12,p.y*12,p.z*12)*.8);if(h>6)o.lerp(C('#6a6260'),sm(6,14,h))},
+ ocean:{deep:'#0a0a0c',shal:'#2a2a30'},atm:'#4a4a52',atmK:1.2,clouds:{cov:.62,col:'#3a3a40'},rough:.95,
+ sky:{zen:'#0a0a10',hor:'#3a3a44',set:'#6a5a50',nightZ:'#040406',nightH:'#14141a'},envTop:'#3a3a44',envMid:'#5a5a60',envBot:'#1a1816',
+ props:[{geo:'cyl',n:220,col:'#7a7470',rough:.9,scale:[2,4],stretch:[1,40,1],minH:-99,far:5000},
+  {geo:'sphere',n:6,col:'#1a1a1e',scale:[1,1],minH:99}],
+ fog:{n:10,col:'#202024'}};
+/* 护核者之地 (ages 6–7): a rich world of thick air where a dream lies over the real ground — a jungle town of floating olive-shaped
+   creatures, a sea of white fog below the cliffs, a volcano lake */
+W3.huhe={home:{a:8,b:-20,alt:2600},sunLon:-10,
+ height:p=>{const n=fbm(p.x*3+40,p.y*3,p.z*3,5),v=angDeg(p,HH_V);if(n<.42)return -3-(.42-n)*20;return 3+(n-.42)*60+Math.pow(fbm(p.x*7,p.y*7,p.z*7,4),2)*30+Math.max(0,1-v/4)*50},
+ col:(p,h,lat,o)=>{if(h<0){o.set('#d8dee4');return}if(h<3.5){o.set('#8a8a7a');return}o.set('#3a8a3a').lerp(C('#2a6a3a'),n3(p.x*9,p.y*9,p.z*9)*.8);
+  const v=angDeg(p,HH_V);if(v<5)o.lerp(C('#4a3a34'),1-v/5);if(h>40)o.lerp(C('#6a7a5a'),sm(40,70,h))},
+ ocean:{deep:'#c8d0d8',shal:'#f0f4f8'},atm:'#a8d8b0',atmK:1.3,clouds:{cov:.5},rough:.85,
+ sky:{zen:'#4a8ac8',hor:'#c8e0d8',set:'#f0b880'},
+ props:[{geo:'sphere',n:420,col:'#c8c870',em:'#4a5a10',ei:.3,rough:.5,alt:[8,40],scale:[.8,2.2],stretch:[1,1.6,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(8,-20))<14}]};
+const HH_V=dirLL(-6,-6);
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
 const DOOM_CORE=64;
 function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
