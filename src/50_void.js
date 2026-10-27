@@ -180,7 +180,9 @@ const mm=mt(c,{metalness:.6,roughness:.35});const hub=new THREE.Mesh(kcy(s*.4,s*
    let l=null;if(kp.lightning||kp.storm){l=new THREE.PointLight(0xcfe0ff,0,r*8);g.add(l)}
    if(kp.blades)g.add(instGroup(kc(.12,1,4),mt('#c8c8d0',{metalness:.7}),Array.from({length:30}),o=>{const v=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();o.position.copy(v).multiplyScalar(r*.6);o.quaternion.setFromUnitVectors(V3(0,1,0),v);o.scale.set(r*.12,r*.6,r*.12)}));
    if(kp.rainbow)g.add(swarmPts(80,r,'#fff0f8',r*.05,seed));
-   an=t=>{L.forEach(s=>{s.position.copy(s.userData.b).add(V3(Math.sin(t*.2+s.userData.ph)*r*.08,Math.cos(t*.17+s.userData.ph)*r*.04,0))});if(l)l.intensity=(Math.sin(t*7.3+seed)>.965)?4:0};break}
+   // a sea of it (kp.waves): the puffs ride swells that roll across it
+   if(kp.waves)an=t=>{for(const s of L){const b=s.userData.b,w=Math.sin(t*.9-b.x/r*3.2+b.z/r*.8);s.position.set(b.x+Math.sin(t*.2+s.userData.ph)*r*.06,b.y+w*r*.22,b.z)}if(l)l.intensity=(Math.sin(t*7.3+seed)>.965)?4:0};
+   else an=t=>{L.forEach(s=>{s.position.copy(s.userData.b).add(V3(Math.sin(t*.2+s.userData.ph)*r*.08,Math.cos(t*.17+s.userData.ph)*r*.04,0))});if(l)l.intensity=(Math.sin(t*7.3+seed)>.965)?4:0};break}
   case 'squid':{const b=bSquid({col:c});b.scale.setScalar(S*.9);b.rotation.z=Math.PI/2;g.add(b);g.add(at(glowSprite('#fff4c0',S*.6,.7),0,S*.4,0));an=t=>{b.userData.anim&&b.userData.anim(t);g.rotation.y=t*.08;g.position.y=Math.sin(t*.6)*S*.15};break}
   case 'linked':{const n=kp.n||6,r=kp.r||60;const pts=[];for(let i=0;i<n;i++){const v=V3((Rn()-.5)*r*2.4,(Rn()-.5)*r*.8,(Rn()-.5)*r*2.4);pts.push(v);const pk={r:r*(.12+Rn()*.14),tex:i%2?'earth':'ocean',c1:i%2?kp.c1||c:'#5a8ad8',c2:kp.c2||c2,atm:'#bfe0ff'};const s=planetObj(pk,{id:w.id+i},sp);s.position.copy(v);g.add(s)}
    for(let i=1;i<n;i++){const a=pts[i-1],b=pts[i];const d=b.clone().sub(a);const cy=new THREE.Mesh(kcy(r*.015,r*.015,d.length(),6),GL('#ffd8a0',.6));cy.position.copy(a).add(b).multiplyScalar(.5);cy.quaternion.setFromUnitVectors(V3(0,1,0),d.normalize());g.add(cy)}
@@ -656,7 +658,12 @@ fxH_SH.bk_qiji=(g,x)=>{const {S,Rn}=x;const L=S*9,r=S*.32;const fm=mt('#f6f6f2',
  const t=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,28,1,true),fm);t.rotation.z=Math.PI/2;g.add(t);for(const s of[-1,1]){const cp=new THREE.Mesh(new THREE.SphereGeometry(r,20,10),fm);cp.position.x=s*L/2;cp.scale.x=.4;g.add(cp)}
  g.add(fxH_inst(new THREE.CircleGeometry(1,14),new THREE.MeshBasicMaterial({color:'#1a1814'}),72,(o,i)=>{const row=i%3,k=(i/3)|0;const a=(row-1)*.7+Math.PI/2;const xx=-L*.45+k*L*.9/23;const d=V3(0,Math.sin(a),Math.cos(a));o.position.set(xx,d.y*r*1.005,d.z*r*1.005);o.quaternion.setFromUnitVectors(V3(0,0,1),d);o.scale.setScalar(r*(.16+((k*7+row)%3)*.04))}));
  const ph=[];for(let i=0;i<18;i++){const s=glowSprite('#ffb060',S*.35,.9);g.add(s);ph.push({s,a:Rn()*6.28,x:(Rn()-.5)*L*.9,rr:r*(2+Rn()*2),sp:.4+Rn()*.4})}
- g.add(glowSprite('#fff4e0',L*.5,.12));return tt=>{for(const k of ph){const a=k.a+tt*k.sp;k.s.position.set(k.x+Math.sin(tt*.2+k.a)*S,Math.cos(a)*k.rr,Math.sin(a)*k.rr)}}};
+ g.add(glowSprite('#fff4e0',L*.5,.12));
+ // it is a weapon: now and then a hole fires a long white shot at a runaway miracle out ahead
+ const sh=[];for(let i=0;i<4;i++){const m=new THREE.MeshBasicMaterial({color:'#fff6dc',transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+  const b=new THREE.Mesh(new THREE.CylinderGeometry(r*.05,r*.12,L*1.2,8,1,true),m);b.geometry.translate(0,L*.6,0);b.rotation.x=Math.PI/2;b.position.set(-L*.4+i*L*.27,0,r);b.visible=false;g.add(b);sh.push([b,Rn()*6.283,.18+Rn()*.12])}
+ return tt=>{for(const k of ph){const a=k.a+tt*k.sp;k.s.position.set(k.x+Math.sin(tt*.2+k.a)*S,Math.cos(a)*k.rr,Math.sin(a)*k.rr)}
+  for(const [b,p,k] of sh){const v=Math.sin(tt*k+p);b.visible=v>.95;if(b.visible)b.material.opacity=(v-.95)*16}}};
 
 /* ---------- 悬挂之城: a disc of dream residue a kilometre up; threads hang from it, each ending in a cube or ball house; a low residue wall below ---------- */
 fxH_SH.bk_hang=(g,x)=>{const {S,Rn}=x;const Y=S*.9;const dm=mt('#e8dcb8',{roughness:.7});

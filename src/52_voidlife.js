@@ -42,6 +42,12 @@ function pathMore(sp,id){if(id==='dream'){dreamRoadMore(sp);return}if(id!=='buke
  const ims=kinds.map(([g,c])=>{const im=new THREE.InstancedMesh(g,new THREE.MeshStandardMaterial({color:c,roughness:.5,metalness:.1,emissive:c,emissiveIntensity:.12,flatShading:true}),60);im.frustumCulled=false;sc.add(im);return im});
  const F=[];ims.forEach((im,k)=>{for(let i=0;i<60;i++){const t=Rn(),p=road(t);F.push({im,i,p:V3(p.x+(Rn()-.5)*1400,p.y+(Rn()-.5)*600,p.z+(Rn()-.5)*900),s:4+Rn()*Rn()*30,r:V3(Rn()*3,Rn()*3,Rn()*3),w:(Rn()-.5)*.2,ph:Rn()*6})}});
  const o3=new THREE.Object3D();anim(sp,null,t=>{for(const f of F){o3.position.copy(f.p);o3.position.y+=Math.sin(t*.2+f.ph)*12;o3.rotation.set(f.r.x+t*f.w,f.r.y+t*f.w*.7,f.r.z);o3.scale.setScalar(f.s);o3.updateMatrix();f.im.setMatrixAt(f.i,o3.matrix)}ims.forEach(im=>im.instanceMatrix.needsUpdate=true)});
+ // thunder-cloud creatures along the homeward road and over the hanging city: storm clouds that strike at fliers, each trailing
+ // a few small clouds of its own young
+ for(let k=0;k<5;k++){const t=.03+k*.13,p=road(t),g=new THREE.Group();g.position.set(p.x+(k%2?1:-1)*(260+Rn()*200),p.y+120+Rn()*120,p.z+(Rn()-.5)*300);
+  g.add(evPoints(260,941+k,evSwarmMat({dark:1,soft:1,col:'#5a5868',rx:90,ry:24,rz:70,speed:.05,size:70,op:.6,max:90})));
+  for(let j=0;j<3;j++){const y=new THREE.Group();y.position.set(-110-j*55,-10+(Rn()-.5)*30,(Rn()-.5)*60);y.add(evPoints(40,951+k*3+j,evSwarmMat({dark:1,soft:1,col:'#6a6878',rx:16,ry:6,rz:14,speed:.12,size:36,op:.55,max:60})));g.add(y)}
+  evFlashes(sp,g,3,90,[170,40,130],'#dfe8ff',961+k);sc.add(g)}
  // rivers of fine consciousness, winding beside the road
  for(let k=0;k<3;k++){const pts=[];for(let i=0;i<=40;i++){const t=(i/40)*.9+.05,p=road(t);pts.push(V3(p.x+Math.sin(t*9+k*2)*420+(k-1)*500,p.y-160+Math.sin(t*13+k)*60,p.z))}const cv=new THREE.CatmullRomCurve3(pts);
   const tm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uT:GT},vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
