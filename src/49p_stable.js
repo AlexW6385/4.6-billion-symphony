@@ -82,11 +82,11 @@ function q5s_farCull(sp){if(sp.cover&&!sp.cover.__q5w){sp.cover.__q5w=1;const u=
   if(!o.userData.q5far&&o.visible)q5s_detail(x,Math.sqrt(d2),pxk,id===fid||id===sid)}}
 /* the small parts of a model far away (an eye, a claw, a strut) are under a pixel in radius: they are not drawn. The parts are
    listed once, biggest first, with the radius each covers in the world; only parts this hid are shown again */
-function q5s_detail(x,d,pxk,keep){let P=x.parts;if(!P){P=x.parts=[];const s=new THREE.Vector3(),sp=new THREE.Sphere();x.o.updateMatrixWorld(true);
+function q5s_detail(x,d,pxk,keep,k){let P=x.parts;if(!P){P=x.parts=[];const s=new THREE.Vector3(),sp=new THREE.Sphere();x.o.updateMatrixWorld(true);
   x.o.traverse(m=>{if(!(m.isMesh||m.isPoints)||m.isInstancedMesh||!m.geometry)return;const g=m.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingSphere)return;m.matrixWorld.decompose(_q5dp,_q5dq,s);P.push({m,r:g.boundingSphere.radius*Math.max(s.x,s.y,s.z),off:false})});
   P.sort((a,b)=>b.r-a.r);x.pi=P.length}
  // parts with r*pxk < d go; P is sorted, so find the first one that is too small
- const lim=keep?0:d/(pxk*1.5);let i=0;while(i<P.length&&P[i].r>=lim)i++;
+ const lim=keep?0:d*(k||1)/(pxk*1.5);let i=0;while(i<P.length&&P[i].r>=lim)i++;
  for(let k=0;k<i&&k<x.pi;k++){const q=P[k];if(q.off){q.off=false;q.m.visible=true}}
  for(let k=i;k<P.length;k++){const q=P[k];if(!q.off&&q.m.visible){q.off=true;q.m.visible=false}}x.pi=i}
 const _q5dp=new THREE.Vector3(),_q5dq=new THREE.Quaternion();
