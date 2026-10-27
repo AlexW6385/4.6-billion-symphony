@@ -649,6 +649,33 @@ fxH_SH.bk_crying=(g,x)=>{const {S,Rn,seed}=x;const geo=fxH_lumpGeo(S*.8,3,.16,se
  const N=90,F=[];const fm=fxH_inst(lumpRock(1,9),mt('#8a8070',{roughness:.95,flatShading:true}),N,()=>{});g.add(fm);for(let i=0;i<N;i++)F.push({v:V3(Rn()-.5,(Rn()-.5)*.8,Rn()-.5).normalize(),ph:Rn(),s:S*(.015+Rn()*.03),sp:.02+Rn()*.03});
  const o=new THREE.Object3D();const step=t=>{for(let i=0;i<N;i++){const f=F[i],u=(f.ph+t*f.sp)%1;o.position.copy(f.v).multiply(V3(S*1.05,S*.55,S*.9)).multiplyScalar(1+u*1.4);o.rotation.set(t*.2+i,i*2,0);o.scale.setScalar(f.s*(u<.05?u*20:1));o.updateMatrix();fm.setMatrixAt(i,o.matrix)}fm.instanceMatrix.needsUpdate=true};step(0);return step};
 
+/* ---------- 尔什的武器: a ten-kilometre sphere, half black and half white, carrying a black-and-white block like a puzzle cube ---------- */
+fxH_SH.v_erxiwuqi=(g,x)=>{const {S}=x;const wm=mt('#f2f2ee',{roughness:.35,metalness:.2}),bm=mt('#141416',{roughness:.3,metalness:.5});
+ for(const [m,a] of [[wm,0],[bm,Math.PI]]){const h=new THREE.Mesh(new THREE.SphereGeometry(S,40,20,0,Math.PI*2,0,Math.PI/2),m);h.rotation.x=a;g.add(h)}
+ // the block, pushed half out of the seam: small cubes in a checker of black and white
+ const cb=new THREE.Group();const n=3,u=S*.22;for(let i=0;i<n;i++)for(let j=0;j<n;j++)for(let k=0;k<n;k++){const b=new THREE.Mesh(kb(u*.94,u*.94,u*.94),(i+j+k)%2?bm:wm);b.position.set((i-1)*u,(j-1)*u,(k-1)*u);cb.add(b)}
+ cb.position.set(S*.95,0,0);g.add(cb);g.add(at(glowSprite('#ffffff',S*.8,.25),S*.95,0,0));
+ return t=>{cb.rotation.y=t*.15;cb.rotation.x=Math.sin(t*.1)*.3}};
+/* ---------- 雾观: at the end of a misty side-passage, a flat white wall that blooms into a speaking picture of a starry sky ---------- */
+fxH_SH.v_wuguan=(g,x)=>{const {S,Rn}=x;const wl=new THREE.Mesh(kb(S*2.4,S*1.6,S*.08),mt('#f4f4f6',{roughness:.6,emissive:'#d8dce8',emissiveIntensity:.2}));g.add(wl);
+ const P=[];for(let i=0;i<160;i++)P.push(V3((Rn()-.5)*S*2.2,(Rn()-.5)*S*1.4,S*.06));const st=sparkles(P,'#6a7aff',S*.03,1,.8);g.add(st);
+ const fm=new THREE.SpriteMaterial({map:smokeTex,color:'#dfe4ec',transparent:true,opacity:.35,depthWrite:false});const F=[];
+ for(let i=0;i<10;i++){const sp=new THREE.Sprite(fm);const z=S*.6+i*S*.45;sp.position.set((Rn()-.5)*S,(Rn()-.5)*S*.6,z);sp.scale.set(S*1.8,S*1.2,1);g.add(sp);F.push([sp,z])}
+ return t=>{const k=.5+.5*Math.sin(t*.4);st.material.uniforms.uOp.value=.2+.7*k;for(const [sp,z] of F)sp.position.z=z+Math.sin(t*.15+z)*S*.1}};
+/* ---------- 肉块 · 同旅者: blood-red lumps of tiny machines crowding over a white octopus-shaped station ---------- */
+fxH_SH.v_roukuai=(g,x)=>{const {S,Rn}=x;const wm=mt('#eceae4',{roughness:.5,metalness:.2});const hd=new THREE.Mesh(new THREE.SphereGeometry(S*.6,24,16),wm);hd.scale.y=1.2;hd.position.y=S*.3;g.add(hd);
+ const arms=[];for(let i=0;i<8;i++){const a=i/8*6.283,pts=[];for(let k=0;k<=8;k++){const r=S*(.4+k*.16);pts.push(V3(Math.cos(a)*r,-k*S*.1-Math.sin(k*.6)*S*.15,Math.sin(a)*r))}
+  const arm=new THREE.Mesh(ktube(pts,S*.09,24,6),wm);g.add(arm);arms.push(arm)}
+ const lump=new THREE.IcosahedronGeometry(1,0);const L=[];for(let i=0;i<120;i++){const v=V3(Rn()-.5,Rn()*.9-.2,Rn()-.5).normalize().multiplyScalar(S*(.62+Rn()*.9));L.push(v)}
+ const lm=fxH_inst(lump,mt('#a82a2a',{roughness:.6,emissive:'#4a0808',emissiveIntensity:.4,flatShading:true}),L.length,(o,i)=>{o.position.copy(L[i]);o.rotation.set(Rn()*3,Rn()*3,0);o.scale.setScalar(S*(.04+Rn()*.07))});g.add(lm);
+ return t=>{lm.rotation.y=t*.05;for(let i=0;i<arms.length;i++)arms[i].rotation.y=Math.sin(t*.4+i)*.05}};
+/* ---------- 黑层 · 逃离者: black cube buildings with glowing window slits, joined by black bridges, beetle-suits drifting out ---------- */
+fxH_SH.v_heiceng=(g,x)=>{const {S,Rn}=x;const bm=mt('#121216',{roughness:.4,metalness:.5}),wn=new THREE.MeshBasicMaterial({color:'#ffd890'});const B=[];
+ for(let i=0;i<7;i++){const s=S*(.3+Rn()*.7),p=V3((Rn()-.5)*S*3,(Rn()-.5)*S*1.2,(Rn()-.5)*S*3);const b=new THREE.Mesh(kb(s,s,s),bm);b.position.copy(p);g.add(b);B.push(p);
+  for(let k=0;k<3;k++){const w=new THREE.Mesh(kb(s*.7,s*.03,s*1.01),wn);w.position.copy(p);w.position.y+=(k-1)*s*.25;g.add(w)}}
+ for(let i=1;i<B.length;i++){const a=B[i-1],b=B[i],d=b.clone().sub(a);const br=new THREE.Mesh(kb(S*.06,S*.06,d.length()),bm);br.position.copy(a).addScaledVector(d,.5);br.lookAt(b);g.add(br)}
+ const fl=[];for(let i=0;i<14;i++){const sp=glowSprite('#c8ff9a',S*.12,.9);g.add(sp);fl.push([sp,B[i%B.length],Rn()*6.28,S*(.5+Rn()*.6)])}
+ return t=>{for(const [sp,c,ph,r] of fl)sp.position.set(c.x+Math.cos(t*.2+ph)*r,c.y+Math.sin(t*.3+ph)*r*.4,c.z+Math.sin(t*.2+ph)*r)}};
 /* ---------- 藤壶礁: a reef rock that is really a precise craft, crowded with barnacle-like residents ---------- */
 fxH_SH.bk_tenghu=(g,x)=>{const {Rn,seed}=x;const r=x.kp.r||40;const geo=fxH_lumpGeo(r*.6,3,.2,seed,V3(1.4,.7,1));g.add(new THREE.Mesh(geo,detailMat(mt('#8a8a7a',{roughness:.9,flatShading:true}),{bump:.8,freq:1})));
  const p=geo.attributes.position;const sites=[];for(let i=0;i<800;i++){const k=(Rn()*p.count)|0;const v=V3(p.getX(k),p.getY(k),p.getZ(k));sites.push(v)}
