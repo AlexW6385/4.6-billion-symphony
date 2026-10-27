@@ -223,7 +223,11 @@ function instBase(geo,mat,pts,setter,eras,opt){opt=opt||{};const n=Math.max(1,pt
 /* a far stand of a detailed model (a tree of a thousand triangles, hundreds of times over): once the whole stand is so far
    that one copy is about a dozen pixels tall, it is drawn with a coarse copy of the same shape, made once per geometry by
    merging the vertices that fall in the same cell of an 8×8×8 grid over its box */
-const _lodG=new WeakMap();
+const _lodG=new WeakMap();let lodBudget=1;
+/* the coarse copies are made in idle moments after arrival, one geometry per moment, so no frame pays for one later;
+   until a stand's copy exists, at most one new copy is made per frame */
+function lodWarm(sp){const L=[...new Set(sp.culls.filter(c=>c.hi).map(c=>c.hi))];const ric=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>8}),300));
+ const step=dl=>{const t0=performance.now();while(L.length&&performance.now()-t0<6&&(!dl||!dl.timeRemaining||dl.timeRemaining()>2))lodGeo(L.shift());if(L.length)ric(step,{timeout:4000})};ric(step,{timeout:4000})}
 function lodPrep(cu,geo,n){const ix=geo.index,pa=geo.attributes.position;if(!pa||n<20)return;const tris=(ix?ix.count:pa.count)/3;if(tris<300)return;
  if(!geo.boundingSphere)geo.computeBoundingSphere();cu.hi=geo;cu.gr=geo.boundingSphere.radius;cu.lodOn=false}
 function lodGeo(geo){let g=_lodG.get(geo);if(g!==undefined)return g;g=null;try{g=simplifyGeo(geo,8)}catch(e){}_lodG.set(geo,g);return g}
@@ -342,9 +346,9 @@ function makePlanetBase(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,
   if(clouds){clouds.material.uniforms.uA.value=sm(150,560,alt);clouds.visible=clouds.material.uniforms.uA.value>.01}
   moonL.intensity=.2;
   if(sp.cover)sp.cover.update();
-  const CL=sp.culls;for(let ci=0,cn=CL.length;ci<cn;ci++){const c=CL[ci];if(c.o.userData.eraHide){c.o.visible=false;continue}const d=camera.position.distanceTo(c.c)-c.r;let v=d<c.far&&!(c.near&&d<c.near);
+  lodBudget=1;if(!sp._lodIdle){sp._lodIdle=1;lodWarm(sp)}const CL=sp.culls;for(let ci=0,cn=CL.length;ci<cn;ci++){const c=CL[ci];if(c.o.userData.eraHide){c.o.visible=false;continue}const d=camera.position.distanceTo(c.c)-c.r;let v=d<c.far&&!(c.near&&d<c.near);
    if(v&&cl>R+30){const ccl=c.c.length();if(c.c.dot(cu)/ccl<R/cl-.03-c.r/ccl&&d>200)v=false}c.o.visible=v;c.o.userData.distHide=!v;
-   if(v&&c.hi){const lo=d>c.gr*LOD_K;if(lo!==c.lodOn){const g=lo?lodGeo(c.hi):c.hi;if(g){c.o.geometry=g;c.lodOn=lo}}}}
+   if(v&&c.hi){const lo=d>c.gr*LOD_K;if(lo!==c.lodOn&&(!lo||_lodG.has(c.hi)||lodBudget-->0)){const g=lo?lodGeo(c.hi):c.hi;if(g){c.o.geometry=g;c.lodOn=lo}}}}
   updateHerds(sp,T);
   if(sp.extra)sp.extra(T,dt)};
  sp.bootMs=performance.now()-t0;BSP=sp;return sp}
