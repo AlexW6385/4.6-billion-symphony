@@ -44,6 +44,8 @@ function buildXimin(){const sp=makePlanet('ximin',{height:ximinH,colors:oneSet(x
  {const g=new THREE.Group();const fl=mt('#a85a6a',{roughness:.5,emissive:'#5a1a2a',emissiveIntensity:.3});const t=new THREE.Mesh(new THREE.TorusGeometry(40,4.5,12,56,Math.PI),detailMat(fl,{bump:1.5,freq:2}));g.add(t);
   const d=new THREE.Mesh(new THREE.CircleGeometry(37,56,0,Math.PI),new THREE.MeshBasicMaterial({map:swirlTex,color:'#7ab8ff',transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));g.add(d);
   fr(-4,-89,0,0,g);addE(g,(W.xm_gate&&W.xm_gate.e)||[7]);cull(g,null,50,2000);px('xm_gate',g.position.clone().add(g.position.clone().normalize().multiplyScalar(20)),30);
+  // in the fungus age, white fungus streams out of the gate across the plaza
+  {const w=new THREE.Group(),f=new THREE.Group();w.quaternion.copy(g.quaternion);w.position.copy(g.position);f.position.set(0,10,160);f.rotation.x=-Math.PI/2;f.add(evPoints(900,871,evFallMat({dark:1,col:'#fffaf0',col2:'#e8e0d0',rx:32,h:160,rz:9,speed:.07,size:5})));w.add(f);addE(w,[7]);cull(w,null,200,2400)}
   inst(ki(1,1),mt('#f4f0e8',{roughness:.9}),scatter(160,-2,-80,4.5,331,land),(o,p)=>{frameLL(sp,p[0],p[1],0,0,o);o.scale.set(2+p[3]*4,1+p[3]*3,2+p[3]*4)},[7]);px('xm_fungus',dirLL(-2,-80).multiplyScalar(R+gh(-2,-80)+6),26)}
  // the all-through train: rails on pylons right round the continent
  {const A=[];for(let i=0;i<=200;i++){const a=i/200*6.28;const la=12+26*Math.cos(a)*.7,lo=-30+26*Math.sin(a)/Math.cos(12*D2R);A.push(dirLL(la,lo).multiplyScalar(R+Math.max(gh(la,lo),0)+12))}
