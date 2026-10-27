@@ -219,7 +219,25 @@ function instBase(geo,mat,pts,setter,eras,opt){opt=opt||{};const n=Math.max(1,pt
  pts.forEach((p,i)=>{o.position.set(0,0,0);o.quaternion.identity();o.scale.set(1,1,1);setter(o,p,i);o.updateMatrix();im.setMatrixAt(i,o.matrix);c.add(o.position);if(opt.tint){const t=opt.tint(p,i);if(t)im.setColorAt(i,t)}});
  if(opt.tint&&!im.instanceColor)im.setColorAt(0,C('#ffffff'));if(!pts.length)im.count=0;im.frustumCulled=false;c.multiplyScalar(1/n);let r=0;const v=V3();for(let i=0;i<pts.length;i++){im.getMatrixAt(i,_m4);v.setFromMatrixPosition(_m4);r=Math.max(r,v.distanceTo(c))}
  if(im.instanceColor)im.instanceColor.needsUpdate=true;
- BSP.culls.push({o:im,c,r:r+(opt.pad||20),far:opt.far||2600});return addE(im,eras,opt.noCarry)}
+ const cu={o:im,c,r:r+(opt.pad||20),far:opt.far||2600};lodPrep(cu,geo,pts.length);BSP.culls.push(cu);return addE(im,eras,opt.noCarry)}
+/* a far stand of a detailed model (a tree of a thousand triangles, hundreds of times over): once the whole stand is so far
+   that one copy is about a dozen pixels tall, it is drawn with a coarse copy of the same shape, made once per geometry by
+   merging the vertices that fall in the same cell of an 8×8×8 grid over its box */
+const _lodG=new WeakMap();
+function lodPrep(cu,geo,n){const ix=geo.index,pa=geo.attributes.position;if(!pa||n<20)return;const tris=(ix?ix.count:pa.count)/3;if(tris<300)return;
+ if(!geo.boundingSphere)geo.computeBoundingSphere();cu.hi=geo;cu.gr=geo.boundingSphere.radius;cu.lodOn=false}
+function lodGeo(geo){let g=_lodG.get(geo);if(g!==undefined)return g;g=null;try{g=simplifyGeo(geo,8)}catch(e){}_lodG.set(geo,g);return g}
+function simplifyGeo(geo,G){const pa=geo.attributes.position,N=pa.count,ix=geo.index;if(!geo.boundingBox)geo.computeBoundingBox();const bb=geo.boundingBox;
+ const sz=Math.max(bb.max.x-bb.min.x,bb.max.y-bb.min.y,bb.max.z-bb.min.z)/G||1;const names=Object.keys(geo.attributes).filter(k=>k!=='normal');
+ const map=new Int32Array(N),keys=new Map();let nc=0;
+ for(let i=0;i<N;i++){const k=Math.floor((pa.getX(i)-bb.min.x)/sz)+','+Math.floor((pa.getY(i)-bb.min.y)/sz)+','+Math.floor((pa.getZ(i)-bb.min.z)/sz);let c=keys.get(k);if(c===undefined){c=nc++;keys.set(k,c)}map[i]=c}
+ const cnt=new Float32Array(nc);for(let i=0;i<N;i++)cnt[map[i]]++;
+ const out=new THREE.BufferGeometry();
+ for(const nm of names){const a=geo.attributes[nm],s2=a.itemSize,acc=new Float32Array(nc*s2);for(let i=0;i<N;i++){const c=map[i];for(let j=0;j<s2;j++)acc[c*s2+j]+=a.getComponent?a.getComponent(i,j):a.array[i*s2+j]}
+  for(let c=0;c<nc;c++)for(let j=0;j<s2;j++)acc[c*s2+j]/=cnt[c];out.setAttribute(nm,new THREE.BufferAttribute(acc,s2,a.normalized))}
+ const T=ix?ix.count:N,seen=new Set(),idx=[];for(let t=0;t<T;t+=3){const a=map[ix?ix.getX(t):t],b=map[ix?ix.getX(t+1):t+1],c=map[ix?ix.getX(t+2):t+2];if(a===b||b===c||a===c)continue;
+  const lo=Math.min(a,b,c),hi=Math.max(a,b,c),k=lo*nc*nc+(a+b+c-lo-hi)*nc+hi;if(seen.has(k))continue;seen.add(k);idx.push(a,b,c)}
+ out.setIndex(idx);out.computeVertexNormals();out.computeBoundingSphere();out.boundingSphere.copy(geo.boundingSphere);return idx.length/3<T/3*.8?out:null}
 function cull(o,c,r,far){BSP.culls.push({o,c:c||o.position,r:r||40,far:far||2600})}
 function px(id,pos,r,extra){return prox(BSP,id,pos,r,extra)}
 /* merged multi-part models with vertex colors: one draw per kind */
@@ -325,11 +343,12 @@ function makePlanetBase(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,
   moonL.intensity=.2;
   if(sp.cover)sp.cover.update();
   const CL=sp.culls;for(let ci=0,cn=CL.length;ci<cn;ci++){const c=CL[ci];if(c.o.userData.eraHide){c.o.visible=false;continue}const d=camera.position.distanceTo(c.c)-c.r;let v=d<c.far&&!(c.near&&d<c.near);
-   if(v&&cl>R+30){const ccl=c.c.length();if(c.c.dot(cu)/ccl<R/cl-.03-c.r/ccl&&d>200)v=false}c.o.visible=v;c.o.userData.distHide=!v}
+   if(v&&cl>R+30){const ccl=c.c.length();if(c.c.dot(cu)/ccl<R/cl-.03-c.r/ccl&&d>200)v=false}c.o.visible=v;c.o.userData.distHide=!v;
+   if(v&&c.hi){const lo=d>c.gr*LOD_K;if(lo!==c.lodOn){const g=lo?lodGeo(c.hi):c.hi;if(g){c.o.geometry=g;c.lodOn=lo}}}}
   updateHerds(sp,T);
   if(sp.extra)sp.extra(T,dt)};
  sp.bootMs=performance.now()-t0;BSP=sp;return sp}
-const _dd=V3(),UP_Y=V3(0,1,0),_warmH=new THREE.Color('#ffb070');
+const LOD_K=110;const _dd=V3(),UP_Y=V3(0,1,0),_warmH=new THREE.Color('#ffb070');
 
 /* era → which objects show (planet rule: things that lasted to the end of book two carry on into book three) */
 function applyPlanetEraBase(sp,e){for(const x of sp.eraObjs){const v=x.e.includes(e)||(e===13&&x.e.includes(12))||(sp.id==='rongqiu'&&e>=6&&!x.noCarry&&x.e.includes(5)&&!x.e.some(z=>z>=6));x.o.userData.eraHide=!v;x.o.visible=v}
