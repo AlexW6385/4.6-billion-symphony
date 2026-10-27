@@ -2,6 +2,13 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.8 — 2026-10-27 · More of the book found a home
+
+- **New entry: 时代固守者**, the time-holders of the shattered void that keep "playing" one stretch of the past or the future to whoever looks out of them — a golden ring with another age turning inside it.
+- **Fourteen more names from the book are now told** inside the entries they belong to: the gold-controllers inside the creators' statues, the emerald general's foresight sphere, the guides of the cloud sea, the light curtain round the puzzle star's satellite, the galaxy bus that was 尔什's old plan, sand bones, ember polymers, the everday sphere and others.
+- **Forty of the biggest entries got a second side story**, set at another moment of the book (琳's wake-up calls during her hundred-million-year sleep, two phoenixes arguing themselves smaller…).
+- **Smoother:** the first jump on 绒球 after coming back from another world no longer stutters; the last four creatures that never moved now do (the ground-bullet bug shoots out of its log); 米德加尔特's walls show the many small worlds that live on them.
+
 ## v1.7 — 2026-10-27 · Lighter planet, a few more places, every place a story
 
 - **Smoother arrival on 绒球:** distant stands of detailed trees are drawn with a simpler copy of the same shape, so a frame on arrival carries little more than half the triangles it did, with no visible difference from orbit.
