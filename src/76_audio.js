@@ -38,11 +38,12 @@ const MOODS={
  painbus:{gain:0.68,root:56,sc:AEO,bpm:62,prog:[0,5,3,4],pad:{t:'choir',v:.018},bass:{t:'cello',p:'whole',v:0.032},arp:{t:'piano',p:'sparse6',o:0,v:.028},lead:{t:'erhu',o:7,v:.036,d:.6},meter:6},
  amber:{gain:0.72,root:64,sc:MIX,bpm:84,meter:6,prog:[0,4,5,3],pad:{t:'strings',v:.02,color:1},bass:{t:'cello',p:'waltz',v:0.032},arp:{t:'harp',p:'flow6',o:0,v:.03},lead:{t:'oboe',o:7,v:.034,d:.7},lead2:{t:'celesta',o:7,v:.03,d:.6}},
  doom:{gain:0.7,root:62,sc:DOR,bpm:76,prog:[0,6,5,3],pad:{t:'strings',v:.02},bass:{t:'cello',p:'half',v:0.032},arp:{t:'harp',p:'wide',o:0,v:.03},lead:{t:'oboe',o:7,v:.036,d:.6},lead2:{t:'celesta',o:7,v:.03,d:.55},perc:{fr:['x.......',.02]}},
+ mudsea:{gain:0.74,root:59,sc:LYD,bpm:64,prog:[0,1,4,5],pad:{t:'choir',v:.02,color:1},bass:{t:'cello',p:'whole',v:0.03},arp:{t:'harp',p:'sparse',o:0,v:.03},lead:{t:'shaku',o:7,v:.04,d:.6},gliss:1},
  cave:{gain:0.68,root:62,sc:HIJ,peek:'harp',bpm:76,prog:[0,6,5,0],pad:{t:'strings',v:.018},bass:{t:'cello',p:'dot',v:0.032},arp:{t:'guzheng',p:'sparse',o:0,v:.04},lead:{t:'ney',o:7,v:.042,d:.55},perc:{tb:['x..x..x.',.016]},drip:.4}
 };
 function moodKey(){if(!CUR)return'';const id=CUR.id;
  if(id==='rongqiu'){if(rig.alt>3600)return'orbit';return ERA===1?'ocean':ERA===2?'north':ERA===3?'dino':ERA===4?'snow':'sky'}
- return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave',jing:'jing',biao:'biao',qishi:'qishi',rongui:'rongui',painbus:'painbus',amber:'amber',doom:'doom'}[id]||'void'}
+ return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave',jing:'jing',biao:'biao',qishi:'qishi',rongui:'rongui',painbus:'painbus',amber:'amber',doom:'doom',rqdream:'dream',mudsea:'mudsea'}[id]||'void'}
 function sndInit(){if(SND.ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;let c;try{c=new AC()}catch(e){return false}SND.ctx=c;
  const comp=c.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=3;comp.connect(c.destination);
  SND.master=c.createGain();SND.master.gain.value=0;SND.master.connect(comp);

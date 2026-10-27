@@ -75,6 +75,29 @@ const W3={
    {geo:'box',n:90,col:'#b89a60',scale:[1.5,4],stretch:[1,2,1],test:(la,lo)=>doomSecLL(la,lo)===0},
    {geo:'sphere',n:260,col:'#ff3a3a',em:'#a0101a',ei:.4,scale:[.4,1],test:(la,lo)=>doomSecLL(la,lo)===7},
    {geo:'sphere',n:200,col:'#ffd0f0',em:'#ff90d0',ei:.3,scale:[.8,2.2],test:(la,lo)=>doomSecLL(la,lo)===6}]}};
+/* 绒球之境 (ages 3–5, 8): 琳's own first dream, run by a small sleeping brain — one continent in a sea that loops ships back,
+   stones that float for no reason and more than one sun in the sky; the blue-moon battlefield, the jungle, the ash plain and
+   the volcano with hell behind it lie on the continent */
+W3.rqdream={home:{a:22,b:0,alt:2600},sunLon:20,suns:['#ffe0a0','#ffb0c0'],
+ height:p=>{const a=angDeg(p,RQD_C),n=fbm(p.x*3+2,p.y*3,p.z*3,5),m=1-a/48+(n-.5)*.5;if(m<0)return Math.max(-60,m*120)-2;
+  const v=angDeg(p,RQD_V);return 2+m*20+Math.pow(fbm(p.x*7,p.y*7,p.z*7,4),2)*40*Math.min(1,m*2)+Math.max(0,1-v/5)*70},
+ col:(p,h,lat,o)=>{if(h<0){o.set('#2a5a9a');return}if(h<2.2){o.set('#e8d8b0');return}
+  o.set('#5a9a4a').lerp(C('#3a7a3a'),n3(p.x*9,p.y*9,p.z*9)*.7);
+  if(angDeg(p,RQD_B)<9)o.lerp(C('#6a5a9a'),.75);if(angDeg(p,RQD_A)<8)o.lerp(C('#8a8a88'),.8);const v=angDeg(p,RQD_V);if(v<7)o.lerp(C('#4a2a22'),1-v/7);if(h>40)o.lerp(C('#8a7a90'),sm(40,70,h))},
+ ocean:{deep:'#1a2a6a',shal:'#3a8ac8'},atm:'#b0a0ff',clouds:{cov:.35,col:'#f0e8ff'},rough:.85,
+ sky:{zen:'#5a50b0',hor:'#d8c8ff',set:'#ffa0c0',nightZ:'#0a0820',nightH:'#2a1a40'},envTop:'#b8a8ff',envMid:'#d8d0f0',envBot:'#3a3048',hemiSky:0xc8b8ff,
+ props:[{geo:'lump',n:220,col:'#8a8078',alt:[30,160],scale:[1.5,7],minH:-99,far:3000},
+  {geo:'cyl',n:260,col:'#b890ff',em:'#7040d0',ei:.6,rough:.2,scale:[.5,1.4],stretch:[1,5,1],test:(la,lo)=>angDeg(dirLL(la,lo),RQD_B)<8}]};
+const RQD_C=dirLL(22,0),RQD_B=dirLL(30,-14),RQD_A=dirLL(12,14),RQD_V=dirLL(34,18);
+/* 梦的泥海 (age 11): the empty shell of the Sea of Creation's mind — a plain of stone pillars hundreds of km tall with round
+   platforms on top, a wind that never stops, and a glowing sea of thick dream-mud to the horizon */
+W3.mudsea={home:{a:10,b:-30,alt:2600},sunLon:-20,dayLen:1e12,
+ height:p=>{const la=Math.asin(clamp(p.y,-1,1))/D2R,n=fbm(p.x*3,p.y*3+4,p.z*3,4);if(la<20+(n-.5)*20)return -4;return 1.5+(n-.5)*3},
+ col:(p,h,lat,o)=>{if(h<0){o.set('#8a6a30');return}o.set('#6a6878').lerp(C('#4a4858'),n3(p.x*10,p.y*10,p.z*10)*.7)},
+ ocean:{deep:'#7a5a20',shal:'#ffd070'},atm:'#ffc870',atmK:.8,clouds:{cov:.5,col:'#a89880'},rough:.9,
+ sky:{zen:'#1a1830',hor:'#6a5a70',set:'#c8905a',nightZ:'#04040a',nightH:'#1a1420'},envTop:'#3a3450',envMid:'#6a6070',envBot:'#2a2420',hemiSky:0x9a90b0,sunI:.7,
+ props:[{geo:'cyl',n:70,col:'#7a7480',rough:.9,scale:[1.4,2],stretch:[1,120,1],test:(la)=>la>24,far:6000},
+  {geo:'sphere',n:400,col:'#ffe0a0',em:'#ffb040',ei:1,scale:[.4,1],alt:[2,40],minH:-99,sea:1,far:2500}]};
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
 const DOOM_CORE=64;
 function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
@@ -105,6 +128,8 @@ function buildW3(id){const c=W3[id];
  if(c.belt){const q=c.belt,N=q.n,im=new THREE.InstancedMesh(q.disc?new THREE.CylinderGeometry(1,1,.08,20):lumpRock(1,3).clone(),new THREE.MeshStandardMaterial({color:q.col,emissive:q.em||'#000000',emissiveIntensity:q.em?.5:0,metalness:q.metal||.2,roughness:q.rough||.7,flatShading:!q.disc}),N);
   const o=new THREE.Object3D();for(let i=0;i<N;i++){const a=Rn()*6.2832,r=R*(q.r[0]+Rn()*(q.r[1]-q.r[0]));o.position.set(Math.cos(a)*r,(Rn()-.5)*R*(q.thick||.05),Math.sin(a)*r);o.rotation.set((Rn()-.5)*(q.disc?.2:3),Rn()*6,(Rn()-.5)*(q.disc?.2:3));o.scale.setScalar(q.s[0]+Rn()*Rn()*(q.s[1]-q.s[0]));o.updateMatrix();im.setMatrixAt(i,o.matrix)}
   im.frustumCulled=false;im.userData.noShadow=1;const g=new THREE.Group();g.rotation.x=q.tilt||.18;g.add(im);sp.scene.add(g);sp.ring=g;sp.ringR=R*(q.r[0]+q.r[1])/2;anim(sp,g,(t,dt)=>{g.rotation.y+=dt*.004})}
+ // a dream may hang more than one sun in its sky
+ (c.suns||[]).forEach((col,k)=>{const g=glowSprite(col,1800,.9);g.material.fog=false;g.position.copy(dirLL(30-k*40,140+k*70)).multiplyScalar(24000);sp.scene.add(g)});
  if(sp.ring)w3Orbiters(sp);
  if(sp.extra0)sp.extra0();
  entryKits(sp);entryModels(sp);placeMotes(sp);
