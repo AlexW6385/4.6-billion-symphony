@@ -172,6 +172,8 @@ The implementing agent updates this section at the end of every session. Phases 
 - 🔶 (2026-10-27) Every entry now has at least 260 characters of body text drawn from all its passages (about 560 rewritten in Phase 3, Lin's own entry among them), each checked for verbatim runs, chapter titles and related ids; old errors found on the way were corrected. Left for Phase 3: the 175 bodies still under 400 characters where the book says more, the event entries, and Space L2 (models and links per space).
 - 🔶 (2026-10-27) Every entry body is now at least 400 characters unless the book says no more (those are listed in `tools/thin_skip.txt`); the 22 event entries are told in full; the central subjects (琳, 尔什, the void, the 虚民, the creator, the scholar …) run to 1,300–2,500 characters. Left for Phase 3: Space L2 — a model that reads as the thing for every entry still on a generic shape, and the relations in `links.js` checked per space.
 
+- ✅ (2026-10-27) Phase 3 done: every entry has its body from all its passages (≥ 400 characters unless the book says less), its chapters resolving to real chapter titles, at least three related entries (seven exceptions with only one or two real ties), and a place and a model in its space — the last seven without one (two in the void, five on 绒球) were given them. Space L2 holds for every space by this measure.
+
 **Phase 4 — Life, visuals, side stories**
 - Spaces to L3; Visuals L2; side stories for the key moments of each space (Space L4 begins).
 
