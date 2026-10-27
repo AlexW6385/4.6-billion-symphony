@@ -157,6 +157,24 @@ W3.huhe={home:{a:8,b:-20,alt:2600},sunLon:-10,
  sky:{zen:'#4a8ac8',hor:'#c8e0d8',set:'#f0b880'},
  props:[{geo:'sphere',n:420,col:'#c8c870',em:'#4a5a10',ei:.3,rough:.5,alt:[8,40],scale:[.8,2.2],stretch:[1,1.6,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(8,-20))<14}]};
 const HH_V=dirLL(-6,-6);
+/* 废墟 · 引力球 (age 7): a hollow rogue world that keeps rebuilding itself out of wreckage, inside a ring of debris; a ball of water
+   hangs in its sky */
+W3.feixu={home:{a:10,b:20,alt:2600},sunLon:40,
+ height:p=>{const n=fbm(p.x*3.4+3,p.y*3.4,p.z*3.4,5),c=fbm(p.x*9+1,p.y*9,p.z*9,3);let h=2+(n-.5)*26;if(c>.62)h-=(c-.62)*60;return Math.max(.5,h)},
+ col:(p,h,lat,o)=>{o.set('#5a5048').lerp(C('#3a3430'),n3(p.x*10,p.y*10,p.z*10)*.8);o.lerp(C('#7a6a58'),sm(.6,.8,n3(p.x*30,p.y*30,p.z*30))*.5);if(h<2)o.lerp(C('#2a2624'),.5)},
+ ocean:{deep:'#202024',shal:'#303034'},atm:'#7a7068',atmK:.4,clouds:false,rough:.9,
+ sky:{zen:'#08080c',hor:'#2a2624',set:'#6a4a3a',nightZ:'#040406',nightH:'#100e0c'},envTop:'#4a4440',envMid:'#6a6058',envBot:'#1a1816',
+ junk:{n:3200},belt:{n:900,r:[1.3,1.9],s:[6,40],col:'#6a6058',thick:.06,tilt:.25},
+ ball:{col:'#4a8ac8',at:[.5,.6,-.6],d:3200,r:260}};
+/* 荒涡 · 静止之源 (age 12): a vast ring-shaped mouth surrounded by tens of thousands of shelled cities, a blue stasis glowing inside */
+W3.huangwo={home:{a:30,b:0,alt:2600},sunLon:10,
+ height:p=>{const a=angDeg(p,HW_C),n=fbm(p.x*3+9,p.y*3,p.z*3,5);if(a<30)return -10-(30-a)*1.2;if(a<38)return 6+(38-a)*3+(n-.5)*6;return 3+(n-.5)*14},
+ col:(p,h,lat,o)=>{const a=angDeg(p,HW_C);if(h<0){o.set('#2a6aff');return}o.set('#8a8478').lerp(C('#6a645a'),n3(p.x*9,p.y*9,p.z*9)*.8);if(a<40)o.lerp(C('#5a5a68'),.5)},
+ ocean:{deep:'#1a4aff',shal:'#8ad8ff'},atm:'#9ab0d8',atmK:.4,clouds:false,rough:.8,
+ sky:{zen:'#203050',hor:'#a8b8d0',set:'#d0a080'},
+ props:[{geo:'sphere',n:1400,col:'#c8b8a0',metal:.3,rough:.4,flat:1,scale:[1,3.5],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),HW_C);return a>38&&a<90}},
+  {geo:'sphere',n:300,col:'#c8f0ff',em:'#4ab0ff',ei:1,pulse:.6,scale:[.8,2],alt:[2,60],minH:-99,sea:1}]};
+const HW_C=dirLL(30,0);
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
 const DOOM_CORE=64;
 function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
@@ -191,6 +209,8 @@ function buildW3(id){const c=W3[id];
   im.frustumCulled=false;im.userData.noShadow=1;const g=new THREE.Group();g.rotation.x=q.tilt||.18;g.add(im);sp.scene.add(g);sp.ring=g;sp.ringR=R*(q.r[0]+q.r[1])/2;anim(sp,g,(t,dt)=>{g.rotation.y+=dt*.004})}
  // a dream may hang more than one sun in its sky
  (c.suns||[]).forEach((col,k)=>{const g=glowSprite(col,1800,.9);g.material.fog=false;g.position.copy(dirLL(30-k*40,140+k*70)).multiplyScalar(24000);sp.scene.add(g)});
+ // a world seen hanging in the sky (the ball of water over 废墟)
+ if(c.ball){const q=c.ball,b=new THREE.Mesh(new THREE.SphereGeometry(q.r,48,32),new THREE.MeshStandardMaterial({color:q.col,roughness:.15,metalness:.2,emissive:q.col,emissiveIntensity:.15}));b.position.set(...q.at).normalize().multiplyScalar(q.d);sp.scene.add(b)}
  // a dark mass far off in the sky (the micro-machine fog at the centre of the rock field)
  if(c.swarmFar){const q=c.swarmFar,g=new THREE.Group();g.position.set(...q.at).normalize().multiplyScalar(q.d);g.add(evPoints(2600,hashStr(id)+95,evSwarmMat({dark:1,soft:1,col:q.col,rx:q.r,ry:q.r*.8,rz:q.r,speed:.01,size:q.r*.5,op:.6,max:120})));sp.scene.add(g)}
  if(sp.ring)w3Orbiters(sp);
@@ -249,7 +269,7 @@ function lianjieMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(717);
 /* 希望空间 (age 11): a dark drift-sea of bubble worlds, each a dead mind replaying its life; the road runs from the doom tunnel
    past them; black tides of boneless dolls wash between */
 ROAD.hope=t=>V3(Math.sin(t*Math.PI*3)*800,Math.cos(t*Math.PI*2)*120,3000-t*6000);
-BUILDERS.hope=()=>buildPath('hope');if(!WIKI.some(w=>w.m==='hope'))HOME.hope={a:-3000,b:0,alt:1400,head:0,y:200};
+BUILDERS.hope=()=>buildPath('hope');
 function hopeMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(727);
  const bm=new THREE.MeshStandardMaterial({color:'#e8f0ff',transparent:true,opacity:.18,roughness:.05,metalness:.3,emissive:'#6a7aa0',emissiveIntensity:.25,depthWrite:false});
  const im=new THREE.InstancedMesh(new THREE.SphereGeometry(1,24,16),bm,160);const o=new THREE.Object3D();const B=[];
@@ -258,3 +278,28 @@ function hopeMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(727);
  // they swell and shrink slowly, each on its own beat
  anim(sp,im,t=>{for(let i=0;i<B.length;i++){const b=B[i];o.position.set(b[0],b[1],b[2]);o.scale.setScalar(b[3]*(1+.12*Math.sin(t*.3+b[4])));o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.instanceMatrix.needsUpdate=true});
  for(let k=0;k<4;k++){const p=road(.2+k*.2),g=new THREE.Group();g.position.set(p.x+(k%2?600:-600),p.y-200,p.z);g.add(evPoints(1200,7270+k,evSwarmMat({dark:1,col:'#0c0c10',rx:420,ry:60,rz:300,speed:.04,size:10,op:.8})));sc.add(g)}}
+/* 死亡战舰 (ages 9–12): the road runs through the ship — plated corridors, numbered zones, the captain's chamber, the hatching rooms,
+   the portal rooms that open onto factory spheres ten kilometres across */
+ROAD.deathship=t=>V3(Math.sin(t*Math.PI*1.6)*500,Math.sin(t*Math.PI*3)*80,-2800+t*5600);
+BUILDERS.deathship=()=>buildPath('deathship');
+function deathshipMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(737);
+ const pm=new THREE.MeshStandardMaterial({color:'#4a4e56',metalness:.7,roughness:.4});const N=180,im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),pm,N*6);const o=new THREE.Object3D();let k=0;
+ for(let i=0;i<N;i++){const t=i/N,p=road(t),q=road(Math.min(1,t+.002)).sub(p).normalize(),sd=V3(-q.z,0,q.x);
+  for(const [dx,dy,w,h] of [[1,0,8,140],[-1,0,8,140],[0,1,180,8],[0,-1,180,8],[1,1,30,30],[-1,1,30,30]]){o.position.copy(p).addScaledVector(sd,dx*90).add(V3(0,dy*70,0));o.lookAt(o.position.clone().add(q));o.scale.set(w,h,24);o.updateMatrix();im.setMatrixAt(k++,o.matrix)}}
+ im.frustumCulled=false;sc.add(im);
+ const lm=new THREE.MeshBasicMaterial({color:'#ffb060'});const li=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),lm,N);for(let i=0;i<N;i++){const p=road(i/N);o.position.set(p.x,p.y+66,p.z);o.rotation.set(0,0,0);o.scale.set(40,2,4);o.updateMatrix();li.setMatrixAt(i,o.matrix)}li.frustumCulled=false;sc.add(li);
+ for(let n=0;n<3;n++){const p=road(.62+n*.14);const s=new THREE.Mesh(new THREE.SphereGeometry(320,48,32),new THREE.MeshStandardMaterial({color:'#6a6a72',metalness:.6,roughness:.5,emissive:'#3a2a10',emissiveIntensity:.2}));s.position.set(p.x+(n%2?900:-900),p.y,p.z);sc.add(s);sc.add(at(glowSprite('#ffc070',900,.25),s.position.x,s.position.y,s.position.z))}}
+/* 虚空阴影 (age 13): abandoned tunnels merged into one vast region — ghost ruins, the white management zone, a landmass sixty
+   thousand km long, a shortcut tunnel a million km long, and at the end the black star */
+ROAD.xuying=t=>V3(Math.sin(t*Math.PI*2.6)*900,Math.sin(t*Math.PI*5)*140,3000-t*6000);
+BUILDERS.xuying=()=>buildPath('xuying');
+function xuyingMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(747);
+ const tm=new THREE.MeshBasicMaterial({color:'#8a8ac8',transparent:true,opacity:.08,side:THREE.DoubleSide,depthWrite:false});
+ for(let k=0;k<5;k++){const t0=k*.2,pts=[];for(let i=0;i<=20;i++)pts.push(road(t0+i/20*.18));const tb=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),80,260,16,false),tm);sc.add(tb)}
+ const gm=new THREE.MeshStandardMaterial({color:'#6a6878',roughness:.9,transparent:true,opacity:.55,flatShading:true});const im=new THREE.InstancedMesh(lumpRock(1,2),gm,140);const o=new THREE.Object3D();
+ for(let i=0;i<140;i++){const p=road(Rn()*.3);o.position.set(p.x+(Rn()-.5)*900,p.y+(Rn()-.5)*300,p.z+(Rn()-.5)*600);o.rotation.set(Rn()*3,Rn()*3,0);o.scale.set(20+Rn()*60,40+Rn()*120,20+Rn()*60);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im);
+ {const p=road(.45);const w=new THREE.Mesh(new THREE.BoxGeometry(900,40,900),new THREE.MeshStandardMaterial({color:'#f4f4f8',roughness:.6,emissive:'#d8d8e0',emissiveIntensity:.3}));w.position.set(p.x,p.y-120,p.z);sc.add(w)}
+ {const p=road(.62);const L=new THREE.Mesh(new THREE.BoxGeometry(2400,60,800),new THREE.MeshStandardMaterial({color:'#5a6a4a',roughness:.95}));L.position.set(p.x,p.y-200,p.z);sc.add(L)}
+ {const p=road(1);const bs=new THREE.Mesh(new THREE.SphereGeometry(400,48,32),new THREE.MeshBasicMaterial({color:'#020204'}));bs.position.set(p.x,p.y,p.z-600);sc.add(bs);sc.add(at(glowSprite('#8a6aff',1800,.5),bs.position.x,bs.position.y,bs.position.z))}}
+// a road world with no entries yet starts at the head of its road
+for(const id of ['order','lianjie','hope','deathship','xuying'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
