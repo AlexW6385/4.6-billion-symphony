@@ -17,6 +17,11 @@ for f in files:
         for seg in re.findall(r'[一-鿿，。！？、…：；“”‘’]{%d,}' % N, txt):
             for i in range(0, len(seg) - N + 1):
                 pat.setdefault(seg[i:i + N], set()).add(os.path.basename(f) + ':' + mm.group(1))
+bad_esc = False
+# a doubled escape shows on the card as a literal backslash-n instead of a paragraph break
+for f in files:
+    for m in re.finditer(r"\{\s*id:\s*'([^']+)'[^\n]*?\\\\n", open(f, encoding='utf-8').read()):
+        print('LITERAL \\n in', os.path.basename(f) + ':' + m.group(1)); bad_esc = True
 pf = os.path.join(CACHE, 'overlap_patterns.txt')
 open(pf, 'w', encoding='utf-8').write('\n'.join(pat))
 out = subprocess.run(['grep', '-oFf', pf, nf], capture_output=True, text=True).stdout.split('\n')
@@ -25,4 +30,4 @@ for o in set(out):
     for k in pat.get(o, ()): by.setdefault(k, []).append(o)
 for k in sorted(by): print(k, len(by[k]), ' | '.join(by[k][:2]))
 print(len(by), 'entries with overlaps', file=sys.stderr)
-sys.exit(1 if by else 0)
+sys.exit(1 if by or bad_esc else 0)
