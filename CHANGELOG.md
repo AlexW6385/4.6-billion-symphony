@@ -2,6 +2,21 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v2.1 — 2026-10-27 · Thirteen new worlds to enter
+
+- **New worlds**, each with its own ground, sky and music, entered from their place in the void (or from the dream road / their entry card):
+  - **始境's three worlds** (age 8): the mirror-crystal 镜世界 ringed by the peak species' disc platforms, the pink-fogged crystal 表世界 with its crystal cities, the red junk world 弃世界 that keeps one face to its sun.
+  - **熔毁地带** (ages 8–9), the living molten world with the broken orange world of the gentle demons floating round it.
+  - **痛苦巴士** and **琥珀之球** (age 11), the pain bus with its brain tanks and red fog, and its amber twin ringed by floating island cities.
+  - **末日空间** on 尔什's moon (age 9): a medieval core round the pole and ten walled end-worlds — sand, wasteland, ice, drowned sea, smoke, evolution, fantasy, myth.
+  - **绒球之境** (琳's first dream) and **梦的泥海** (the pillar plain and the glowing mud sea).
+  - **飘浮岩地 · 神民之国** (age 7): the floating continent of the god-folk's city in a field of rocks.
+  - **凤凰的恒星** (age 10): a star shelled in platforms, its light leaking through the gaps.
+  - **恒星巴士** (age 6): 琳's star bus, frozen, with its spiral lava crater and black spears.
+  - **秩序之域** (age 11): a road down through its layers to the hall of the gods.
+- **About 140 new entries** for the places and beings of these worlds, each with a model and a side story; the entries that lived there moved in from the void.
+- **Every chapter of the book is now told by some entry** (all but one damaged chapter): about 400 entries were extended chapter by chapter, and 30-odd new ones added (资料库, 金色球体, 市长, 微型机械, 文明收藏家 …).
+
 ## v2.0 — 2026-10-27 · The book's great moments, moving
 
 - **Great scenes you can see from afar**, each in its own age at its own place: the insect swarm darkening the cloud sea with thunder out of a clear sky; the purple locust cloud; seventeen crystal volcanoes hanging over the north and firing down; fire falling into the first ocean; stones streaking over the ice at the end of the great cold; the Inca war's bursts over the desert; 绒球 floaters' needle-fluff coming down over the north; the waking creator's storm; the eastern sandstorm; the scorpion city's red butterflies. Elsewhere: mud falling through 尔什's sky crack, white fungus pouring out of the 虚民 star gate, the sea of fear rolling in swells, the miracle sanction firing, and thunder-cloud creatures trailing their young in the unforeseeable land.
