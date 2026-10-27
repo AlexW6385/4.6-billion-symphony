@@ -222,6 +222,11 @@ function ambTargets(){const T={wind:0,wave:0,city:0,rumble:0,hum:0},sp=CUR;let l
   T.city=.3*ambNear(sp)*sm(900,40,alt);day=sp.dayK===undefined?1:sp.dayK;
   life=sp.id==='rongqiu'?(ERA>=3?1:0):1;if(sp.id==='rongqiu'&&ERA===4)life=.3}
  else if(sp.id==="void"){T.hum=.2;T.wind=.03}
+ // each of the other places sounds like itself: the tunnel's sand hiss, the deep world's stone, the dream's far sea, the unforeseeable land's unsteady air
+ else if(sp.id==='tunnel'){T.wind=.16;T.rumble=.1;T.hum=.05}
+ else if(sp.id==='under'){T.rumble=.16;T.hum=.1;T.wind=.02}
+ else if(sp.id==='dream'){T.wave=.1;T.wind=.05;T.hum=.06}
+ else if(sp.id==='buke'){T.wind=.1;T.hum=.12}
  else if(sp.type==='tube'){T.rumble=.42;T.hum=.08;T.wind=.04}
  else{T.hum=.14;T.wind=.06}
  return [T,life*land,day,T.city]}
@@ -231,6 +236,8 @@ function ambTick(){const A=SND.amb;if(!A)return;const c=SND.ctx,t=sndNow();const
  // birds by day, insects at night, the odd clink in a town
  if(lf>.25&&day>.5&&t>A.bird){A.bird=t+2.5+Math.random()*7;const n=2+(Math.random()*4|0),f0=2300+Math.random()*1500,pn=Math.random()*1.6-.8;for(let i=0;i<n;i++){const tt=t+.05+i*(.11+Math.random()*.06);chirp(f0*(1+Math.random()*.15),f0*(1.25+Math.random()*.3),tt,.07+Math.random()*.05,.018*lf,pn)}}
  if(lf>.25&&day<.35&&t>A.bug){A.bug=t+.5+Math.random()*1.1;const f=4100+Math.random()*700,pn=Math.random()*1.6-.8,n=3+(Math.random()*2|0);for(let i=0;i<n;i++)chirp(f,f*1.01,t+.05+i*.055,.025,.011*lf*(1-day),pn)}
+ // the dream rings now and then with a far, soft bell
+ if(CUR&&CUR.id==='dream'&&t>A.clink){A.clink=t+4+Math.random()*6;const f=[1568,1760,2093,2349][Math.random()*4|0];chirp(f,f,t+.05,1.6,.006,Math.random()*1.2-.6,'sine')}
  if(city>.35&&t>A.clink){A.clink=t+1.5+Math.random()*4;chirp(1900+Math.random()*1400,1900,t+.05,.25,.008*city,Math.random()*1.4-.7,'triangle')}}
 function chirp(f0,f1,t,dur,v,pan,type){const c=SND.ctx,o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+dur*.7);
  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+Math.min(.012,dur*.2));g.gain.exponentialRampToValueAtTime(.0001,t+dur);let out=g;if(c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=pan||0;g.connect(p);out=p}o.connect(g);out.connect(SND.master);o.start(t);o.stop(t+dur+.05)}
