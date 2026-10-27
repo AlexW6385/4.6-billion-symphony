@@ -2,6 +2,11 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.3 — 2026-10-26 · Six more places
+
+- **New places to visit:** 西格玛海滩 (the 虚民's luxury space station), 边缘之星 (the world at the edge of 绒球's star system where the 印加 found the creators' threads), 畸变之星 (the flesh world made to fight 扭曲), 监狱塔 (the tower Lin built for the birds in the frozen void), 灰烬之岛 on the moon, and 监狱之岛 · 无尽囚笼, the storm-bound prison island of 虚民母球.
+- With these, every place the book names often enough to matter can now be visited, or is part of an entry that covers it.
+
 ## v1.2 — 2026-10-26 · Lighter frames, eleven new places
 
 - **Smoother on 绒球 and in the void.** The exhibition used to draw a lot that was off screen: every stand of trees and town on the visible side of the planet, behind you included, and every other frame the shadows drew most of it a second time — so frames alternated between light and heavy and the picture juddered. Now what is out of view is skipped (unless it could cast a shadow into view), creatures too far away to be more than a speck are skipped, and so are far entries in the void that would be smaller than a pixel. On a meadow a frame now draws less than half of what it did.

@@ -106,7 +106,7 @@ const ENT={
  xm_ruigou:[()=>bCity({col:'#9aa4ac',n:30,r:3.2,glow:'#ffd890',ads:1}),2], xm_busattack:[bBusAttack,2], xm_extinct:[bExtinctHolo,1.2], xm_starfish:[bArmorStar,.9],
  xm_general:[()=>fxD_xumin({cloth:'#c83a3a',cloth2:'#8a2a2a',medals:1,hat:'cap',hatc:'#8a2a2a',cape:'#8a2a2a',belt:'#e8c040'}),1], xm_union:[()=>bCity({col:'#d8dde2',n:20,r:3,glow:'#ffe8b0',hall:1,flags:1}),2],
  xm_nemo:[()=>fxD_xumin({armor:'#5a5e62',crack:1}),1],
- xm_deepcity:[fxG_deepCity,1.8,{sea:1,alt:-5}], xm_xuanfu:[()=>bDiscCraft({n:5}),1.6,{alt:26}],
+ xm_deepcity:[fxG_deepCity,1.8,{sea:1,alt:-5}], xm_prison:[fxP_prisonIsle,1.6,{sea:1}], xm_xuanfu:[()=>bDiscCraft({n:5}),1.6,{alt:26}],
  // 尔什
  ex_haiju:[()=>bDomes({col:'#7ab8e8',bubble:1}),1.8,{sea:1}], ex_ability:[bAbility,1.1], ex_closest:[fxD_closest,1.1,{alt:.3,sea:1}], ex_ameirun:[bAmeirun,2], ex_mother:[fxD_mother,1.3], ex_teliti:[fxF_teliti,1], ex_wushou:[fxD_wushou,1],
  ex_research:[()=>bLab({cannon:1}),1.4], ex_clown:[fxF_clown,1.2], ex_split:[()=>bBeams({col:'#fff4d0'}),2,{far:2600}], ex_nautilus:[bNautFarm,1.6], ex_niuyao:[()=>bCity({col:'#c8b8a8',n:30,r:3.4,glow:'#ffd8a0',twist:1,tall:1.4}),2],
@@ -121,7 +121,7 @@ const ENT={
  v_jiaotuan:[bTentacleCult,.9,{isle:1}], v_gugu:[fxD_gugu,1,{isle:1}], v_shijing:[bMercury,1.1], v_shuimin:[bStrider,1,{walk:1}], v_huijin:[fxD_ashPair,1], v_poyan:[fxD_poyan,1.1],
  v_zhanfen:[fxD_zhanfen,1,{isle:1}], v_chibcha2:[fxD_chibcha2,1.2,{isle:1}], v_jiqimin:[bMechFolk,1,{isle:1}], v_huanxing:[bShifter,1,{isle:1}], v_yiyin:[()=>bSoundWave({screen:1,col:'#ffb0d8'}),1.2],
  v_shijiang:[bCorpseSmith,1,{isle:1}], v_anzao:[fxD_anzao,1.1], v_ningu_gate:[()=>bWarp({col:'#9ab8d8'}),1.4], v_huaduo:[fxD_huaduo,1.1],
- ng_qijistar:[fxP_miracleStar,3], ng_xinhaota:[fxP_signalTower,2.2], ng_busman:[bHeroes,1,{isle:1}], ng_galaxy:[fxD_galaxy,1.2], ng_jianzhang:[fxD_jianzhang,1,{isle:1}], ng_naogen:[bRootBrain,1,{isle:1}], ng_button:[bButtonFolk,1,{isle:1}], ng_snow:[()=>{const g=fxD_snow();const sn=M('#f6f6f2',{roughness:.95});
+ ng_qijistar:[fxP_miracleStar,3], ng_xinhaota:[fxP_signalTower,2.2], ng_jianyuta:[fxP_prisonTower,2], ng_busman:[bHeroes,1,{isle:1}], ng_galaxy:[fxD_galaxy,1.2], ng_jianzhang:[fxD_jianzhang,1,{isle:1}], ng_naogen:[bRootBrain,1,{isle:1}], ng_button:[bButtonFolk,1,{isle:1}], ng_snow:[()=>{const g=fxD_snow();const sn=M('#f6f6f2',{roughness:.95});
  for(let i=0;i<9;i++){const a=h3(i,1,6)*6.28,r=3.2+h3(i,2,6)*4.5;const d=sph(0,1.4+h3(i,3,6)*2.2,.35+h3(i,4,6)*.35,1+h3(i,5,6)*1.6,22,sn);d.position.set(Math.cos(a)*r,0,Math.sin(a)*r);d.rotation.y=h3(i,6,6)*3;g.add(d)}
  const plain=new THREE.Mesh(new THREE.CircleGeometry(9,48),M('#f0f0ec',{roughness:1}));plain.rotation.x=-Math.PI/2;plain.position.y=.01;g.add(plain);return g},1.1],
  ng_huobanao:[bTorchBrain,1,{isle:1}], c_baoxiao:[fxD_baoxiao,1,{isle:1}], c_hero:[fxF_hero,1,{isle:1}],
@@ -284,6 +284,34 @@ function fxP_cloudIsle(){const g=new THREE.Group();const xm=new THREE.MeshStanda
  const bombs=[];for(let i=0;i<10;i++){const b=new THREE.Mesh(new THREE.OctahedronGeometry(.16,0),xm);g.add(b);bombs.push({b,a:i/10*6.283,ph:i*.13})}
  g.userData.anim=t=>{cl.userData.anim&&cl.userData.anim(t);beamM.opacity=.14+.1*Math.sin(t*1.7);isl.position.y=1.2+Math.sin(t*.4)*.3;isl.rotation.y=t*.1;
   bombs.forEach(o=>{const f=(t*.35+o.ph)%1,a=o.a+t*.05;o.b.position.set(Math.cos(a)*(2+f*5),.6+f*2.2-f*f*4,Math.sin(a)*(2+f*5));o.b.visible=f<.95})};return g}
+/* ---------- 监狱塔: the metal tower Lin built among the drifting fragments to hold every bird she caught — over a hundred metres,
+   no way in, chains (only for show) running out to the floating rocks round it ---------- */
+function fxP_prisonTower(){const g=new THREE.Group();const P=[];
+ P.push([new THREE.CylinderGeometry(.9,1.2,10,8).translate(0,5,0),'#6a7078'],[new THREE.CylinderGeometry(1.3,1.3,.4,8).translate(0,10.1,0),'#4a5058'],[new THREE.ConeGeometry(1.1,1.6,8).translate(0,11.1,0),'#4a5058']);
+ for(let i=0;i<5;i++)P.push([new THREE.CylinderGeometry(1.25-i*.05,1.25-i*.05,.25,8).translate(0,1.5+i*2,0),'#4e545c']);
+ const rocks=[],links=[];const Rn=rnd(733);
+ for(let i=0;i<6;i++){const a=i/6*6.283+.3,d=5+Rn()*2,y=2+Rn()*7;const rp=V3(Math.cos(a)*d,y,Math.sin(a)*d);P.push([new THREE.DodecahedronGeometry(.6+Rn()*.6,0).translate(rp.x,rp.y,rp.z),'#5a5248']);
+  const from=V3(Math.cos(a)*1.1,y*.6+2,Math.sin(a)*1.1);const n=9;for(let k=1;k<n;k++){const p=from.clone().lerp(rp,k/n);p.y-=Math.sin(k/n*Math.PI)*.6;P.push([new THREE.TorusGeometry(.12,.035,4,8).rotateY(a+(k%2)*1.57).translate(p.x,p.y,p.z),'#8a8a8a'])}}
+ g.add(new THREE.Mesh(mergeColored(P),VC({metalness:.55,roughness:.45,flatShading:true})));
+ const slitM=GL('#ffcf7a');for(let i=0;i<16;i++){const a=i/8*6.283,y=2.5+(i>>3)*4;const s=new THREE.Mesh(new THREE.BoxGeometry(.05,.6,.12),slitM);s.position.set(Math.cos(a)*1.02,y,Math.sin(a)*1.02);s.rotation.y=-a;g.add(s)}
+ g.userData.anim=t=>{slitM.opacity=.6+.4*Math.abs(Math.sin(t*2.3))};return g}
+/* ---------- 监狱之岛 · 无尽囚笼: the 虚民 prison island chosen for the storms that ring it — high walls and a huge metal cage under a
+   sky that never clears; later Lin's base, besieged by fifty-metre black-metal blocks that walk (and fly, legs tucked under)
+   and by sailing ships that swim like fish and climb out onto the beach ---------- */
+function fxP_prisonIsle(){const g=new THREE.Group();const P=[];const Rn=rnd(3301);
+ P.push([new THREE.CylinderGeometry(4.2,4.8,1.2,18).translate(0,-.3,0),'#5a5850'],[new THREE.CylinderGeometry(3.6,4.2,.5,18).translate(0,.45,0),'#6a675e']);
+ for(let i=0;i<14;i++){const a=i/14*6.283;P.push([new THREE.BoxGeometry(1.6,1.1,.25).rotateY(-a+Math.PI/2).translate(Math.cos(a)*3.1,1.2,Math.sin(a)*3.1),'#7a7c80'])}
+ for(let i=0;i<4;i++){const a=i/4*6.283+.4;P.push([new THREE.CylinderGeometry(.28,.32,2.2,8).translate(Math.cos(a)*3.1,1.7,Math.sin(a)*3.1),'#6a6c70'],[new THREE.ConeGeometry(.4,.5,8).translate(Math.cos(a)*3.1,3,Math.sin(a)*3.1),'#3a3c40'])}
+ for(let i=0;i<12;i++){const a=i/12*6.283;P.push([new THREE.BoxGeometry(.08,2.6,.08).translate(Math.cos(a)*1.6,2,Math.sin(a)*1.6),'#4a4c50'])}
+ P.push([new THREE.TorusGeometry(1.6,.06,4,24).rotateX(Math.PI/2).translate(0,3.3,0),'#4a4c50'],[new THREE.TorusGeometry(1.6,.06,4,24).rotateX(Math.PI/2).translate(0,1.8,0),'#4a4c50'],[new THREE.SphereGeometry(1.6,12,6,0,6.283,0,1.2).scale(1,.5,1).translate(0,3.3,0),'#55575c']);
+ P.push([new THREE.BoxGeometry(1.4,.9,1).translate(-1.9,1.1,-1.2),'#8a8c90'],[new THREE.BoxGeometry(1,.7,1.4).translate(1.8,1,1.4),'#8a8c90']);
+ g.add(new THREE.Mesh(mergeColored(P),VC({roughness:.8,metalness:.25})));
+ const bm=M('#1a1a1e',{metalness:.7,roughness:.35});const cubes=[];for(let i=0;i<2;i++){const c=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.4,1.4),bm);b.position.y=1.1;c.add(b);
+  for(let k=0;k<4;k++){const l=cyl(.08,.06,.9,bm,5);l.position.set(k<2?-.5:.5,.35,k%2?-.5:.5);c.add(l)}c.add(at(glowSprite('#ff6a3a',.8,.8),0,1.1,.75));c.position.set(i?5.6:-5.2,i?.2:-.2,i?-2.5:2.8);g.add(c);cubes.push(c)}
+ const shipM=M('#4a3a2a',{roughness:.8}),sailM=M('#c8c0b0',{roughness:.9,side:THREE.DoubleSide});const ships=[];for(let i=0;i<2;i++){const s=new THREE.Group();const h=new THREE.Mesh(new THREE.CylinderGeometry(.35,.12,2.2,6,1).rotateZ(Math.PI/2),shipM);h.scale.z=.6;s.add(h);
+  const sl=new THREE.Mesh(new THREE.PlaneGeometry(1.1,1.2),sailM);sl.position.y=-.75;s.add(sl);const ms=cyl(.03,.03,1.4,shipM,4);ms.position.y=-.6;s.add(ms);s.position.set(i?-1:4.6,.5,i?5.2:4);s.rotation.y=i?.4:2.2;g.add(s);ships.push(s)}
+ g.add(at(bMist({col:'#6a6e78',n:10,r:6,h:3,s:3,op:.5}),0,6,0));
+ g.userData.anim=t=>{cubes.forEach((c,i)=>{c.position.y=(i?.2:-.2)+Math.abs(Math.sin(t*2+i))*.12;c.rotation.y=Math.sin(t*.3+i)*.3});ships.forEach((s,i)=>{s.rotation.z=Math.sin(t*1.5+i)*.1})};return g}
 const ENT_PL=2.2, ENT_SC={space:6,tube:5,path:6};
 const PLANET_ENT={rongqiu:'rongqiu',ximin:'xm_planet',erxi:'ex_planet'};
 

@@ -158,7 +158,7 @@ The implementing agent updates this section at the end of every session. Phases 
 
 **Phase 2 — Every place enterable**
 - Add the missing spaces and sub-places from the index to L1, most important first, until every named place can be entered.
-- ◐ (2026-10-26) Started. Re-checking the curated list found more names already covered under other names (气态星 = 气态巨星, 神民之国 = 神民之地, 幻想空间 = the 末日空间 islands, 边缘空间 = 凝固边缘 …); `review.json` updated. Added with model, text and chapters: 漂泊号, 虚空冰山, 混沌空间, 监测站 (void); 奇迹之星, 信号塔, 稳定大陆 (frozen void); 制造塔 (不可预见之地); 金字塔, 珊瑚礁, 云岛 (绒球). Next on the list (`coverage.md`, verified missing): 梦境空间 (check against 织梦者之地 first), 绿色世界, 彩色彗星, 监狱塔, 虚民基地, 凝固通道, 研究岛, then the rest in order. The audit after these: same counts as the baseline (the changed names re-run clean; 迷雾蠕虫 is off screen in the old build too).
+- ◐ (2026-10-26) Every place on the verified-missing list now has an entry with a model, text and chapters (or turned out, on a second look, to be covered under another name — `review.json` says which): 漂泊号, 虚空冰山, 混沌空间, 监测站, 西格玛海滩, 边缘之星, 畸变之星 (void); 奇迹之星, 信号塔, 稳定大陆, 监狱塔 (frozen void); 制造塔 (不可预见之地); 金字塔, 珊瑚礁, 云岛, 灰烬之岛 (绒球 and its moon); 监狱之岛 (虚民母球). Audit after them: 22 flagged of 784 (baseline 23 of 767), none of them new. Left for Phase 2: the 60-odd "minor" places in `coverage.md` (a few mentions each) — fold them into the entries they belong to, or give the larger ones (望远镜塔, 重叠空间, 结晶之城, 边界之地) their own.
 
 **Phase 3 — Entries to L2**
 - All entries to Entry L2; all spaces to Space L2; `links.js` relations filled; chapter links verified.
