@@ -2,6 +2,14 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v2.0 — 2026-10-27 · The book's great moments, moving
+
+- **Great scenes you can see from afar**, each in its own age at its own place: the insect swarm darkening the cloud sea with thunder out of a clear sky; the purple locust cloud; seventeen crystal volcanoes hanging over the north and firing down; fire falling into the first ocean; stones streaking over the ice at the end of the great cold; the Inca war's bursts over the desert; 绒球 floaters' needle-fluff coming down over the north; the waking creator's storm; the eastern sandstorm; the scorpion city's red butterflies. Elsewhere: mud falling through 尔什's sky crack, white fungus pouring out of the 虚民 star gate, the sea of fear rolling in swells, the miracle sanction firing, and thunder-cloud creatures trailing their young in the unforeseeable land.
+- **Twenty-odd creatures move the way the book says**: 教团 click their tentacles, the plague fungus beats like a heart, the thunder ball rolls off and back, the sand-blaster swells and blasts every ten seconds, the corpse-smith kneads with its two hands, spiders shift their legs, the shelled scorpions fire in turn.
+- **Every place has its own sound**: sand hiss in the white tunnel, stone in the deep world, a far sea and a soft bell in the dream, unsteady air in the unforeseeable land.
+- **Two more side stories for each of the 22 key events**, seen from someone who was not at the centre of it.
+- **Truer ages**: 58 entries now also stand in the ages where the book shows them (the jungle in the great cold, the home tree in age 8, the white isle in age 6 …).
+
 ## v1.9 — 2026-10-27 · Truer to the book
 
 - **Every side story checked against the book.** All 928 were read beside their entries; 197 that got something wrong (the wrong age, a size, who could have been there, what a creature eats) were set right while keeping their idea and their tone.
