@@ -2,6 +2,13 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.2 — 2026-10-26 · Lighter frames, eleven new places
+
+- **Smoother on 绒球 and in the void.** The exhibition used to draw a lot that was off screen: every stand of trees and town on the visible side of the planet, behind you included, and every other frame the shadows drew most of it a second time — so frames alternated between light and heavy and the picture juddered. Now what is out of view is skipped (unless it could cast a shadow into view), creatures too far away to be more than a speck are skipped, and so are far entries in the void that would be smaller than a pixel. On a meadow a frame now draws less than half of what it did.
+- **Quality adjusts sooner.** If frames keep arriving late (more than one in ten), the picture steps its detail down instead of juddering at 45 fps; it steps back up when frames are on time again.
+- **Jumps don't jerk.** When the camera finds a better view while it is already flying, it bends its path smoothly instead of jumping.
+- **New places to visit:** 漂泊号 (the 虚民 disc fortress, in the void by 虚民星系), 虚空冰山 (the living iceberg), 混沌空间 (the gathering point where the chaos flickers), 监测站 (the 尔什民 checkpoint), and in the frozen void 奇迹之星, the phoenixes' 信号塔 and 稳定大陆, the land that never changes shape; in 不可预见之地 the 制造塔 that makes bodies for those who enter; on 绒球 the 立蝎's 金字塔 in the southern jungle, the 珊瑚礁 piled up like mountain ranges, and the cloud creators' 云岛 over the cloud sea.
+
 ## v1.1 — 2026-10-26 · Smoother
 
 - **Share an entry.** Every entry card has a "分享这个词条" link: on a phone it opens the system share sheet, elsewhere it copies a link. Opening that link lands directly on the entry.

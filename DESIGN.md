@@ -127,6 +127,9 @@ Append-only: date, decision, reason.
 - 2026-10-26 — No world is built ahead of time; a first visit builds under the loading cover. Reason: a build is a 0.3–2 s block of script with no invisible moment to run it (it froze the library and reader, or the picture).
 - 2026-10-26 — No git tags or GitHub releases; versions live in `CHANGELOG.md` only. Reason: the agent cannot push tags and the author wants no manual step.
 - 2026-10-26 — Entries are shareable by link (`#e=id`). Reason: DESIGN listed sharing as an interaction; it did not exist.
+- 2026-10-26 — Scenery sets on a planet are culled against the view (and the shadow box's column along the sun) just before each frame and restored after it, rather than by three.js (which cannot cull instanced sets). Creatures under a few pixels and far open-space entries under 1.5 px are not drawn. Reason: §6; a meadow drew 1,500 calls and 6 M triangles a frame, and the shadow map redrew most of it every other frame.
+- 2026-10-26 — The quality step drops on dropped frames (over 10 % of frames above 26 ms) or under 52 fps, not only under 42 fps. Reason: §6 asks for steady 60; a steady 45 judders and never triggered a step.
+- 2026-10-26 — Phase 2 entries for a place reuse the existing kinds of space (an entry with a model in its space) rather than new spaces; a place becomes its own space only when the book spends long inside it. Reason: L1 first for every place (§11 Phase 2), most important first.
 - 2026-10-26 — The coverage index finds place names by their endings plus quoted names that are travelled to, cross-checked with the 绒球 encyclopedia index, and is curated by hand: each candidate gets a status in `rongqiu-source/exhibition/review.json` (missing, minor, covered inside another entry, not a place). "Minor" (a real place with a handful of mentions in a few chapters) is not a Phase 2 item; it can join an existing entry later. Reason: a raw suffix list is mostly phrases; Phase 2 needs a list of real places in order.
 
 ## 11. Roadmap and status
@@ -142,6 +145,7 @@ The implementing agent updates this section at the end of every session. Phases 
 **Phase 0 — Debt and smoothness baseline**
 - ✅ Fold the patch layers (2026-10-26): no `fix*` layer remains, no function is reassigned across files; `docs/架构.md` updated. Fingerprint and screenshots identical before/after.
 - ✅ Baseline: `tests/baseline/perf.json` (perf5 per space); fixed viewpoints in `tests/viewpoints.json` (`tests/shots.cjs`); `tests/fingerprint.cjs`. (Screenshots are not stored in the repo: regenerate from a tagged build.)
+- ✅ (2026-10-26) Frame weight: `tests/calls.cjs` counts draw calls and triangles; view and shadow culling of scenery sets, speck culling of creatures and far entries (meadow 1,900 → 874 calls, 8.9 M → 3.8 M triangles a frame; no heavy shadow frames). Quality steps react to dropped frames. Not yet: a far LOD for tree stands (a 1,256-triangle tree drawn hundreds of metres away), merging an entry model's static parts (the void still draws ~800 calls).
 - ◐ World-switch hitch: programs shared across worlds (1–9 new per switch after the first planet / non-planet visit); fade-in waits for warm-up frames; no prebuild stalls. Still open: a first visit to a world builds and compiles under the loading cover (1–2 s). Next ideas: async program linking (KHR_parallel_shader_compile; three r128 links synchronously in `getProgram`), slicing the builders.
 - ✅ Interaction path walked on desktop and phone (`tests/path.cjs`): library/reader stalls removed, first jumps cheap; sharing added.
 - ✅ Audit (`tests/baseline/audit.json`): 113 of 767 entries failed before Phase 0, 23 now (4 of them whole planets seen from orbit, as intended). Fixed: the moon view swallowed jumps; the clear-view search tested the wrong ray, so entries ended behind towers and trunks; poses that could not centre the entry were chosen. Left: 5 fast fliers off-screen, 11 with something in the way, 3 under the card.
@@ -154,6 +158,7 @@ The implementing agent updates this section at the end of every session. Phases 
 
 **Phase 2 — Every place enterable**
 - Add the missing spaces and sub-places from the index to L1, most important first, until every named place can be entered.
+- ◐ (2026-10-26) Started. Re-checking the curated list found more names already covered under other names (气态星 = 气态巨星, 神民之国 = 神民之地, 幻想空间 = the 末日空间 islands, 边缘空间 = 凝固边缘 …); `review.json` updated. Added with model, text and chapters: 漂泊号, 虚空冰山, 混沌空间, 监测站 (void); 奇迹之星, 信号塔, 稳定大陆 (frozen void); 制造塔 (不可预见之地); 金字塔, 珊瑚礁, 云岛 (绒球). Next on the list (`coverage.md`, verified missing): 梦境空间 (check against 织梦者之地 first), 绿色世界, 彩色彗星, 监狱塔, 虚民基地, 凝固通道, 研究岛, then the rest in order. The audit after these: same counts as the baseline (the changed names re-run clean; 迷雾蠕虫 is off screen in the old build too).
 
 **Phase 3 — Entries to L2**
 - All entries to Entry L2; all spaces to Space L2; `links.js` relations filled; chapter links verified.

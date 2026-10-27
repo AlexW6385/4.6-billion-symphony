@@ -98,9 +98,9 @@ const ENT={
  rq_cuihai:[()=>{const g=bDragonFig({base:'x',col:'#5a9a7a'});const p=new THREE.Mesh(kcy(.5,.6,2.2,10),detailMat(M('#8a8070',{roughness:1,flatShading:true}).clone(),{bump:1.2,freq:4}));p.position.set(-1.6,1.1,.6);g.add(p);g.add(tubeAlong([V3(-1.6,2.2,.6),V3(-1.4,2.8,.8),V3(-1.1,3,.5)],.06,M('#8a5a6a'),8));return g},1.1],
  rq_tlant3:[fxE_heli,1.4,{alt:12}], rq_mist:[fxE_fograft,1.4,{sea:1}], ev_snow:[bBlizzard,2.4], mosi:[()=>bWorkers({n:5,fig:{skin:'#a08a6a',cloth:'#8a7458',cloth2:'#6a5a44',head:'pointed',fur:'#c8b088',ears:1,h:1.5}}),1],
  pier:[fxE_pier,1],
- tlant:[fxD_scholar,1],
+ tlant:[fxD_scholar,1], jinzita:[fxP_pyramids,1.4], shanhujiao:[fxP_reef,2.6,{sea:1,alt:2}],
  // 绒球 · 东之大陆与天国
- tianchuan:[q4b_skyShip,2.6,{alt:52,far:2400}], jiyi:[bMothCloud,1.4,{alt:1}], moni:[bMimic,1.1], zhiyunzhe:[bCloudMicrobes,2.4,{alt:46}], shengwuta:[bTower,1.4], donggua:[()=>{const g=new THREE.Group();for(let i=0;i<5;i++){const d=bDragonkin({w:'zhuru'});d.position.set((i%3-1)*1,0,(Math.floor(i/3)-.5)*1.2);d.rotation.y=i;const b=sph(0,.12,.12,.12,8,M('#c8b898'));b.position.set(.5,1.2,.3);d.add(b);g.add(d)}g.add(shadow(1.8));g.userData.anim=t=>g.children.forEach((c,i)=>{if(c.userData.anim){c.userData.anim(t*.4+i);c.position.y=Math.abs(Math.sin(t*3+i))*.25}});return g},1],
+ tianchuan:[q4b_skyShip,2.6,{alt:52,far:2400}], yundao:[fxP_cloudIsle,2.4,{alt:46,far:2400}], jiyi:[bMothCloud,1.4,{alt:1}], moni:[bMimic,1.1], zhiyunzhe:[bCloudMicrobes,2.4,{alt:46}], shengwuta:[bTower,1.4], donggua:[()=>{const g=new THREE.Group();for(let i=0;i<5;i++){const d=bDragonkin({w:'zhuru'});d.position.set((i%3-1)*1,0,(Math.floor(i/3)-.5)*1.2);d.rotation.y=i;const b=sph(0,.12,.12,.12,8,M('#c8b898'));b.position.set(.5,1.2,.3);d.add(b);g.add(d)}g.add(shadow(1.8));g.userData.anim=t=>g.children.forEach((c,i)=>{if(c.userData.anim){c.userData.anim(t*.4+i);c.position.y=Math.abs(Math.sin(t*3+i))*.25}});return g},1],
  ev_tianguo:[bSkyFire,2.6,{far:2200}], ev_xumin:[bWreckage,2.6,{far:2200}], c_maya:[()=>{const g=new THREE.Group();const c=bMist({col:'#ffffff',n:12,r:5,h:1,s:3,op:.6});g.add(c);const b=bMaya();b.position.y=.8;g.add(b);g.userData.anim=t=>{c.userData.anim(t);b.userData.anim&&b.userData.anim(t);b.rotation.x=t*.6};return g},1.3,{alt:46}],
  // 虚民母球
  xm_ruigou:[()=>bCity({col:'#9aa4ac',n:30,r:3.2,glow:'#ffd890',ads:1}),2], xm_busattack:[bBusAttack,2], xm_extinct:[bExtinctHolo,1.2], xm_starfish:[bArmorStar,.9],
@@ -114,14 +114,19 @@ const ENT={
  // 虚空
  v_spike:[bMoleMonkey,1,{isle:1}], v_huhe_guard:[fxD_huhe,1,{isle:1}], v_guancha:[bStoneEye,1,{isle:1}], v_se:[fxD_se,1,{isle:1}], v_yanzhu:[bRockSpiders,1,{isle:1}], v_yuanling:[fxD_yuanling,1.1],
  v_fudao:[fxD_fudao,1.1], v_yanpi:[fxD_yanpi,1,{isle:1}], v_gouluo:[bHookWheel,1,{isle:1,walk:1}], v_yangzhi:[bLimbKeepers,1,{isle:1}], v_cangyi:[fxD_cangyi,1.1,{isle:1}], v_rosalie:[fxF_rosalie,1,{isle:1}],
+ v_piaobohao:[fxP_driftFortress,2],
+ v_hundun:[fxP_chaos,3],
+ v_bingshan:[fxP_voidIceberg,3],
+ v_jiancezhan:[fxP_checkpoint,2.4],
  v_jiaotuan:[bTentacleCult,.9,{isle:1}], v_gugu:[fxD_gugu,1,{isle:1}], v_shijing:[bMercury,1.1], v_shuimin:[bStrider,1,{walk:1}], v_huijin:[fxD_ashPair,1], v_poyan:[fxD_poyan,1.1],
  v_zhanfen:[fxD_zhanfen,1,{isle:1}], v_chibcha2:[fxD_chibcha2,1.2,{isle:1}], v_jiqimin:[bMechFolk,1,{isle:1}], v_huanxing:[bShifter,1,{isle:1}], v_yiyin:[()=>bSoundWave({screen:1,col:'#ffb0d8'}),1.2],
  v_shijiang:[bCorpseSmith,1,{isle:1}], v_anzao:[fxD_anzao,1.1], v_ningu_gate:[()=>bWarp({col:'#9ab8d8'}),1.4], v_huaduo:[fxD_huaduo,1.1],
- ng_busman:[bHeroes,1,{isle:1}], ng_galaxy:[fxD_galaxy,1.2], ng_jianzhang:[fxD_jianzhang,1,{isle:1}], ng_naogen:[bRootBrain,1,{isle:1}], ng_button:[bButtonFolk,1,{isle:1}], ng_snow:[()=>{const g=fxD_snow();const sn=M('#f6f6f2',{roughness:.95});
+ ng_qijistar:[fxP_miracleStar,3], ng_xinhaota:[fxP_signalTower,2.2], ng_busman:[bHeroes,1,{isle:1}], ng_galaxy:[fxD_galaxy,1.2], ng_jianzhang:[fxD_jianzhang,1,{isle:1}], ng_naogen:[bRootBrain,1,{isle:1}], ng_button:[bButtonFolk,1,{isle:1}], ng_snow:[()=>{const g=fxD_snow();const sn=M('#f6f6f2',{roughness:.95});
  for(let i=0;i<9;i++){const a=h3(i,1,6)*6.28,r=3.2+h3(i,2,6)*4.5;const d=sph(0,1.4+h3(i,3,6)*2.2,.35+h3(i,4,6)*.35,1+h3(i,5,6)*1.6,22,sn);d.position.set(Math.cos(a)*r,0,Math.sin(a)*r);d.rotation.y=h3(i,6,6)*3;g.add(d)}
  const plain=new THREE.Mesh(new THREE.CircleGeometry(9,48),M('#f0f0ec',{roughness:1}));plain.rotation.x=-Math.PI/2;plain.position.y=.01;g.add(plain);return g},1.1],
  ng_huobanao:[bTorchBrain,1,{isle:1}], c_baoxiao:[fxD_baoxiao,1,{isle:1}], c_hero:[fxF_hero,1,{isle:1}],
  // 梦境
+ bk_zhizaota:[fxP_makerTower,1.6],
  dr_road:[bArch,1.3], dr_edge:[fxD_edge,1.4], c_tentacle:[bTentacleGuide,1.1,{isle:1}], dr_doom:[bDoom,1.4], dr_jumper:[fxD_jumper,1.1], dr_zhaoji:[bCaller,1.2], dr_tako:[fxF_takoHope,1.1,{isle:1}],
  // 米德加尔特
  mg_overview:[()=>bWarp({col:'#c8b8a0'}),1.5], mg_chene:[()=>fxD_croc({}),1.2,{walk:1}], mg_mini:[()=>fxD_croc({tiny:1,mech:1}),.7], mg_mech:[()=>bDustCroc({mech:1}),1.2], mg_xiulian:[fxD_xiulian,1.1], mg_exit:[fxD_moons,2],
@@ -134,6 +139,151 @@ const ENT={
  const rings=[];for(let i=0;i<2;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(3.2+i*1.4,.04,8,64),GL('#d8c8ff',.5));r.rotation.x=Math.PI/2+(i?.5:-.3);r.position.y=2;g.add(r);rings.push(r)}
  const a0=g.userData.anim;g.userData.anim=t=>{if(a0)a0(t);for(const q of shards){const a=q.a+t*.12;q.s.position.set(Math.cos(a)*q.r,q.y+Math.sin(t*.6+q.ph)*.4,Math.sin(a)*q.r);q.s.rotation.set(t*.3+q.ph,t*.2,0)}rings.forEach((r,i)=>r.rotation.z=t*(i?-.05:.07))};return g},1.6], bk_expedition:[bExpedition,1,{isle:1}], bk_daowen:[fxD_daowen,1.1], bk_abu:[fxF_abu,1.1], bk_builder:[bHellBuilder,1.1], bk_jilu:[bHive,1], c_sarin:[fxF_sarin,1.1,{isle:1}],
 };
+/* ---------- 漂泊号: the 虚民 headquarters, a flat disc fortress drifting in the void with a city on its deck, heavy guns round the
+   rim, a dozen corridors running in to the core, and the core section (中心区) sitting in the middle as a separate hull that
+   can close its doors and fly off on its own. Hull, corridors and guns are one vertex-coloured mesh; the city is instanced ---------- */
+function fxP_driftFortress(){const g=new THREE.Group();const P=[];
+ const prof=[[0,-.38],[2.6,-.34],[3.7,-.2],[4.1,-.04],[4.12,.06],[3.9,.17],[1.7,.21],[1.55,.21]].map(([x,y])=>new THREE.Vector2(x,y));
+ P.push([new THREE.LatheGeometry(prof,72),'#868e96']);
+ P.push([new THREE.ConeGeometry(1.5,1.2,36,1,true).rotateX(Math.PI).translate(0,-.97,0),'#5e666c']);
+ P.push([new THREE.TorusGeometry(4.02,.09,6,72).rotateX(Math.PI/2).translate(0,.12,0),'#4e565c']);
+ P.push([new THREE.TorusGeometry(2.55,.05,4,64).rotateX(Math.PI/2).translate(0,.22,0),'#6a7278']);
+ for(let i=0;i<12;i++){const a=i/12*6.283;const c=new THREE.BoxGeometry(2.3,.14,.22).translate(2.75,.27,0).rotateY(a);P.push([c,'#727a82'])}
+ for(let i=0;i<18;i++){const a=(i+.5)/18*6.283,r=3.55;const base=new THREE.CylinderGeometry(.13,.16,.14,8).translate(r,.26,0).rotateY(a);
+  const bar=new THREE.BoxGeometry(.42,.06,.06).translate(r+.2,.36,.04).rotateY(a),bar2=new THREE.BoxGeometry(.42,.06,.06).translate(r+.2,.36,-.04).rotateY(a);
+  P.push([base,'#4a5056'],[bar,'#3a3f44'],[bar2,'#3a3f44'])}
+ for(let i=0;i<6;i++){const a=i/6*6.283+.26;P.push([new THREE.BoxGeometry(.5,.35,.3).translate(3.1,-.45,0).rotateY(a),'#6a7076'])}
+ const hull=new THREE.Mesh(mergeColored(P),VC({metalness:.62,roughness:.42}));g.add(hull);
+ const city=bCity({col:'#c4c9ce',n:70,r:3.3,glow:'#ffd890',tall:.5});city.scale.set(1,.42,1);city.position.y=.2;
+ city.traverse(o=>{if(o.isInstancedMesh){const m4=new THREE.Matrix4(),q=new THREE.Vector3();for(let i=0;i<o.count;i++){o.getMatrixAt(i,m4);q.setFromMatrixPosition(m4);const d=Math.hypot(q.x,q.z);if(d<1.75){q.x*=1.75/Math.max(d,.01)+.05;q.z*=1.75/Math.max(d,.01)+.05;m4.setPosition(q);o.setMatrixAt(i,m4)}}o.instanceMatrix.needsUpdate=true}});g.add(city);
+ const core=new THREE.Group();const cm=M('#9aa2aa',{metalness:.7,roughness:.32});
+ const drum=cyl(1.45,1.5,.62,cm,40);drum.position.y=.5;core.add(drum);
+ const dome=new THREE.Mesh(new THREE.SphereGeometry(1.25,32,12,0,6.283,0,1.2),M('#b8c0c6',{metalness:.55,roughness:.28}));dome.position.y=.78;dome.scale.y=.55;core.add(dome);
+ const seamM=new THREE.MeshBasicMaterial({color:'#9ad8ff',transparent:true,opacity:.85});const seam=new THREE.Mesh(new THREE.TorusGeometry(1.5,.035,4,64),seamM);seam.rotation.x=Math.PI/2;seam.position.y=.24;core.add(seam);
+ for(let i=0;i<12;i++){const a=i/12*6.283;const d=new THREE.Mesh(new THREE.BoxGeometry(.06,.26,.3),GL('#ffd890'));d.position.set(Math.cos(a)*1.47,.42,-Math.sin(a)*1.47);d.rotation.y=a;core.add(d)}
+ g.add(core);
+ for(let i=0;i<10;i++){const a=i/10*6.283;g.add(at(glowSprite(i%2?'#ff6a5a':'#ffe0a0',.5,.9),Math.cos(a)*4.1,.12,Math.sin(a)*4.1))}
+ g.add(at(glowSprite('#bfe6ff',2.2,.35),0,1.3,0));
+ g.userData.anim=t=>{g.rotation.y=t*.012;seamM.opacity=.55+.3*Math.sin(t*1.3)};return g}
+/* ---------- 制造塔: the miracle tower of 返乡之道 that makes "made bodies" for whatever enters the dark zone — hundreds of metres
+   tall, some thirty wide, built of the same half-round grave-slabs that cover the ground round it, stacked like scales; a
+   faint light breathes between them. Burnt-out phoenixes lie all round, every one turned toward the tower ---------- */
+function fxP_makerTower(){const g=new THREE.Group();const R0=1.05,H=13,rows=46,per=11;
+ const slab=new THREE.CylinderGeometry(.5,.5,.08,10,1,false,-Math.PI/2,Math.PI).rotateX(Math.PI/2);
+ const sm=M('#8e8a82',{roughness:.92});const im=new THREE.InstancedMesh(slab,sm,rows*per);const ob=new THREE.Object3D();let k=0;
+ for(let r=0;r<rows;r++){const y=.2+r*(H/rows),rr=R0*(1-.18*r/rows)+.05*Math.sin(r*.7);for(let i=0;i<per;i++){const a=(i+(r%2)*.5)/per*6.283+h3(r,i,3)*.12;
+  ob.position.set(Math.cos(a)*rr,y,Math.sin(a)*rr);ob.rotation.set(-.42-h3(r,i,4)*.15,-a+Math.PI/2,0,'YXZ');ob.scale.set(1,1+h3(r,i,5)*.25,1);ob.updateMatrix();im.setMatrixAt(k,ob.matrix);im.setColorAt(k++,C('#ffffff').offsetHSL(0,0,(h3(r,i,6)-.5)*.16))}}
+ g.add(im);
+ const coreM=new THREE.MeshBasicMaterial({color:'#f0d8a0',transparent:true,opacity:.5});const core=cyl(R0*.45,R0*.6,H,coreM,12);core.position.y=H/2;g.add(core);
+ const cap=sph(0,.55,.4,.55,12,sm);cap.position.y=H+.25;g.add(cap);g.add(at(glowSprite('#ffe0a8',2.4,.35),0,H+.4,0));
+ const gm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.3,.3,.08,10,1,false,-Math.PI/2,Math.PI).rotateX(Math.PI/2),M('#7a776f',{roughness:.95}),70);
+ for(let i=0;i<70;i++){const a=h3(i,1,7)*6.283,d=2.2+Math.sqrt(h3(i,2,7))*5.5;ob.position.set(Math.cos(a)*d,0,Math.sin(a)*d);ob.rotation.set((h3(i,3,7)-.5)*.3,h3(i,4,7)*3,(h3(i,5,7)-.5)*.3);ob.scale.setScalar(.7+h3(i,6,7)*.6);ob.updateMatrix();gm.setMatrixAt(i,ob.matrix)}g.add(gm);
+ const ash=M('#4a4744',{roughness:1});const P=[];
+ for(let i=0;i<9;i++){const a=i/9*6.283+h3(i,8,7),d=2.6+h3(i,9,7)*2.4;const b=new THREE.Group();
+  const body=sph(0,.22,.16,.5,10,ash);b.add(body);const head=sph(0,.12,.12,.14,8,ash);head.position.set(0,.04,-.56);b.add(head);
+  for(const sd of[-1,1]){const w=new THREE.Mesh(new THREE.ConeGeometry(.28,1.1,4),ash);w.rotation.set(Math.PI/2,0,sd*1.25);w.scale.set(1,1,.18);w.position.set(sd*.5,-.05,.05);b.add(w)}
+  const tail=new THREE.Mesh(new THREE.ConeGeometry(.12,.7,4),ash);tail.rotation.x=-Math.PI/2;tail.position.z=.7;b.add(tail);
+  b.position.set(Math.cos(a)*d,.1,Math.sin(a)*d);b.lookAt(0,.1,0);b.rotateY(Math.PI);g.add(b)}
+ g.userData.anim=t=>{coreM.opacity=.32+.18*Math.sin(t*.9)};return g}
+/* ---------- 混沌空间: the "gathering point" where whatever strays into the nothing between voids drifts together and is turned
+   into chaos — a field of countless flickering specks, and inside it bubble regions where ordinary void matter floats ---------- */
+function fxP_chaos(){const g=new THREE.Group();const sets=[];const cols=['#7ae8ff','#ff7ad8','#ffd86a','#b8ff7a'];
+ for(let k=0;k<4;k++){const n=700,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const u=h3(i,k,11)*2-1,a=h3(i,k+5,11)*6.283,r=5*Math.cbrt(h3(i,k+9,11));const q=Math.sqrt(1-u*u);
+   pos[i*3]=Math.cos(a)*q*r;pos[i*3+1]=u*r*.7;pos[i*3+2]=Math.sin(a)*q*r}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const m=new THREE.PointsMaterial({color:cols[k],size:.55,sizeAttenuation:true,transparent:true,opacity:.8,depthWrite:false,blending:THREE.AdditiveBlending,map:glowTex});
+  const pt=new THREE.Points(geo,m);g.add(pt);sets.push(pt)}
+ const bub=[];for(let i=0;i<4;i++){const r=.8+h3(i,1,12)*.7;const sh=new THREE.Mesh(new THREE.SphereGeometry(r,24,16),new THREE.MeshBasicMaterial({color:'#cfe8ff',transparent:true,opacity:.12,depthWrite:false,side:THREE.DoubleSide}));
+  const a=i/4*6.283+.4,d=2.2+h3(i,2,12)*1.4;sh.position.set(Math.cos(a)*d,(h3(i,3,12)-.5)*2,Math.sin(a)*d);g.add(sh);
+  for(let j=0;j<5;j++){const b=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,.18),M('#5a5e66',{roughness:.8}));b.position.set((h3(i,j,13)-.5)*r,(h3(i,j+5,13)-.5)*r,(h3(i,j+9,13)-.5)*r);b.rotation.set(j,i,j*.7);sh.add(b)}bub.push(sh)}
+ g.userData.anim=t=>{sets.forEach((p,k)=>{p.material.opacity=.35+.45*Math.abs(Math.sin(t*(7.3+k*2.9)+k*1.7));p.rotation.y=t*(.02+k*.013)*(k%2?-1:1)});bub.forEach((b,i)=>{b.rotation.y=t*.1*(i+1)})};return g}
+/* ---------- 虚空冰山: a living iceberg drifting through the void, a mouth-like crack in its face; little limbs sweep rocks into
+   it, a frozen land and an iced-over canyon on its back, a haze of fine grains round it ---------- */
+function fxP_voidIceberg(){const g=new THREE.Group();const geo=new THREE.IcosahedronGeometry(3,3);const p=geo.attributes.position;const v=new THREE.Vector3();
+ for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);const n=v.clone().normalize();let k=1+.22*Math.sin(n.x*4.1+n.y*2.3)+.14*Math.sin(n.z*6.7-n.x*3.1)+.08*Math.sin(n.y*11+n.z*7);
+  if(n.y>.35)k*=.88+.12*(1-n.y);if(n.y<-.2)k*=1.15;if(n.x>.55&&Math.abs(n.y)<.12)k*=.86;v.copy(n).multiplyScalar(3*k);v.y*=.72;p.setXYZ(i,v.x,v.y,v.z)}
+ geo.computeVertexNormals();const ice=new THREE.Mesh(geo,M('#cfe6f2',{roughness:.25,metalness:.05,flatShading:true,emissive:'#2a5a78',emissiveIntensity:.25}));g.add(ice);
+ const snow=new THREE.Mesh(new THREE.CircleGeometry(2.1,28),M('#f4f8fa',{roughness:.95}));snow.rotation.x=-Math.PI/2;snow.position.y=1.85;g.add(snow);
+ const canyon=new THREE.Mesh(new THREE.BoxGeometry(3.4,.3,.35),M('#8ab8d8',{roughness:.2,emissive:'#3a7aa8',emissiveIntensity:.4}));canyon.position.set(-.2,1.8,.3);canyon.rotation.y=.5;g.add(canyon);
+ const mouth=new THREE.Mesh(new THREE.BoxGeometry(.3,.28,2.4),new THREE.MeshBasicMaterial({color:'#081420'}));mouth.position.set(2.62,0,0);g.add(mouth);
+ const limbM=M('#9ab8c8',{roughness:.5});const limbs=[];for(let i=0;i<8;i++){const l=new THREE.Group();const s1=cyl(.07,.04,1.1,limbM,5);s1.position.y=-.55;l.add(s1);l.position.set(2.4,-.35,(i-3.5)*.3);l.rotation.z=.6;g.add(l);limbs.push(l)}
+ const rockM=M('#6a6258',{roughness:.95,flatShading:true});const rocks=[];for(let i=0;i<10;i++){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.18+h3(i,1,14)*.25,0),rockM);g.add(r);rocks.push({m:r,ph:h3(i,2,14),y:(h3(i,3,14)-.5)*1.4,z:(h3(i,4,14)-.5)*2.2})}
+ for(let i=0;i<6;i++){const a=i/6*6.283;g.add(at(glowSprite('#dff4ff',3.2,.12),Math.cos(a)*3.3,(h3(i,5,14)-.5)*2,Math.sin(a)*3.3))}
+ g.userData.anim=t=>{g.position.y=Math.sin(t*.2)*.3;limbs.forEach((l,i)=>{l.rotation.z=.6+.5*Math.sin(t*1.6+i*.8)});
+  rocks.forEach(o=>{const f=(t*.05+o.ph)%1;o.m.position.set(2.7+(1-f)*5,o.y*(1-f*.8),o.z*(1-f*.8));o.m.rotation.set(t*.3+o.ph*6,t*.2,0);o.m.scale.setScalar(f>.92?(1-f)/.08:1)})};return g}
+/* ---------- 监测站: the 尔什民 checkpoint in the void — a station whose narrow metal channel the incoming cars queue through to be
+   checked, a domed restaurant looking out on the stars, and a kilometre-long warship lying alongside the queue ---------- */
+function fxP_checkpoint(){const g=new THREE.Group();const P=[];
+ P.push([new THREE.CylinderGeometry(1.6,1.6,.9,8).translate(0,0,0),'#b8bec4'],[new THREE.CylinderGeometry(1.1,1.6,.5,8).translate(0,.7,0),'#a4aab0'],[new THREE.CylinderGeometry(1.6,1.1,.5,8).translate(0,-.7,0),'#8a9096']);
+ P.push([new THREE.CylinderGeometry(.32,.32,7,12).rotateZ(Math.PI/2).translate(-1.6,0,0),'#9aa0a6']);
+ for(let i=0;i<9;i++)P.push([new THREE.TorusGeometry(.36,.05,4,14).rotateY(Math.PI/2).translate(-4.6+i*.8,0,0),'#6a7076']);
+ P.push([new THREE.BoxGeometry(5.6,.42,.7).translate(.4,0,3.2),'#5a6068'],[new THREE.ConeGeometry(.35,1.1,8).rotateZ(-Math.PI/2).translate(3.75,0,3.2),'#5a6068'],[new THREE.BoxGeometry(2.4,.3,.5).translate(-.2,.34,3.2),'#6a7078']);
+ for(let i=0;i<6;i++){P.push([new THREE.CylinderGeometry(.09,.11,.12,8).translate(-1.8+i*.8,.52,3.2),'#3a3e44'],[new THREE.BoxGeometry(.36,.04,.04).translate(-1.62+i*.8,.58,3.2),'#2e3238'])}
+ for(let i=0;i<4;i++)P.push([new THREE.BoxGeometry(.06,.06,1.2).translate(-1+i*.7,0,2.3),'#7a8086']);
+ const hull=new THREE.Mesh(mergeColored(P),VC({metalness:.6,roughness:.38}));g.add(hull);
+ const dome=new THREE.Mesh(new THREE.SphereGeometry(.8,20,10,0,6.283,0,1.4),TR('#bfe8ff',.45,{emissive:'#ffd8a0',emissiveIntensity:.35}));dome.position.y=.95;g.add(dome);
+ const winM=GL('#ffd890');for(let i=0;i<8;i++){const a=i/8*6.283;const w=new THREE.Mesh(new THREE.BoxGeometry(.05,.22,.5),winM);w.position.set(Math.cos(a)*1.61,0,Math.sin(a)*1.61);w.rotation.y=-a;g.add(w)}
+ const cars=[];const carM=M('#d8d0c0',{metalness:.3,roughness:.5});for(let i=0;i<7;i++){const c=new THREE.Mesh(new THREE.BoxGeometry(.38,.2,.22),carM);g.add(c);cars.push(c)}
+ const fl=[];for(let i=0;i<6;i++){const s=glowSprite('#9ad8ff',.35,.9);g.add(s);fl.push(s)}
+ g.add(at(glowSprite('#ff6a5a',.5,.9),-5.1,.4,0),at(glowSprite('#7aff9a',.5,.9),-5.1,-.4,0));
+ g.userData.anim=t=>{cars.forEach((c,i)=>{const f=((t*.06+i/7)%1);c.position.set(-9+f*7.4,.0,0)});
+  fl.forEach((s,i)=>{const a=t*.5+i;s.position.set(.4+Math.cos(a)*2.6,.8+Math.sin(a*1.3)*.4,3.2+Math.sin(a)*.9)})};return g}
+/* ---------- 奇迹之星: countless miracles run together — things like flame, like liquid, like raw energy, mixing and colliding
+   without end — a ball that churns like a star yet never comes apart (frozen with the rest of the frozen void) ---------- */
+function fxP_miracleStar(){const g=new THREE.Group();const core=new THREE.Mesh(new THREE.IcosahedronGeometry(2.2,3),new THREE.MeshBasicMaterial({color:'#fff2c8'}));g.add(core);
+ const shells=[];[['#ffb05a',.35,2.45],['#7ad8ff',.25,2.65],['#e88aff',.2,2.85]].forEach(([c,o,r],i)=>{const m=new THREE.Mesh(new THREE.IcosahedronGeometry(r,2),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o,depthWrite:false,blending:THREE.AdditiveBlending,wireframe:i===2}));g.add(m);shells.push(m)});
+ const cols=['#ff7a3a','#ffd84a','#5ad8ff','#8aff9a','#ff6ad8','#ffffff'];const bits=[];
+ for(let i=0;i<36;i++){const c=cols[i%cols.length];const m=new THREE.Mesh(new THREE.IcosahedronGeometry(.18+h3(i,1,15)*.32,1),i%3?GL(c):M(c,{emissive:c,emissiveIntensity:.8,roughness:.2}));g.add(m);bits.push({m,a:h3(i,2,15)*6.28,b:h3(i,3,15)*3.14,s:.3+h3(i,4,15)*.9,r:2.3+h3(i,5,15)*.8})}
+ g.add(at(glowSprite('#ffe8b0',11,.5),0,0,0));
+ g.userData.anim=t=>{shells.forEach((m,i)=>{m.rotation.set(t*.07*(i+1),t*.11*(i%2?-1:1),0)});
+  bits.forEach(o=>{const a=o.a+t*o.s,b=o.b+Math.sin(t*o.s*.7)*.6,r=o.r+Math.sin(t*o.s*2+o.a)*.25;o.m.position.set(Math.cos(a)*Math.sin(b)*r,Math.cos(b)*r,Math.sin(a)*Math.sin(b)*r)})};return g}
+/* ---------- 信号塔: the phoenixes' relay towers, floating in the dark of the frozen void like lighthouses three hundred metres long,
+   lit at both ends; the turning light holds the freeze off and draws the "combustible hums" that fly round it like moths ---------- */
+function fxP_signalTower(){const g=new THREE.Group();const P=[];
+ P.push([new THREE.CylinderGeometry(.34,.5,9,10).translate(0,0,0),'#8a6a4a'],[new THREE.CylinderGeometry(.62,.62,.5,10).translate(0,4.3,0),'#6a4e36'],[new THREE.CylinderGeometry(.62,.62,.5,10).translate(0,-4.3,0),'#6a4e36']);
+ for(let i=0;i<6;i++)P.push([new THREE.TorusGeometry(.46-i*.012,.06,4,16).rotateX(Math.PI/2).translate(0,-3+i*1.2,0),'#c8a060']);
+ const tw=new THREE.Mesh(mergeColored(P),VC({metalness:.35,roughness:.6}));g.add(tw);
+ const lampM=new THREE.MeshBasicMaterial({color:'#fff0c0'});for(const y of[4.85,-4.85]){const l=new THREE.Mesh(new THREE.SphereGeometry(.45,14,10),lampM);l.position.y=y;g.add(l);g.add(at(glowSprite('#ffd890',4.5,.7),0,y,0))}
+ const beams=[];for(const y of[4.85,-4.85]){const b=new THREE.Group();b.position.y=y;for(let k=0;k<2;k++){const c=new THREE.Mesh(new THREE.ConeGeometry(1.6,9,16,1,true),new THREE.MeshBasicMaterial({color:'#ffe8b0',transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  c.geometry.translate(0,-4.5,0);c.rotation.z=Math.PI/2+(k?Math.PI:0);b.add(c)}g.add(b);beams.push(b)}
+ const moths=[];for(let i=0;i<22;i++){const s=glowSprite(i%3?'#ffb060':'#ffe080',.35,.95);g.add(s);moths.push({s,a:h3(i,1,16)*6.28,r:1.2+h3(i,2,16)*2.4,y:(h3(i,3,16)-.5)*9,w:.6+h3(i,4,16)})}
+ g.userData.anim=t=>{beams.forEach((b,i)=>{b.rotation.y=t*.6*(i?-1:1)});moths.forEach(o=>{const a=o.a+t*o.w;o.s.position.set(Math.cos(a)*o.r,o.y+Math.sin(t*2*o.w+o.a)*.4,Math.sin(a)*o.r)})};return g}
+/* ---------- 金字塔: the 立蝎's pyramid houses in the southern jungle — smooth cones of ochre sand glued with saliva, no door at the
+   foot (the way in is a hole in the slope, plugged with clay), crystal plates stuck on here and there, each standing in a
+   clearing of knee-high golden grass with felled trunks left to rot round it ---------- */
+function fxP_pyramids(){const g=new THREE.Group();const P=[],X=[];const Rn=rnd(4471);
+ const pyr=(x,z,h,rot)=>{const b=h*.72;P.push([new THREE.ConeGeometry(b,h,4,1).rotateY(Math.PI/4+rot).translate(x,h/2,z),'#b8935a']);
+  const fn=(Rn()*4)|0,a=rot+fn*Math.PI/2,t=.28,hx=Math.sin(a),hz=Math.cos(a),r=b*(1-t)*.72;
+  P.push([new THREE.BoxGeometry(h*.09,h*.11,.05).rotateX(-.6).rotateY(a).translate(x+hx*r,h*t,z+hz*r),'#2a1e14'],[new THREE.BoxGeometry(h*.08,h*.1,.04).rotateX(-.6).rotateY(a).translate(x+hx*(r+.02),h*t-.02,z+hz*(r+.02)),'#7a5a3a']);
+  for(let i=0;i<(h>2?10:3);i++){const k=Rn(),fa=rot+((Rn()*4)|0)*Math.PI/2,y=h*(.1+k*.75),rr=b*(1-y/h)*.71;X.push([new THREE.BoxGeometry(.18+Rn()*.3,.1+Rn()*.18,.02).rotateX(-.62).rotateY(fa).translate(x+Math.sin(fa)*rr,y,z+Math.cos(fa)*rr),Rn()<.5?'#bfeaf4':'#9fe0ff'])}
+  P.push([new THREE.RingGeometry(b*1.1,b*1.1+h*.55,24).rotateX(-Math.PI/2).translate(x,.03,z),'#d8b84a'])};
+ pyr(0,0,3.6,0);pyr(3.4,1.6,2.4,.3);pyr(-3,2.2,1.9,-.2);pyr(1.2,-3.4,.9,.5);pyr(-1.9,-2.6,.7,.1);pyr(4.2,-1.8,.6,0);
+ for(let i=0;i<9;i++){const a=Rn()*6.28,d=5.2+Rn()*2;P.push([new THREE.CylinderGeometry(.09,.12,1.6+Rn(),6).rotateZ(Math.PI/2).rotateY(Rn()*3).translate(Math.cos(a)*d,.1,Math.sin(a)*d),Rn()<.5?'#5a4a34':'#6a5a3a'])}
+ const m=new THREE.Mesh(mergeColored(P),detailMat(VC({roughness:.85}),{bump:.4}));g.add(m);
+ const xm=new THREE.MeshStandardMaterial({vertexColors:true,emissive:'#3aa6c4',emissiveIntensity:.45,roughness:.08,flatShading:true});g.add(new THREE.Mesh(mergeColored(X),xm));
+ const folk=[];for(let i=0;i<4;i++){const f=bUpright({col:'#b08a5a'});f.scale.setScalar(.32);const a=i*1.7+.4;f.position.set(Math.cos(a)*3,0,Math.sin(a)*3);f.rotation.y=-a;g.add(f);folk.push(f)}
+ g.add(shadow(9));g.userData.anim=t=>{folk.forEach((f,i)=>{f.userData.anim&&f.userData.anim(t+i)})};return g}
+/* ---------- 珊瑚礁: coral whose shells never break down, heaped up into ridges like mountain ranges under the sea, crowned with
+   coral of every colour and busy with fish; the tops come up to just under the surface ---------- */
+function fxP_reef(){const g=new THREE.Group();const P=[],Q=[];const Rn=rnd(8123);
+ for(let i=0;i<7;i++){const a=i*.9+Rn()*.4,d=1+i*.9,x=Math.cos(a)*d*.8,z=Math.sin(a)*d*.5+(i%2?1:-1)*.6;const sx=1.2+Rn()*1.4,sy=2.6+Rn()*2.2,sz=.8+Rn()*.8;
+  const geo=new THREE.IcosahedronGeometry(1,1);geo.scale(sx,sy,sz);geo.rotateY(a);geo.translate(x,-sy-.25-Rn()*.6,z);P.push([geo,Rn()<.5?'#8a8070':'#9a8a76']);
+  for(let k=0;k<14;k++){const u=(Rn()-.5)*sx*1.4,w=(Rn()-.5)*sz*1.4,top=-.3-Math.abs(u)*.3-Rn()*.5;const c=['#ff7a5a','#ffb84a','#c86ad8','#5ad8c8','#8ad85a','#ff5a8a'][k%6];
+   if(k%3===0)Q.push([new THREE.SphereGeometry(.18+Rn()*.18,8,6).translate(x+u*Math.cos(a),top,z+u*Math.sin(a)+w),c]);
+   else{const h=.35+Rn()*.4;Q.push([new THREE.ConeGeometry(.05,h,5).translate(x+u*Math.cos(a),top+h/2,z+u*Math.sin(a)+w),c]);Q.push([new THREE.ConeGeometry(.04,h*.7,5).rotateZ(.5).translate(x+u*Math.cos(a)+.08,top+h*.45,z+u*Math.sin(a)+w),c])}}}
+ g.add(new THREE.Mesh(mergeColored(P),VC({roughness:.95,flatShading:true})));g.add(new THREE.Mesh(mergeColored(Q),VC({roughness:.6,emissive:'#201010',emissiveIntensity:.3})));
+ const fish=[];for(let i=0;i<5;i++){const sch=new THREE.Group();for(let k=0;k<7;k++){const f=new THREE.Mesh(new THREE.ConeGeometry(.05,.22,4).rotateZ(-Math.PI/2),M(['#ffd84a','#5ab8ff','#ff8a5a'][i%3],{roughness:.4}));f.position.set((k%3)*.2,(k/3|0)*.12,(k%2)*.15);sch.add(f)}g.add(sch);fish.push({o:sch,a:Rn()*6.28,r:1.5+Rn()*3,y:-.7-Rn()*1.2,w:.25+Rn()*.3})}
+ g.userData.anim=t=>{fish.forEach(f=>{const a=f.a+t*f.w;f.o.position.set(Math.cos(a)*f.r+2,f.y,Math.sin(a)*f.r*.6);f.o.rotation.y=-a-Math.PI/2})};return g}
+/* ---------- 云岛: the cloud creators' war islands — a crystal island wrapped in thick cloud, crystal bombs bursting from the cloud,
+   a pillar of hot light beneath it that burns the cloud sea; a bare crystal island drifts beside it ---------- */
+function fxP_cloudIsle(){const g=new THREE.Group();const xm=new THREE.MeshStandardMaterial({color:'#c8f0ff',emissive:'#3aa6c4',emissiveIntensity:.35,roughness:.1,metalness:.1,flatShading:true});
+ const core=new THREE.Mesh(new THREE.OctahedronGeometry(1.6,1),xm);core.scale.set(1.4,.9,1.2);g.add(core);
+ const cl=bMist({col:'#f4f6f8',n:16,r:2.6,h:.9,s:1.5,op:.85});g.add(cl);
+ const isl=new THREE.Group();const ic=new THREE.Mesh(new THREE.OctahedronGeometry(1,0),xm);ic.scale.set(1.1,1.6,1.1);isl.add(ic);for(let i=0;i<6;i++){const s=new THREE.Mesh(new THREE.OctahedronGeometry(.35,0),xm);s.position.set(Math.cos(i)*.9,-.8+i*.25,Math.sin(i)*.9);s.scale.y=1.8;isl.add(s)}isl.position.set(5.2,1.2,-1.5);g.add(isl);
+ const beamM=new THREE.MeshBasicMaterial({color:'#fff4d0',transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});const beam=new THREE.Mesh(new THREE.CylinderGeometry(.35,.9,8,16,1,true),beamM);beam.position.y=-4.6;g.add(beam);
+ const bombs=[];for(let i=0;i<10;i++){const b=new THREE.Mesh(new THREE.OctahedronGeometry(.16,0),xm);g.add(b);bombs.push({b,a:i/10*6.283,ph:i*.13})}
+ g.userData.anim=t=>{cl.userData.anim&&cl.userData.anim(t);beamM.opacity=.14+.1*Math.sin(t*1.7);isl.position.y=1.2+Math.sin(t*.4)*.3;isl.rotation.y=t*.1;
+  bombs.forEach(o=>{const f=(t*.35+o.ph)%1,a=o.a+t*.05;o.b.position.set(Math.cos(a)*(2+f*5),.6+f*2.2-f*f*4,Math.sin(a)*(2+f*5));o.b.visible=f<.95})};return g}
 const ENT_PL=2.2, ENT_SC={space:6,tube:5,path:6};
 const PLANET_ENT={rongqiu:'rongqiu',ximin:'xm_planet',erxi:'ex_planet'};
 
