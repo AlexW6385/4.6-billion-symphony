@@ -108,6 +108,19 @@ W3.piaofu={home:{a:20,b:10,alt:2600},sunLon:40,dayLen:1e12,
  props:[{geo:'lump',n:420,col:'#5a544e',alt:[80,700],scale:[3,40],minH:-99,far:6000},{geo:'lump',n:160,col:'#4a4842',alt:[700,1600],scale:[30,120],minH:-99,far:9000}],
  cities:[[22,12,3.2]],cityCol:'#b8aa98',belt:{n:700,r:[1.5,2.6],s:[20,110],col:'#5a544e',thick:.5,tilt:.5},
  swarmFar:{col:'#08080a',at:[-1,.2,.3],d:7000,r:1600}};
+/* 凤凰的恒星 (age 10): a star almost wholly covered by a shell of kilometre platforms, each with its own gravity; the star's light
+   leaks up through the gaps between them. Square cells on the globe give the platforms, a level each; the gaps are the star */
+W3.phoenix={home:{a:16,b:20,alt:2600},sunLon:0,dayLen:1e12,sunI:.5,
+ height:p=>{const c=phCell(p);if(c.gap)return -6;return 4+c.lv*5},
+ col:(p,h,lat,o)=>{if(h<0){o.set('#ffb030');return}const c=phCell(p);o.set(['#c8c0b8','#a8b0c0','#d8c8a8','#b8c8d0','#e0d0c0','#9aa0a8'][c.t]);o.offsetHSL(0,0,(n3(p.x*40,p.y*40,p.z*40)-.5)*.08)},
+ ocean:{deep:'#ffd060',shal:'#fff0b0'},atm:'#ffb040',atmK:.9,clouds:false,rough:.5,metal:.4,bump:.3,rock:'#a8a098',
+ sky:{zen:'#120806',hor:'#5a2a10',set:'#ff9030',nightZ:'#120806',nightH:'#5a2a10'},envTop:'#ffb060',envMid:'#806050',envBot:'#ffd080',hemiSky:0xffc070,hemiGnd:0xffa030,
+ props:[{geo:'sphere',n:500,col:'#ffe070',em:'#ffb020',ei:1.2,scale:[.6,1.6],alt:[1,30],minH:-99,sea:1,far:2400}],
+ belt:{n:600,disc:1,r:[1.35,1.4],s:[20,40],col:'#ffd890',metal:.3,rough:.4,thick:.004,tilt:.12}};
+/* the platform cells of the phoenix star: a 3D grid cut on the sphere, each cell a level and a kind, a gap round its edge */
+function phCell(p){const k=12,x=p.x*k,y=p.y*k,z=p.z*k,ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),fx=x-ix,fy=y-iy,fz=z-iz;
+ const q=Math.sin(ix*127.1+iy*311.7+iz*74.7)*43758.5,h=q-Math.floor(q);const e=.11;const ax=Math.abs(p.x),ay=Math.abs(p.y),az=Math.abs(p.z);
+ const gap=(ax<ay||ax<az?(fx<e||fx>1-e):0)||(ay<ax||ay<az?(fy<e||fy>1-e):0)||(az<ax||az<ay?(fz<e||fz>1-e):0);return{gap,lv:Math.floor(h*4),t:Math.floor(h*97)%6}}
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
 const DOOM_CORE=64;
 function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
