@@ -354,7 +354,7 @@ function buildVoid(){const sc=new THREE.Scene();const sp=newSpace('void','space'
   edge.position.copy(c);edge.scale.y=.6;sc.add(edge);sp.labels.push({n:'凝固虚空',pos:c.clone().add(V3(0,420,0)),minAlt:1300,era:10})}
  // the other void, at the very end
  const other=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:'#b8a8ff',transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));other.scale.set(9000,9000,1);other.position.set(-5200,600,-5200);sc.add(other);
- placeEntries(sp);voidLife(sp);ningMore(sp);voidHeroes(sp);voidLin(sp);voidRiver(sp);
+ placeEntries(sp);voidLife(sp);ningMore(sp);voidHeroes(sp);voidLin(sp);voidRiver(sp);voidArmada(sp);
  sp.portals=WIKI.filter(w=>mapOf(w)==='void'&&w.go&&MB[w.go]).map(w=>({w,pos:posOf(w),r:Math.max(30,sizeOf(w))}));
  // which era is this part of the void
  let curSec=null;sp.eraAt=(p)=>{let best=null,bd=1e18;for(const s of ids){const c=SECTORS[s].c;const d=Math.hypot(p.x-c[0],p.z-c[2]);if(d<bd){bd=d;best=s}}

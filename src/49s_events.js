@@ -78,3 +78,16 @@ function rqEvents(sp){
  {const g=new THREE.Group();frameLL(sp,-12.6,-78.4,40,0,g,false);
   g.add(evPoints(700,921,evSwarmMat({col:'#ff5848',rx:60,ry:18,rz:60,speed:.12,size:2.5,op:.9})));addE(g,[3]);cull(g,g.position.clone(),100,3000)}
 }
+/* the void in age 6: the black-metal cube armada closing on the 虚民 home system, flashing as it fires, and the long
+   light-ship's beams answering it */
+function voidArmada(sp){if(!SECTORS[6])return;const c=V3(...SECTORS[6].c),Rn=rnd(991);const g=new THREE.Group();g.position.copy(c).add(V3(300,50,330));
+ const im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:'#121418',metalness:.8,roughness:.35,emissive:'#04141c',emissiveIntensity:.4}),70);
+ const o=new THREE.Object3D();for(let i=0;i<70;i++){o.position.set((Rn()-.5)*160,(Rn()-.5)*60,(Rn()-.5)*160);o.rotation.set(Rn()*.3,Rn()*6.28,Rn()*.3);o.scale.setScalar(4+Rn()*Rn()*14);o.updateMatrix();im.setMatrixAt(i,o.matrix)}
+ im.frustumCulled=false;g.add(im);evFlashes(sp,g,6,30,[160,60,160],'#8ae4ff',992);
+ // the beams: from the light-ship toward the armada, each firing for a moment
+ const w=W.v_chuanxing,from=w?V3(...w.p).add(c):c.clone().add(V3(120,40,180)),to=g.position,d=to.clone().sub(from),L=d.length(),B=[];
+ for(let i=0;i<3;i++){const b=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,L,6,1,true),new THREE.MeshBasicMaterial({color:'#fff2c8',transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+  b.position.copy(from).addScaledVector(d,.5).add(V3((Rn()-.5)*30,(Rn()-.5)*20,(Rn()-.5)*30));b.quaternion.setFromUnitVectors(V3(0,1,0),d.clone().normalize());b.visible=false;sp.scene.add(b);addTo(sp,b,[6]);B.push([b,Rn()*6.28,.3+Rn()*.2])}
+ const p0=g.position.clone(),dir=c.clone().sub(p0).normalize();
+ anim(sp,g,t=>{g.position.copy(p0).addScaledVector(dir,Math.sin(t*.03)*60);for(const [b,ph,k] of B){const s=Math.sin(t*k+ph);b.visible=s>.94;if(b.visible)b.material.opacity=(s-.94)*12}});
+ addTo(sp,g,[6])}
