@@ -2,6 +2,13 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.7 — 2026-10-27 · Lighter planet, a few more places, every place a story
+
+- **Smoother arrival on 绒球:** distant stands of detailed trees are drawn with a simpler copy of the same shape, so a frame on arrival carries little more than half the triangles it did, with no visible difference from orbit.
+- **New on 绒球:** the blade-jawed crickets among the floating islands, the misty west rift the white skull dragons took for the creator's trial, the brain spirits' metal tornado on the south-polar ice, and the swamp elder in its hollow tree; in the void, the void shadow's tree of tunnels and 诺's world of final wisdom.
+- **Every entry now has at least one side story** — the seventeen places added last time got theirs.
+- **Creatures that used to stand still now breathe and look around a little.**
+
 ## v1.6 — 2026-10-27 · Every entry written out
 
 - **Every entry now tells what the book says about it**, from all the passages it appears in — about 750 entries rewritten in all. 琳's own entry follows it through all eight volumes; 尔什, the void, the 虚民, the creator and the scholar each have a full account; the 22 events (the three extinctions, the great cold, the 印加 war, the 虚民 invasion, the collision of the voids …) are told from cause to aftermath.
