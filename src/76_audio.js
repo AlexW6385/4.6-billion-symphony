@@ -30,11 +30,15 @@ const MOODS={
  white:{gain:0.93,root:69,sc:ION,bpm:66,prog:[0,3,5,4],pad:{t:'strings',v:.016,color:1},bass:{t:'cello',p:'whole',v:0.025},arp:{t:'piano',p:'wide',o:0,v:.028},lead:{t:'celesta',o:7,v:.03,d:.45},bed:{k:'sand',v:.003,cut:3200}},
  erxi:{gain:0.58,root:62,sc:LYD,bpm:88,prog:[0,4,5,3,0,5,1,4],pad:{t:'strings',v:.022,color:1},bass:{t:'cello',p:'walk',v:0.035},arp:{t:'piano',p:'flow',o:0,v:.03},lead:{t:'violin',o:7,v:.035,d:.7},lead2:{t:'flute',o:7,v:.042,d:.7},perc:{fr:['x...x...',.024],sh:['..x...x.',.006]},gliss:1},
  ximin:{gain:1.45,root:60,sc:ION,bpm:100,prog:[0,5,3,4],pad:{t:'strings',v:.018,color:1},bass:{t:'pizz',p:'walk',v:.06},arp:{t:'celesta',p:'flow',o:7,v:.022},lead:{t:'violin',o:7,v:.032,d:.7},lead2:{t:'oboe',o:7,v:.03,d:.7},perc:{tk:['x.x.x.x.',.006]}},
+ // the worlds of 始境: glassy and bright, soft and pink, dark red and heavy
+ jing:{gain:0.86,root:71,sc:LYD,bpm:70,prog:[0,4,1,5],pad:{t:'strings',v:.016,color:1},bass:{t:'cello',p:'whole',v:0.026},arp:{t:'celesta',p:'rise',o:0,v:.026},lead:{t:'flute',o:7,v:.036,d:.6},lead2:{t:'celesta',o:14,v:.024,d:.5},shim:1},
+ biao:{gain:0.7,root:65,sc:ION,bpm:80,meter:6,prog:[0,5,3,4],pad:{t:'choir',v:.018,color:1},bass:{t:'cello',p:'waltz',v:0.03},arp:{t:'harp',p:'flow6',o:0,v:.03},lead:{t:'flute',o:7,v:.04,d:.7},lead2:{t:'violin',o:7,v:.032,d:.65}},
+ qishi:{gain:0.7,root:57,sc:AEO,bpm:66,prog:[0,5,6,4],pad:{t:'strings',v:.018},bass:{t:'cello',p:'dot',v:0.034},arp:{t:'piano',p:'sparse',o:0,v:.03},lead:{t:'ney',o:7,v:.04,d:.55},perc:{tb:['x...x...',.014]}},
  cave:{gain:0.68,root:62,sc:HIJ,peek:'harp',bpm:76,prog:[0,6,5,0],pad:{t:'strings',v:.018},bass:{t:'cello',p:'dot',v:0.032},arp:{t:'guzheng',p:'sparse',o:0,v:.04},lead:{t:'ney',o:7,v:.042,d:.55},perc:{tb:['x..x..x.',.016]},drip:.4}
 };
 function moodKey(){if(!CUR)return'';const id=CUR.id;
  if(id==='rongqiu'){if(rig.alt>3600)return'orbit';return ERA===1?'ocean':ERA===2?'north':ERA===3?'dino':ERA===4?'snow':'sky'}
- return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave'}[id]||'void'}
+ return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave',jing:'jing',biao:'biao',qishi:'qishi'}[id]||'void'}
 function sndInit(){if(SND.ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;let c;try{c=new AC()}catch(e){return false}SND.ctx=c;
  const comp=c.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=3;comp.connect(c.destination);
  SND.master=c.createGain();SND.master.gain.value=0;SND.master.connect(comp);

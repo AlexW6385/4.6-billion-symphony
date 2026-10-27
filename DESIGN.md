@@ -147,7 +147,7 @@ Append-only: date, decision, reason.
 The implementing agent updates this section at the end of every session. Phases run in order; within a phase, order is the agent's choice. A phase is done when its items are built, pass the release-tier checks of §7a, are pushed, and the live site works on desktop and phone.
 
 **Done**
-- Spaces: 绒球, 虚空, 梦境岛, 虚民母球, 尔什, 地下世界 and others; entries with models, chapter links, library, search, timeline, share.
+- Spaces: 绒球, 虚空, 梦境岛, 虚民母球, 尔什, 地下世界, the three worlds of 始境 and others; entries with models, chapter links, library, search, timeline, share.
 - Reader for the user's own txt; side stories; per-space audio; desktop and phone UI.
 - Playwright suite; audit and perf tools; content-check tools; Pages deployment.
 - `DESIGN.md` (this brief), 2026-10-26.
