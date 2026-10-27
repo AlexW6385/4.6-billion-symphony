@@ -397,7 +397,7 @@ function fxP_prisonIsle(){const g=new THREE.Group();const P=[];const Rn=rnd(3301
  g.add(at(bMist({col:'#6a6e78',n:10,r:6,h:3,s:3,op:.5}),0,6,0));
  g.userData.anim=t=>{cubes.forEach((c,i)=>{c.position.y=(i?.2:-.2)+Math.abs(Math.sin(t*2+i))*.12;c.rotation.y=Math.sin(t*.3+i)*.3});ships.forEach((s,i)=>{s.rotation.z=Math.sin(t*1.5+i)*.1})};return g}
 const ENT_PL=2.2, ENT_SC={space:6,tube:5,path:6};
-const PLANET_ENT={rongqiu:'rongqiu',ximin:'xm_planet',erxi:'ex_planet',jing:'v_jing',qishi:'v_qishi',biao:'biao_world'};
+const PLANET_ENT={rongqiu:'rongqiu',ximin:'xm_planet',erxi:'ex_planet',jing:'v_jing',qishi:'v_qishi',biao:'biao_world',rongui:'v_rongui',painbus:'v_pain',amber:'v_amber'};
 
 /* living things get a fine bumpy, mottled skin instead of flat plastic */
 const SKIN={};
