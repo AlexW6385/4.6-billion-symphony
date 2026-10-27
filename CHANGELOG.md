@@ -2,6 +2,11 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.5 — 2026-10-27 · The other worlds written out
+
+- **145 more entries now tell everything the book says about them** — the phoenixes and their star, 脑灵, the dream spaces, 米德加尔特 and its dust crocodiles, the death ships and the factory of the frozen void, the tunnel worlds, 不可预见之地 (the star simulator, the order keepers, 阿布, the way home), and on 绒球 Lin's own units (爆哮虫, 开拓者, 弹头, 贝希摩斯 …), 莎琳, 教长 and 比露. A few old mistakes were put right on the way (the wingspan of the 砂鲼, a thousand death ships rather than a hundred, which 尔什 world the 碎影 really reached).
+- **Smoother:** creatures in a herd no longer draw the parts that are too small to see (in a town view a frame now draws half of what it did), and the background work after you arrive on the planet no longer freezes a click for a third of a second.
+
 ## v1.4 — 2026-10-26 · 绒球 written out in full
 
 - **Every place and creature of 绒球 with real weight in the book now has its full story.** About seventy entries — from 起源之海 and 北之大陆 to 白骸龙之岛, 家园树, 印加虫群, 脑袋虫, 飞龙 and the planet itself — were rewritten from all the passages they appear in: what they look like, how they live, how they change through the ages (the cold, the revival, the ruins of volume 6), and which chapters to read. Each also lists the entries it is tied to.

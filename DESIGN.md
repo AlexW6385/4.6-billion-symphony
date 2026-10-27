@@ -133,6 +133,8 @@ Append-only: date, decision, reason.
 - 2026-10-26 — The ~60 "minor" places of the coverage index (a handful of mentions in a few chapters each: 盐湖, 花海, 镜坑平原 …) are not given entries of their own; each is folded into the entry it belongs to when that entry is brought to L2 in Phase 3. Phase 2 counts as done once every verified-missing place is enterable. Reason: an entry per passing mention would add clutter, not faithfulness; the parent entry is where a reader looks for it.
 - 2026-10-26 — Parts of far models under a pixel in radius are not drawn (listed once per model, biggest first). Reason: §6; open spaces drew hundreds of calls for eyes and claws a few pixels wide.
 - 2026-10-26 — The coverage index finds place names by their endings plus quoted names that are travelled to, cross-checked with the 绒球 encyclopedia index, and is curated by hand: each candidate gets a status in `rongqiu-source/exhibition/review.json` (missing, minor, covered inside another entry, not a place). "Minor" (a real place with a handful of mentions in a few chapters) is not a Phase 2 item; it can join an existing entry later. Reason: a raw suffix list is mostly phrases; Phase 2 needs a list of real places in order.
+- 2026-10-27 — Phase 3 bodies for entries without encyclopedia notes are drafted in parallel by helper agents from a fixed brief (search-first windows, paraphrase only), each draft checked by a script for verbatim runs of 12+ characters, chapter titles that do not resolve, and unknown related ids, then read over before it is merged. Reason: 340+ thin entries; one at a time would take weeks, and the checks keep the legal rule and the chapter links mechanical.
+- 2026-10-27 — A far LOD for the tree stands (coarse copy past ~150 units, per tree in the vertex shader) was tried and dropped: the shader-window approach still sends every vertex, the arrival view got heavier, and triangle counts barely moved. A real gain needs instances re-sorted on the CPU by distance; not worth its risk to the cutaway now.
 
 ## 11. Roadmap and status
 
@@ -165,6 +167,7 @@ The implementing agent updates this section at the end of every session. Phases 
 **Phase 3 — Entries to L2**
 - All entries to Entry L2; all spaces to Space L2; `links.js` relations filled; chapter links verified.
 - 🔶 (2026-10-26) 绒球: every entry with an encyclopedia note in the source repo (73 notes, five of them filed under another id: naodaichong→naodai, yilong_pt→yilong, jingshu→crystalwood, jueshu→ud_fern, mingshidao→isles) is rewritten to L2 — body text from all its passages, eras, related entries, chapters checked to resolve. Minor places folded into their parents as reached. Next: the other spaces' thin entries (no notes there; research from the text, search-first).
+- 🔶 (2026-10-27) Other spaces: 145 of the thinnest entries with the most mentions in the text (void, frozen void, Midgard, dream, tunnel, 不可预见之地, plus 绒球's remaining units and people) rewritten to L2 from the text, several old errors corrected on the way. About 340 entries are still under 260 characters; most are minor, worked through in order of how much the book says about them.
 
 **Phase 4 — Life, visuals, side stories**
 - Spaces to L3; Visuals L2; side stories for the key moments of each space (Space L4 begins).
