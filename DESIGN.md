@@ -127,6 +127,7 @@ Append-only: date, decision, reason.
 - 2026-10-26 — No world is built ahead of time; a first visit builds under the loading cover. Reason: a build is a 0.3–2 s block of script with no invisible moment to run it (it froze the library and reader, or the picture).
 - 2026-10-26 — No git tags or GitHub releases; versions live in `CHANGELOG.md` only. Reason: the agent cannot push tags and the author wants no manual step.
 - 2026-10-26 — Entries are shareable by link (`#e=id`). Reason: DESIGN listed sharing as an interaction; it did not exist.
+- 2026-10-26 — The coverage index finds place names by their endings plus quoted names that are travelled to, cross-checked with the 绒球 encyclopedia index, and is curated by hand: each candidate gets a status in `rongqiu-source/exhibition/review.json` (missing, minor, covered inside another entry, not a place). "Minor" (a real place with a handful of mentions in a few chapters) is not a Phase 2 item; it can join an existing entry later. Reason: a raw suffix list is mostly phrases; Phase 2 needs a list of real places in order.
 
 ## 11. Roadmap and status
 
@@ -149,6 +150,7 @@ The implementing agent updates this section at the end of every session. Phases 
 
 **Phase 1 — Coverage index**
 - Using the novel (search-first) and the existing entries, build `rongqiu-source/exhibition/coverage.md`: every named place in the book, which space it belongs to (or needs), whether it is enterable, which entries exist for it, and which are missing or thin (`thin.mjs`). Rank missing content by importance.
+- ✅ (2026-10-26) `coverage.md` built by `tools/coverage.py` (with `REVIEW=`): 713 recurring place names; 135 have an entry, the other 578 reviewed by hand (`tools/ctx.py`, `tools/whohas.py`) — 68 verified missing, ranked, each with its space; 45 covered inside another entry; 54 minor; 411 not places. Plus thin place entries ranked by how much the book discusses them. Biggest gaps: 立蝎 pyramids (绒球), 漂泊号 (虚空, big enough for its own space), 气态星 and 奇迹之星 (凝固虚空), 梦境空间, 神民之国, 幻想空间, 混沌空间, 制造塔. A few rows still say "check against …": settle them as Phase 2 reaches them.
 
 **Phase 2 — Every place enterable**
 - Add the missing spaces and sub-places from the index to L1, most important first, until every named place can be entered.
