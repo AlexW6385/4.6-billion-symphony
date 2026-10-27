@@ -177,6 +177,8 @@ The implementing agent updates this section at the end of every session. Phases 
 **Phase 4 — Life, visuals, side stories**
 - Spaces to L3; Visuals L2; side stories for the key moments of each space (Space L4 begins).
 
+- 🔶 (2026-10-27) Phase 4 begun: every entry has at least one side story (the seventeen Phase 2 places got theirs); every creature or character model without motion of its own now breathes and turns a little (a fallback, not a substitute for the motions the book describes).
+
 **Phase 5 onward — Keep going**
 - No final state. Loop: find what the book describes that is still missing, thin or shallower than its text (new entries, places, details, side stories, motion), add it, test it, release it. Prefer the item adding the most faithfulness and richness per unit of work; keep §6 green at all times. Stop only when the author says so.
 
