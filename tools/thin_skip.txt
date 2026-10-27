@@ -30,3 +30,7 @@ duoji
 greenpool
 shalin
 gunlei
+pangshou
+lanxing
+ex_wushou
+rq_maojing
