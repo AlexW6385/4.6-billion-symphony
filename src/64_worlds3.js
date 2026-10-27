@@ -57,7 +57,29 @@ const W3={
   sky:{zen:'#3a1418',hor:'#b84a40',set:'#ff6a4a',nightZ:'#060204',nightH:'#2a0808'},envTop:'#8a3a34',envMid:'#a8605a',envBot:'#2a1818',hemiSky:0xff8a80,sunI:.9,
   props:[{geo:'cyl',n:160,col:'#d8f0f4',op:.45,rough:.05,metal:.2,scale:[2,3.4],stretch:[1,6,1]},
    {geo:'sphere',n:420,col:'#b81a1a',em:'#5a0606',ei:.6,rough:.4,scale:[1.2,3.6],stretch:[1,.8,1]}],
-  fog:{n:6,col:'#a81812'}}};
+  fog:{n:6,col:'#a81812'}},
+ // 尔什's moon in age 9, the quarantine of possible ends of the world: a small town and a red-brick mansion round one pole,
+ // and ten wedge-shaped end-worlds round it, each its own land and colour, walled off from the next
+ doom:{home:{a:40,b:0,alt:2600},sunLon:30,
+  height:p=>{const S=doomSec(p),n=fbm(p.x*4+S.k,p.y*4,p.z*4,5);if(S.wall)return 46;if(S.core)return 4+(n-.5)*6;
+   switch(S.k){case 0:return 3+(n-.5)*16;case 1:return 3+(n-.5)*10;case 2:return 6+(n-.5)*28;case 3:return -8+(n-.5)*14;case 4:return 3+(n-.5)*12;
+    case 5:return n<.42?-2:2+(n-.5)*22;case 6:return 3+(n-.5)*8;case 7:return Math.abs(n-.5)<.03?-1:2+(n-.5)*8;default:return 3+(n-.5)*14}},
+  col:(p,h,lat,o)=>{const S=doomSec(p),v=n3(p.x*14,p.y*14,p.z*14);if(S.wall){o.set('#c8ccd8');return}if(S.core){o.set('#6a9a4a').lerp(C('#8aa860'),v*.6);return}if(h<0){o.set('#2a4a6a');return}
+   o.set(['#d8b870','#7a7468','#e8f2f8','#3a6a8a','#4a4642','#3a7a3a','#e8a8d0','#b8202a','#6a6a80','#7a6a8a'][S.k]);
+   if(S.k===6)o.lerp(C(['#a8e0f8','#f8e8a0','#c8f0c0','#ffffff'][(n3(p.x*6,p.y*6,p.z*6)*4|0)%4]),.6);else o.offsetHSL(0,0,(v-.5)*.12);if(S.k===7&&v>.6)o.lerp(C('#3a2a20'),.5)},
+  ocean:{deep:'#1a3a5a',shal:'#3a7aa0'},atm:'#a8c0ff',atmK:.5,clouds:false,rough:.8,
+  sky:{zen:'#3a5aa0',hor:'#b8c8e0',set:'#e8a070'},
+  props:[{geo:'box',n:160,col:'#b85a3a',scale:[1,2.4],stretch:[1,1.2,1],test:(la,lo)=>la>66},
+   {geo:'box',n:220,col:'#8a8478',scale:[1.5,5],stretch:[1,4,1],test:(la,lo)=>doomSecLL(la,lo)===1},
+   {geo:'box',n:60,col:'#c8ccd0',scale:[2,4],stretch:[1,8,1],minH:-99,test:(la,lo)=>doomSecLL(la,lo)===3},
+   {geo:'box',n:90,col:'#b89a60',scale:[1.5,4],stretch:[1,2,1],test:(la,lo)=>doomSecLL(la,lo)===0},
+   {geo:'sphere',n:260,col:'#ff3a3a',em:'#a0101a',ei:.4,scale:[.4,1],test:(la,lo)=>doomSecLL(la,lo)===7},
+   {geo:'sphere',n:200,col:'#ffd0f0',em:'#ff90d0',ei:.3,scale:[.8,2.2],test:(la,lo)=>doomSecLL(la,lo)===6}]}};
+/* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
+const DOOM_CORE=64;
+function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
+ return{k,wall:la<DOOM_CORE+2&&(e<.7||e>35.3||Math.abs(la-DOOM_CORE)<.7)}}
+function doomSecLL(la,lo){if(la>DOOM_CORE+2)return -1;const L=((lo+180)%360+360)%360;return Math.min(9,Math.floor(L/36))}
 function buildW3(id){const c=W3[id];
  const sp=makePlanet(id,{height:c.height,colors:oneSet(c.col),ocean:c.ocean,atm:c.atm,atmK:c.atmK,clouds:c.clouds,rough:c.rough,metal:c.metal,bump:c.bump,rock:c.rock,sky:c.sky,
   envTop:c.envTop,envMid:c.envMid,envBot:c.envBot,hemiSky:c.hemiSky,sunI:c.sunI,sunLon:c.sunLon,dayLen:c.dayLen});BSP=sp;const gh=sp.gh,Rn=rnd(hashStr(id));
