@@ -7,7 +7,9 @@ function bDragonTree(){const g=new THREE.Group();const t=new THREE.Mesh(geoC('br
  const ds=[];for(let i=0;i<3;i++){const d=bLizard({col:'#6a5a3a'});d.scale.setScalar(.35);g.add(d);ds.push({d,ph:i*2})}g.add(shadow(2));g.userData.anim=t=>ds.forEach((x,i)=>{const y=.5+((t*.2+x.ph*.3)%1)*2.5;const a=i*2.1;x.d.position.set(Math.cos(a)*.4,y,Math.sin(a)*.4);x.d.rotation.set(0,-a,Math.PI/2);x.d.userData.anim&&x.d.userData.anim(t)});return g}
 function bTwinTree(){const g=new THREE.Group();const bark=M('#6a5038',{roughness:.9});for(let k=0;k<2;k++){const pts=[];for(let i=0;i<=14;i++){const y=i*.45,a=i*.7+k*Math.PI;pts.push(V3(Math.cos(a)*.45,y,Math.sin(a)*.45))}const tr=tubeAlong(pts,.2-k*.03,bark,40);g.add(tr)}
  const top=[];for(let i=0;i<=20;i++){const a=i/20*6.28*1.5,r=.5+i*.1;top.push(V3(Math.cos(a)*r,6.4+Math.sin(i*.4)*.1,Math.sin(a)*r))}g.add(tubeAlong(top,.22,bark,40));const pl=new THREE.Mesh(new THREE.CircleGeometry(2.3,20),M('#4a7a3a',{side:THREE.DoubleSide}));pl.rotation.x=-Math.PI/2;pl.position.y=6.5;g.add(pl);
- for(let i=0;i<8;i++){const l=sph(0,.6,.25,.5,8,M(i%2?'#3f7a36':'#5a9a44'));l.position.set((h3(i,1,8)-.5)*3.4,6.7,(h3(i,2,8)-.5)*3.4);g.add(l)}const moss=new THREE.Mesh(new THREE.CircleGeometry(1.6,20),EM('#7ad890',.25));moss.rotation.x=-Math.PI/2;moss.position.y=.05;g.add(moss);return g}
+ for(let i=0;i<8;i++){const l=sph(0,.6,.25,.5,8,M(i%2?'#3f7a36':'#5a9a44'));l.position.set((h3(i,1,8)-.5)*3.4,6.7,(h3(i,2,8)-.5)*3.4);g.add(l)}const moss=new THREE.Mesh(new THREE.CircleGeometry(1.6,20),EM('#7ad890',.25));moss.rotation.x=-Math.PI/2;moss.position.y=.05;g.add(moss);
+ // the paired trunks lean a little in the wind, the crown disc rocks with them
+ const kids=g.children.filter(c=>c!==moss);const swing=new THREE.Group();kids.forEach(c=>swing.add(c));g.add(swing);g.userData.anim=t=>{swing.rotation.z=Math.sin(t*.5)*.02;swing.rotation.x=Math.sin(t*.37+1)*.015};return g}
 function bMayaNest(){const g=new THREE.Group();g.add(bHuts({n:6,r:2.4,col:'#7a6a58',kind:'mound'}));const rk=new THREE.Mesh(new THREE.ConeGeometry(1.5,3.2,7,3),detailMat(M('#6e6458',{roughness:.95,flatShading:true}).clone(),{bump:1,freq:2}));rk.position.y=1.6;g.add(rk);
  for(let i=0;i<4;i++){const h=new THREE.Mesh(new THREE.CircleGeometry(.25,10),M('#140c08'));const a=i*1.6;h.position.set(Math.cos(a)*1.1,.7+i*.45,Math.sin(a)*1.1);h.lookAt(V3(Math.cos(a)*5,.7+i*.45,Math.sin(a)*5));g.add(h)}
  const br=bMaya();br.scale.setScalar(.35);br.position.set(0,3.3,0);g.add(br);const qs=[];for(let i=0;i<5;i++){const b=bBeetle({w:'x',col:'#5a4a3a'});b.scale.setScalar(.35);g.add(b);qs.push({b,a:i*1.25})}
@@ -1231,7 +1233,9 @@ function fxD_stego(){const g=new THREE.Group();const ob=M('#0c0c12',{roughness:.
  for(let i=0;i<14;i++){const x=-1.45+i*.22;const hh=.3+Math.sin(i/13*Math.PI)*.45;for(const z of[-1,0,1]){const s=cone(.05,hh*(z?1:1.2),bone,5);const top=1.6+Math.sqrt(Math.max(0,1-Math.pow(x/1.7,2)))*(z?.85:1)-(z?.05:0);s.position.set(x+(z?.1:0),top+hh*.3,z*.3);s.rotation.x=z*.5;g.add(s)}}
  for(let i=0;i<6;i++){const z=i%2?1:-1,k=Math.floor(i/2);const l=leg2(.6,.62,.24,ob,.4);l.position.set(1-k*1,1.25,z*.55);l.rotation.z=-.15;l.rotation.x=z*.2;g.add(l);for(let c=0;c<3;c++){const cw=cone(.05,.2,cl,4);cw.position.set(.16,-.64,(c-1)*.1);cw.rotation.z=-Math.PI/2-.4;l.userData.knee.add(cw)}}
  g.add(shadow(2.2));return g}
-function fxD_anzao(){const g=bAlgaeNet();const s=fxD_stego();s.scale.setScalar(.85);s.position.set(.2,0,.4);s.rotation.y=.4;g.add(s);return g}
+function fxD_anzao(){const g=bAlgaeNet();const net=g.children.slice();const s=fxD_stego();s.scale.setScalar(.85);s.position.set(.2,0,.4);s.rotation.y=.4;g.add(s);
+ // the dark algae ripple like weed in a current; the shape it has taken keeps its head turning
+ const a0=g.userData.anim;g.userData.anim=t=>{a0&&a0(t);net.forEach((c,i)=>{c.rotation.y=Math.sin(t*.6+i)*.06;c.scale.y=1+Math.sin(t*.9+i*1.7)*.05});s.rotation.y=.4+Math.sin(t*.3)*.25;s.userData.anim&&s.userData.anim(t)};return g}
 
 /* ---------- 珀岩记录者: an opaque rock over a hundred metres tall wandering the plain; its brain grows out of its back
    like amber branches, breaks off into heaps and sometimes melts into an amber lake that the riders live beside ---------- */
