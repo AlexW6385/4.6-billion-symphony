@@ -136,6 +136,7 @@ Append-only: date, decision, reason.
 - 2026-10-27 — Phase 3 bodies for entries without encyclopedia notes are drafted in parallel by helper agents from a fixed brief (search-first windows, paraphrase only), each draft checked by a script for verbatim runs of 12+ characters, chapter titles that do not resolve, and unknown related ids, then read over before it is merged. Reason: 340+ thin entries; one at a time would take weeks, and the checks keep the legal rule and the chapter links mechanical.
 - 2026-10-27 — A far LOD for the tree stands (coarse copy past ~150 units, per tree in the vertex shader) was tried and dropped: the shader-window approach still sends every vertex, the arrival view got heavier, and triangle counts barely moved. A real gain needs instances re-sorted on the CPU by distance; not worth its risk to the cutaway now.
 - 2026-10-27 — What does work is the coarser copy per whole stand, switched on the CPU when the stand's nearest edge is far (arrival view 2.15 M → 1.24 M triangles); kept.
+- 2026-10-27 — In entry texts, words in “…” mean the book's own words (a name, a term, or a short line); a name we coin for an entry is written without quotes. `tools/check_quotes.py` lists quoted spans that are not in the novel. Reason: readers take quotes as the book's; 153 such spans had crept in, about 90 of them coined.
 
 ## 11. Roadmap and status
 
