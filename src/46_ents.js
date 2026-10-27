@@ -437,7 +437,10 @@ function entBody(w,sp){const e=ENT[w.id];if(!e)return null;let g;try{g=e[0]()}ca
  root.updateMatrixWorld(true);const box=new THREE.Box3(),_bb=new THREE.Box3();inner.traverse(c=>{if(c.isMesh&&c.visible&&c.geometry&&c.material!==shadowMat&&!(c.material&&c.material.blending===THREE.AdditiveBlending)){if(!c.geometry.boundingBox)c.geometry.computeBoundingBox();if(c.isInstancedMesh){const m4=new THREE.Matrix4();for(let i=0;i<c.count;i++){c.getMatrixAt(i,m4);_bb.copy(c.geometry.boundingBox).applyMatrix4(m4).applyMatrix4(c.matrixWorld);box.union(_bb)}}else{_bb.copy(c.geometry.boundingBox).applyMatrix4(c.matrixWorld);box.union(_bb)}}});if(box.isEmpty())box.setFromObject(inner);const sph0=box.isEmpty()?new THREE.Sphere(V3(0,S,0),S*2):box.getBoundingSphere(new THREE.Sphere());
  if(!pl&&o.isle){const isl=bIslet(Math.max(S*1.2,Math.hypot(box.max.x-box.min.x,box.max.z-box.min.z)*.42));root.add(isl)}
  g.traverse(c=>{if(c.userData&&c.userData.towerMat){(sp.towerMats=sp.towerMats||[]).push(c.userData.towerMat);if(!pl)c.userData.towerMat.userData.U.uNight.value=.85}});
- const anim0=g.userData.anim;const slow=w.ng?.2:1;return{root,g,S,o,c0:sph0.center.clone(),r:Math.max(1.5,sph0.radius),tick:anim0?(t=>anim0(t*slow)):null}}
+ let anim0=g.userData.anim;const slow=w.ng?.2:1;
+ // a creature or character with no motion of its own still breathes and turns its head a little (not in the frozen void)
+ if(!anim0&&!w.ng&&/物种|角色/.test(w.c||'')){const ph=h3(hashStr(w.id),1,7)*6.28;anim0=t=>{inner.rotation.y=Math.sin(t*.27+ph)*.14;inner.scale.set(S,S*(1+.018*Math.sin(t*1.3+ph)),S)}}
+ return{root,g,S,o,c0:sph0.center.clone(),r:Math.max(1.5,sph0.radius),tick:anim0?(t=>anim0(t*slow)):null}}
 
 /* open ground around the bodies, so towers and forests do not swallow them */
 const _ne={};function nearEnt(m,la,lo,deg){const L=_ne[m]||(_ne[m]=WIKI.filter(w=>mapOf(w)===m&&w.ll&&ENT[w.id]).map(w=>dirLL(w.ll[0],w.ll[1])));if(!L.length)return false;const d=dirLL(la,lo),c=Math.cos(deg*D2R);for(const v of L)if(v.dot(d)>c)return true;return false}
