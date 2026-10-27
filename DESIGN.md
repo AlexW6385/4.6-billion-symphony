@@ -125,6 +125,7 @@ Append-only: date, decision, reason.
 - 2026-10-26 — Refactors that must not change the picture are verified with `tests/fingerprint.cjs` (every model and every scene object, deterministic) and `tests/shots.cjs` (pixel comparison at fixed viewpoints). Reason: a 2 MB single scope cannot be checked by reading.
 - 2026-10-26 — Every world has the same light layout (2 directional, 1 hemisphere, 2 pooled point lights, one fog kind per world type); missing lights are added dark; all point lights go through the pool (the underground's 17 and Midgard's 10 now light through the nearest two). Reason: shader programs are shared across worlds (new programs per switch 18–49 → 1–9); small lighting change accepted.
 - 2026-10-26 — No world is built ahead of time; a first visit builds under the loading cover. Reason: a build is a 0.3–2 s block of script with no invisible moment to run it (it froze the library and reader, or the picture).
+- 2026-10-26 — No git tags or GitHub releases; versions live in `CHANGELOG.md` only. Reason: the agent cannot push tags and the author wants no manual step.
 - 2026-10-26 — Entries are shareable by link (`#e=id`). Reason: DESIGN listed sharing as an interaction; it did not exist.
 
 ## 11. Roadmap and status
@@ -143,8 +144,8 @@ The implementing agent updates this section at the end of every session. Phases 
 - ◐ World-switch hitch: programs shared across worlds (1–9 new per switch after the first planet / non-planet visit); fade-in waits for warm-up frames; no prebuild stalls. Still open: a first visit to a world builds and compiles under the loading cover (1–2 s). Next ideas: async program linking (KHR_parallel_shader_compile; three r128 links synchronously in `getProgram`), slicing the builders.
 - ✅ Interaction path walked on desktop and phone (`tests/path.cjs`): library/reader stalls removed, first jumps cheap; sharing added.
 - ✅ Audit (`tests/baseline/audit.json`): 113 of 767 entries failed before Phase 0, 23 now (4 of them whole planets seen from orbit, as intended). Fixed: the moon view swallowed jumps; the clear-view search tested the wrong ray, so entries ended behind towers and trunks; poses that could not centre the entry were chosen. Left: 5 fast fliers off-screen, 11 with something in the way, 3 under the card.
-- `CHANGELOG.md` has v1.1. The tag and GitHub release could not be pushed from the agent's session (tag pushes are refused there); cut them from a normal checkout: `git tag -a v1.1 c54ddad` and a release with the CHANGELOG text.
-- Phase 1 needs read access to `rongqiu-source` from the agent's session.
+- `CHANGELOG.md` has v1.1.
+- Phase 1 needs read access to `rongqiu-source`: granted by the author for every session (add the repo when a session needs it).
 
 **Phase 1 — Coverage index**
 - Using the novel (search-first) and the existing entries, build `rongqiu-source/exhibition/coverage.md`: every named place in the book, which space it belongs to (or needs), whether it is enterable, which entries exist for it, and which are missing or thin (`thin.mjs`). Rank missing content by importance.
@@ -163,7 +164,5 @@ The implementing agent updates this section at the end of every session. Phases 
 
 ## 12. Releases
 
-Every push to `main` deploys to GitHub Pages. In addition, cut a **release** whenever a meaningful chunk is done — a phase, a new space, a tier of entries, a visible smoothness or visual gain:
-- Tag `vMAJOR.MINOR` and create a GitHub release with a short note and a few screenshots.
-- Keep `CHANGELOG.md`, newest first, in plain language a reader of the novel would understand (what they can now visit or read), not a list of commits.
-- Never release with a failing test, a failing audit, a perf regression or a known interaction bug; fix first.
+Every push to `main` deploys to GitHub Pages; that is the release. Whenever a meaningful chunk is done — a phase, a new space, a tier of entries, a visible smoothness or visual gain — add a version to `CHANGELOG.md` (`vMAJOR.MINOR`, newest first), in plain language a reader of the novel would understand (what they can now visit or read), not a list of commits. No git tags or GitHub releases: the agent's session cannot push them and the author does not want a manual step.
+- Never push a version with a failing test, a failing audit, a perf regression or a known interaction bug; fix first.
