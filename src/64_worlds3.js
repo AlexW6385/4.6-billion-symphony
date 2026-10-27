@@ -30,7 +30,7 @@ const W3={
   ocean:{deep:'#3a2a40',shal:'#8a4a6a'},atm:'#ff6a4a',atmK:1.3,clouds:{cov:.55,col:'#e8a090'},rough:.85,metal:.1,rock:'#5a3a34',
   sky:{zen:'#5a1e1a',hor:'#d06a50',set:'#ff8a50',nightZ:'#0a0204',nightH:'#2a0a08'},envTop:'#a04a38',envMid:'#c87a60',envBot:'#3a2420',hemiSky:0xff9a80,sunI:.9,
   junk:{n:5200}},
- // 熔毁地带 (ages 8–9): a living molten world, black ash crust split by glowing cracks and lava lakes; the broken demon world floats round it
+ // 熔毁地带 (ages 8–9): a living molten world, black ash crust split by glowing cracks and lava lakes; the broken orange world of the gentle demons floats round it
  rongui:{home:{a:10,b:30,alt:2600},
   height:p=>{const n=fbm(p.x*2.8+3,p.y*2.8,p.z*2.8,5),cr=Math.abs(fbm(p.x*7+1,p.y*7,p.z*7,4)*2-1);if(n<.34)return -2-(.34-n)*14;return 2+(n-.5)*30+(cr<.05?-3:0)},
   col:(p,h,lat,o)=>{if(h<0){o.set('#ff7a20');return}const cr=Math.abs(fbm(p.x*7+1,p.y*7,p.z*7,4)*2-1);
