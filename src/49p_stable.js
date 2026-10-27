@@ -78,7 +78,18 @@ function q5s_farCull(sp){if(sp.cover&&!sp.cover.__q5w){sp.cover.__q5w=1;const u=
  const cp=camera.position,F=sp.follow,fid=F&&F.id,sid=sel;for(const x of sc.__q5fc){const o=x.o,e=o.matrixWorld.elements;const dx=e[12]-cp.x,dy=e[13]-cp.y,dz=e[14]-cp.z,d2=dx*dx+dy*dy+dz*dz;const id=o.userData.pick;
   const tf=x.r*pxk,far=Math.min(x.far,tf*1.1),near=Math.min(x.near,tf);
   if(o.userData.q5far){if(d2<near*near||id===fid||id===sid){o.userData.q5far=0;o.visible=o.userData.q5vis!==false}}
-  else if(d2>far*far&&id!==fid&&id!==sid&&!(CUT.id===id&&CUT.goal)){o.userData.q5vis=o.visible;o.userData.q5far=1;o.visible=false}}}
+  else if(d2>far*far&&id!==fid&&id!==sid&&!(CUT.id===id&&CUT.goal)){o.userData.q5vis=o.visible;o.userData.q5far=1;o.visible=false}
+  if(!o.userData.q5far&&o.visible)q5s_detail(x,Math.sqrt(d2),pxk,id===fid||id===sid)}}
+/* the small parts of a model far away (an eye, a claw, a strut) are under a pixel in radius: they are not drawn. The parts are
+   listed once, biggest first, with the radius each covers in the world; only parts this hid are shown again */
+function q5s_detail(x,d,pxk,keep){let P=x.parts;if(!P){P=x.parts=[];const s=new THREE.Vector3(),sp=new THREE.Sphere();x.o.updateMatrixWorld(true);
+  x.o.traverse(m=>{if(!(m.isMesh||m.isPoints)||m.isInstancedMesh||!m.geometry)return;const g=m.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingSphere)return;m.matrixWorld.decompose(_q5dp,_q5dq,s);P.push({m,r:g.boundingSphere.radius*Math.max(s.x,s.y,s.z),off:false})});
+  P.sort((a,b)=>b.r-a.r);x.pi=P.length}
+ // parts with r*pxk < d go; P is sorted, so find the first one that is too small
+ const lim=keep?0:d/(pxk*1.5);let i=0;while(i<P.length&&P[i].r>=lim)i++;
+ for(let k=0;k<i&&k<x.pi;k++){const q=P[k];if(q.off){q.off=false;q.m.visible=true}}
+ for(let k=i;k<P.length;k++){const q=P[k];if(!q.off&&q.m.visible){q.off=true;q.m.visible=false}}x.pi=i}
+const _q5dp=new THREE.Vector3(),_q5dq=new THREE.Quaternion();
 
 /* ---- the occluder list (line-of-sight tests while following, the cutaway): the same list is reused for half a second when
    asked again for nearly the same spot, and a frame that follows a long one gets the last list rather than a fresh walk ---- */
@@ -153,7 +164,8 @@ function q5s_frustumHide(sp,cam){q5s_frustumShow();if(window.__q5noFC||!sp||sp.t
   o.visible=false;q5s_fout.push(o)};
  for(const c of sp.culls)test(c.o,c.c,c.r);
  // the entries' own models (a creature, a town, a tree) the same way, with a margin for the parts that move
- if(sp.entL)for(const x of sp.entL)test(x.root,x.c,x.r*1.3+4)}
+ if(sp.entL){const pxk=innerHeight/(2*Math.tan(camera.fov*Math.PI/360))/1.5,cp=camera.position;for(const x of sp.entL){test(x.root,x.c,x.r*1.3+4);
+  if(x.root.visible){if(!x.o)x.o=x.root;const id=x.root.userData.pick;q5s_detail(x,cp.distanceTo(x.c),pxk,id===sel||(sp.follow&&sp.follow.id===id))}}}}
 function q5s_frustumShow(){for(const o of q5s_fout)o.visible=true;q5s_fout.length=0}
 {const _shR=renderer.shadowMap.render;const _hid=[],_v=new THREE.Vector3();
  const shadowPass=function(lights,scene,cam){const sp=CUR;
