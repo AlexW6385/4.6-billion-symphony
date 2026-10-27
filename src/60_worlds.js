@@ -134,6 +134,7 @@ function buildErxi(){const sp=makePlanet('erxi',{height:erxiH,colors:oneSet(erxi
 
 /* ---------- inside the tubes ---------- */
 const TUBE_R={midgard:420,tunnel:380};
+const MG_REG=['#a88a52','#c8b080','#d8e4ec','#4e8a4a','#3a6a8a','#a8442a',null],_mgc=new THREE.Color();
 function buildTube(id){const m=MB[id];const sc=new THREE.Scene();const sp=newSpace(id,'tube',sc);const white=!!m.white;const Rt=TUBE_R[id];sp.Rt=Rt;
  const zs=WIKI.filter(w=>mapOf(w)===id).map(w=>w.z);const z0=-1400,z1=Math.max(...zs)+1200;sp.zr=[z0+700,z1-200];sp.zc=[z0+30,z1-30];
  const L=z1-z0,geo=new THREE.CylinderGeometry(Rt,Rt,L,white?160:120,Math.round(L/(white?26:34)),true);geo.rotateX(Math.PI/2);geo.rotateZ(Math.PI);geo.translate(0,0,(z0+z1)/2);
@@ -141,7 +142,10 @@ function buildTube(id){const m=MB[id];const sc=new THREE.Scene();const sp=newSpa
  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const a=Math.atan2(x,y);const n=fbm(Math.cos(a)*3+z/400,Math.sin(a)*3,z/700,4);
   if(white){const floor=sm(-.2,-.75,Math.cos(a));const dune=(Math.sin(z/70+Math.sin(a*3)*2+n*6)+1)*.5;let d=(Math.sin(z/90+n*8)+1)*.5*18*n*(1-floor)+floor*(4+dune*12*n+n*8);const r=Rt-d;p.setX(i,x/Rt*r);p.setY(i,y/Rt*r);
    const band=sm(.94,.995,Math.abs(Math.sin(z/320))),seam=sm(.985,1,Math.abs(Math.sin(a*6)));col.set('#b8b2a2').lerp(C('#857c68'),sm(.35,.75,n)).lerp(C('#d8d4c8'),sm(.6,.9,(Math.sin(z/90+n*8)+1)*.5)*.5).lerp(C('#5e5546'),band*.7*(1-floor)).lerp(C('#7a705e'),seam*.6*(1-floor));col.lerp(C('#dcd6ca'),floor*(.85+.15*dune))}
-  else{const rib=sm(.9,.99,Math.abs(Math.sin(z/130)));const plate=Math.abs(Math.sin(a*12))>.97?1:0;const d=n*34+rib*26;const r=Rt-d;p.setX(i,x/Rt*r);p.setY(i,y/Rt*r);col.set('#0d0c12').lerp(C('#221e2c'),n*1.2).lerp(C('#4a3a7a'),rib*.75).lerp(C('#050507'),plate*.6)}
+  else{const rib=sm(.9,.99,Math.abs(Math.sin(z/130)));const plate=Math.abs(Math.sin(a*12))>.97?1:0;const d=n*34+rib*26;const r=Rt-d;p.setX(i,x/Rt*r);p.setY(i,y/Rt*r);col.set('#0d0c12').lerp(C('#221e2c'),n*1.2);
+   // the walls are many small worlds side by side (desert, ice, forest, lava, sea…): patches of their colour between the ribs
+   if(id==='midgard'){const zc=Math.floor(z/1700+n*.6),ac=Math.floor((a+Math.PI)/(Math.PI/3)+n*.5);const hh=h3(zc,ac,17);const reg=MG_REG[(hh*MG_REG.length)|0];const k=sm(.25,.6,h3(zc,ac,29))*(1-rib)*(.55+.45*n);if(reg)col.lerp(_mgc.set(reg),k*.95)}
+   col.lerp(C('#4a3a7a'),rib*.75).lerp(C('#050507'),plate*.6)}
   cs.push(col.r,col.g,col.b)}
  geo.setAttribute('color',new THREE.Float32BufferAttribute(cs,3));geo.computeVertexNormals();
  sp.wallD=(z,a)=>{const n=fbm(Math.cos(a)*3+z/400,Math.sin(a)*3,z/700,4);if(white){const floor=sm(-.2,-.75,Math.cos(a));const dune=(Math.sin(z/70+Math.sin(a*3)*2+n*6)+1)*.5;return (Math.sin(z/90+n*8)+1)*.5*18*n*(1-floor)+floor*(4+dune*12*n+n*8)}const rib=sm(.9,.99,Math.abs(Math.sin(z/130)));return n*34+rib*26};sp.wallR=(z,d)=>sp.wallD(z,Math.PI-d*D2R);
