@@ -118,6 +118,7 @@ const ENT={
  v_hundun:[fxP_chaos,3],
  v_bingshan:[fxP_voidIceberg,3],
  j2_xuying:[fxP_shadowTree,3], j3_farnuo:[fxP_farNuo,1.4],
+ a1_xishuai:[fxP_cricket,1.8,{alt:38}], a2_xiliegu:[fxP_mistGorge,2.4], a3_heifeng:[fxP_metalTwister,1.4], a4_zhanglao:[fxP_elderTree,1.2],
  v_jiancezhan:[fxP_checkpoint,2.4],
  v_jiaotuan:[bTentacleCult,.9,{isle:1}], v_gugu:[fxD_gugu,1,{isle:1}], v_shijing:[bMercury,1.1], v_shuimin:[bStrider,1,{walk:1}], v_huijin:[fxD_ashPair,1], v_poyan:[fxD_poyan,1.1],
  v_zhanfen:[fxD_zhanfen,1,{isle:1}], v_chibcha2:[fxD_chibcha2,1.2,{isle:1}], v_jiqimin:[bMechFolk,1,{isle:1}], v_huanxing:[bShifter,1,{isle:1}], v_yiyin:[()=>bSoundWave({screen:1,col:'#ffb0d8'}),1.2],
@@ -276,6 +277,57 @@ function fxP_farNuo(){const g=new THREE.Group();const Rn=rnd(5521);
  const nuo=new THREE.Mesh(new THREE.SphereGeometry(.28,16,12),new THREE.MeshBasicMaterial({color:'#ffe6b8'}));nuo.position.y=6.2;g.add(nuo);g.add(at(glowSprite('#ffe0a0',2.4,.7),0,6.2,0));
  const isles=[];for(let i=0;i<3;i++){const a=i*2.1+.4;const ig=new THREE.Mesh(new THREE.ConeGeometry(1.2,1.4,7),glass);ig.rotation.x=Math.PI;ig.position.set(Math.cos(a)*4,5+i*.8,Math.sin(a)*4);g.add(ig);isles.push([ig,a])}
  g.userData.anim=t=>{isles.forEach(([ig,a],i)=>{ig.position.y=5+i*.8+Math.sin(t*.6+a)*.25});nuo.scale.setScalar(1+.12*Math.sin(t*2))};return g}
+/* ---------- 剪刃断脑者 (蟋蟀): three-metre leaping insects of the floating islands — long hydraulic hind legs, curved blade
+   mandibles that shear a head off; drawn on a drifting island chunk, one crouched to spring ---------- */
+function fxP_cricket(){const g=new THREE.Group();const Rn=rnd(3301);
+ const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(3.2,1),M('#7a6a52',{roughness:.95,flatShading:true}));rock.scale.set(1,.45,1);rock.position.y=-1;g.add(rock);
+ const moss=new THREE.Mesh(new THREE.CylinderGeometry(2.9,3,.25,14),M('#4f7a3c',{roughness:1}));moss.position.y=.32;g.add(moss);
+ const bugs=[];const mk=(x,z,ry,k)=>{const b=new THREE.Group();const P=[];const C='#5a6a30',D='#2c3418',B='#d8d0b0';
+  P.push([new THREE.SphereGeometry(.5,12,8).scale(1.9,.8,.9).translate(0,.7,0),C],[new THREE.SphereGeometry(.38,10,8).translate(1.05,.85,0),D]);
+  for(const s of[-1,1]){P.push([new THREE.ConeGeometry(.08,.7,5).rotateZ(-Math.PI/2.4).rotateY(s*.35).translate(1.5,.7,s*.14),B]);
+   P.push([new THREE.CylinderGeometry(.07,.1,1.5,6).rotateZ(.9).translate(-.5,1.25,s*.42),C],[new THREE.CylinderGeometry(.05,.07,1.6,6).rotateZ(-.55).translate(-1.15,.55,s*.46),D]);
+   for(const dx of[.55,.15])P.push([new THREE.CylinderGeometry(.03,.04,.8,5).rotateX(s*.5).translate(dx,.35,s*.42),D]);
+   P.push([new THREE.CylinderGeometry(.01,.015,1.8,4).rotateZ(-1.1).rotateY(s*.3).translate(1.9,1.4,s*.2),D])}
+  b.add(new THREE.Mesh(mergeColored(P),VC({roughness:.55,metalness:.1})));b.position.set(x,.45,z);b.rotation.y=ry;b.scale.setScalar(k);g.add(b);bugs.push(b)};
+ mk(-.4,.3,.3,1);mk(1.4,-1.2,2.4,.8);
+ g.userData.anim=t=>{const ph=(t*.35)%1;const j=ph<.3?Math.sin(ph/.3*Math.PI)*2.4:0;bugs[1].position.y=.45+j};return g}
+/* ---------- 西裂谷: the misty rift west of the dinosaur continent that the white skull dragons took for the creator's trial —
+   two cliff walls falling into a gorge too wide to see across, filled to the brim with slow fog ---------- */
+function fxP_mistGorge(){const g=new THREE.Group();const Rn=rnd(7717);
+ // two long ridges of rough rock, their inner faces falling steeply into the gorge
+ for(const sd of[-1,1]){const geo=new THREE.BoxGeometry(18,3.2,4,36,6,8);const p=geo.attributes.position;const col=new Float32Array(p.count*3);
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const n=n3(x*.35+sd*7,y*.5,z*.4)-.5;const inner=sd>0?z<0:z>0;
+   const zz=z+n*1.1+(inner?(y+1.6)*.35*sd:0),yy=y+(y>0?n*1.4+Math.sin(x*.4)*.4:0);p.setXYZ(i,x+n*.4,yy,zz);
+   const k=clamp((yy+1.6)/4,0,1);col[i*3]=.36+.22*k;col[i*3+1]=.3+.18*k;col[i*3+2]=.24+.12*k}
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.computeVertexNormals();
+  const m=new THREE.Mesh(geo,VC({roughness:.95}));m.position.set(0,0,sd*3.4);g.add(m)}
+ const floor=new THREE.Mesh(new THREE.PlaneGeometry(18,3),M('#2a241e',{roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-1.5;g.add(floor);
+ // fog to the brim: stacked soft layers that drift and breathe
+ const fogM=new THREE.MeshBasicMaterial({color:'#eef2f2',transparent:true,opacity:.42,depthWrite:false,side:THREE.DoubleSide});const lay=[];
+ for(let i=0;i<4;i++){const f=new THREE.Mesh(new THREE.PlaneGeometry(19,3.6,1,1),fogM.clone());f.rotation.x=-Math.PI/2;f.position.y=-1.1+i*.55;g.add(f);lay.push(f)}
+ const puffs=[];for(let i=0;i<10;i++){const f=glowSprite('#ffffff',2.4+Rn()*2,.35);f.material.blending=THREE.NormalBlending;f.position.set((Rn()-.5)*16,.3+Rn()*.8,(Rn()-.5)*1.6);g.add(f);puffs.push([f,Rn()*6.28])}
+ g.userData.anim=t=>{lay.forEach((f,i)=>{f.material.opacity=.3+.12*Math.sin(t*.3+i)});puffs.forEach(([f,ph])=>{f.position.y=.5+Math.sin(t*.25+ph)*.3})};return g}
+/* ---------- 脑灵的旋风部队: a black tornado on the south-polar ice made of countless metal shards turning round a floating
+   sphere at its heart; the air around it stays still ---------- */
+function fxP_metalTwister(){const g=new THREE.Group();const N=420;const Rn=rnd(6043);
+  const geo=new THREE.TetrahedronGeometry(.14,0);const im=new THREE.InstancedMesh(geo,M('#2a2c30',{metalness:.8,roughness:.35}),N);im.frustumCulled=false;g.add(im);
+ const S=[];for(let i=0;i<N;i++){const y=Rn()*9;S.push([y,Rn()*6.28,.4+y*.28+Rn()*.35,.8+Rn()*.6])}
+ const core=new THREE.Mesh(new THREE.SphereGeometry(.45,18,12),M('#9aa4b0',{metalness:.9,roughness:.2}));core.position.y=3.6;g.add(core);g.add(at(glowSprite('#c8d8ff',1.6,.45),0,3.6,0));
+ const o=new THREE.Object3D();const step=t=>{for(let i=0;i<N;i++){const [y,a0,r,w]=S[i];const a=a0+t*w*2.2;o.position.set(Math.cos(a)*r,y,Math.sin(a)*r);o.rotation.set(a,a*1.3,0);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.instanceMatrix.needsUpdate=true};
+ step(0);g.userData.anim=t=>{step(t);core.position.y=3.6+Math.sin(t*1.1)*.2};return g}
+/* ---------- 长老: the thirty-centimetre tailless scorpion that sits in the hollow of a ten-metre-thick tree in the bone swamp,
+   among bones and dried plants under a glowing thing hung from the roof of the hollow ---------- */
+function fxP_elderTree(){const g=new THREE.Group();const P=[];
+ P.push([new THREE.CylinderGeometry(2.2,2.8,9,14).translate(0,4.5,0),'#5a4632']);
+ for(let i=0;i<5;i++){const a=i*1.26;P.push([new THREE.CylinderGeometry(.3,.6,3,6).rotateZ(1.1).rotateY(a).translate(Math.cos(a)*2.4,.6,Math.sin(a)*2.4),'#4a3a28'])}
+ P.push([new THREE.SphereGeometry(3.4,12,8).scale(1,.6,1).translate(0,9.6,0),'#3e6a34']);
+ g.add(new THREE.Mesh(mergeColored(P),VC({roughness:.95})));
+ const hole=new THREE.Mesh(new THREE.CircleGeometry(.9,18),new THREE.MeshBasicMaterial({color:'#120c06'}));hole.position.set(0,2.2,2.62);g.add(hole);
+ const lamp=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),new THREE.MeshBasicMaterial({color:'#e8ffb0'}));lamp.position.set(0,2.85,2.5);g.add(lamp);g.add(at(glowSprite('#d8ff90',1.2,.6),0,2.85,2.55));
+ const sc=new THREE.Group();const S=[];S.push([new THREE.SphereGeometry(.12,8,6).scale(1.4,.7,1),'#141414'],[new THREE.SphereGeometry(.07,8,6).translate(.16,.03,0),'#141414']);
+ for(const s of[-1,1]){S.push([new THREE.ConeGeometry(.04,.2,5).rotateZ(-1.3).translate(.28,0,s*.08),'#222']);for(const dx of[-.08,0,.08])S.push([new THREE.CylinderGeometry(.012,.012,.16,4).rotateX(s*.9).translate(dx,-.04,s*.1),'#222'])}
+ sc.add(new THREE.Mesh(mergeColored(S),VC({roughness:.5})));sc.position.set(0,1.95,2.66);sc.rotation.y=-Math.PI/2;sc.scale.setScalar(1.6);g.add(sc);
+ g.userData.anim=t=>{sc.rotation.z=Math.sin(t*1.7)*.12};return g}
 /* ---------- 金字塔: the 立蝎's pyramid houses in the southern jungle — smooth cones of ochre sand glued with saliva, no door at the
    foot (the way in is a hole in the slope, plugged with clay), crystal plates stuck on here and there, each standing in a
    clearing of knee-high golden grass with felled trunks left to rot round it ---------- */
