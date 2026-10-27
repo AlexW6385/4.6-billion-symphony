@@ -233,3 +233,24 @@ function orderMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(616);
   for(let i=0;i<160;i++){const p=road(.76+Rn()*.1);o.position.set(p.x+(Rn()-.5)*900,p.y+(Rn()-.5)*400,p.z+(Rn()-.5)*900);o.rotation.set(Rn()*3,Rn()*3,0);o.scale.setScalar(4+Rn()*Rn()*40);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im)}
  {const p=road(.96);const fl=new THREE.Mesh(new THREE.CylinderGeometry(420,420,6,48),new THREE.MeshStandardMaterial({color:'#d8dce4',metalness:.8,roughness:.2,emissive:'#5a4a20',emissiveIntensity:.3}));fl.position.set(p.x,p.y-30,p.z);sc.add(fl);
   const gl=glowSprite('#ffd870',1400,.35);gl.position.set(p.x,p.y+300,p.z);sc.add(gl)}}
+/* 连接世界 (age 7): old star buses in their graveyard grow gates that join them into one crowded world; a road runs from the first
+   camp through gate after gate, each gate a ring of light with a drifting bus-body beside it. Entries stand at their stop */
+ROAD.lianjie=t=>V3(Math.sin(t*Math.PI*2.2)*1100,Math.sin(t*Math.PI*4)*160,-3000+t*6000);
+BUILDERS.lianjie=()=>buildPath('lianjie');
+function lianjieMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(717);
+ const gm=new THREE.MeshBasicMaterial({color:'#9ad8ff',transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false});
+ const bm=new THREE.MeshStandardMaterial({color:'#7a6a5a',roughness:.9,flatShading:true});
+ for(let n=1;n<=4;n++){const t=.2+n*.15,p=road(t),q=road(t+.002).sub(p).normalize();const g=new THREE.Mesh(new THREE.TorusGeometry(120,6,8,48),gm);g.position.copy(p);g.lookAt(p.clone().add(q));sc.add(g);
+  const b=new THREE.Mesh(lumpRock(1,n%5+1),bm);b.scale.setScalar(160+Rn()*200);b.position.set(p.x+(n%2?1:-1)*(500+Rn()*300),p.y-100+Rn()*200,p.z+(Rn()-.5)*300);sc.add(b)}}
+/* 希望空间 (age 11): a dark drift-sea of bubble worlds, each a dead mind replaying its life; the road runs from the doom tunnel
+   past them; black tides of boneless dolls wash between */
+ROAD.hope=t=>V3(Math.sin(t*Math.PI*3)*800,Math.cos(t*Math.PI*2)*120,3000-t*6000);
+BUILDERS.hope=()=>buildPath('hope');if(!WIKI.some(w=>w.m==='hope'))HOME.hope={a:-3000,b:0,alt:1400,head:0,y:200};
+function hopeMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(727);
+ const bm=new THREE.MeshStandardMaterial({color:'#e8f0ff',transparent:true,opacity:.18,roughness:.05,metalness:.3,emissive:'#6a7aa0',emissiveIntensity:.25,depthWrite:false});
+ const im=new THREE.InstancedMesh(new THREE.SphereGeometry(1,24,16),bm,160);const o=new THREE.Object3D();const B=[];
+ for(let i=0;i<160;i++){const p=road(Rn());B.push([p.x+(Rn()-.5)*2400,p.y+(Rn()-.5)*900,p.z+(Rn()-.5)*1200,8+Rn()*Rn()*240,Rn()*6])}
+ im.frustumCulled=false;sc.add(im);
+ // they swell and shrink slowly, each on its own beat
+ anim(sp,im,t=>{for(let i=0;i<B.length;i++){const b=B[i];o.position.set(b[0],b[1],b[2]);o.scale.setScalar(b[3]*(1+.12*Math.sin(t*.3+b[4])));o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.instanceMatrix.needsUpdate=true});
+ for(let k=0;k<4;k++){const p=road(.2+k*.2),g=new THREE.Group();g.position.set(p.x+(k%2?600:-600),p.y-200,p.z);g.add(evPoints(1200,7270+k,evSwarmMat({dark:1,col:'#0c0c10',rx:420,ry:60,rz:300,speed:.04,size:10,op:.8})));sc.add(g)}}

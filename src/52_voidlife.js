@@ -36,7 +36,7 @@ function tubeMore(sp,id,z0,z1){const sc=sp.scene,Rt=sp.Rt,Rn=rnd(id==='tunnel'?7
  if(id==='midgard'){// the collectors' lantern boats drifting down the pipe
   const boats=[];for(let i=0;i<26;i++){const g=new THREE.Group();const hull=new THREE.Mesh(new THREE.CylinderGeometry(1.5,2.5,10,6),new THREE.MeshStandardMaterial({color:'#3a3448',roughness:.6,metalness:.3}));hull.rotation.x=Math.PI/2;g.add(hull);g.add(glowSprite(i%3?'#c8a8ff':'#ffd890',38,.8));sc.add(g);boats.push({g,a:Rn()*6.28,r:Rt*(.25+Rn()*.45),z:z0+Rn()*(z1-z0),v:(Rn()<.5?1:-1)*(6+Rn()*8)})}
   anim(sp,null,t=>{for(const b of boats){let z=((b.z+t*b.v)-z0)%(z1-z0);if(z<0)z+=z1-z0;z+=z0;const a=b.a+t*.01;b.g.position.set(Math.sin(a)*b.r,Math.cos(a)*b.r+Math.sin(t*.6+b.a)*6,z);b.g.rotation.y=b.v>0?0:Math.PI}})}}
-function pathMore(sp,id){if(id==='dream'){dreamRoadMore(sp);return}if(id==='order'){orderMore(sp);return}if(id!=='buke')return;const sc=sp.scene,road=sp.road,Rn=rnd(515);
+function pathMore(sp,id){if(id==='dream'){dreamRoadMore(sp);return}if(id==='order'){orderMore(sp);return}if(id==='lianjie'){lianjieMore(sp);return}if(id==='hope'){hopeMore(sp);return}if(id!=='buke')return;const sc=sp.scene,road=sp.road,Rn=rnd(515);
  // "常能见到各种飘浮物": drifting things, slowly turning
  const kinds=[[new THREE.BoxGeometry(1,1,1),'#d8c8e8'],[new THREE.OctahedronGeometry(.8,0),'#bfe4ff'],[new THREE.TorusGeometry(.6,.2,6,12),'#f0d8c0'],[new THREE.ConeGeometry(.6,1.4,5),'#c8f0e0'],[new THREE.DodecahedronGeometry(.7,0),'#e8e0ff']];
  const ims=kinds.map(([g,c])=>{const im=new THREE.InstancedMesh(g,new THREE.MeshStandardMaterial({color:c,roughness:.5,metalness:.1,emissive:c,emissiveIntensity:.12,flatShading:true}),60);im.frustumCulled=false;sc.add(im);return im});
