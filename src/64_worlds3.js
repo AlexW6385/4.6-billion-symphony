@@ -121,6 +121,18 @@ W3.phoenix={home:{a:16,b:20,alt:2600},sunLon:0,dayLen:1e12,sunI:.5,
 function phCell(p){const k=12,x=p.x*k,y=p.y*k,z=p.z*k,ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),fx=x-ix,fy=y-iy,fz=z-iz;
  const q=Math.sin(ix*127.1+iy*311.7+iz*74.7)*43758.5,h=q-Math.floor(q);const e=.11;const ax=Math.abs(p.x),ay=Math.abs(p.y),az=Math.abs(p.z);
  const gap=(ax<ay||ax<az?(fx<e||fx>1-e):0)||(ay<ax||ay<az?(fy<e||fy>1-e):0)||(az<ax||az<ay?(fz<e||fz>1-e):0);return{gap,lv:Math.floor(h*4),t:Math.floor(h*97)%6}}
+/* 恒星巴士 (age 6): 琳's star bus, a living world grown from a slime on a floating rock — snow-white and nearly as cold as the
+   void when first met; after the revenge battle a spiral crater of lava, wreckage and rock winds down toward its core and black
+   spears stand all over it under a dust-dark sky; later the planet-fortress */
+W3.starbus={home:{a:10,b:0,alt:2600},sunLon:30,
+ height:p=>{const n=fbm(p.x*3+6,p.y*3,p.z*3,5),a=angDeg(p,SB_C);let h=3+(n-.5)*22;
+  if(a<26){const lo=Math.atan2(p.x,p.z)*3.2+a*.38,sp=Math.abs(Math.sin(lo));h=Math.max(1.2,h-(1-a/26)*(14+12*(1-sp)))}return h},
+ col:(p,h,lat,o)=>{const a=angDeg(p,SB_C);o.set('#e8eef2').lerp(C('#c8d0d8'),n3(p.x*9,p.y*9,p.z*9)*.7);
+  if(a<30){const k=1-sm(18,30,a);o.lerp(C('#3a3230'),k*.85);if(a<26){const sp=Math.abs(Math.sin(Math.atan2(p.x,p.z)*3.2+a*.38));if(sp<.18)o.lerp(C('#ff6a20'),(1-sp/.18)*.9)}}if(h<0)o.set('#9aa8b4')},
+ ocean:{deep:'#6a7480',shal:'#9aa8b4'},atm:'#a8b0b8',atmK:.6,clouds:{cov:.4,col:'#8a8a8a'},rough:.8,
+ sky:{zen:'#2a2a30',hor:'#7a7470',set:'#c08060',nightZ:'#050506',nightH:'#151416'},envTop:'#8a8a90',envMid:'#c8ccd0',envBot:'#3a3a3a',sunI:.85,
+ props:[{geo:'cyl',n:340,col:'#141416',metal:.6,rough:.3,scale:[.5,1.1],stretch:[1,26,1]}]};
+const SB_C=dirLL(10,0);
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
 const DOOM_CORE=64;
 function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
