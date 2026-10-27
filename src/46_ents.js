@@ -117,6 +117,7 @@ const ENT={
  v_piaobohao:[fxP_driftFortress,2],
  v_hundun:[fxP_chaos,3],
  v_bingshan:[fxP_voidIceberg,3],
+ j2_xuying:[fxP_shadowTree,3], j3_farnuo:[fxP_farNuo,1.4],
  v_jiancezhan:[fxP_checkpoint,2.4],
  v_jiaotuan:[bTentacleCult,.9,{isle:1}], v_gugu:[fxD_gugu,1,{isle:1}], v_shijing:[bMercury,1.1], v_shuimin:[bStrider,1,{walk:1}], v_huijin:[fxD_ashPair,1], v_poyan:[fxD_poyan,1.1],
  v_zhanfen:[fxD_zhanfen,1,{isle:1}], v_chibcha2:[fxD_chibcha2,1.2,{isle:1}], v_jiqimin:[bMechFolk,1,{isle:1}], v_huanxing:[bShifter,1,{isle:1}], v_yiyin:[()=>bSoundWave({screen:1,col:'#ffb0d8'}),1.2],
@@ -248,6 +249,33 @@ function fxP_signalTower(){const g=new THREE.Group();const P=[];
   c.geometry.translate(0,-4.5,0);c.rotation.z=Math.PI/2+(k?Math.PI:0);b.add(c)}g.add(b);beams.push(b)}
  const moths=[];for(let i=0;i<22;i++){const s=glowSprite(i%3?'#ffb060':'#ffe080',.35,.95);g.add(s);moths.push({s,a:h3(i,1,16)*6.28,r:1.2+h3(i,2,16)*2.4,y:(h3(i,3,16)-.5)*9,w:.6+h3(i,4,16)})}
  g.userData.anim=t=>{beams.forEach((b,i)=>{b.rotation.y=t*.6*(i?-1:1)});moths.forEach(o=>{const a=o.a+t*o.w;o.s.position.set(Math.cos(a)*o.r,o.y+Math.sin(t*2*o.w+o.a)*.4,Math.sin(a)*o.r)})};return g}
+/* ---------- 虚空阴影: abandoned space tunnels that drifted together and kept growing — dark translucent tubes branching like a
+   great tree through the void, each branch ending in a fixed ring of an exit; the ruins inside show as faint ghost blocks ---------- */
+function fxP_shadowTree(){const g=new THREE.Group();const Rn=rnd(9137);const P=[],tips=[];
+ const grow=(a,dir,len,rad,depth)=>{const b=a.clone().addScaledVector(dir,len);const m=a.clone().lerp(b,.5).add(new THREE.Vector3(Rn()-.5,Rn()-.5,Rn()-.5).multiplyScalar(len*.25));
+  P.push([new THREE.TubeGeometry(new THREE.CatmullRomCurve3([a,m,b]),8,rad,6,false),'#2a2440']);
+  if(depth<=0){tips.push([b,dir]);return}const n=depth>2?2:2+(Rn()<.4?1:0);
+  for(let i=0;i<n;i++){const d=dir.clone().add(new THREE.Vector3(Rn()-.5,Rn()-.5,Rn()-.5).multiplyScalar(1.3)).normalize();grow(b,d,len*(.62+Rn()*.14),rad*.72,depth-1)}};
+ grow(new THREE.Vector3(0,-6,0),new THREE.Vector3(0,1,0),4.2,.55,4);
+ const tub=new THREE.Mesh(mergeColored(P),VC({roughness:.4,metalness:.2,transparent:true,opacity:.72,emissive:'#140c28'}));g.add(tub);
+ const ringM=new THREE.MeshBasicMaterial({color:'#b89cff',transparent:true,opacity:.85,blending:THREE.AdditiveBlending,depthWrite:false});
+ const rings=[];for(const [b,d] of tips){const r=new THREE.Mesh(new THREE.TorusGeometry(.42,.07,6,20),ringM);r.position.copy(b);r.lookAt(b.clone().add(d));g.add(r);rings.push(r);g.add(at(glowSprite('#a890ff',1.6,.55),b.x,b.y,b.z))}
+ const ghostM=new THREE.MeshBasicMaterial({color:'#8a86b0',transparent:true,opacity:.16,depthWrite:false});const ghosts=[];
+ for(let i=0;i<14;i++){const h=.6+Rn()*1.6;const b=new THREE.Mesh(new THREE.BoxGeometry(.5+Rn()*.8,h,.5+Rn()*.8),ghostM);const t=tips[(Rn()*tips.length)|0][0];b.position.set(t.x+(Rn()-.5)*3,t.y+(Rn()-.5)*2,t.z+(Rn()-.5)*3);g.add(b);ghosts.push([b,Rn()*6.28])}
+ g.userData.anim=t=>{rings.forEach((r,i)=>{r.rotation.z=t*.5+i});ghosts.forEach(([b,ph])=>{b.material.opacity=.08+.1*(.5+.5*Math.sin(t*.7+ph))})};return g}
+/* ---------- 诺（最远的思维）: the world of "final wisdom" where 维罗尼卡 was set down — a planet surface holding several stages of
+   civilisation at once, with invisible floating islands and a tower that looks wholly transparent, where a 尔什民 in 诺's shape waits ---------- */
+function fxP_farNuo(){const g=new THREE.Group();const Rn=rnd(5521);
+ const ground=new THREE.Mesh(new THREE.CylinderGeometry(6,6.6,1,40),M('#5f7a4a',{roughness:1}));ground.position.y=-.5;g.add(ground);
+ const P=[];for(let i=0;i<7;i++){const a=Rn()*6.28,r=2.6+Rn()*2.8;P.push([new THREE.ConeGeometry(.28,.5,6).translate(Math.cos(a)*r,.25,Math.sin(a)*r),'#8a6a48'])}
+ for(let i=0;i<5;i++){const a=Rn()*6.28,r=3+Rn()*2.4,h=.5+Rn()*.6;P.push([new THREE.BoxGeometry(.5,h,.5).translate(Math.cos(a)*r,h/2,Math.sin(a)*r),'#c8b8a0'])}
+ g.add(new THREE.Mesh(mergeColored(P),VC({roughness:.85})));
+ const glass=new THREE.MeshStandardMaterial({color:'#dff4ff',transparent:true,opacity:.18,roughness:.05,metalness:.1,depthWrite:false});
+ const tw=new THREE.Mesh(new THREE.CylinderGeometry(.55,.8,7,8,1,true),glass);tw.position.y=3.5;g.add(tw);
+ const edge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.CylinderGeometry(.55,.8,7,8)),new THREE.LineBasicMaterial({color:'#ffffff',transparent:true,opacity:.35}));edge.position.y=3.5;g.add(edge);
+ const nuo=new THREE.Mesh(new THREE.SphereGeometry(.28,16,12),new THREE.MeshBasicMaterial({color:'#ffe6b8'}));nuo.position.y=6.2;g.add(nuo);g.add(at(glowSprite('#ffe0a0',2.4,.7),0,6.2,0));
+ const isles=[];for(let i=0;i<3;i++){const a=i*2.1+.4;const ig=new THREE.Mesh(new THREE.ConeGeometry(1.2,1.4,7),glass);ig.rotation.x=Math.PI;ig.position.set(Math.cos(a)*4,5+i*.8,Math.sin(a)*4);g.add(ig);isles.push([ig,a])}
+ g.userData.anim=t=>{isles.forEach(([ig,a],i)=>{ig.position.y=5+i*.8+Math.sin(t*.6+a)*.25});nuo.scale.setScalar(1+.12*Math.sin(t*2))};return g}
 /* ---------- 金字塔: the 立蝎's pyramid houses in the southern jungle — smooth cones of ochre sand glued with saliva, no door at the
    foot (the way in is a hole in the slope, plugged with clay), crystal plates stuck on here and there, each standing in a
    clearing of knee-high golden grass with felled trunks left to rot round it ---------- */
