@@ -179,6 +179,8 @@ The implementing agent updates this section at the end of every session. Phases 
 
 - 🔶 (2026-10-27) Phase 4 begun: every entry has at least one side story (the seventeen Phase 2 places got theirs); every creature or character model without motion of its own now breathes and turns a little (a fallback, not a substitute for the motions the book describes).
 
+- 🔶 (2026-10-27) First Phase 5 sweep: every quoted coined name the novel uses in two or more chapters was checked against the entries (a scan of “…” and ‘…’ terms); the few with real weight got a home — 时代固守者 as a new entry, fourteen others (控金者, 预见之球, 引导者, 光幕, 星系巴士 …) told inside the entries they belong to. What is left of that list is ordinary words or names used once or twice.
+
 **Phase 5 onward — Keep going**
 - No final state. Loop: find what the book describes that is still missing, thin or shallower than its text (new entries, places, details, side stories, motion), add it, test it, release it. Prefer the item adding the most faithfulness and richness per unit of work; keep §6 green at all times. Stop only when the author says so.
 
