@@ -181,3 +181,5 @@ function fxG_merfolk(){const g=new THREE.Group();const fs=[];for(let i=0;i<3;i++
   f.position.set((i-1)*1.8,0,Math.sin(i*2)*.8);f.rotation.y=i-1;g.add(f);fs.push({f,tail})}g.add(shadow(2.4));g.userData.anim=t=>fs.forEach((x,i)=>{x.tail.rotation.y=Math.sin(t*1.5+i)*.12;x.f.position.y=Math.abs(Math.sin(t*.8+i))*.08});return g}
 
 // 护卫者 is the revived 圆盾蠕虫: the same body as the rebuilt one (its own pincer-tipped limbs under the dome head)
+/* the giant amoeba of the first ocean: pale grey, see-through, one round black nucleus */
+Object.assign(ENT,{bianxingchong:[()=>bAmoeba({col:'#c8ccd0',op:.45,dot:'#18181a'}),1.6,{alt:1.5,sea:1}]});
