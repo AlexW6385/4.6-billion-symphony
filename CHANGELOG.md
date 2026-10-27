@@ -2,6 +2,13 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.9 — 2026-10-27 · Truer to the book
+
+- **Every side story checked against the book.** All 928 were read beside their entries; 197 that got something wrong (the wrong age, a size, who could have been there, what a creature eats) were set right while keeping their idea and their tone.
+- **Quotation marks now mean the book's words.** About ninety quoted terms in the entries were either the book's own word in another form (now corrected) or a name we had made up (now written as plain description).
+- **Related entries link both ways** where an entry's own text names the other one.
+- Sixty more entries got a second side story; 珊瑚礁 also stands in the ocean age, where the book first shows it.
+
 ## v1.8 — 2026-10-27 · More of the book found a home
 
 - **New entry: 时代固守者**, the time-holders of the shattered void that keep "playing" one stretch of the past or the future to whoever looks out of them — a golden ring with another age turning inside it.
