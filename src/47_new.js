@@ -182,4 +182,5 @@ function fxG_merfolk(){const g=new THREE.Group();const fs=[];for(let i=0;i<3;i++
 
 // 护卫者 is the revived 圆盾蠕虫: the same body as the rebuilt one (its own pincer-tipped limbs under the dome head)
 /* the giant amoeba of the first ocean: pale grey, see-through, one round black nucleus */
-Object.assign(ENT,{bianxingchong:[()=>bAmoeba({col:'#c8ccd0',op:.45,dot:'#18181a'}),1.6,{alt:1.5,sea:1}]});
+Object.assign(ENT,{bianxingchong:[()=>bAmoeba({col:'#c8ccd0',op:.45,dot:'#18181a'}),1.6,{alt:1.5,sea:1}],
+ ganranzhe:[()=>bAmoeba({col:'#c82a2a',op:.6,dot:'#4a0a0a'}),1.1,{alt:1.5,sea:1}]});
