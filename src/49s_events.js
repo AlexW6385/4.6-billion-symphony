@@ -6,15 +6,15 @@
    everything moves on the graphics card (one uniform, the shared clock); the few flashes are a handful of sprites.
    ================================================================ */
 function evSwarmMat(o){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:o.dark?THREE.NormalBlending:THREE.AdditiveBlending,
- uniforms:{uT:GT,uS:PSCALE,uC:{value:C(o.col)},uR:{value:V3(o.rx,o.ry,o.rz)},uK:{value:o.speed||.05},uZ:{value:o.size||3},uA:{value:o.op||.8}},
- vertexShader:`uniform float uT,uS,uK,uZ;uniform vec3 uR;attribute vec3 sd;varying float vA;
+ uniforms:{uT:GT,uS:PSCALE,uC:{value:C(o.col)},uR:{value:V3(o.rx,o.ry,o.rz)},uK:{value:o.speed||.05},uZ:{value:o.size||3},uA:{value:o.op||.8},uM:{value:o.max||10}},
+ vertexShader:`uniform float uT,uS,uK,uZ,uM;uniform vec3 uR;attribute vec3 sd;varying float vA;
   void main(){float a=sd.x*6.2832+uT*uK*(.4+sd.y);float r=.05+.95*sqrt(sd.y);
    // a ring of slow orbits that breathes in and out; each speck jitters on its own, like one body of a crowd
    vec3 p=vec3(cos(a)*r*uR.x,(sd.z-.5)*2.*uR.y*(1.-.5*r),sin(a)*r*uR.z);
    p+=vec3(sin(uT*2.1+sd.x*91.),sin(uT*1.7+sd.y*77.),cos(uT*2.3+sd.z*83.))*uR.y*.12;
    p.y+=sin(uT*.4+a*2.)*uR.y*.25;
-   vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;vA=smoothstep(9000.,600.,-mv.z);gl_PointSize=clamp(uS*uZ/-mv.z,1.5,10.);}`,
- fragmentShader:'uniform vec3 uC;uniform float uA;varying float vA;void main(){vec2 c=gl_PointCoord-.5;float a=smoothstep(.5,.15,length(c));gl_FragColor=vec4(uC,a*vA*uA);}'})}
+   vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;vA=smoothstep(9000.,600.,-mv.z);gl_PointSize=clamp(uS*uZ/-mv.z,1.5,uM)*smoothstep(uZ*.6,uZ*1.6,-mv.z);}`,
+ fragmentShader:'uniform vec3 uC;uniform float uA;varying float vA;void main(){vec2 c=gl_PointCoord-.5;float d=length(c);float a='+(o.soft?'exp(-d*d*14.)*step(d,.5)':'smoothstep(.5,.15,d)')+';gl_FragColor=vec4(uC,a*vA*uA);}'})}
 function evPoints(n,seed,mat){const Rn=rnd(seed),p=new Float32Array(n*3),s=new Float32Array(n*3);for(let i=0;i<n*3;i++)s[i]=Rn();
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('sd',new THREE.BufferAttribute(s,3));
  const P=new THREE.Points(g,mat);P.frustumCulled=false;P.renderOrder=4;return P}
@@ -61,4 +61,20 @@ function rqEvents(sp){
  // the end of the great cold (age 4): stones streak across the red evening sky over the ice
  {const g=new THREE.Group();frameLL(sp,10,-80,0,.6,g,false);
   g.add(evPoints(160,851,evFallMat({col:'#fff2c0',col2:'#ff7030',rx:380,h:520,rz:300,speed:.05,size:10,slant:1.6})));addE(g,[4]);cull(g,g.position.clone(),500,9000)}
+ // the last act of the Inca war (age 2): bursts light the night over the desert like fireworks
+ {const g=new THREE.Group();frameLL(sp,22,-9,0,0,g,false);
+  evFlashes(sp,g,5,60,[260,90,200],'#ffc070',881);evFlashes(sp,g,4,45,[260,90,200],'#a0c8ff',882);g.children.forEach(s=>s.position.y+=200);addE(g,[2]);cull(g,g.position.clone(),300,6000)}
+ // the 虚民 invasion (age 5): 绒球 floaters burst and their needle-fluff comes down like snow over the north
+ {const g=new THREE.Group();frameLL(sp,40,-14,0,0,g,false);
+  g.add(evPoints(1200,891,evFallMat({dark:1,col:'#fff8ec',col2:'#e8e0d4',rx:180,h:260,rz:180,speed:.03,size:4,slant:.15})));addE(g,[5]);cull(g,g.position.clone(),300,5000)}
+ // the waking creator's storm (age 3): a made storm turns over its roots, lightning striking again and again
+ {const g=new THREE.Group();frameLL(sp,6,-84,120,0,g,false);
+  g.add(evPoints(1000,901,evSwarmMat({dark:1,soft:1,col:'#4a4e5a',rx:150,ry:22,rz:150,speed:.09,size:52,op:.55,max:70})));
+  evFlashes(sp,g,7,80,[240,40,240],'#e0eaff',902);addE(g,[3]);cull(g,g.position.clone(),200,6000)}
+ // the eastern desert (age 5): a sandstorm that hides the sun, the dust-demons hunting inside it
+ {const g=new THREE.Group();frameLL(sp,-18,76,30,0,g,false);
+  g.add(evPoints(900,911,evSwarmMat({dark:1,soft:1,col:'#b89868',rx:200,ry:30,rz:160,speed:.05,size:60,op:.36,max:80})));addE(g,[5]);cull(g,g.position.clone(),260,6000)}
+ // the scorpion city's breeding season (age 3): red butterflies giving light over the city
+ {const g=new THREE.Group();frameLL(sp,-12.6,-78.4,40,0,g,false);
+  g.add(evPoints(700,921,evSwarmMat({col:'#ff5848',rx:60,ry:18,rz:60,speed:.12,size:2.5,op:.9})));addE(g,[3]);cull(g,g.position.clone(),100,3000)}
 }
