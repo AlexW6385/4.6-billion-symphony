@@ -113,7 +113,10 @@ function buildErxi(){const sp=makePlanet('erxi',{height:erxiH,colors:oneSet(erxi
   {const [a,b]=PL(45,12,18,0);frameLL(sp,a,b,-.3,Math.PI,g)}addE(g,[8,9,10,11,12]);cull(g,null,30,2600);g.userData.pick='ex_tiangong';px('ex_tiangong',g.position.clone().addScaledVector(g.position.clone().normalize(),10),24)}
  // the moon of Erxi, and the bridge it stretches down
  const mo=new THREE.Mesh(new THREE.SphereGeometry(120,64,40),detailMat(mt('#c8ccd4',{roughness:.9}),{bump:.8,freq:.15}));sp.scene.add(mo);sp.moon=mo;sp.moonPos=mo.position;px('ex_moon',()=>mo.position,120,{});
- const mb=new THREE.Group();for(let i=0;i<12;i++){const b=new THREE.Mesh(kb(14,18,14),mt('#9aa0a8',{metalness:.4}));const v=V3(h3(i,1,9)-.5,h3(i,2,9)-.5,h3(i,3,9)-.5).normalize();b.position.copy(v).multiplyScalar(124);b.lookAt(0,0,0);mb.add(b)}mo.add(mb);addTo(sp,mb,[9]);
+ const mb=new THREE.Group();for(let i=0;i<12;i++){const b=new THREE.Mesh(kb(14,18,14),mt('#9aa0a8',{metalness:.4}));const v=V3(h3(i,1,9)-.5,h3(i,2,9)-.5,h3(i,3,9)-.5).normalize();b.position.copy(v).multiplyScalar(124);b.lookAt(0,0,0);mb.add(b)}addTo(sp,mb,[9]);mo.add(mb);// addTo puts it in the scene: put it back on the moon
+ // age 9: the moon is ground to powder and drawn off, away from the planet, toward the tube
+ {const hd=new THREE.Group(),f=new THREE.Group();f.position.y=-720;f.add(evPoints(1600,971,evFallMat({col:'#e8ecf4',col2:'#9aa0ac',rx:60,h:600,rz:60,speed:.05,size:34})));hd.add(f);addTo(sp,hd,[9]);mo.add(hd);
+  const up=V3(0,1,0),dn=V3();anim(sp,hd,()=>{dn.copy(mo.position).normalize().negate();hd.quaternion.setFromUnitVectors(up,dn)})}
  const br=new THREE.Mesh(kcy(6,10,1,12,1,true),GL('#ffe6b0',.55));addE(br,[9]);
  // the crack in the sky, the street of falling hearth-fires, the end-sign
  {const g=new THREE.Group();const pts=[];let v=V3(0,0,0);for(let i=0;i<16;i++){v=v.clone().add(V3((h3(i,1,3)-.3)*14,(h3(i,2,3)-.5)*6,(h3(i,3,3)-.5)*4));pts.push(v)}g.add(new THREE.Mesh(ktube(pts,1.4,60,5),GL('#e8f0ff',.9)));g.add(at(glowSprite('#e8f0ff',90,.35),pts[8].x,pts[8].y,pts[8].z));erEvents(sp,g,pts);frameLL(sp,28,-6,150,0,g,false);addE(g,[10]);cull(g,null,120,3400);px('ex_crack',g.position.clone(),40)}
