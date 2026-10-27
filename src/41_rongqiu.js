@@ -320,7 +320,7 @@ function buildRongqiu(){
  RQ=sp;
  const gh=sp.gh,ghR=sp.ghRaw;
  makeCover(sp,rqBiome);
- rqRivers(sp);rqTowns(sp);rqHomeTree(sp);rqJungle(sp);rqMountains(sp);rqLife(sp);planetMeteors(sp);planetStorms(sp);rqJumpers(sp);rqCanon(sp);rqCanon2(sp);rqCanon3(sp);rqLand(sp);rqSky(sp);rqEarly(sp);rqCloud(sp);rqSeabed(sp);rqIceWake(sp);rqLinMark(sp);rqForests(sp);rqRocks(sp);rqCumulus(sp);rqFlocks(sp);
+ rqRivers(sp);rqTowns(sp);rqHomeTree(sp);rqJungle(sp);rqMountains(sp);rqLife(sp);planetMeteors(sp);planetStorms(sp);rqJumpers(sp);rqCanon(sp);rqCanon2(sp);rqCanon3(sp);rqLand(sp);rqSky(sp);rqEvents(sp);rqEarly(sp);rqCloud(sp);rqSeabed(sp);rqIceWake(sp);rqLinMark(sp);rqForests(sp);rqRocks(sp);rqCumulus(sp);rqFlocks(sp);
  // ---------- ice ----------
  const iceMat=detailMat(new THREE.MeshStandardMaterial({color:'#dfeef5',roughness:.42,metalness:.05,transparent:true,opacity:.95,vertexColors:true}),{bump:.7,mott:1.4,freq:.6});
  // the ice turns blue-green where the crystal mountain's light comes up through it

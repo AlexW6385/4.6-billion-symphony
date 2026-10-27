@@ -22,6 +22,7 @@
 47_new.js
 48_land.js
 49_sky.js
+49s_events.js
 49k_ground.js
 49l_light.js
 49n_soften.js
