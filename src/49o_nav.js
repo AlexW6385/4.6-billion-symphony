@@ -154,7 +154,19 @@ function q4c_goto(id,p,opt){opt=opt||{};if(!CUR)return;if(CUR.camOv)moonRelease(
  if(q4c_same(pose))tw=null;else fly(pose);
  if(srch){const sp=CUR,mine=tw;q5s_job('view:'+id,lim=>{if(CUR!==sp||q4c_last.id!==id||(tw&&tw!==mine))return true;if(!srch.step(Math.min(lim||3,3)))return false;
   const b=srch.result();req.big=!!b.big;if(q4c_same(b))return true;
-  if(tw&&tw===mine&&tw.t<tw.dur*.25){tw.to={a:b.a,b:b.b,alt:b.alt,head:b.head,y:b.y};tw.dur=Math.max(tw.dur,q4c_dur(b))}else fly(b);return true})}}
+  if(tw&&tw===mine){if(tw.t<.3)q4c_retarget(b);else if(tw.track)tw.track.after=b}else fly(b);return true})}}
+/* a better view found while the camera is already flying. Early in the flight the end point moves and the start point is
+   moved with it so that the pose of this frame stays exactly where it is (no jump); the height of the hop is kept. Later
+   the flight finishes as planned and one short, gentle move to the better view follows on arrival (changing the end of
+   a flight that is under way would jump, restarting it would stop the camera dead in mid-air) */
+function q4c_retarget(pz){const e0=tw.t,k=Math.min(1,e0),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;tw.hopV=hopOf();
+ const f=tw.from,o=tw.to,t=CUR.type,n={a:pz.a,b:pz.b,alt:pz.alt||o.alt,head:pz.head===undefined?o.head:pz.head,y:pz.y===undefined?o.y:pz.y};
+ if(t==='planet'||t==='tube')n.b=o.b+wrap180(n.b-o.b);n.head=o.head+((n.head-o.head+Math.PI*3)%(Math.PI*2)-Math.PI);
+ const re=(fv,ov,nv)=>{const cur=fv+(ov-fv)*e;return e<.999?(cur-e*nv)/(1-e):cur};
+ const la=re(Math.log(f.alt),Math.log(o.alt),Math.log(n.alt));
+ tw.from={...f,a:re(f.a,o.a,n.a),b:re(f.b,o.b,n.b),y:re(f.y,o.y,n.y),head:re(f.head,o.head,n.head),alt:Math.exp(la)};tw.to=n}
+function q4c_arrive(tr){if(!tr)return;if(tr.after&&CUR&&q4c_last.id===(tr.S&&tr.S.id)&&!q4c_same(tr.after)){const b=tr.after;flyTo(b.a,b.b,b.alt,1.1,b.y,b.head);tw.track={S:tr.S,wx:tr.wx,wy:tr.wy,vo:tr.vo,live:false,settle:tr.settle};return}
+ if(tr.settle)q4c_settle(tr)}
 /* a moving thing has gone on a little while the camera flew: one short, gentle correction on arrival, then the camera stays */
 function q4c_settle(k){if(!k||!k.S||sel!==k.S.id)return;if(k.vo)q4c_voNow(k);const c=k.S.c();if(!c)return;if(c.distanceTo(TG)>Math.max(60,rig.alt*1.5))return;// (a correction is a small step, never a leap to somewhere else)
  const pose=q4c_aim(c,rig.alt,rig.head,k.wx,k.wy);if(pose.err<.12||q4c_same(pose))return;flyTo(pose.a,pose.b,pose.alt,.9,pose.y,pose.head);tw.track={S:k.S,wx:k.wx,wy:k.wy,vo:k.vo,live:false,settle:false}}

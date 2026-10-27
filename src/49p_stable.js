@@ -71,10 +71,14 @@ q5s_anims=function(sp,T,dt){const AN=sp.anims,cp=camera.position,fr=q5s_P.frame;
 
 /* ---- off the planets nothing was ever hidden by distance: every creature of the void (8000 objects) had its matrices and
    animations run from anywhere. small living things now sleep when the camera is far beyond their marker's reach ---- */
-function q5s_farCull(sp){if(sp.cover&&!sp.cover.__q5w){sp.cover.__q5w=1;const u=sp.cover.update;sp.cover.update=()=>q5s_span('cover',u)}q5s_warm(sp);if(sp.type==='planet'||!sp.scene||window.__q5noFar)return;const sc=sp.scene;if(!sc.__q5fc||sc.__q5fcA!==q5s_adds(sc)){sc.__q5fcA=q5s_adds(sc);const L=[];for(const c of sc.children){const id=c.userData&&c.userData.pick;const w=id&&W[id];if(!w||!LIVING[w.c]||c.isInstancedMesh||c.isPoints)continue;const s=sizeOf(w);if(s>=60)continue;L.push({o:c,far:Math.max(3600,s*80)*1.15,near:Math.max(3600,s*80)})}sc.__q5fc=L}
+function q5s_farCull(sp){if(sp.cover&&!sp.cover.__q5w){sp.cover.__q5w=1;const u=sp.cover.update;sp.cover.update=()=>q5s_span('cover',u)}q5s_warm(sp);if(sp.type==='planet'||!sp.scene||window.__q5noFar)return;const sc=sp.scene;if(!sc.__q5fc||sc.__q5fcA!==q5s_adds(sc)){sc.__q5fcA=q5s_adds(sc);const L=[];for(const c of sc.children){const id=c.userData&&c.userData.pick;const w=id&&W[id];if(!w||c.isInstancedMesh||c.isPoints)continue;const s=sizeOf(w),ep=sp.entPos&&sp.entPos[id];const live=LIVING[w.c]&&s<60;L.push({o:c,r:ep?ep.r:s*.6,far:live?Math.max(3600,s*80)*1.15:1e9,near:live?Math.max(3600,s*80):1e9})}sc.__q5fc=L}
+ // besides the distance rule for small living things, anything whose radius would be under a pixel and a half on screen
+ // is a speck and not drawn (a far entry is still shown by its mote); a tenth closer and it is back
+ const pxk=innerHeight/(2*Math.tan(camera.fov*Math.PI/360))/1.5;
  const cp=camera.position,F=sp.follow,fid=F&&F.id,sid=sel;for(const x of sc.__q5fc){const o=x.o,e=o.matrixWorld.elements;const dx=e[12]-cp.x,dy=e[13]-cp.y,dz=e[14]-cp.z,d2=dx*dx+dy*dy+dz*dz;const id=o.userData.pick;
-  if(o.userData.q5far){if(d2<x.near*x.near||id===fid||id===sid){o.userData.q5far=0;o.visible=o.userData.q5vis!==false}}
-  else if(d2>x.far*x.far&&id!==fid&&id!==sid&&!(CUT.id===id&&CUT.goal)){o.userData.q5vis=o.visible;o.userData.q5far=1;o.visible=false}}}
+  const tf=x.r*pxk,far=Math.min(x.far,tf*1.1),near=Math.min(x.near,tf);
+  if(o.userData.q5far){if(d2<near*near||id===fid||id===sid){o.userData.q5far=0;o.visible=o.userData.q5vis!==false}}
+  else if(d2>far*far&&id!==fid&&id!==sid&&!(CUT.id===id&&CUT.goal)){o.userData.q5vis=o.visible;o.userData.q5far=1;o.visible=false}}}
 
 /* ---- the occluder list (line-of-sight tests while following, the cutaway): the same list is reused for half a second when
    asked again for nearly the same spot, and a frame that follows a long one gets the last list rather than a fresh walk ---- */
@@ -98,12 +102,12 @@ function q2_recolour(P){const cu=P.cur;if(!cu||cu.B.nv<4000)return q2_recolourBa
    (twice as long each time it flips back). resolution (and so the render targets) only changes when the level's resolution differs ---- */
 function applyLevel(){const L=perf.lvl,p0=PR;PR=Math.min(PR0,[PR0,1.3,1.15,1,.8][L]);SHD.on=true;SHD.ms=L>=4?512:(L>=3||COARSE)?1024:2048;SHD.max=[1500,1500,1000,600,400][L];SHD.every=[2,2,3,3,4][L];if(bloomPass){bloomPass.strength=L>=2?.45:.62;bloomPass.enabled=L<4}if(PR!==p0)window.__q5resize=1}// (the resize waits for the next frame's render: done here, after this frame was drawn, it left one blank frame — a black flash)
 function adapt(dt){if(window.__noAdapt)return;if(perf.skip>0){perf.skip--;return}const now=q5s_now();if(now-q5s_swT<4000){perf.t=0;perf.n=0;perf.slow=0;perf.bad=0;return}
- perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0;perf.t=0;perf.n=0;perf.slow=0;if(perf.hold>0){perf.hold--;return}
+ perf.t+=dt;perf.n++;if(dt>.07&&dt<.5&&!busy)perf.slow=(perf.slow||0)+1;if(dt>.026&&dt<.5&&!busy)perf.jank=(perf.jank||0)+1;if(perf.t<2.5)return;const fps=perf.n/perf.t,slow=perf.slow||0,jank=(perf.jank||0)/perf.n;perf.t=0;perf.n=0;perf.slow=0;perf.jank=0;if(perf.hold>0){perf.hold--;return}
  const up=perf.q5up||(perf.q5up={});perf.bad=perf.bad||0;perf.good=perf.good||0;
- if((fps<Q5DOWN||slow>=8)&&perf.lvl<4){perf.good=0;if(++perf.bad>=2){perf.bad=0;up[perf.lvl]=now;perf.lvl++;perf.hold=1;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,why:'slow'})}}
- else if(fps>56&&slow<=1&&perf.lvl>0){perf.bad=0;const back=perf.lvl-1,wait=60000*Math.pow(2,perf.q5osc||0);if(up[back]&&now-up[back]<wait){perf.good=0;return}
+ if((fps<Q5DOWN||slow>=8||jank>.1)&&perf.lvl<4){perf.good=0;if(++perf.bad>=2){perf.bad=0;up[perf.lvl]=now;perf.lvl++;perf.hold=1;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,jank:+jank.toFixed(2),why:'slow'})}}
+ else if(fps>57&&slow<=1&&jank<.02&&perf.lvl>0){perf.bad=0;const back=perf.lvl-1,wait=60000*Math.pow(2,perf.q5osc||0);if(up[back]&&now-up[back]<wait){perf.good=0;return}
   if(++perf.good>=6){perf.good=0;if(up[back])perf.q5osc=(perf.q5osc||0)+1;perf.lvl--;perf.hold=2;applyLevel();q5s_log('level',{to:perf.lvl,fps:+fps.toFixed(0),slow,why:'fast'})}}
- else{perf.good=0;if(!(fps<Q5DOWN||slow>=8))perf.bad=0}}
+ else{perf.good=0;if(!(fps<Q5DOWN||slow>=8||jank>.1))perf.bad=0}}
 /* a modest phone starts one step down (a phone already caps its resolution at 1.3, its shadow map at 1024, and its detail two steps below the best) */
 if(COARSE&&((navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)))setTimeout(()=>{if(perf.lvl===0){perf.lvl=1;applyLevel();q5s_log('level',{to:1,why:'phone'})}},0);
 
@@ -131,6 +135,36 @@ window.__q5s={dispose:q5s_dispose,jobs:q5s_J,farCull:q5s_farCull,get halt(){retu
    (nothing visible changes: the box only moves with the view), unless it is already half a second old ---- */
 let q5s_shLastT=0;function shadowFollow(sp,sun,sdot){q4b_shadowFollow(sp,sun,sdot);if(renderer.shadowMap.needsUpdate){const now=q5s_now();if(q5s_blown()&&!busy&&!tw&&now-q5s_shLastT<500)renderer.shadowMap.needsUpdate=false;else q5s_shLastT=now}}
 
+/* ---- the shadow map only needs what can throw a shadow into its box: before it is drawn, every culled set (a stand of trees,
+   a town, a herd's ground) whose sphere lies wholly outside the column the box casts along the sun is hidden, and shown
+   again for the picture itself. Without this the shadow pass drew nearly the whole visible planet a second time, every
+   other frame, so those frames took twice as long as the ones between them ---- */
+/* ---- and the picture only needs what is in front of the camera: the culled sets are instanced or merged meshes that three.js
+   cannot cull itself (an instanced set's bounds are one instance's), so just before the frame is drawn every set whose
+   sphere is outside the view — and outside the column the shadow box casts along the sun, where it could still throw a
+   shadow into view — is hidden, and shown again once the frame is drawn (the camera's flight planning and the
+   line-of-sight tests still see them). On a meadow this halves what is drawn ---- */
+const q5s_fout=[],q5s_fr=new THREE.Frustum(),q5s_fm=new THREE.Matrix4(),q5s_fs=new THREE.Sphere();
+function q5s_frustumHide(sp,cam){q5s_frustumShow();if(window.__q5noFC||!sp||sp.type!=='planet'||!sp.culls)return;cam.updateMatrixWorld();q5s_fm.multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse);q5s_fr.setFromProjectionMatrix(q5s_fm);
+ const sun=sp.sunL,shd=sun&&SHD.on&&!sun.userData.pk,C=shd&&sun.target.position,h=shd?sun.shadow.camera.right*1.42:0;let dx=0,dy=0,dz=0;
+ if(shd){dx=sun.position.x-C.x;dy=sun.position.y-C.y;dz=sun.position.z-C.z;const l=Math.hypot(dx,dy,dz)||1;dx/=l;dy/=l;dz/=l}
+ const test=(o,cc,r)=>{if(!o.visible)return;q5s_fs.center.copy(cc);q5s_fs.radius=r;if(q5s_fr.intersectsSphere(q5s_fs))return;
+  if(shd){const x=cc.x-C.x,y=cc.y-C.y,z=cc.z-C.z,al=x*dx+y*dy+z*dz,pp=x*x+y*y+z*z-al*al,lim=h+r;if(pp<=lim*lim&&al>=-(r+h*1.2))return}
+  o.visible=false;q5s_fout.push(o)};
+ for(const c of sp.culls)test(c.o,c.c,c.r);
+ // the entries' own models (a creature, a town, a tree) the same way, with a margin for the parts that move
+ if(sp.entL)for(const x of sp.entL)test(x.root,x.c,x.r*1.3+4)}
+function q5s_frustumShow(){for(const o of q5s_fout)o.visible=true;q5s_fout.length=0}
+{const _shR=renderer.shadowMap.render;const _hid=[],_v=new THREE.Vector3();
+ const shadowPass=function(lights,scene,cam){const sp=CUR;
+  if(!sp||sp.type!=='planet'||!sp.culls||!sp.sunL||!this.enabled||(this.autoUpdate===false&&this.needsUpdate===false)||window.__q5shAll)return _shR.call(this,lights,scene,cam);
+  const sun=sp.sunL;if(sun.userData.pk)return _shR.call(this,lights,scene,cam);
+  const C=sun.target.position,h=sun.shadow.camera.right*1.42,dir=_v.copy(sun.position).sub(C).normalize();
+  for(const c of sp.culls){const o=c.o;if(!o.visible)continue;const x=c.c.x-C.x,y=c.c.y-C.y,z=c.c.z-C.z;const al=x*dir.x+y*dir.y+z*dir.z;const pp=x*x+y*y+z*z-al*al;const lim=h+c.r;
+   if(pp>lim*lim||al<-(c.r+h*1.2)){o.visible=false;_hid.push(o)}}
+  try{return _shR.call(this,lights,scene,cam)}finally{for(const o of _hid)o.visible=true;_hid.length=0}};
+ renderer.shadowMap.render=shadowPass}
+
 /* ---- how long one slice of a background rebuild (the near patch, its grass, the ground cover) may take in a frame ---- */
 function q5s_slice(){return q5s_blown()?1.5:COARSE?3.5:5}
 function q2_jobStart(P,c,T,ti){return q5s_span('q2start',()=>q2_jobStartBase(P,c,T,ti))}
@@ -140,7 +174,8 @@ function q2_lines(sp,c,deg){return q5s_span('q2lines',()=>q2_linesBase(sp,c,deg)
 /* ---- quality defaults: an exhibition first, smooth and quick before anything else.
    shadows always stay (their map, reach and redraw rate step down with the quality level); grass, the near ground patch,
    ambient occlusion, cloud self-shadow, micro-grain and close tree detail start one step below the best (a phone two);
-   the quality drops a step as soon as the frame rate stays under Q5DOWN ---- */
+   the quality drops a step as soon as the frame rate stays under Q5DOWN, or more than one frame in ten misses its refresh
+   (a steady 45 fps judders more than it looks in an average); it comes back only when frames are nearly all on time ---- */
 function Q5OFF(){return window.__q5off!==undefined?window.__q5off:1}
-const Q5DOWN=42;
+const Q5DOWN=52;
 setTimeout(()=>{try{Object.assign(window.__rq.dbg,{post:()=>({bloomPass,composer,finalPass,fxaaPass}),setLvl:L=>{perf.lvl=L;applyLevel()},perf:()=>perf,tw:()=>tw})}catch(e){}},0);

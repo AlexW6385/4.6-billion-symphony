@@ -289,10 +289,15 @@ function herdPos(f,x,t){if(f.route){const [la,lo]=routeAt(f,t*(f.rsp||.004)+x.ph
  if(!f.track&&!f.alt&&GRAZE.test(f.kind))t=t+2.6*Math.sin(.38*t+x.ph);// stop to forage, then move on
  const a=t*x.sp+x.ph;const wob=f.track?0:Math.sin(a*2.3+x.ph)*f.rad*.15;return[f.at[0]+f.rad*Math.cos(a)*.7+wob,f.at[1]+(f.rad*Math.sin(a))/Math.cos(f.at[0]*D2R)]}
 let maoyuSink=0,maoyuHover=false;
+let herdPxF=-1,herdPxV=1;function herdPxK(){if(herdPxF!==MW_TICK){herdPxF=MW_TICK;herdPxV=innerHeight/(2*Math.tan(camera.fov*Math.PI/360))}return herdPxV}
 function updateHerds(sp,t){const ghf=sp.gh;for(const h of sp.herds){const f=h.f;if(!h.list.length||h.eraVis===false)continue;
  // herds far from the camera are neither moved nor drawn
- const c0=h.c0||(h.c0=dirLL(f.at[0],f.at[1]).multiplyScalar(R));const near=camera.position.distanceTo(c0)<1500+f.rad*40;if(h.near!==near){h.near=near;h.list.forEach(x=>x.o.visible=near)}if(!near)continue;
- for(const x of h.list){const o=x.o;const [la,lo]=herdPos(f,x,t);const [la2,lo2]=herdPos(f,x,t+.4);
+ const c0=h.c0||(h.c0=dirLL(f.at[0],f.at[1]).multiplyScalar(R));const near=camera.position.distanceTo(c0)<1500+f.rad*40;if(h.near!==near){h.near=near;h.list.forEach(x=>{x.o.visible=near&&!x.tiny})}if(!near)continue;
+ // a creature a few pixels long is a speck: it is neither moved nor drawn (each one is a dozen or more draw calls).
+ // its spot is checked from where it was last placed, so it comes back as soon as it would be big enough to see
+ const spk=f.s*5.5*herdPxK(),cpx=camera.position;
+ for(const x of h.list){const o=x.o;if(!o.userData.segs&&!o.userData.swarm){const e=o.position,dd=Math.hypot(e.x-cpx.x,e.y-cpx.y,e.z-cpx.z);const tiny=spk<dd*2.5&&o.userData.pick!==sel;if(tiny!==!!x.tiny){x.tiny=tiny;o.visible=!tiny}if(tiny&&(x.tk=(x.tk||0)+1)%15)continue}
+  const [la,lo]=herdPos(f,x,t);const [la2,lo2]=herdPos(f,x,t+.4);
   const swim=o.userData.swim;const base=swim?0:ghf(la,lo);const alt=f.alt+(swim?0.3:0)+(f.kind==='jelly'||f.kind==='burner'?Math.sin(t*1.3+x.ph)*2:0);
   dirLL(la,lo,pA).multiplyScalar(R+Math.max(base,0)+alt);dirLL(la2,lo2,pB).multiplyScalar(R+Math.max(swim?0:ghf(la2,lo2),0)+alt);
   if(o.userData.segs){/* each segment follows the head's path a body-length behind the one before it, however fast the herd moves */const dts=clamp(f.s*1.9/Math.max(pA.distanceTo(pB)/.4,.01),.08,8);o.userData.segs.forEach((s,i)=>{const [a,b]=herdPos(f,x,t-i*dts);const [a2,b2]=herdPos(f,x,t-i*dts+.05);const d=dirLL(a,b);const g=ghf(a,b);

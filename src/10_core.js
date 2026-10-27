@@ -229,7 +229,7 @@ function moonRelease(){const sp=CUR;if(!sp||!sp.camOv)return;sp.camOv=null;const
 ['pointerdown','wheel','keydown'].forEach(t=>addEventListener(t,()=>{if(CUR&&CUR.camOv)moonRelease()},{passive:true,capture:true}));
 function flyTo(a,b,alt,dur=2,y,head){if(CUR&&CUR.camOv)CUR.camOv=null;const t=CUR.type;tw={t:0,dur,from:{...rig},to:{a,b,alt:alt||rig.alt,head:head===undefined?rig.head:head,y:y===undefined?rig.y:y}};
  if(t==='planet'||t==='tube')tw.to.b=tw.from.b+wrap180(tw.to.b-tw.from.b);tw.to.head=tw.from.head+((tw.to.head-tw.from.head+Math.PI*3)%(Math.PI*2)-Math.PI)}
-function hopOf(){const t=CUR.type,f=tw.from,o=tw.to;if(t==='planet')return Math.min(1600,Math.hypot(o.a-f.a,wrap180(o.b-f.b))*24);if(t==='tube')return Math.min(200,Math.abs(o.a-f.a)*.05);return Math.min(2800,Math.hypot(o.a-f.a,o.b-f.b)*.38)}
+function hopOf(){if(tw.hopV!==undefined)return tw.hopV;const t=CUR.type,f=tw.from,o=tw.to;if(t==='planet')return Math.min(1600,Math.hypot(o.a-f.a,wrap180(o.b-f.b))*24);if(t==='tube')return Math.min(200,Math.abs(o.a-f.a)*.05);return Math.min(2800,Math.hypot(o.a-f.a,o.b-f.b)*.38)}
 
 /* ---- rays ---- */
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),_p=V3();

@@ -289,11 +289,15 @@ const keys={};addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'){if(e
 const hoverEl=$('#hover');let hovFrame=0;
 const NOHOVER=matchMedia('(hover: none)').matches;
 function updateHoverBase(){if(!mouse.in||drag||ptrs.size>1||busy||NOHOVER){if(hov||hovPlace){hov=null;hovPlace=null;hoverEl.classList.remove('on');canvas.classList.remove('point')}return}
- if(++hovFrame%2)return;const p=pickProx(mouse.x,mouse.y);let place=null;if(!p&&CUR.type==='planet')place=placeAt(mouse.x,mouse.y);
+ if(++hovFrame%2)return;
+ // nothing under the pointer can have changed when neither the pointer nor the camera moved (and nothing is selected that moves): skip the pick
+ {const cp=camera.position,cq=camera.quaternion,k=mouse.x+mouse.y*1e4,c=cp.x+cp.y*7+cp.z*13+cq.x*1e3+cq.y*3e3+cq.z*5e3;
+  if(k===updateHoverBase.k&&Math.abs(c-updateHoverBase.c)<1e-6&&hovFrame-updateHoverBase.f<30)return;updateHoverBase.k=k;updateHoverBase.c=c;updateHoverBase.f=hovFrame}
+ const p=pickProx(mouse.x,mouse.y);let place=null;if(!p&&CUR.type==='planet')place=placeAt(mouse.x,mouse.y);
  if(p!==hov||place!==hovPlace){hov=p;hovPlace=place;maoyuHover=!!(p&&p.mao);if(p&&p.mao&&!found.has('maoyu'))setTimeout(()=>{if(maoyuHover)egg('maoyu')},380);
-  if(p){hoverEl.className='on';hoverEl.innerHTML=`${esc(p.w.n)}<small>${esc(p.w.c)}</small>`}else if(place){hoverEl.className='on place';hoverEl.innerHTML=esc(place.n)}else hoverEl.className=''}
+  if(p){hoverEl.className='on';hoverEl.innerHTML=`${esc(p.w.n)}<small>${esc(p.w.c)}</small>`}else if(place){hoverEl.className='on place';hoverEl.innerHTML=esc(place.n)}else hoverEl.className='';hoverEl._w=(p||place)?hoverEl.offsetWidth:0}
  canvas.classList.toggle('point',!!(p||place));
- if(p||place){const x=Math.min(mouse.x+16,innerWidth-hoverEl.offsetWidth-8),y=Math.min(mouse.y+14,innerHeight-34);hoverEl.style.transform=place&&!p?`translate(${mouse.x-hoverEl.offsetWidth/2}px,${mouse.y-34}px)`:`translate(${x}px,${y}px)`}}
+ if(p||place){const hw=hoverEl._w||0,x=Math.min(mouse.x+16,innerWidth-hw-8),y=Math.min(mouse.y+14,innerHeight-34);hoverEl.style.transform=place&&!p?`translate(${mouse.x-hw/2}px,${mouse.y-34}px)`:`translate(${x}px,${y}px)`}}
 
 /* ---------- motes and the selection ring ---------- */
 function updateMotes(){const L=CUR.motes;if(L)for(const m of L){if(!m.visible)continue;const d=camera.position.distanceTo(m.position);const w=m.userData.w;const md=CUR.type==='planet'?(w.c==='地理'?3200:1400):3800;
@@ -337,7 +341,7 @@ function loop(now){if(q5s_halt)return;const fc=frameCap(now);
  if(fc<60&&now-last<1000/fc-4){requestAnimationFrame(loop);return}
  const rawDt=(now-last)/1000,dt=Math.min(.05,rawDt);last=now;MW_ALL=busy;MW_TICK++;T+=dt;GT.value=T;q5s_begin();if(CUR&&!CUR._sides&&!busy)placeSides(CUR);if(CUR&&!busy&&(CUR._sbN===undefined||now-CUR._sbN>5000)&&CUR._sbA!==q5s_adds(CUR.scene)&&!q5s_blown()){CUR._sbN=now;try{batchSprites(CUR)}catch(e){console.warn('batch',e)}CUR._sbA=q5s_adds(CUR.scene)}
  if(tw){if(tw.track)q4c_retrack();tw.t+=dt/tw.dur;const k=Math.min(1,tw.t),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;const hop=Math.pow(Math.sin(k*Math.PI),2)*hopOf()*.8;
-  rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1){const tr=tw.track;tw=null;if(tr&&tr.settle)q4c_settle(tr)}}
+  rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1){const tr=tw.track;tw=null;q4c_arrive(tr)}}
  else if(!drag&&!pinch){if(Math.abs(vel.a)+Math.abs(vel.b)>1e-5){rig.a+=vel.a*dt*60;rig.b+=vel.b*dt*60;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86);else if(CUR.type==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);else{const L=CUR.bound||7000;rig.a=clamp(rig.a,-L,L);rig.b=clamp(rig.b,-L,L)}const dk=Math.exp(-dt*5.5);vel.a*=dk;vel.b*=dk}}
  if(!busy){pinchStep();drainZoom(dt)}
  if(!busy){const kk=dragK()*5*dt*60,ch=Math.cos(rig.head),sh=Math.sin(rig.head);if(keys.KeyW||keys.ArrowUp)moveBy(kk*ch,-kk*sh);if(keys.KeyS||keys.ArrowDown)moveBy(-kk*ch,kk*sh);if(keys.KeyD||keys.ArrowRight)moveBy(kk*sh,kk*ch);if(keys.KeyA||keys.ArrowLeft)moveBy(-kk*sh,-kk*ch);
@@ -349,7 +353,7 @@ function loop(now){if(q5s_halt)return;const fc=frameCap(now);
  q5s_mark('ui');updViewOff(dt);updateBooms(dt);updateHover();updateMotes();updateLabels();
  if(CUR.type!=='planet'&&CUR.eraAt&&++eraTick%20===0){const e=CUR.eraAt(S_);if(e&&e!==ERA){ERA=e;syncTime()}}
  fadeK+=(fadeTo-fadeK)*Math.min(1,dt*(fadeTo>fadeK?7:3.2));setFade(fadeK);if(finalPass)finalPass.uniforms.uTime.value=T;
- q5s_mark('render');if(window.__q5resize){window.__q5resize=0;resize()}if(composer&&POST.on)composer.render();else renderer.render(CUR.scene,camera);q5s_end();
+ q5s_mark('render');if(window.__q5resize){window.__q5resize=0;resize()}q5s_frustumHide(CUR,camera);if(composer&&POST.on)composer.render();else renderer.render(CUR.scene,camera);q5s_frustumShow();q5s_end();
  // quality only adapts to frames that were not held back on purpose
  if(rawDt<1&&fc===60&&loop.pf===60)adapt(rawDt);else{perf.t=0;perf.n=0;perf.slow=0}loop.pf=fc;requestAnimationFrame(loop)}
 

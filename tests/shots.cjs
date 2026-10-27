@@ -1,5 +1,6 @@
 // Screenshots at fixed viewpoints, on a virtual clock with a seeded Math.random, so two builds can be compared.
 //   node tests/shots.cjs outdir            one PNG per viewpoint (tests/viewpoints.json)
+//   VP='[…]' node tests/shots.cjs outdir  only the viewpoints given
 //   node tests/shots.cjs --diff dirA dirB  per-viewpoint share of pixels that differ (needs pngjs: npm i --no-save pngjs)
 const fs = require('fs'), path = require('path');
 
@@ -20,7 +21,8 @@ if (process.argv[2] === '--diff') {
 const { chromium } = require('playwright');
 const DIST = (process.env.DIST || path.join(__dirname, '..', 'dist')) + '/';
 const OUT = process.argv[2] || 'shots'; fs.mkdirSync(OUT, { recursive: true });
-const VIEWS = JSON.parse(fs.readFileSync(path.join(__dirname, 'viewpoints.json'), 'utf8'));
+// VP='[{"name":"x","space":"void","go":"id"}]' takes the viewpoints from the environment instead (a quick look at new entries)
+const VIEWS = process.env.VP ? JSON.parse(process.env.VP) : JSON.parse(fs.readFileSync(path.join(__dirname, 'viewpoints.json'), 'utf8'));
 (async () => {
   const b = await chromium.launch({ ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}), args: ['--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage({ viewport: { width: 960, height: 600 }, deviceScaleFactor: 1 });
