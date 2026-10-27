@@ -74,7 +74,11 @@ const W3={
    {geo:'box',n:60,col:'#c8ccd0',scale:[2,4],stretch:[1,8,1],minH:-99,test:(la,lo)=>doomSecLL(la,lo)===3},
    {geo:'box',n:90,col:'#b89a60',scale:[1.5,4],stretch:[1,2,1],test:(la,lo)=>doomSecLL(la,lo)===0},
    {geo:'sphere',n:260,col:'#ff3a3a',em:'#a0101a',ei:.4,scale:[.4,1],test:(la,lo)=>doomSecLL(la,lo)===7},
-   {geo:'sphere',n:200,col:'#ffd0f0',em:'#ff90d0',ei:.3,scale:[.8,2.2],test:(la,lo)=>doomSecLL(la,lo)===6}]}};
+   {geo:'sphere',n:200,col:'#ffd0f0',em:'#ff90d0',ei:.3,scale:[.8,2.2],test:(la,lo)=>doomSecLL(la,lo)===6},
+   {geo:'lump',n:220,col:'#f4f8fc',rough:.2,scale:[1.5,6],stretch:[.6,2.2,.6],test:(la,lo)=>doomSecLL(la,lo)===2},
+   {geo:'cyl',n:360,col:'#2a6a2a',scale:[.6,1.4],stretch:[1,7,1],test:(la,lo)=>doomSecLL(la,lo)===5},
+   {geo:'sphere',n:70,col:'#7a6aa0',em:'#4a2a8a',ei:.4,metal:.5,rough:.3,flat:1,scale:[2,6],test:(la,lo)=>{const k=doomSecLL(la,lo);return k===8||k===9}}],
+  fog:{n:5,col:'#3a3634',test:(la,lo)=>doomSecLL(la,lo)===4}}};
 /* 绒球之境 (ages 3–5, 8): 琳's own first dream, run by a small sleeping brain — one continent in a sea that loops ships back,
    stones that float for no reason and more than one sun in the sky; the blue-moon battlefield, the jungle, the ash plain and
    the volcano with hell behind it lie on the continent */
@@ -172,7 +176,7 @@ function buildW3(id){const c=W3[id];
  if(c.junk){const parts=[new THREE.BoxGeometry(1,1,1),new THREE.CylinderGeometry(.5,.5,1.4,6),new THREE.OctahedronGeometry(.8,0),new THREE.TorusGeometry(.6,.2,5,10)];
   const cols=['#7a6a62','#5a5048','#8a5a48','#6a6a70'];parts.forEach((g,k)=>inst(g,new THREE.MeshStandardMaterial({color:cols[k],roughness:.8,metalness:.4,flatShading:true}),
    w3Scatter(sp,c.junk.n/parts.length|0,hashStr(id)+40+k,(la,lo,h)=>h>2&&n3(la*.25,lo*.25,1)>.4),(o,p)=>{frameLL(sp,p[0],p[1],p[3]*1.5,p[3]*6,o);o.rotation.set(p[3]*3,p[3]*5,p[3]*2);o.scale.setScalar(1.5+p[3]*p[3]*6)},null,{far:2400}))}
- if(c.fog)w3Scatter(sp,c.fog.n,hashStr(id)+90,(la,lo,h)=>h>2).forEach((p,k)=>{const g=new THREE.Group();frameLL(sp,p[0],p[1],20,0,g);g.add(evPoints(500,hashStr(id)+91+k,evSwarmMat({dark:1,soft:1,col:c.fog.col,rx:60,ry:14,rz:60,speed:.03,size:46,op:.35,max:70})));sp.scene.add(g);cull(g,g.position.clone(),80,2400)});
+ if(c.fog)w3Scatter(sp,c.fog.n,hashStr(id)+90,(la,lo,h)=>h>2&&(!c.fog.test||c.fog.test(la,lo))).forEach((p,k)=>{const g=new THREE.Group();frameLL(sp,p[0],p[1],20,0,g);g.add(evPoints(500,hashStr(id)+91+k,evSwarmMat({dark:1,soft:1,col:c.fog.col,rx:60,ry:14,rz:60,speed:.03,size:46,op:.35,max:70})));sp.scene.add(g);cull(g,g.position.clone(),80,2400)});
  // generic props: instanced shapes over the ground or floating above it (pods, tanks, lava columns, floating islands)
  (c.props||[]).forEach((q,k)=>{const geo=q.geo==='sphere'?new THREE.SphereGeometry(1,14,10):q.geo==='cyl'?new THREE.CylinderGeometry(1,1,1,12):q.geo==='box'?new THREE.BoxGeometry(1,1,1):lumpRock(1,k%5+1).clone();
   if(q.geo==='cyl'||q.geo==='box')geo.translate(0,.5,0);if(q.flat){geo.scale(1,.45,1);geo.translate(0,-.2,0)}
