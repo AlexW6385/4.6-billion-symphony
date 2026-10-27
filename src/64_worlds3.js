@@ -37,7 +37,7 @@ const W3={
    o.set('#2a2422').lerp(C('#3a3230'),n3(p.x*12,p.y*12,p.z*12));if(cr<.06)o.lerp(C('#ff6a1a'),sm(.06,0,cr));o.lerp(C('#5a3a2a'),sm(.6,.8,n3(p.x*30,p.y*30,p.z*30))*.4);if(h<2.5)o.lerp(C('#a0401a'),.5)},
   ocean:{deep:'#ff5a10',shal:'#ffb040'},atm:'#ff8a50',atmK:1.1,clouds:{cov:.45,col:'#8a7a70'},rough:.9,metal:.05,rock:'#2a2422',
   sky:{zen:'#4a2a20',hor:'#c8704a',set:'#ff8a40',nightZ:'#0a0404',nightH:'#3a120a'},envTop:'#8a4a30',envMid:'#b8704a',envBot:'#2a1a14',hemiSky:0xff9a70,sunI:.95,
-  props:[{geo:'cyl',n:70,col:'#ff8a30',em:'#ff5a10',ei:1.2,scale:[2,5],stretch:[1,14,1],test:(la,lo,h)=>h<6},
+  props:[{geo:'cyl',n:70,col:'#ff8a30',em:'#ff5a10',ei:1.2,pulse:1.1,scale:[2,5],stretch:[1,14,1],test:(la,lo,h)=>h<6},
    {geo:'lump',n:400,col:'#1e1a18',scale:[2,8],stretch:[1,.8,1]}],
   belt:{n:420,r:[1.25,1.6],s:[10,60],col:'#a8322a',em:'#3a0a06',thick:.12,rough:.8,tilt:.3}},
  // 琥珀之球 (age 11): an orange-red see-through twin of the pain bus, ringed low by floating orange islands with the ambers' cities
@@ -47,7 +47,7 @@ const W3={
   ocean:{deep:'#a04a10',shal:'#e8902a'},atm:'#ff8a30',atmK:.6,clouds:{cov:.12,col:'#ffd8a0'},rough:.18,metal:.25,bump:.5,rock:'#c86a2a',
   sky:{zen:'#7a4a90',hor:'#ffc890',set:'#ff9a60'},envTop:'#ffb070',envMid:'#ffd8a8',envBot:'#7a3a10',hemiSky:0xffc890,
   props:[{geo:'lump',flat:1,n:260,col:'#f0a040',em:'#a04a10',ei:.35,rough:.25,alt:[60,220],scale:[4,26],stretch:[1,.5,1],minH:-99,far:4000},
-   {geo:'cyl',n:200,col:'#ffe0b0',em:'#ffb060',ei:.5,rough:.3,alt:[64,226],scale:[.6,2],stretch:[1,6,1],minH:-99,test:(la,lo,h)=>n3(la*.3,lo*.3,2)>.5,far:3000}]},
+   {geo:'cyl',n:200,col:'#ffe0b0',em:'#ffb060',ei:.5,pulse:.9,rough:.3,alt:[64,226],scale:[.6,2],stretch:[1,6,1],minH:-99,test:(la,lo,h)=>n3(la*.3,lo*.3,2)>.5,far:3000}]},
  // 痛苦巴士 (age 11): a living bus-planet kept in a cycle of pain: an almost empty grey-red land, brain tanks and red breeding pods,
  // red fog seeping from the cracks
  painbus:{home:{a:6,b:-20,alt:2600},
@@ -56,7 +56,7 @@ const W3={
   ocean:{deep:'#4a0a0a',shal:'#8a1a14'},atm:'#ff4a3a',atmK:1.2,clouds:{cov:.5,col:'#c84a40'},rough:.85,metal:.05,rock:'#5a4a48',
   sky:{zen:'#3a1418',hor:'#b84a40',set:'#ff6a4a',nightZ:'#060204',nightH:'#2a0808'},envTop:'#8a3a34',envMid:'#a8605a',envBot:'#2a1818',hemiSky:0xff8a80,sunI:.9,
   props:[{geo:'cyl',n:160,col:'#d8f0f4',op:.45,rough:.05,metal:.2,scale:[2,3.4],stretch:[1,6,1]},
-   {geo:'sphere',n:420,col:'#b81a1a',em:'#5a0606',ei:.6,rough:.4,scale:[1.2,3.6],stretch:[1,.8,1]}],
+   {geo:'sphere',n:420,col:'#b81a1a',em:'#5a0606',ei:.6,pulse:.7,rough:.4,scale:[1.2,3.6],stretch:[1,.8,1]}],
   fog:{n:6,col:'#a81812'}},
  // 尔什's moon in age 9, the quarantine of possible ends of the world: a small town and a red-brick mansion round one pole,
  // and ten wedge-shaped end-worlds round it, each its own land and colour, walled off from the next
@@ -87,7 +87,7 @@ W3.rqdream={home:{a:22,b:0,alt:2600},sunLon:20,suns:['#ffe0a0','#ffb0c0'],
  ocean:{deep:'#1a2a6a',shal:'#3a8ac8'},atm:'#b0a0ff',clouds:{cov:.35,col:'#f0e8ff'},rough:.85,
  sky:{zen:'#5a50b0',hor:'#d8c8ff',set:'#ffa0c0',nightZ:'#0a0820',nightH:'#2a1a40'},envTop:'#b8a8ff',envMid:'#d8d0f0',envBot:'#3a3048',hemiSky:0xc8b8ff,
  props:[{geo:'lump',n:220,col:'#8a8078',alt:[30,160],scale:[1.5,7],minH:-99,far:3000},
-  {geo:'cyl',n:260,col:'#b890ff',em:'#7040d0',ei:.6,rough:.2,scale:[.5,1.4],stretch:[1,5,1],test:(la,lo)=>angDeg(dirLL(la,lo),RQD_B)<8}]};
+  {geo:'cyl',n:260,col:'#b890ff',em:'#7040d0',ei:.6,pulse:1.2,rough:.2,scale:[.5,1.4],stretch:[1,5,1],test:(la,lo)=>angDeg(dirLL(la,lo),RQD_B)<8}]};
 const RQD_C=dirLL(22,0),RQD_B=dirLL(30,-14),RQD_A=dirLL(12,14),RQD_V=dirLL(34,18);
 /* 梦的泥海 (age 11): the empty shell of the Sea of Creation's mind — a plain of stone pillars hundreds of km tall with round
    platforms on top, a wind that never stops, and a glowing sea of thick dream-mud to the horizon */
@@ -97,7 +97,7 @@ W3.mudsea={home:{a:10,b:-30,alt:2600},sunLon:-20,dayLen:1e12,
  ocean:{deep:'#7a5a20',shal:'#ffd070'},atm:'#ffc870',atmK:.8,clouds:{cov:.5,col:'#a89880'},rough:.9,
  sky:{zen:'#1a1830',hor:'#6a5a70',set:'#c8905a',nightZ:'#04040a',nightH:'#1a1420'},envTop:'#3a3450',envMid:'#6a6070',envBot:'#2a2420',hemiSky:0x9a90b0,sunI:.7,
  props:[{geo:'cyl',n:70,col:'#7a7480',rough:.9,scale:[1.4,2],stretch:[1,120,1],test:(la)=>la>24,far:6000},
-  {geo:'sphere',n:400,col:'#ffe0a0',em:'#ffb040',ei:1,scale:[.4,1],alt:[2,40],minH:-99,sea:1,far:2500}]};
+  {geo:'sphere',n:400,col:'#ffe0a0',em:'#ffb040',ei:1,pulse:1.8,scale:[.4,1],alt:[2,40],minH:-99,sea:1,far:2500}]};
 /* 飘浮岩地 · 神民之国 (ages 7–8): the visitor stands on the floating continent that holds the city of the god-folk; all round, in a
    black sky, the field of floating rocks (the remains of star buses that fell apart) and, far off, the black fog at its centre */
 W3.piaofu={home:{a:20,b:10,alt:2600},sunLon:40,dayLen:1e12,
@@ -115,7 +115,7 @@ W3.phoenix={home:{a:16,b:20,alt:2600},sunLon:0,dayLen:1e12,sunI:.5,
  col:(p,h,lat,o)=>{if(h<0){o.set('#ffb030');return}const c=phCell(p);o.set(['#c8c0b8','#a8b0c0','#d8c8a8','#b8c8d0','#e0d0c0','#9aa0a8'][c.t]);o.offsetHSL(0,0,(n3(p.x*40,p.y*40,p.z*40)-.5)*.08)},
  ocean:{deep:'#ffd060',shal:'#fff0b0'},atm:'#ffb040',atmK:.9,clouds:false,rough:.5,metal:.4,bump:.3,rock:'#a8a098',
  sky:{zen:'#120806',hor:'#5a2a10',set:'#ff9030',nightZ:'#120806',nightH:'#5a2a10'},envTop:'#ffb060',envMid:'#806050',envBot:'#ffd080',hemiSky:0xffc070,hemiGnd:0xffa030,
- props:[{geo:'sphere',n:500,col:'#ffe070',em:'#ffb020',ei:1.2,scale:[.6,1.6],alt:[1,30],minH:-99,sea:1,far:2400}],
+ props:[{geo:'sphere',n:500,col:'#ffe070',em:'#ffb020',ei:1.2,pulse:1.4,scale:[.6,1.6],alt:[1,30],minH:-99,sea:1,far:2400}],
  belt:{n:600,disc:1,r:[1.35,1.4],s:[20,40],col:'#ffd890',metal:.3,rough:.4,thick:.004,tilt:.12}};
 /* the platform cells of the phoenix star: a 3D grid cut on the sphere, each cell a level and a kind, a gap round its edge */
 function phCell(p){const k=12,x=p.x*k,y=p.y*k,z=p.z*k,ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),fx=x-ix,fy=y-iy,fz=z-iz;
@@ -177,6 +177,8 @@ function buildW3(id){const c=W3[id];
  (c.props||[]).forEach((q,k)=>{const geo=q.geo==='sphere'?new THREE.SphereGeometry(1,14,10):q.geo==='cyl'?new THREE.CylinderGeometry(1,1,1,12):q.geo==='box'?new THREE.BoxGeometry(1,1,1):lumpRock(1,k%5+1).clone();
   if(q.geo==='cyl'||q.geo==='box')geo.translate(0,.5,0);if(q.flat){geo.scale(1,.45,1);geo.translate(0,-.2,0)}
   const m=new THREE.MeshStandardMaterial({color:q.col,emissive:q.em||'#000000',emissiveIntensity:q.em?q.ei||.8:0,roughness:q.rough===undefined?.6:q.rough,metalness:q.metal||0,transparent:!!q.op,opacity:q.op||1,depthWrite:!q.op,flatShading:q.geo==='lump'});
+  // a slow glow that breathes (lava, pods, lights), one uniform for the whole set
+  if(q.pulse&&q.em){const e0=m.emissiveIntensity;anim(sp,null,t=>{m.emissiveIntensity=e0*(.65+.35*Math.sin(t*q.pulse+k))})}
   inst(geo,m,w3Scatter(sp,q.n,hashStr(id)+60+k,(la,lo,h)=>(q.sea?h<=0:h>(q.minH===undefined?1.6:q.minH))&&(!q.test||q.test(la,lo,h))),(o,p)=>{const a=q.alt?q.alt[0]+(q.alt[1]-q.alt[0])*p[3]:0;frameLL(sp,p[0],p[1],a,p[3]*6,o,!q.alt);if(q.alt)o.position.setLength(R+Math.max(sp.gh(p[0],p[1]),0)+a);
    const sc=q.scale[0]+(q.scale[1]-q.scale[0])*Math.pow(p[3],q.pow||2),st=q.stretch||[1,1,1];o.scale.set(sc*st[0],sc*st[1],sc*st[2])},null,{far:q.far||3000})});
  // a belt of things floating round the world, far out (one instanced draw, turning slowly)
