@@ -2,6 +2,11 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.6 — 2026-10-27 · Every entry written out
+
+- **Every entry now tells what the book says about it**, from all the passages it appears in — about 750 entries rewritten in all. 琳's own entry follows it through all eight volumes; 尔什, the void, the 虚民, the creator and the scholar each have a full account; the 22 events (the three extinctions, the great cold, the 印加 war, the 虚民 invasion, the collision of the voids …) are told from cause to aftermath.
+- Many small mistakes in the old texts were put right on the way: wrong chapters, numbers, which creature did what (the demons of the orange world are not Lin's demons; the 铁蝠 were tamed by the 黑角龙; the 101-station train is not the through train).
+
 ## v1.5 — 2026-10-27 · The other worlds written out
 
 - **145 more entries now tell everything the book says about them** — the phoenixes and their star, 脑灵, the dream spaces, 米德加尔特 and its dust crocodiles, the death ships and the factory of the frozen void, the tunnel worlds, 不可预见之地 (the star simulator, the order keepers, 阿布, the way home), and on 绒球 Lin's own units (爆哮虫, 开拓者, 弹头, 贝希摩斯 …), 莎琳, 教长 and 比露. A few old mistakes were put right on the way (the wingspan of the 砂鲼, a thousand death ships rather than a hundred, the 碎影 only heard of 尔什 and 绒球 and never went there).
