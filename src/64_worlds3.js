@@ -98,6 +98,16 @@ W3.mudsea={home:{a:10,b:-30,alt:2600},sunLon:-20,dayLen:1e12,
  sky:{zen:'#1a1830',hor:'#6a5a70',set:'#c8905a',nightZ:'#04040a',nightH:'#1a1420'},envTop:'#3a3450',envMid:'#6a6070',envBot:'#2a2420',hemiSky:0x9a90b0,sunI:.7,
  props:[{geo:'cyl',n:70,col:'#7a7480',rough:.9,scale:[1.4,2],stretch:[1,120,1],test:(la)=>la>24,far:6000},
   {geo:'sphere',n:400,col:'#ffe0a0',em:'#ffb040',ei:1,scale:[.4,1],alt:[2,40],minH:-99,sea:1,far:2500}]};
+/* 飘浮岩地 · 神民之国 (ages 7–8): the visitor stands on the floating continent that holds the city of the god-folk; all round, in a
+   black sky, the field of floating rocks (the remains of star buses that fell apart) and, far off, the black fog at its centre */
+W3.piaofu={home:{a:20,b:10,alt:2600},sunLon:40,dayLen:1e12,
+ height:p=>{const n=fbm(p.x*3.5+8,p.y*3.5,p.z*3.5,5),r=1-Math.abs(fbm(p.x*6,p.y*6+3,p.z*6,4)*2-1);return 3+(n-.5)*30+Math.pow(r,4)*40},
+ col:(p,h,lat,o)=>{o.set('#6a625a').lerp(C('#4a4440'),n3(p.x*10,p.y*10,p.z*10)*.8);o.lerp(C('#5a6a4a'),sm(.55,.75,n3(p.x*4,p.y*4,p.z*4))*.5);if(h>30)o.lerp(C('#8a8278'),sm(30,60,h)*.6)},
+ ocean:{deep:'#101014',shal:'#202028'},atm:'#4a4a60',atmK:.25,clouds:false,rough:.9,
+ sky:{zen:'#05050c',hor:'#141420',set:'#3a3040',nightZ:'#020205',nightH:'#08080e'},envTop:'#3a3a50',envMid:'#5a5660',envBot:'#1a1816',sunI:1,
+ props:[{geo:'lump',n:420,col:'#5a544e',alt:[80,700],scale:[3,40],minH:-99,far:6000},{geo:'lump',n:160,col:'#4a4842',alt:[700,1600],scale:[30,120],minH:-99,far:9000}],
+ cities:[[22,12,3.2]],cityCol:'#b8aa98',belt:{n:700,r:[1.5,2.6],s:[20,110],col:'#5a544e',thick:.5,tilt:.5},
+ swarmFar:{col:'#08080a',at:[-1,.2,.3],d:7000,r:1600}};
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
 const DOOM_CORE=64;
 function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
@@ -111,7 +121,7 @@ function buildW3(id){const c=W3[id];
   inst(geo,new THREE.MeshStandardMaterial({color:c.crystals.col,emissive:c.crystals.em,emissiveIntensity:.25,roughness:.12,metalness:.3,flatShading:true}),
    w3Scatter(sp,c.crystals.n,hashStr(id)+1,(la,lo,h)=>h>2.2),(o,p)=>{frameLL(sp,p[0],p[1],-.4,p[3]*6,o);o.rotation.x+=(p[3]-.5)*.5;const s=1+p[3]*p[3]*5;o.scale.set(s*.5,s*(1.4+p[3]*2),s*.5)},null,{far:2600})}
  // cities of solid crystal: clusters of tall prisms
- if(c.cities){const geo=new THREE.CylinderGeometry(.7,1,1,6);geo.translate(0,.5,0);const m=towerMat({metalness:.35,roughness:.15,win:'#fff0fa'});m.color.set('#f4ecfa');sp.towerMats=(sp.towerMats||[]).concat([m]);
+ if(c.cities){const geo=new THREE.CylinderGeometry(.7,1,1,6);geo.translate(0,.5,0);const m=towerMat({metalness:.35,roughness:.15,win:'#fff0fa'});m.color.set(c.cityCol||'#f4ecfa');sp.towerMats=(sp.towerMats||[]).concat([m]);
   c.cities.forEach(([la,lo,r],k)=>inst(geo,m,scatter(140,la,lo,r,hashStr(id)+20+k,(a,b,h)=>h>1.8),(o,p)=>{frameLL(sp,p[0],p[1],-.3,p[3]*6,o);const h=3+Math.pow(1-p[3],3)*30;o.scale.set(1.2+p[3],h,1.2+p[3])},null,{far:3000}))}
  // junk: broken shapes heaped into hills
  if(c.junk){const parts=[new THREE.BoxGeometry(1,1,1),new THREE.CylinderGeometry(.5,.5,1.4,6),new THREE.OctahedronGeometry(.8,0),new THREE.TorusGeometry(.6,.2,5,10)];
@@ -130,6 +140,8 @@ function buildW3(id){const c=W3[id];
   im.frustumCulled=false;im.userData.noShadow=1;const g=new THREE.Group();g.rotation.x=q.tilt||.18;g.add(im);sp.scene.add(g);sp.ring=g;sp.ringR=R*(q.r[0]+q.r[1])/2;anim(sp,g,(t,dt)=>{g.rotation.y+=dt*.004})}
  // a dream may hang more than one sun in its sky
  (c.suns||[]).forEach((col,k)=>{const g=glowSprite(col,1800,.9);g.material.fog=false;g.position.copy(dirLL(30-k*40,140+k*70)).multiplyScalar(24000);sp.scene.add(g)});
+ // a dark mass far off in the sky (the micro-machine fog at the centre of the rock field)
+ if(c.swarmFar){const q=c.swarmFar,g=new THREE.Group();g.position.set(...q.at).normalize().multiplyScalar(q.d);g.add(evPoints(2600,hashStr(id)+95,evSwarmMat({dark:1,soft:1,col:q.col,rx:q.r,ry:q.r*.8,rz:q.r,speed:.01,size:q.r*.5,op:.6,max:120})));sp.scene.add(g)}
  if(sp.ring)w3Orbiters(sp);
  if(sp.extra0)sp.extra0();
  entryKits(sp);entryModels(sp);placeMotes(sp);
