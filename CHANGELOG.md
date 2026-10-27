@@ -2,6 +2,12 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v1.4 — 2026-10-26 · 绒球 written out in full
+
+- **Every place and creature of 绒球 with real weight in the book now has its full story.** About seventy entries — from 起源之海 and 北之大陆 to 白骸龙之岛, 家园树, 印加虫群, 脑袋虫, 飞龙 and the planet itself — were rewritten from all the passages they appear in: what they look like, how they live, how they change through the ages (the cold, the revival, the ruins of volume 6), and which chapters to read. Each also lists the entries it is tied to.
+- The small places the book mentions only in passing (the lake on the ice, the flower hill, the underwater town) are now told inside the entry they belong to.
+- 炸弹翼龙 became 翼龙, covering all the pterosaurs of the dinosaur continent.
+
 ## v1.3 — 2026-10-26 · Six more places
 
 - **New places to visit:** 西格玛海滩 (the 虚民's luxury space station), 边缘之星 (the world at the edge of 绒球's star system where the 印加 found the creators' threads), 畸变之星 (the flesh world made to fight 扭曲), 监狱塔 (the tower Lin built for the birds in the frozen void), 灰烬之岛 on the moon, and 监狱之岛 · 无尽囚笼, the storm-bound prison island of 虚民母球.

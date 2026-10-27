@@ -164,6 +164,7 @@ The implementing agent updates this section at the end of every session. Phases 
 
 **Phase 3 — Entries to L2**
 - All entries to Entry L2; all spaces to Space L2; `links.js` relations filled; chapter links verified.
+- 🔶 (2026-10-26) 绒球: every entry with an encyclopedia note in the source repo (73 notes, five of them filed under another id: naodaichong→naodai, yilong_pt→yilong, jingshu→crystalwood, jueshu→ud_fern, mingshidao→isles) is rewritten to L2 — body text from all its passages, eras, related entries, chapters checked to resolve. Minor places folded into their parents as reached. Next: the other spaces' thin entries (no notes there; research from the text, search-first).
 
 **Phase 4 — Life, visuals, side stories**
 - Spaces to L3; Visuals L2; side stories for the key moments of each space (Space L4 begins).
