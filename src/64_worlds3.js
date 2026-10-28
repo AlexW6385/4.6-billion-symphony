@@ -221,6 +221,20 @@ W3.bashihui={home:{a:5,b:0,alt:2600},sunLon:30,
  sky:{zen:'#3a5a48',hor:'#a8c8a0',set:'#d8c080'},
  props:[{geo:'cyl',n:5000,col:'#4a5a38',rough:.8,scale:[.7,1.3],stretch:[1,14,1],flat:1,far:6000,test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(5,0))<40},{geo:'sphere',n:220,col:'#8aff9a',em:'#4aff6a',ei:1.4,pulse:1.2,scale:[.6,1.4],alt:[20,140]}],
  belt:{n:400,r:[1.7,2.3],s:[4,14],col:'#7a8a70',thick:.03,tilt:.2}};
+/* 寒地 (age 9): a cold world in long starlit night — grey rubble plains with crooked glowing silver-grey stalks and pale glowing things
+   drifting in the air, the white 300 m exhibition dome in a sea of dried corpses, the needle plain shining like a sea of light, and on
+   the far side a grey gravel beach under the corpse city's cliffs; two moons cross the sky */
+const HD_HOME=[20,0],HD_NEEDLE=[2,146],HD_BEACH=[-17,171];
+W3.handi={home:{a:20,b:0,alt:2600},sunLon:200,sunI:.55,
+ height:p=>{const n=fbm(p.x*3+2,p.y*3,p.z*3,5),d=fbm(p.x*14,p.y*14,p.z*14,3);let h=4+(n-.5)*16+(d-.5)*3;const b=angDeg(p,dirLL(...HD_BEACH));if(b<10)h=Math.min(h,1.2+b*.3);return Math.max(.6,h)},
+ col:(p,h,lat,o)=>{o.set('#6a6a70').lerp(C('#4a4a50'),n3(p.x*9,p.y*9,p.z*9)*.8);const c=angDeg(p,dirLL(...HD_HOME));if(c<5&&c>.6)o.lerp(C('#6a4a32'),.75*(1-sm(3.5,5,c)));if(angDeg(p,dirLL(...HD_NEEDLE))<9)o.lerp(C('#d8e8ff'),.6);if(angDeg(p,dirLL(...HD_BEACH))<10)o.set('#8a8884')},
+ ocean:{deep:'#141820',shal:'#2a3038'},atm:'#6a7aa0',atmK:.3,clouds:false,rough:.9,
+ sky:{zen:'#04060c',hor:'#141a2a',set:'#2a2a3a',nightZ:'#02030a',nightH:'#0a0e1a'},envTop:'#2a3040',envMid:'#3a4050',envBot:'#101218',
+ props:[{geo:'cyl',n:6000,col:'#c8d0d8',em:'#a8c0e0',ei:.9,pulse:.7,scale:[.12,.25],stretch:[1,8,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(...HD_HOME))<45},
+  {geo:'sphere',n:1600,col:'#e8f0ff',em:'#c8d8ff',ei:1.2,pulse:1,scale:[.3,.8],alt:[10,80],op:.6,test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(...HD_HOME))<50},
+  {geo:'cyl',n:4000,col:'#f0f8ff',em:'#c8e0ff',ei:1.6,scale:[.05,.1],stretch:[1,6,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(...HD_NEEDLE))<9}],
+ more:(sp,Rn)=>{const d=new THREE.Mesh(new THREE.SphereGeometry(4,32,16,0,6.2832,0,Math.PI/2),new THREE.MeshStandardMaterial({color:'#f0f0f4',roughness:.4}));frameLL(sp,HD_HOME[0]+.4,HD_HOME[1]+.4,0,0,d);sp.scene.add(d);
+  for(const [la,lo,r,col] of [[40,80,90,'#9a9aa8'],[-20,250,60,'#a8a098']]){const m=new THREE.Mesh(new THREE.SphereGeometry(r,32,24),new THREE.MeshStandardMaterial({color:col,roughness:.9}));m.position.copy(dirLL(la,lo)).multiplyScalar(5200);sp.scene.add(m)}}};
 const MR_C=[12,30];
 W3.maers={home:{a:12,b:30,alt:2400},sunLon:30,
  height:p=>{const n=fbm(p.x*3+5,p.y*3,p.z*3,5),d=fbm(p.x*14,p.y*14+2,p.z*14,3),r=Math.abs(fbm(p.x*5+7,p.y*5,p.z*5,4)-.5);let h=6+(n-.5)*22+Math.sin(d*40)*1.4;if(r<.03)h-=(.03-r)*160;const a=angDeg(p,dirLL(...MR_C));if(a<3)h-=(3-a)*3;return Math.max(1,h)},
