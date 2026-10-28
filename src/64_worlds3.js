@@ -301,5 +301,49 @@ function xuyingMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(747);
  {const p=road(.45);const w=new THREE.Mesh(new THREE.BoxGeometry(900,40,900),new THREE.MeshStandardMaterial({color:'#f4f4f8',roughness:.6,emissive:'#d8d8e0',emissiveIntensity:.3}));w.position.set(p.x,p.y-120,p.z);sc.add(w)}
  {const p=road(.62);const L=new THREE.Mesh(new THREE.BoxGeometry(2400,60,800),new THREE.MeshStandardMaterial({color:'#5a6a4a',roughness:.95}));L.position.set(p.x,p.y-200,p.z);sc.add(L)}
  {const p=road(1);const bs=new THREE.Mesh(new THREE.SphereGeometry(400,48,32),new THREE.MeshBasicMaterial({color:'#020204'}));bs.position.set(p.x,p.y,p.z-600);sc.add(bs);sc.add(at(glowSprite('#8a6aff',1800,.5),bs.position.x,bs.position.y,bs.position.z))}}
+/* 吞噬之域 (ages 12–13): after the voids collide — the silent river of crushed spaces, nine record zones, swallowed fragments,
+   and at the end the whale-dwellers' star system where the great rift is fought */
+ROAD.tunshi=t=>V3(Math.sin(t*Math.PI*2)*1000,Math.sin(t*Math.PI*3.5)*120,-3000+t*6000);
+BUILDERS.tunshi=()=>buildPath('tunshi');
+function tunshiMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(757);const o=new THREE.Object3D();
+ {const g=new THREE.Group(),p=road(.06);g.position.set(p.x,p.y-260,p.z);g.add(evPoints(2600,7571,evSwarmMat({dark:1,col:'#2a2a3a',rx:1400,ry:40,rz:500,speed:.02,size:16,op:.7})));sc.add(g)}
+ const zm=new THREE.MeshBasicMaterial({color:'#7ab0ff',transparent:true,opacity:.07,side:THREE.DoubleSide,depthWrite:false}),em=new THREE.LineBasicMaterial({color:'#9ac4ff',transparent:true,opacity:.35});
+ for(let n=0;n<9;n++){const p=road(.14+n*.07),sz=380+Rn()*220,bg=new THREE.BoxGeometry(sz,sz*.6,sz);const b=new THREE.Mesh(bg,zm);b.position.set(p.x+(n%2?560:-560),p.y,p.z);sc.add(b);const e=new THREE.LineSegments(new THREE.EdgesGeometry(bg),em);e.position.copy(b.position);sc.add(e)}
+ const fm=new THREE.MeshStandardMaterial({color:'#4a4658',roughness:.85,flatShading:true});const im=new THREE.InstancedMesh(lumpRock(1,2),fm,160);
+ for(let i=0;i<160;i++){const p=road(.3+Rn()*.45);o.position.set(p.x+(Rn()-.5)*1800,p.y+(Rn()-.5)*600,p.z+(Rn()-.5)*400);o.rotation.set(Rn()*3,Rn()*3,0);const r=10+Rn()*50;o.scale.set(r,r*(.5+Rn()),r);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im);
+ {const p=road(.9),c=V3(p.x+1300,p.y+200,p.z+400);const st=new THREE.Mesh(new THREE.SphereGeometry(260,40,28),new THREE.MeshBasicMaterial({color:'#fff0c8'}));st.position.copy(c);sc.add(st);sc.add(at(glowSprite('#ffd890',2200,.55),c.x,c.y,c.z));
+  const wm=new THREE.MeshStandardMaterial({color:'#5a6a80',roughness:.6,emissive:'#1a2a40',emissiveIntensity:.3});
+  for(let k=0;k<6;k++){const w=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),wm);const a=k/6*Math.PI*2;w.position.set(c.x+Math.cos(a)*900,c.y+(Rn()-.5)*300,c.z+Math.sin(a)*900);w.scale.set(60,50,220);w.lookAt(c.x+Math.cos(a+1.6)*900,w.position.y,c.z+Math.sin(a+1.6)*900);sc.add(w)}}}
+/* 虚空的阴暗面 (age 13): the space graveyard that repels the void — dead fragments in grey dust, the roots of hope reaching up
+   through it, and the eye of the void at the far end, where the way to a new void opens */
+ROAD.anmian=t=>V3(Math.sin(t*Math.PI*2.4)*800,-t*900+Math.sin(t*Math.PI*4)*100,3000-t*6000);
+BUILDERS.anmian=()=>buildPath('anmian');
+function anmianMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(767);const o=new THREE.Object3D();
+ for(let k=0;k<3;k++){const g=new THREE.Group(),p=road(.15+k*.25);g.position.set(p.x,p.y,p.z);g.add(evPoints(1800,7671+k,evSwarmMat({dark:1,col:'#3a3a40',rx:1200,ry:500,rz:900,speed:.015,size:12,op:.6})));sc.add(g)}
+ const gm=new THREE.MeshStandardMaterial({color:'#38363c',roughness:.95,flatShading:true});const im=new THREE.InstancedMesh(lumpRock(1,2),gm,200);
+ for(let i=0;i<200;i++){const p=road(Rn()*.6);o.position.set(p.x+(Rn()-.5)*2000,p.y+(Rn()-.5)*700,p.z+(Rn()-.5)*600);o.rotation.set(Rn()*3,Rn()*3,0);const r=15+Rn()*70;o.scale.set(r,r*(.4+Rn()),r);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im);
+ const rm=new THREE.MeshStandardMaterial({color:'#c8a860',roughness:.5,emissive:'#806020',emissiveIntensity:.5});
+ for(let k=0;k<7;k++){const p=road(.5+k*.04),sd=k%2?1:-1,pts=[];let x=p.x+sd*(400+Rn()*300),y=p.y-900,z=p.z;for(let i=0;i<8;i++){pts.push(V3(x,y,z));x+=(Rn()-.5)*160;y+=170;z+=(Rn()-.5)*160}sc.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),48,18-k,8,false),rm))}
+ {const p=road(.82),c=V3(p.x,p.y+100,p.z-700);const ring=new THREE.Mesh(new THREE.TorusGeometry(700,60,16,96),new THREE.MeshStandardMaterial({color:'#1a1820',roughness:.4,metalness:.5,emissive:'#4a3a80',emissiveIntensity:.4}));ring.position.copy(c);sc.add(ring);
+  const iris=new THREE.Mesh(new THREE.CircleGeometry(640,64),new THREE.MeshBasicMaterial({color:'#060408',side:THREE.DoubleSide}));iris.position.copy(c);sc.add(iris);sc.add(at(glowSprite('#9a80ff',2400,.4),c.x,c.y,c.z))}
+ {const p=road(1);sc.add(at(glowSprite('#fff4d8',1400,.7),p.x,p.y,p.z-500))}}
+/* 无空间带 (age 11): the belt where space thins out — the star-flame people's white-gold platform, the frozen ocean world of
+   资料库 split by its rift, 霜堡's frozen flames, the star-burner, 燃金's floating fortress ruins and the bubble in the ancient space */
+ROAD.ranxing=t=>V3(Math.sin(t*Math.PI*1.8)*900,Math.sin(t*Math.PI*3)*150,-3000+t*6000);
+BUILDERS.ranxing=()=>buildPath('ranxing');
+function ranxingMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(777);const o=new THREE.Object3D();
+ {const p=road(.04);const d=new THREE.Mesh(new THREE.CylinderGeometry(520,560,30,64),new THREE.MeshStandardMaterial({color:'#e8dcb0',metalness:.8,roughness:.3,emissive:'#5a4a20',emissiveIntensity:.25}));d.position.set(p.x,p.y-90,p.z);sc.add(d)}
+ {const p=road(.2),c=V3(p.x-1500,p.y+100,p.z+300);const w=new THREE.Mesh(new THREE.SphereGeometry(700,64,40),new THREE.MeshStandardMaterial({color:'#c8dce8',roughness:.35,metalness:.1}));w.position.copy(c);sc.add(w);
+  const rift=new THREE.Mesh(new THREE.TorusGeometry(704,22,8,96,Math.PI*1.3),new THREE.MeshBasicMaterial({color:'#0a0c14'}));rift.position.copy(c);rift.rotation.set(.4,.9,0);sc.add(rift)}
+ {const p=road(.36),c=V3(p.x+1300,p.y,p.z);const w=new THREE.Mesh(new THREE.SphereGeometry(520,48,32),new THREE.MeshStandardMaterial({color:'#a8c8e0',roughness:.3}));w.position.copy(c);sc.add(w);
+  const fm=new THREE.MeshStandardMaterial({color:'#d8f0ff',roughness:.15,transparent:true,opacity:.85});const im=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,6),fm,90);
+  for(let i=0;i<90;i++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();o.position.copy(c).addScaledVector(n,520);o.quaternion.setFromUnitVectors(V3(0,1,0),n);const h=40+Rn()*140;o.scale.set(h*.25,h,h*.25);o.position.addScaledVector(n,h*.4);o.updateMatrix();im.setMatrixAt(i,o.matrix)}sc.add(im)}
+ {const p=road(.5),c=V3(p.x-1400,p.y+300,p.z);sc.add(at(glowSprite('#ff9a40',2400,.6),c.x,c.y,c.z));const st=new THREE.Mesh(new THREE.SphereGeometry(280,40,28),new THREE.MeshBasicMaterial({color:'#ffd8a0'}));st.position.copy(c);sc.add(st)}
+ const rm=new THREE.MeshStandardMaterial({color:'#8a7a58',roughness:.8,metalness:.3,flatShading:true});const isl=new THREE.InstancedMesh(lumpRock(1,2),rm,40),tw=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),rm,80);
+ for(let i=0;i<40;i++){const p=road(.68+Rn()*.14),x=p.x+(Rn()<.5?-1:1)*(500+Rn()*900),y=p.y+(Rn()-.5)*500,z=p.z+(Rn()-.5)*500,r=50+Rn()*90;o.position.set(x,y,z);o.rotation.set(Math.PI,Rn()*3,0);o.scale.set(r,r*.8,r);o.updateMatrix();isl.setMatrixAt(i,o.matrix);
+  for(let q=0;q<2;q++){o.position.set(x+(Rn()-.5)*r,y+r*.3+20,z+(Rn()-.5)*r);o.rotation.set(0,Rn()*3,0);o.scale.set(14,40+Rn()*70,14);o.updateMatrix();tw.setMatrixAt(i*2+q,o.matrix)}}
+ isl.frustumCulled=tw.frustumCulled=false;sc.add(isl,tw);
+ {const p=road(.9),c=V3(p.x+900,p.y+100,p.z);const b=new THREE.Mesh(new THREE.SphereGeometry(500,48,32),new THREE.MeshStandardMaterial({color:'#e0e8ff',transparent:true,opacity:.18,roughness:.1,metalness:.4,depthWrite:false}));b.position.copy(c);sc.add(b);
+  const g=new THREE.Group();g.position.set(c.x,c.y-300,c.z);g.add(evPoints(1500,7771,evSwarmMat({col:'#7a6a60',rx:900,ry:80,rz:600,speed:.02,size:14,op:.6})));sc.add(g)}}
 // a road world with no entries yet starts at the head of its road
-for(const id of ['order','lianjie','hope','deathship','xuying'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
+for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
