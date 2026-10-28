@@ -136,7 +136,7 @@ function q4c_same(to){return q4c_dist(to)<rig.alt*.02&&Math.abs(Math.log(to.alt/
 /* go and look at an entry (the card is already open when this is called, so the free part of the screen is known) */
 function q4c_goto(id,p,opt){opt=opt||{};if(!CUR)return;if(CUR.camOv)moonRelease();// (a jump from the moon view — a card link, the tour, a shared link — used to be ignored until a click)
  const w=W[id];
- if(CUR.type==='planet'&&w&&(w.moon||w.id==='moon'||w.id==='moon_bus'||w.id==='ex_moon')){if(!moonView(w))flyTo(18,-25,2600,1.8);return}
+ if(CUR.type==='planet'&&CUR.id!=='yue'&&w&&(w.moon||w.id==='moon'||w.id==='moon_bus'||w.id==='ex_moon')){if(!moonView(w))flyTo(18,-25,2600,1.8);return}
  // a herd member: the one that was clicked, else the member nearest the camera (not the herd's home spot)
  if(!p&&w&&CUR.type==='planet'){const L=CUR.prox.filter(x=>x.w.id===id&&x.herd&&!x.side&&eraOk(x.e)&&herdVisible(CUR,x.herd,ERA));if(L.length){const D=[];for(const x of L){const c=proxCenter(x);if(c)D.push([c.distanceToSquared(camera.position),x])}D.sort((a,b)=>a[0]-b[0]);
   // of the few nearest members, the one that can be seen most clearly (trees no longer step aside for the camera)
