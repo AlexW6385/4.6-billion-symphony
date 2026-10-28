@@ -193,22 +193,30 @@ function nearestEra(L,v){let b=L[0],bd=1e18;for(const x of L){const d=Math.abs(x
 /* ---------- along the roads of dream ---------- */
 const ROAD={dream:t=>V3(Math.sin(t*Math.PI*3.2)*900+Math.sin(t*17)*120,Math.sin(t*Math.PI*5)*90,3200-t*6400),
  buke:t=>V3(Math.sin(t*Math.PI*2.4+1)*1000+Math.cos(t*11)*160,Math.sin(t*Math.PI*3+.5)*140,-3000+t*6000)};
-function buildPath(id){const m=MB[id];const sc=new THREE.Scene();const sp=newSpace(id,'path',sc);const pale=!!m.pale;sp.bound=4600;
- sc.add(new THREE.AmbientLight(pale?0xd8d0ff:0x8a90b8,pale?.75:.55));const dl=new THREE.DirectionalLight(pale?0xfff0ff:0xffeedd,pale?.6:.8);dl.position.set(-.4,.9,.3);sc.add(dl);
- sc.environment=pale?makeEnv('#c8c0e8','#8a84a8','#2a2640'):makeEnv('#2a2a50','#14142a','#06060c',[[[-.4,.9,.3],'#ffe8c0',1.6]]);
- if(pale){const sky=new THREE.Mesh(new THREE.SphereGeometry(20000,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,uniforms:{uT:GT},vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+function buildPath(id){const m=MB[id];const sc=new THREE.Scene();const sp=newSpace(id,'path',sc);const look=m.look||'',real=!!look,pale=!!m.pale&&!real;sp.bound=4600;
+ if(real){
+  // a place in the real world (on or under 绒球), not a dream or the void: daylight with a blue sky, or the dim warm dark of a cave
+  const day=look==='day';sc.add(new THREE.HemisphereLight(day?0xcfe6ff:0x6a5040,day?0x4a5a3a:0x140c08,day?.75:.55));const dl=new THREE.DirectionalLight(day?0xfff2dc:0xffc890,day?1.1:.45);dl.position.set(-.4,.9,.3);sc.add(dl);
+  sc.environment=day?makeEnv('#cfe3f5','#8aa8c0','#3a4a34',[[[-.4,.9,.3],'#fff0d0',2]]):makeEnv('#3a2a20','#20140c','#080402');
+  const top=day?'vec3(.25,.48,.82)':'vec3(.05,.035,.025)',hor=day?'vec3(.78,.87,.95)':'vec3(.16,.1,.07)',bot=day?'vec3(.55,.62,.6)':'vec3(.03,.02,.015)';
+  const sky=new THREE.Mesh(new THREE.SphereGeometry(20000,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+   fragmentShader:'varying vec3 vP;void main(){vec3 d=normalize(vP);vec3 c=d.y>0.?mix('+hor+','+top+',pow(d.y,.6)):mix('+hor+','+bot+',pow(-d.y,.5));'+(day?'float s=max(0.,dot(d,normalize(vec3(-.4,.9,.3))));c+=vec3(1.,.95,.8)*(pow(s,600.)*2.+pow(s,8.)*.18);':'')+'gl_FragColor=vec4(c,1.);}'}));
+  sky.renderOrder=-20;sc.add(sky);sp.sky=sky;sc.fog=new THREE.Fog(day?0xc8dcee:0x140c08,day?3000:1200,day?16000:6000)}
+ else{sc.add(new THREE.AmbientLight(pale?0xd8d0ff:0x8a90b8,pale?.75:.55));const dl=new THREE.DirectionalLight(pale?0xfff0ff:0xffeedd,pale?.6:.8);dl.position.set(-.4,.9,.3);sc.add(dl);
+ sc.environment=pale?makeEnv('#c8c0e8','#8a84a8','#2a2640'):makeEnv('#2a2a50','#14142a','#06060c',[[[-.4,.9,.3],'#ffe8c0',1.6]]);}
+ if(real){}else if(pale){const sky=new THREE.Mesh(new THREE.SphereGeometry(20000,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,uniforms:{uT:GT},vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:GLSL_NOISE+'uniform float uT;varying vec3 vP;void main(){vec3 d=normalize(vP);float h=d.y;vec3 a=vec3(.14,.12,.22),b=vec3(.46,.42,.6);vec3 c=mix(a,b,smoothstep(-.4,.7,h));float n=fb3(d*3.+vec3(uT*.01));c+=vec3(.12,.1,.16)*smoothstep(.5,.8,n);gl_FragColor=vec4(c,1.);}'}));sky.renderOrder=-20;sc.add(sky);sc.fog=new THREE.FogExp2(0x2a2640,.00012);sp.sky=sky}
  else{sc.background=C('#020205');const sky=new THREE.Mesh(new THREE.SphereGeometry(28000,48,24),voidSkyMat());sky.renderOrder=-20;sc.add(sky);sp.sky=sky;starfield(sc,7000,20000,1.8)}
  const road=ROAD[id];sp.road=road;const n=900,wd=pale?90:34,ps=[],ix=[],uvs=[];for(let i=0;i<=n;i++){const t=i/n,p=road(t),q=road(Math.min(1,t+.001)).sub(road(Math.max(0,t-.001))).normalize();const s=V3(-q.z,0,q.x).normalize();
   ps.push(p.x+s.x*wd,p.y,p.z+s.z*wd,p.x-s.x*wd,p.y,p.z-s.z*wd);uvs.push(0,t*80,1,t*80);if(i<n){const a=i*2;ix.push(a,a+1,a+2,a+1,a+3,a+2)}}
  const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(ps,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));rg.setIndex(ix);
- const rm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{uT:GT,uC:{value:C(pale?'#bfe4ff':'#ffe2a0')},uP:{value:pale?.6:.9}},
+ const rm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{uT:GT,uC:{value:C(real?'#fff6e0':pale?'#bfe4ff':'#ffe2a0')},uP:{value:real?.35:pale?.6:.9}},
   vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:'uniform float uT,uP;uniform vec3 uC;varying vec2 vU;void main(){float e=1.-abs(vU.x-.5)*2.;float core=pow(e,3.);float flow=.55+.45*sin(vU.y*6.-uT*1.4)*sin(vU.y*1.7+uT*.3);float dash=smoothstep(.45,.5,fract(vU.y*.5-uT*.1))*smoothstep(.55,.5,fract(vU.y*.5-uT*.1))*step(.4,e);gl_FragColor=vec4(uC*(core*flow*.9+e*.2+dash*.4)*uP,1.);}'});
  sc.add(new THREE.Mesh(rg,rm));
- {const a=[];for(let i=0;i<3200;i++){const t=Math.random(),p=road(t);a.push(V3(p.x+(Math.random()-.5)*(pale?1000:600),p.y+(Math.random()-.3)*(pale?560:340),p.z+(Math.random()-.5)*(pale?1000:600)))}sc.add(sparkles(a,pale?'#f0e8ff':'#ffe8b8',pale?10:7,.6,.8))}
+ if(!real){const a=[];for(let i=0;i<3200;i++){const t=Math.random(),p=road(t);a.push(V3(p.x+(Math.random()-.5)*(pale?1000:600),p.y+(Math.random()-.3)*(pale?560:340),p.z+(Math.random()-.5)*(pale?1000:600)))}sc.add(sparkles(a,pale?'#f0e8ff':'#ffe8b8',pale?10:7,.6,.8))}
  // lanterns that drift along above the road
- const lan=[];for(let i=0;i<60;i++){const s=glowSprite(pale?'#e8f0ff':'#ffd890',pale?26:18,.8);sc.add(s);lan.push({s,t:i/60,ph:Math.random()*6})}
+ const lan=[];for(let i=0;i<(real?0:60);i++){const s=glowSprite(pale?'#e8f0ff':'#ffd890',pale?26:18,.8);sc.add(s);lan.push({s,t:i/60,ph:Math.random()*6})}
  anim(sp,null,(t)=>{lan.forEach(l=>{const k=(l.t+t*.004)%1;const p=road(k);l.s.position.set(p.x+Math.sin(t*.3+l.ph)*60,p.y+60+Math.sin(t*.7+l.ph)*20,p.z)})});
  // the library's air: loose pages drift and turn slowly over the road
  if(id==='buke'){const N=140,pg=new THREE.PlaneGeometry(6,8);const pm=new THREE.MeshStandardMaterial({color:'#f6efe0',emissive:'#fff2d8',emissiveIntensity:.25,roughness:.9,side:THREE.DoubleSide});

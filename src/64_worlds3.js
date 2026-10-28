@@ -245,6 +245,42 @@ W3.yue={home:{a:10,b:0,alt:2600},sunLon:40,
  sky:{zen:'#2a6a8a',hor:'#8ad8e8',set:'#c8a080'},
  fog:{n:10,col:'#6ac8d8'},
  props:[{geo:'sphere',n:400,col:'#3a7ad8',em:'#4ab0ff',ei:.6,scale:[.4,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(35,140))<6},{geo:'cyl',n:80,col:'#c8c8d0',metal:.5,scale:[.6,1],stretch:[1,6,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(35,140))<4}]};
+/* 云海 (ages 5–12): the peak in the east and the cloud sea round it. Jungle below, the desert to the east; the mountain rises through
+   three cloud layers (the first two soft and white, the third the brightest) with the alloy academy on its summit; over the desert the
+   dark cloud sea drifts as grey islands; far out, the creators' white hexagon island and black-piped castle hang in the sky (天国) */
+const YH_PK=[0,0],YH_DES=[0,14];
+W3.yunhai={home:{a:-6,b:-8,alt:240},sunLon:-30,
+ height:p=>{const a=angDeg(p,dirLL(...YH_PK)),n=fbm(p.x*4+2,p.y*4,p.z*4,5),d=fbm(p.x*18,p.y*18,p.z*18,3);let h=4+(n-.5)*10+(d-.5)*2;h+=78*Math.exp(-Math.pow(a/2.6,1.6))*(.85+.3*d);return Math.max(1.2,h)},
+ col:(p,h,lat,o)=>{const a=angDeg(p,dirLL(...YH_PK));o.set('#3a6a2a').lerp(C('#2a5a22'),n3(p.x*12,p.y*12,p.z*12)*.8);const ds=angDeg(p,dirLL(...YH_DES));if(ds<11)o.lerp(C('#d8b878'),1-sm(8,11,ds));if(a<3.2)o.lerp(C('#7a746a'),1-sm(1.8,3.2,a));if(a<.9)o.set('#c8ccd4')},
+ ocean:{deep:'#1a4a6a',shal:'#3a7a8a'},atm:'#a8d0f0',atmK:.6,clouds:false,rough:.95,
+ sky:{zen:'#3a78c8',hor:'#c8e0f4',set:'#e8b080'},
+ props:[{geo:'cone',n:9000,col:'#2a5a22',rough:.9,scale:[.5,1],stretch:[1,2.4,1],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>2.6&&a<20&&angDeg(dirLL(la,lo),dirLL(...YH_DES))>10}},
+  {geo:'sphere',n:2600,col:'#f4f6f8',rough:1,op:.9,scale:[5,9],stretch:[1,.14,1],alt:[16,19],minH:-99,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>1.6&&a<14&&lo<7}},
+  {geo:'sphere',n:2200,col:'#f8f8fa',rough:1,op:.9,scale:[5,9],stretch:[1,.14,1],alt:[30,33],minH:-99,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>1.3&&a<13&&lo<7}},
+  {geo:'sphere',n:2400,col:'#ffffff',em:'#fff6e0',ei:.3,rough:1,op:.92,scale:[5,9],stretch:[1,.14,1],alt:[58,61],minH:-99,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>.8&&a<14&&lo<7}},
+  {geo:'sphere',n:1400,col:'#6a6c72',rough:1,scale:[3,8],stretch:[1,.3,1],alt:[34,44],minH:-99,test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(...YH_DES))<9}],
+ more:(sp,Rn)=>{const o=new THREE.Object3D(),am=new THREE.MeshStandardMaterial({color:'#d8dce4',metalness:.8,roughness:.25});
+  for(let k=0;k<9;k++){const g=new THREE.Mesh(k%3?new THREE.BoxGeometry(1.2,1,1.2):new THREE.CylinderGeometry(.6,.7,1,12),am);const a=k/9*6.28,r=.25+(k%3)*.12;frameLL(sp,YH_PK[0]+Math.cos(a)*r,YH_PK[1]+Math.sin(a)*r,0,a,g);const h=1.4+Rn()*2.2;g.scale.set(1.4,h,1.4);g.translateY(h/2);sp.scene.add(g)}
+  {const g=new THREE.Mesh(new THREE.SphereGeometry(1.6,20,10,0,6.28,0,Math.PI/2),am);frameLL(sp,YH_PK[0],YH_PK[1],0,0,g);sp.scene.add(g)}
+  {const g=new THREE.Mesh(new THREE.CylinderGeometry(6,6,30,24,1,true),new THREE.MeshBasicMaterial({color:'#e8ecec',transparent:true,opacity:.25,side:THREE.DoubleSide,depthWrite:false}));frameLL(sp,-6,-10,15,0,g);sp.scene.add(g)}
+  {const g=new THREE.Group();const isl=new THREE.Mesh(new THREE.CylinderGeometry(6,3,2,6),new THREE.MeshStandardMaterial({color:'#f4f4f0',roughness:.5}));g.add(isl);const bm=new THREE.MeshStandardMaterial({color:'#1a1a1e',metalness:.6,roughness:.4});const ca=new THREE.Mesh(new THREE.BoxGeometry(3.4,2.4,3.4),bm);ca.position.y=2.2;g.add(ca);
+   for(let k=0;k<3;k++){const tw=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,3,8),bm);tw.position.set(-2+k*2,-2.4,0);g.add(tw)}frameLL(sp,2,21,62,0,g);sp.scene.add(g)}}};
+/* 瘟疫群岛 (age 3): a bright plankton-blue sea with islands — the half-moon bone isle with its fence of spiked green balls, the dead raft
+   creature, the great fungus island with its glowing mushroom forest and the purple-stained west beach lined with cannon barrels, and
+   to the south five identical round barrack islands; under them the blue-glowing sea cave with the crystal brain */
+const WY_ISL=[[[3,-15],3.2,3],[[0,0],6,5],[[-8,-5],1,2],[[-8,-2.5],1,2],[[-8,0],1,2],[[-8,2.5],1,2],[[-8,5],1,2]].map(([c,r,k])=>({c:dirLL(...c),r,k}));
+W3.wenyi={home:{a:-2,b:-5,alt:260},sunLon:-20,
+ height:p=>{const n=fbm(p.x*5+1,p.y*5,p.z*5,4);let h=-9+(n-.5)*4;for(const q of WY_ISL){const a=angDeg(p,q.c);if(a<q.r)h=Math.max(h,1+Math.min(1,(1-a/q.r)*3)*q.k*(.8+.4*n))}return h},
+ col:(p,h,lat,o)=>{o.set('#3a7a2a').lerp(C('#2a6a3a'),n3(p.x*14,p.y*14,p.z*14)*.7);if(h<1.8)o.set('#ece4c8');const b=angDeg(p,dirLL(3,-15));if(b<2.5&&h>2.4)o.lerp(C('#6a9a4a'),.5);
+  const f=angDeg(p,dirLL(0,0));if(f<4.3){const w=p.clone().normalize();if(h<4&&lat>-4&&lat<4&&Math.atan2(w.x,w.z)/D2R<-3.6)o.set('#c8a8d8')}if(lat<-7&&lat>-9)o.lerp(C('#7a6a5a'),.5)},
+ ocean:{deep:'#0a5a8a',shal:'#3ab8d8'},atm:'#a8d8f0',atmK:.55,clouds:true,rough:.9,
+ sky:{zen:'#3a80d0',hor:'#cfe6f4',set:'#e8b080'},
+ props:[{geo:'sphere',n:1400,col:'#6ac850',em:'#3aff6a',ei:.35,rough:.6,scale:[.25,.5],stretch:[1,.45,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(0,0))<5.4&&lo>-3.8&&!nearEnt('wenyi',la,lo,.8)},
+  {geo:'cyl',n:400,col:'#5a5a60',metal:.6,scale:[.25,.35],stretch:[1,8,1],minH:0,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(0,0));return a<6&&a>4.8&&lo<-3.8}},
+  {geo:'sphere',n:600,col:'#8a3ab8',rough:.5,scale:[.2,.35],minH:0,test:(la,lo)=>la<-7&&la>-9},
+  {geo:'sphere',n:500,col:'#4a8a3a',rough:.6,scale:[.35,.5],minH:0,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(3,-15));return a>2.6&&a<3.2}}],
+ swarmFar:null,
+ more:(sp,Rn)=>{const g=new THREE.Group();g.add(evPoints(1600,9471,evSwarmMat({dark:1,col:'#7a3a9a',rx:30,ry:3,rz:30,speed:.15,size:2.2,op:.85})));frameLL(sp,0,-8,14,0,g);sp.scene.add(g)}};
 const MR_C=[12,30];
 W3.maers={home:{a:12,b:30,alt:2400},sunLon:30,
  height:p=>{const n=fbm(p.x*3+5,p.y*3,p.z*3,5),d=fbm(p.x*14,p.y*14+2,p.z*14,3),r=Math.abs(fbm(p.x*5+7,p.y*5,p.z*5,4)-.5);let h=6+(n-.5)*22+Math.sin(d*40)*1.4;if(r<.03)h-=(.03-r)*160;const a=angDeg(p,dirLL(...MR_C));if(a<3)h-=(3-a)*3;return Math.max(1,h)},
@@ -277,8 +313,8 @@ function buildW3(id){const c=W3[id];
    w3Scatter(sp,c.junk.n/parts.length|0,hashStr(id)+40+k,(la,lo,h)=>h>2&&n3(la*.25,lo*.25,1)>.4),(o,p)=>{frameLL(sp,p[0],p[1],p[3]*1.5,p[3]*6,o);o.rotation.set(p[3]*3,p[3]*5,p[3]*2);o.scale.setScalar(1.5+p[3]*p[3]*6)},null,{far:2400}))}
  if(c.fog)w3Scatter(sp,c.fog.n,hashStr(id)+90,(la,lo,h)=>h>2&&(!c.fog.test||c.fog.test(la,lo))).forEach((p,k)=>{const g=new THREE.Group();frameLL(sp,p[0],p[1],20,0,g);g.add(evPoints(500,hashStr(id)+91+k,evSwarmMat({dark:1,soft:1,col:c.fog.col,rx:60,ry:14,rz:60,speed:.03,size:46,op:.35,max:70})));sp.scene.add(g);cull(g,g.position.clone(),80,2400)});
  // generic props: instanced shapes over the ground or floating above it (pods, tanks, lava columns, floating islands)
- (c.props||[]).forEach((q,k)=>{const geo=q.geo==='sphere'?new THREE.SphereGeometry(1,14,10):q.geo==='cyl'?new THREE.CylinderGeometry(1,1,1,12):q.geo==='box'?new THREE.BoxGeometry(1,1,1):lumpRock(1,k%5+1).clone();
-  if(q.geo==='cyl'||q.geo==='box')geo.translate(0,.5,0);if(q.flat){geo.scale(1,.45,1);geo.translate(0,-.2,0)}
+ (c.props||[]).forEach((q,k)=>{const geo=q.geo==='sphere'?new THREE.SphereGeometry(1,14,10):q.geo==='cyl'?new THREE.CylinderGeometry(1,1,1,12):q.geo==='cone'?new THREE.ConeGeometry(1,1,7):q.geo==='box'?new THREE.BoxGeometry(1,1,1):lumpRock(1,k%5+1).clone();
+  if(q.geo==='cyl'||q.geo==='box'||q.geo==='cone')geo.translate(0,.5,0);if(q.flat){geo.scale(1,.45,1);geo.translate(0,-.2,0)}
   const m=new THREE.MeshStandardMaterial({color:q.col,emissive:q.em||'#000000',emissiveIntensity:q.em?q.ei||.8:0,roughness:q.rough===undefined?.6:q.rough,metalness:q.metal||0,transparent:!!q.op,opacity:q.op||1,depthWrite:!q.op,flatShading:q.geo==='lump'});
   // a slow glow that breathes (lava, pods, lights), one uniform for the whole set
   if(q.pulse&&q.em){const e0=m.emissiveIntensity;anim(sp,null,t=>{m.emissiveIntensity=e0*(.65+.35*Math.sin(t*q.pulse+k))})}
@@ -720,45 +756,5 @@ function shuxinMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(927);const o=new T
   const g=new THREE.Group();g.position.copy(pts[pts.length-1]).add(V3(0,120,0));g.add(evPoints(1200,9271,evSwarmMat({dark:1,col:'#3a3a44',rx:500,ry:120,rz:500,speed:.05,size:24,op:.7})));sc.add(g);evFlashes(sp,g,5,300,[500,120,500],'#e0e8ff',9272)}
  {const p=road(.96),c=V3(p.x,p.y-60,p.z-200);const cm=new THREE.MeshStandardMaterial({color:'#e8f0f4',roughness:.1,metalness:.1,transparent:true,opacity:.45,depthWrite:false});
   for(let k=0;k<6;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(50,70,50),cm);b.position.set(c.x-250+k*100,c.y,c.z);sc.add(b);const sp2=new THREE.Mesh(new THREE.SphereGeometry(14,12,8),new THREE.MeshStandardMaterial({color:['#5a7a3a','#7a5a3a','#3a3a3a','#8a7a7a','#e8e4d8','#f0e8d8'][k],roughness:.7}));sp2.position.copy(b.position);sc.add(sp2)}}}
-/* 云海 (ages 5–12): up from the ground — the rail into a 50 km fog pillar and a silver track hung in a black cavern; the first and second
-   cloud layers (soft white plains, crystal cones, the cloud-block village, sky whales); the bright third layer with its castle and maze;
-   the broken grey dark cloud sea drifting as islands; and at the top the creators' white hexagon island and its black-piped castle */
-ROAD.yunhai=t=>V3(Math.sin(t*Math.PI*1.6)*600,-300+t*900,-3000+t*6000);
-BUILDERS.yunhai=()=>buildPath('yunhai');
-function yunhaiMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(937);const o=new THREE.Object3D();
- {const p=road(.05);const fp=new THREE.Mesh(new THREE.CylinderGeometry(500,500,900,32,1,true),new THREE.MeshBasicMaterial({color:'#d8dcd8',transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false}));fp.position.set(p.x+700,p.y+200,p.z);sc.add(fp)}
- const layer=(t,col,op,n,seed)=>{const p=road(t),g=new THREE.Group();g.position.set(p.x,p.y-60,p.z);g.add(evPoints(n,seed,evSwarmMat({soft:1,col,rx:2400,ry:40,rz:900,speed:.01,size:46,op})));sc.add(g)};
- layer(.18,'#ffffff',.55,2600,9371);layer(.34,'#f4f4f8',.55,2600,9372);layer(.52,'#fffbe8',.7,3000,9373);
- {const p=road(.2),cm=new THREE.MeshStandardMaterial({color:'#d8f0ff',emissive:'#8ac8ff',emissiveIntensity:.4,roughness:.1});for(const dx of[-60,60]){const c=new THREE.Mesh(new THREE.ConeGeometry(14,60,6),cm);c.position.set(p.x+400+dx,p.y-30,p.z);sc.add(c)}
-  const wm=new THREE.MeshStandardMaterial({color:'#e8f4ff',transparent:true,opacity:.4,depthWrite:false});for(let k=0;k<3;k++){const w=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),wm);w.scale.set(40,14,14);w.position.set(p.x-300+k*150,p.y-40+k*20,p.z+200);sc.add(w)}}
- {const p=road(.36),hm=new THREE.MeshStandardMaterial({color:'#f0f0f4',roughness:.4});const hi=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),hm,30);for(let i=0;i<30;i++){const a=i/30*6.28;o.position.set(p.x-400+Math.cos(a)*90,p.y-50,p.z+Math.sin(a)*90);o.rotation.set(0,a,0);o.scale.set(8,7,8);o.updateMatrix();hi.setMatrixAt(i,o.matrix)}sc.add(hi)}
- {const p=road(.54),c=V3(p.x+500,p.y-40,p.z);const cs=new THREE.Mesh(new THREE.BoxGeometry(120,70,120),new THREE.MeshStandardMaterial({color:'#e8eaf0',metalness:.6,roughness:.3}));cs.position.copy(c);sc.add(cs);
-  for(const [dx,dz] of [[-60,-60],[60,-60],[-60,60],[60,60]]){const t=new THREE.Mesh(new THREE.ConeGeometry(16,60,8),cs.material);t.position.set(c.x+dx,c.y+60,c.z+dz);sc.add(t)}
-  const rb=new THREE.Mesh(new THREE.CylinderGeometry(10,12,180,12),new THREE.MeshStandardMaterial({color:'#ffb0e0',emissive:'#a060c0',emissiveIntensity:.3,transparent:true,opacity:.7}));rb.position.set(c.x-300,c.y+60,c.z+100);sc.add(rb)}
- {const im=new THREE.InstancedMesh(new THREE.SphereGeometry(1,14,10),new THREE.MeshStandardMaterial({color:'#7a7a80',roughness:1,transparent:true,opacity:.75}),120);for(let i=0;i<120;i++){const p=road(.66+Rn()*.14);o.position.set(p.x+(Rn()-.5)*2400,p.y-80+(Rn()-.5)*120,p.z+(Rn()-.5)*900);o.rotation.set(0,Rn()*3,0);o.scale.set(40+Rn()*90,14+Rn()*20,40+Rn()*90);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im);
-  const p=road(.74),cr=new THREE.Mesh(new THREE.OctahedronGeometry(30,0),new THREE.MeshStandardMaterial({color:'#e8f8ff',emissive:'#a8e0ff',emissiveIntensity:.4,roughness:.1}));cr.position.set(p.x-600,p.y-20,p.z);cr.scale.y=1.6;sc.add(cr)}
- {const p=road(.95),c=V3(p.x+400,p.y+60,p.z-200);const isl=new THREE.Mesh(new THREE.CylinderGeometry(260,120,60,6),new THREE.MeshStandardMaterial({color:'#f4f4f0',roughness:.5}));isl.position.copy(c);sc.add(isl);
-  const bm=new THREE.MeshStandardMaterial({color:'#1a1a1e',metalness:.6,roughness:.4});const ca=new THREE.Mesh(new THREE.BoxGeometry(140,90,140),bm);ca.position.set(c.x,c.y+75,c.z);sc.add(ca);
-  for(let k=0;k<3;k++){const tw=new THREE.Mesh(new THREE.CylinderGeometry(10,10,120,10),bm);tw.position.set(c.x-80+k*80,c.y-90,c.z);sc.add(tw)}
-  const g=new THREE.Group();g.position.set(c.x,c.y+180,c.z);g.add(evPoints(400,9374,evSwarmMat({soft:1,col:'#7ae8e0',rx:120,ry:80,rz:120,speed:.08,size:24,op:.4})));sc.add(g)}}
-/* 瘟疫群岛 (age 3): sailing a bright plankton-blue sea — the half-moon bone isle with its fence of spiked green balls, the dead raft
-   creature, purple locust clouds low over the waves, the fungus island's glowing green mushroom forest and purple-stained beach of
-   cannons, the five identical round barrack islands, and under them the blue-glowing sea cave with the crystal brain */
-ROAD.wenyi=t=>V3(Math.sin(t*Math.PI*1.8)*700,t<.86?0:-(t-.86)*3000,-3000+t*6000);
-BUILDERS.wenyi=()=>buildPath('wenyi');
-function wenyiMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(947);const o=new THREE.Object3D();
- {const sea=new THREE.Mesh(new THREE.PlaneGeometry(4000,7000),new THREE.MeshStandardMaterial({color:'#1a6a9a',roughness:.15,metalness:.2,transparent:true,opacity:.92}));sea.rotation.x=-Math.PI/2;sea.position.set(0,-40,0);sc.add(sea)}
- const isle=(t,dx,r,col)=>{const p=road(t),m=new THREE.Mesh(new THREE.SphereGeometry(r,32,16,0,6.28,0,Math.PI/2),new THREE.MeshStandardMaterial({color:col,roughness:.9}));m.position.set(p.x+dx,-40,p.z);m.scale.y=.25;sc.add(m);return m.position};
- {const c=isle(.06,-600,320,'#e8e0c8');const gm=new THREE.MeshStandardMaterial({color:'#4a8a3a',roughness:.6,flatShading:true});const gi=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0),gm,40);for(let i=0;i<40;i++){const a=i/40*Math.PI;o.position.set(c.x+Math.cos(a)*260,-25,c.z+Math.sin(a)*260);o.scale.set(6,6,6);o.rotation.set(0,0,0);o.updateMatrix();gi.setMatrixAt(i,o.matrix)}sc.add(gi)}
- {const p=road(.12),r=new THREE.Mesh(new THREE.BoxGeometry(200,12,90),new THREE.MeshStandardMaterial({color:'#8a7a6a',roughness:.9}));r.position.set(p.x+500,-36,p.z);sc.add(r)}
- for(let k=0;k<2;k++){const p=road(.2+k*.1),g=new THREE.Group();g.position.set(p.x+(k?-400:400),40,p.z);g.add(evPoints(1600,9471+k,evSwarmMat({dark:1,col:'#7a3a9a',rx:600,ry:40,rz:400,speed:.15,size:9,op:.85})));sc.add(g)}
- {const c=isle(.45,700,600,'#3a6a2a');const mm=new THREE.MeshStandardMaterial({color:'#6ac850',emissive:'#3aff6a',emissiveIntensity:.35,roughness:.6});const mi=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,6,0,6.28,0,Math.PI/2),mm,140),st=new THREE.InstancedMesh(new THREE.CylinderGeometry(1,1,1,6),new THREE.MeshStandardMaterial({color:'#e8e8d8'}),140);
-  for(let i=0;i<140;i++){const a=Rn()*6.28,r=Rn()*480,h=10+Rn()*40;o.position.set(c.x+Math.cos(a)*r,-35+h/2,c.z+Math.sin(a)*r);o.rotation.set(0,0,0);o.scale.set(2,h,2);o.updateMatrix();st.setMatrixAt(i,o.matrix);o.position.y=-35+h;o.scale.set(12+Rn()*10,8,12+Rn()*10);o.updateMatrix();mi.setMatrixAt(i,o.matrix)}sc.add(mi,st);
-  const bc=new THREE.Mesh(new THREE.PlaneGeometry(140,900),new THREE.MeshStandardMaterial({color:'#c8a8d8',roughness:1}));bc.rotation.x=-Math.PI/2;bc.position.set(c.x-560,-36,c.z);sc.add(bc);
-  const cm=new THREE.MeshStandardMaterial({color:'#5a5a60',metalness:.6,roughness:.4});const ci=new THREE.InstancedMesh(new THREE.CylinderGeometry(2,3,40,8),cm,30);for(let i=0;i<30;i++){o.position.set(c.x-560+(Rn()-.5)*60,-20,c.z-420+i*28);o.rotation.set(0,0,-1.1);o.scale.set(1,1,1);o.updateMatrix();ci.setMatrixAt(i,o.matrix)}sc.add(ci)}
- for(let k=0;k<5;k++){const c=isle(.66+k*.03,(k-2)*260-500,90,'#8a7a6a');const pm=new THREE.MeshStandardMaterial({color:'#8a3ab8',roughness:.5});const pi=new THREE.InstancedMesh(new THREE.SphereGeometry(1,8,6),pm,20);for(let i=0;i<20;i++){o.position.set(c.x+(Rn()-.5)*120,-30,c.z+(Rn()-.5)*120);o.scale.set(4,5,4);o.rotation.set(0,0,0);o.updateMatrix();pi.setMatrixAt(i,o.matrix)}sc.add(pi)}
- {const p=road(.97),c=V3(p.x,p.y-60,p.z-200);const cv=new THREE.Mesh(new THREE.SphereGeometry(500,32,20),new THREE.MeshStandardMaterial({color:'#0a1a3a',roughness:.9,side:THREE.BackSide,emissive:'#1a4aff',emissiveIntensity:.15}));cv.position.copy(c);cv.scale.y=.5;sc.add(cv);
-  const cr=new THREE.Mesh(new THREE.OctahedronGeometry(40,0),new THREE.MeshStandardMaterial({color:'#bfe8ff',emissive:'#4aa8ff',emissiveIntensity:.5,transparent:true,opacity:.6,roughness:.1}));cr.position.set(c.x+100,c.y,c.z);cr.scale.y=1.6;sc.add(cr);
-  const br=new THREE.Mesh(new THREE.SphereGeometry(14,16,12),new THREE.MeshStandardMaterial({color:'#8a8a90',roughness:.6}));br.position.copy(cr.position);sc.add(br)}}
 // a road world with no entries yet starts at the head of its road
-for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing','bridge','benglie','jiqimin','fengxi','shenyan','hunhe','qijidu','shanguang','mofang','nijiang','xiubu','mgtu','paoqi','yijie','shuxin','yunhai','wenyi'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
+for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing','bridge','benglie','jiqimin','fengxi','shenyan','hunhe','qijidu','shanguang','mofang','nijiang','xiubu','mgtu','paoqi','yijie','shuxin'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}

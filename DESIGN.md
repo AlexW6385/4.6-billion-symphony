@@ -145,6 +145,7 @@ Append-only: date, decision, reason.
 - 2026-10-27 — Drafting agents judge a candidate world's size before building it: under about a dozen chapters or six entries it stays in the void as entries beside its door. Road worlds take entries in the order the book meets them (one stop per stretch), so walking the road follows the story.
 - 2026-10-27 — When two entries turn out to be one subject, the one with the better model is kept and the other's true content is merged into it; relations and side stories are redirected, and the old id keeps working in shared links (`hashEntry`).
 - 2026-10-28 — Rich blocks on 绒球 itself (the cloud sea, the plague islands, the creator's underground tree, the moon) become their own worlds too (the author's call): their entries move out, the door entry and the globe's own scenery of the place stay on 绒球. Road worlds keep a gentle slope (under about 0.25 rise per unit along): a steeper road leaves the entry framing pointed past the entry.
+- 2026-10-28 — A real place (on or under 绒球) is never drawn as a dream road in a purple sky: the cloud sea and the plague islands are terrain worlds (the planet template: the mountain with three cloud layers round it, the sea with its islands); a road world that is a real place uses a daylight or cave look (`look` in its MAPS row). The author's correction after the first version showed them as glowing roads.
 
 ## 11. Roadmap and status
 
