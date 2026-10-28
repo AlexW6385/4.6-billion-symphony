@@ -2,6 +2,12 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v2.2 — 2026-10-27 · Fourteen more worlds
+
+- **New planets**: 织梦者之地 (the dream-makers' home), 护核者之地 (where dream and the real overlap), 废墟 (the gravity ball), 荒涡 (the source of stillness, with its shelled cities round the blue core).
+- **New roads to walk**, each following the book in order: 连接世界 (the bus graveyard), 希望空间, 死亡战舰 (corridors, hatcheries, factory spheres), 虚空阴影 (ghost ruins to the black star), 吞噬之域 (the silent river, nine record zones, the whale-dwellers' star), 虚空的阴暗面 (the space graveyard, the roots of hope, the void's eye), 无空间带 (the white-gold platform, 资料库, 霜堡, 燃星者, 燃金's floating forts), 唯一之桥 (towns on the deck, streets stacked beneath, the bone dump, the twisted manager's core), 崩裂虚空 (afterimages, the black disc, ten silver rings), 机器民之地 (the can city on golden sand, the dust world, the replica city, the great vine).
+- **About 50 new entries** for these places and beings — 永焰, 燃金, 荆棘团, 血蚓, 回收者, 跨越者, 莎琳的分身, 调查员, the 无 and its seas … — each with a side story; side stories also for the death ship's, the ruins' and the stillness source's entries.
+
 ## v2.1 — 2026-10-27 · Thirteen new worlds to enter
 
 - **New worlds**, each with its own ground, sky and music, entered from their place in the void (or from the dream road / their entry card):
