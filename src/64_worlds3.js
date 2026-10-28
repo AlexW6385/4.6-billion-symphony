@@ -176,6 +176,16 @@ W3.huangwo={home:{a:30,b:0,alt:2600},sunLon:10,
   {geo:'sphere',n:300,col:'#c8f0ff',em:'#4ab0ff',ei:1,pulse:.6,scale:[.8,2],alt:[2,60],minH:-99,sea:1}]};
 /* 玛尔斯 (age 7): a small low-gravity desert of red-grey dunes, no sea; the 尔什 emigrants' white cylinder camps, the buried
    town in its pit, half-buried wrecks of the emigrant ships, the rock-skins' needle spires, dry riverbeds and a red canyon */
+/* 绿色气态巨星 (age 10): a 120,000 km emerald storm giant — no ground, only churning cloud bands with green lightning; round it ride
+   the blue moon 阿拉密斯 with its stone-bamboo fields and the grey machine moon over its hidden dust sea, and the orange crystal saw */
+W3.fhgas={home:{a:12,b:0,alt:3000},sunLon:20,
+ height:p=>{const n=fbm(p.x*2+3,p.y*9,p.z*2,4);return 2+n*6},
+ col:(p,h,lat,o)=>{const w=fbm(p.x*2.5,p.y*2.5,p.z*2.5,4),b=Math.sin(lat*.35+w*3),b2=Math.sin(lat*1.1+w*6);o.set('#1a6a40').lerp(C('#7ae8a8'),b*.5+.5);o.lerp(C('#c8f0a8'),sm(.7,1,b2)*.35);o.lerp(C('#0a3a20'),sm(.75,.9,n3(p.x*6,p.y*6,p.z*6))*.25)},
+ ocean:{deep:'#0a4a2a',shal:'#2a8a5a'},atm:'#7ae8a8',atmK:.8,clouds:true,rough:.6,
+ sky:{zen:'#0a2a1a',hor:'#6ad89a',set:'#d8a050',nightZ:'#020804',nightH:'#0a1a10'},envTop:'#4aa878',envMid:'#2a8a5a',envBot:'#0a2a1a',
+ props:[{geo:'sphere',n:260,col:'#d8ffe8',em:'#6aff9a',ei:1.2,pulse:1.4,scale:[.4,1.2],alt:[4,40]}],
+ belt:{n:300,r:[1.8,2.2],s:[4,16],col:'#8a9a90',thick:.02,tilt:.15},
+ fog:{n:12,col:'#3aa86a'}};
 const MR_C=[12,30];
 W3.maers={home:{a:12,b:30,alt:2400},sunLon:30,
  height:p=>{const n=fbm(p.x*3+5,p.y*3,p.z*3,5),d=fbm(p.x*14,p.y*14+2,p.z*14,3),r=Math.abs(fbm(p.x*5+7,p.y*5,p.z*5,4)-.5);let h=6+(n-.5)*22+Math.sin(d*40)*1.4;if(r<.03)h-=(.03-r)*160;const a=angDeg(p,dirLL(...MR_C));if(a<3)h-=(3-a)*3;return Math.max(1,h)},
@@ -525,5 +535,24 @@ function shanguangMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(857);const o=ne
  {const p=road(.8),c=V3(p.x-600,p.y+50,p.z);const sk=new THREE.Mesh(new THREE.SphereGeometry(180,40,28),new THREE.MeshStandardMaterial({color:'#d8d0c0',roughness:.6}));sk.position.copy(c);sk.scale.set(1,1.15,1);sc.add(sk);
   const em=new THREE.MeshBasicMaterial({color:'#050505'});for(const dx of [-60,60]){const e=new THREE.Mesh(new THREE.SphereGeometry(40,16,12),em);e.position.set(c.x+150,c.y+30,c.z+dx);sc.add(e)}}
  {const p=road(1);sc.add(at(glowSprite('#9ad0ff',5000,.6),p.x,p.y,p.z-1500));sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(300,32,24),new THREE.MeshBasicMaterial({color:'#d8f0ff'})),p.x,p.y,p.z-1500))}}
+/* 模仿之星系统 (age 11): seven tumblers round one star — the first glowing with molten-gold lakes, the all-green mimic star with its
+   coral towers, the cold seventh where black beetles fight spear phalanxes by torchlight, the sixth's empty neon city over a fleshy
+   core, and the sixth's drowned moon sealed in a dark-green light curtain with swarms of green triangles */
+ROAD.mofang=t=>V3(Math.sin(t*Math.PI*1.6)*700,Math.sin(t*Math.PI*2.2)*150,-3000+t*6000);
+BUILDERS.mofang=()=>buildPath('mofang');
+function mofangMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(867);const o=new THREE.Object3D();
+ {const p=road(.5),c=V3(p.x+2200,p.y+400,p.z);sc.add(at(glowSprite('#fff0d0',2600,.6),c.x,c.y,c.z));sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(260,32,24),new THREE.MeshBasicMaterial({color:'#fff8e8'})),c.x,c.y,c.z))}
+ const P=(t,sd,r,mat)=>{const p=road(t),m=new THREE.Mesh(new THREE.SphereGeometry(r,48,32),mat);m.position.set(p.x+sd*(r+500),p.y,p.z);sc.add(m);return m};
+ {const pl=P(.04,-1,300,new THREE.MeshStandardMaterial({color:'#8a5020',roughness:.8,emissive:'#ff8a20',emissiveIntensity:.25,flatShading:true}));
+  const lm=new THREE.MeshBasicMaterial({color:'#ffc040'});for(let k=0;k<10;k++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();const l=new THREE.Mesh(new THREE.CircleGeometry(20+Rn()*40,16),lm);l.position.copy(pl.position).addScaledVector(n,301);l.lookAt(pl.position.clone().addScaledVector(n,400));sc.add(l)}}
+ {const pl=P(.2,1,320,new THREE.MeshStandardMaterial({color:'#2a9a3a',roughness:.7}));const cm=new THREE.MeshStandardMaterial({color:'#3ac850',roughness:.6,flatShading:true});const ci=new THREE.InstancedMesh(new THREE.CylinderGeometry(.4,1,1,7),cm,120);
+  for(let i=0;i<120;i++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();const h=20+Rn()*60;o.position.copy(pl.position).addScaledVector(n,320+h/2);o.quaternion.setFromUnitVectors(V3(0,1,0),n);o.scale.set(6+Rn()*6,h,6+Rn()*6);o.updateMatrix();ci.setMatrixAt(i,o.matrix)}sc.add(ci)}
+ {const pl=P(.36,-1,280,new THREE.MeshStandardMaterial({color:'#2a2a30',roughness:.95,flatShading:true}));const fm=new THREE.MeshBasicMaterial({color:'#ffa040'});const fi=new THREE.InstancedMesh(new THREE.SphereGeometry(2.5,6,4),fm,80);
+  for(let i=0;i<80;i++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();if(n.x<-.2)n.x=-n.x;o.position.copy(pl.position).addScaledVector(n,283);o.scale.set(1,1,1);o.rotation.set(0,0,0);o.updateMatrix();fi.setMatrixAt(i,o.matrix)}sc.add(fi)}
+ {const pl=P(.6,1,300,new THREE.MeshStandardMaterial({color:'#4a4a58',roughness:.6,metalness:.3}));const nm=new THREE.MeshStandardMaterial({color:'#1a1a24',emissive:'#ff3ac8',emissiveIntensity:.5,roughness:.4});const ni=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),nm,90);
+  for(let i=0;i<90;i++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();if(n.x>.2)n.x=-n.x;const h=10+Rn()*40;o.position.copy(pl.position).addScaledVector(n,300+h/2);o.quaternion.setFromUnitVectors(V3(0,1,0),n);o.scale.set(6,h,6);o.updateMatrix();ni.setMatrixAt(i,o.matrix)}sc.add(ni)}
+ {const p=road(.8),c=V3(p.x-750,p.y+80,p.z);const w=new THREE.Mesh(new THREE.SphereGeometry(180,40,28),new THREE.MeshStandardMaterial({color:'#1a5a6a',roughness:.15,metalness:.2}));w.position.copy(c);sc.add(w);
+  const cur=new THREE.Mesh(new THREE.SphereGeometry(240,40,28),new THREE.MeshBasicMaterial({color:'#1a8a4a',transparent:true,opacity:.18,depthWrite:false}));cur.position.copy(c);sc.add(cur);
+  const g=new THREE.Group();g.position.copy(c);g.add(evPoints(900,8671,evSwarmMat({col:'#5aff8a',rx:320,ry:320,rz:320,speed:.15,size:7,op:.9})));sc.add(g)}}
 // a road world with no entries yet starts at the head of its road
-for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing','bridge','benglie','jiqimin','fengxi','shenyan','hunhe','qijidu','shanguang'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
+for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing','bridge','benglie','jiqimin','fengxi','shenyan','hunhe','qijidu','shanguang','mofang'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
