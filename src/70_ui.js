@@ -96,7 +96,7 @@ function openBase(id){const w=W[id];if(!w)return;sel=id;delete cap.dataset.side;
  selP=CUR.prox.find(p=>p.w.id===id&&!p.side&&(!p.hide||!p.hide()))||CUR.prox.find(p=>p.w.id===id&&!p.side&&eraOk(p.e))||null}
 function closeCapBase(quiet){cap.classList.remove('on');sel=null;selP=null;setHashEntry(null)}
 /* sharing: the address carries the open entry (#e=id), so a copied link opens the exhibition on that entry */
-function hashEntry(){const m=location.hash.match(/^#e=([^&]+)/);if(!m)return null;let id=null;try{id=decodeURIComponent(m[1])}catch(e){}return id&&W[id]?id:null}
+function hashEntry(){const m=location.hash.match(/^#e=([^&]+)/);if(!m)return null;let id=null;try{id=decodeURIComponent(m[1])}catch(e){}if(id==='luxi')id='v_headstation';return id&&W[id]?id:null}
 function setHashEntry(id){try{const h=id?'#e='+encodeURIComponent(id):'';if(location.hash!==h)history.replaceState(null,'',location.pathname+location.search+h)}catch(e){}}
 function shareEntry(id){const w=W[id];if(!w)return;setHashEntry(id);const url=location.href;
  if(COARSE&&navigator.share){navigator.share({title:w.n+' · 进化的四十六亿重奏 展览馆',url}).catch(()=>{});return}
