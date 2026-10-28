@@ -2,6 +2,14 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v2.3 — 2026-10-27 · Fourteen more worlds
+
+- **New planets**: 玛尔斯 (the emigrants' red desert), the phoenix system's green gas giant with its moons, 球神的世界 (an ember ball under floating bridges and a black pillar-god), 先祖之地 (the snowfield rock), 巴士会议 (the moss world of firing peaks, the council's buses in its sky), 寒地 (the starlit corpse world).
+- **New roads**: 虚空的缝隙 (the paused star alliance), 神之眼 (a flat disc, down to its inner sea), 混沌空间, 远古空间的长廊 (down to 奇迹之都), 神域 (the flash-creatures' three worlds), 模仿之星系统, 古代泥浆 (to the corpse and the red river), 漂泊者之家 (to the tinkers' wall).
+- **About 100 new entries** for them, each with a side story.
+- **Truer**: 露西 is the skull station's own name, so its two entries are one now (露西空间站); the shape-shifter's fate, 白星's escape, 球神's town, the jade-dragon skeleton (on 绒球, not in 先祖之地) and a few others set right against the book.
+- **Smoother**: the amoeba-like bodies no longer reshape every frame (one world went from 2 ms a frame to 0.3).
+
 ## v2.2 — 2026-10-27 · Fourteen more worlds
 
 - **New planets**: 织梦者之地 (the dream-makers' home), 护核者之地 (where dream and the real overlap), 废墟 (the gravity ball), 荒涡 (the source of stillness, with its shelled cities round the blue core).
