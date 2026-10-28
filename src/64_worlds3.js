@@ -462,5 +462,68 @@ function shenyanMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(827);const o=new 
  {const p=road(.95),c=V3(p.x,-560,p.z);const sea=new THREE.Mesh(new THREE.PlaneGeometry(4000,3000),new THREE.MeshStandardMaterial({color:'#0a1418',roughness:.15,metalness:.4}));sea.rotation.x=-Math.PI/2;sea.position.copy(c);sc.add(sea);
   const bm=new THREE.MeshStandardMaterial({color:'#d8d2c0',roughness:.6});const sp2=new THREE.Mesh(new THREE.CylinderGeometry(10,10,900,8),bm);sp2.rotation.x=Math.PI/2;sp2.position.set(c.x+500,c.y+30,c.z);sc.add(sp2);
   for(let k=0;k<12;k++){const rib=new THREE.Mesh(new THREE.TorusGeometry(70-Math.abs(k-6)*6,5,6,24,Math.PI),bm);rib.position.set(c.x+500,c.y+30,c.z-360+k*65);rib.rotation.y=Math.PI/2;sc.add(rib)}}}
+/* 混沌空间 (age 12): a groundless flickering rainbow chaos with calm black bubbles in it — the rusty-can people's planet, 影遮's black
+   sphere, the white crystal-branch ruins with the golden custom rings, the barren 枯星, the bubble split into black paste and gold
+   cones, drifting black-and-white cubes, and the last bubble as wide as a star system */
+ROAD.hunhe=t=>V3(Math.sin(t*Math.PI*2)*700,Math.sin(t*Math.PI*3)*200,3000-t*6000);
+BUILDERS.hunhe=()=>buildPath('hunhe');
+function hunheMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(837);const o=new THREE.Object3D();
+ const cols=['#ff4a6a','#ffc040','#4aff8a','#4ab0ff','#c060ff','#ffffff'];
+ for(let k=0;k<6;k++){const g=new THREE.Group(),p=road(k/5);g.position.set(p.x,p.y,p.z);g.add(evPoints(1500,8371+k,evSwarmMat({col:cols[k],rx:2600,ry:1400,rz:1400,speed:.3,size:14,op:.7})));sc.add(g)}
+ const bm=new THREE.MeshBasicMaterial({color:'#000000',transparent:true,opacity:.55,depthWrite:false});
+ for(const t of [.1,.3,.5,.7,.92]){const p=road(t),b=new THREE.Mesh(new THREE.SphereGeometry(t>.9?1400:700,40,28),bm);b.position.copy(p);sc.add(b)}
+ {const p=road(.12),c=V3(p.x-450,p.y,p.z);const pl=new THREE.Mesh(new THREE.SphereGeometry(200,40,28),new THREE.MeshStandardMaterial({color:'#8a5a3a',metalness:.5,roughness:.6}));pl.position.copy(c);sc.add(pl);
+  const im=new THREE.InstancedMesh(new THREE.CylinderGeometry(1,1,1,8),new THREE.MeshStandardMaterial({color:'#a86a40',metalness:.7,roughness:.5}),80);for(let i=0;i<80;i++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();o.position.copy(c).addScaledVector(n,205);o.quaternion.setFromUnitVectors(V3(0,1,0),n);o.scale.set(6+Rn()*6,10+Rn()*20,6+Rn()*6);o.updateMatrix();im.setMatrixAt(i,o.matrix)}sc.add(im)}
+ {const p=road(.3);sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(160,40,28),new THREE.MeshStandardMaterial({color:'#050505',roughness:.2,metalness:.6})),p.x+420,p.y+60,p.z))}
+ {const p=road(.5),c=V3(p.x-420,p.y,p.z);const wm=new THREE.MeshStandardMaterial({color:'#f0f0f4',roughness:.3,emissive:'#a0a0b0',emissiveIntensity:.2});
+  for(let k=0;k<8;k++){const pts=[];let x=c.x,y=c.y-200,z=c.z;for(let i=0;i<6;i++){pts.push(V3(x,y,z));x+=(Rn()-.5)*200;y+=80;z+=(Rn()-.5)*200}sc.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),30,10,6,false),wm))}
+  const gm=new THREE.MeshStandardMaterial({color:'#ffd040',metalness:1,roughness:.25});for(let k=0;k<4;k++){const r=new THREE.Mesh(new THREE.TorusGeometry(40+k*10,4,8,48),gm);r.position.set(c.x+120+k*60,c.y+120,c.z+(k-2)*80);r.rotation.set(Rn()*3,Rn()*3,0);sc.add(r)}}
+ {const p=road(.7);sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(220,48,32),new THREE.MeshStandardMaterial({color:'#b89a70',roughness:1,flatShading:true})),p.x+460,p.y,p.z))}
+ {const p=road(.82),c=V3(p.x-380,p.y,p.z);const pa=new THREE.Mesh(new THREE.SphereGeometry(150,32,24,0,Math.PI),new THREE.MeshStandardMaterial({color:'#060606',roughness:.1}));pa.position.copy(c);sc.add(pa);
+  const cm=new THREE.MeshStandardMaterial({color:'#ffcc40',metalness:.9,roughness:.3});const ci=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,6),cm,40);for(let i=0;i<40;i++){o.position.set(c.x+(Rn()-.5)*200,c.y+(Rn()-.5)*200,c.z+40+Rn()*100);o.rotation.set(Rn()*3,Rn()*3,0);o.scale.set(8,30,8);o.updateMatrix();ci.setMatrixAt(i,o.matrix)}sc.add(ci)}
+ {const ws=[new THREE.MeshStandardMaterial({color:'#f4f4f4',roughness:.4}),new THREE.MeshStandardMaterial({color:'#0a0a0a',roughness:.4})];for(let k=0;k<16;k++){const p=road(Rn());const c=new THREE.Mesh(new THREE.BoxGeometry(30,30,30),ws[k%2]);c.position.set(p.x+(Rn()<.5?-1:1)*(300+Rn()*400),p.y+(Rn()-.5)*300,p.z);c.rotation.set(Rn()*3,Rn()*3,0);sc.add(c)}}}
+/* 远古空间的长廊 (age 11): 小尔什, a moon, drifting down the pale sponge of the ancient space — the white 未蛸 station crusted with red
+   flesh and its lobster-shell fleets, three look-alike 尔什 worlds (the grey-brown dust one with its chimneyed factories), the ants'
+   blue sphere, the floating 奇迹之都 under the black-and-white tiled 修理者, and the open void of a hundred storm balls */
+ROAD.qijidu=t=>V3(Math.sin(t*Math.PI*1.4)*500,Math.sin(t*Math.PI*2)*160,-3000+t*6000);
+BUILDERS.qijidu=()=>buildPath('qijidu');
+function qijiduMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(847);const o=new THREE.Object3D();
+ {const pts=[];for(let i=0;i<=40;i++)pts.push(road(i/40*.86));const tb=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),160,1300,24,false),new THREE.MeshStandardMaterial({color:'#d8d0c0',roughness:1,side:THREE.BackSide,transparent:true,opacity:.35,depthWrite:false}));sc.add(tb);
+  const pm=new THREE.MeshStandardMaterial({color:'#c8c0b0',roughness:1});const im=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,8),pm,300);
+  for(let i=0;i<300;i++){const t=Rn()*.86,p=road(t),a=Rn()*6.28;o.position.set(p.x+Math.cos(a)*1250,p.y+Math.sin(a)*1250,p.z);const r=60+Rn()*140;o.scale.set(r,r,r);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im)}
+ {const p=road(.02);sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(260,48,32),new THREE.MeshStandardMaterial({color:'#4a9a8a',roughness:.6})),p.x-500,p.y+200,p.z-500))}
+ {const p=road(.08),c=V3(p.x+600,p.y,p.z);const st=new THREE.Mesh(new THREE.SphereGeometry(120,32,24),new THREE.MeshStandardMaterial({color:'#f0eee8',roughness:.5}));st.position.copy(c);sc.add(st);
+  const fm=new THREE.MeshStandardMaterial({color:'#a02020',roughness:.7});for(let k=0;k<8;k++){const pts=[];let a=k/8*6.28;for(let i=0;i<6;i++)pts.push(V3(c.x+Math.cos(a)*(120+i*60),c.y+(i%2?20:-20),c.z+Math.sin(a)*(120+i*60)));sc.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),24,14-k%3*3,6,false),fm))}
+  const lm=new THREE.MeshStandardMaterial({color:'#c84a2a',roughness:.4,metalness:.3});const li=new THREE.InstancedMesh(new THREE.SphereGeometry(1,12,8),lm,20);for(let i=0;i<20;i++){o.position.set(c.x-300+Rn()*200,c.y+(Rn()-.5)*300,c.z+(Rn()-.5)*400);o.rotation.set(0,Rn()*3,0);o.scale.set(10,8,30);o.updateMatrix();li.setMatrixAt(i,o.matrix)}sc.add(li)}
+ for(let k=0;k<3;k++){const p=road(.28+k*.06),c=V3(p.x+(k%2?-1:1)*800,p.y,p.z);const w=new THREE.Mesh(new THREE.SphereGeometry(260,48,32),new THREE.MeshStandardMaterial({color:k==1?'#7a6a58':'#5a9a7a',roughness:.8}));w.position.copy(c);sc.add(w);
+  if(k==1){const fm=new THREE.MeshStandardMaterial({color:'#5a5048',roughness:.8});const fi=new THREE.InstancedMesh(new THREE.SphereGeometry(1,12,8,0,6.28,0,Math.PI/2),fm,40);for(let i=0;i<40;i++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();o.position.copy(c).addScaledVector(n,258);o.quaternion.setFromUnitVectors(V3(0,1,0),n);o.scale.set(14,10,14);o.updateMatrix();fi.setMatrixAt(i,o.matrix)}sc.add(fi)}}
+ {const p=road(.46);sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(110,40,28),new THREE.MeshStandardMaterial({color:'#3a6aff',roughness:.1,metalness:.3})),p.x-600,p.y+80,p.z))}
+ {const p=road(.66),c=V3(p.x+650,p.y-120,p.z);const isl=new THREE.Mesh(lumpRock(1,2),new THREE.MeshStandardMaterial({color:'#8a7a60',roughness:.9,flatShading:true}));isl.position.copy(c);isl.scale.set(260,120,260);isl.rotation.x=Math.PI;sc.add(isl);
+  const bm=new THREE.MeshStandardMaterial({color:'#d8c090',roughness:.8});const bi=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),bm,60);for(let i=0;i<60;i++){const h=20+Rn()*70;o.position.set(c.x+(Rn()-.5)*360,c.y+60+h/2,c.z+(Rn()-.5)*360);o.rotation.set(0,Rn()*3,0);o.scale.set(20+Rn()*20,h,20+Rn()*20);o.updateMatrix();bi.setMatrixAt(i,o.matrix)}sc.add(bi);
+  const tile=document.createElement('canvas');tile.width=tile.height=64;const g2=tile.getContext('2d');for(let i=0;i<8;i++)for(let j=0;j<8;j++){g2.fillStyle=(i+j)%2?'#f0f0f0':'#101010';g2.fillRect(i*8,j*8,8,8)}const tx=new THREE.CanvasTexture(tile);tx.magFilter=THREE.NearestFilter;
+  const rp=new THREE.Mesh(new THREE.CylinderGeometry(300,300,30,48),new THREE.MeshStandardMaterial({map:tx,roughness:.5}));rp.position.set(c.x,c.y+520,c.z);sc.add(rp)}
+ {const p=road(.96),sm=new THREE.MeshStandardMaterial({color:'#8a90a0',roughness:.6,emissive:'#3a4050',emissiveIntensity:.3});const im=new THREE.InstancedMesh(new THREE.SphereGeometry(1,16,12),sm,100);
+  for(let i=0;i<100;i++){o.position.set(p.x+(Rn()-.5)*3000,p.y+(Rn()-.5)*1200,p.z-300-Rn()*1600);const r=15+Rn()*30;o.scale.set(r,r,r);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im);
+  const g=new THREE.Group();g.position.set(p.x,p.y,p.z-800);g.add(evPoints(600,8471,evSwarmMat({col:'#ffd890',rx:1500,ry:600,rz:800,speed:.05,size:8,op:.8})));sc.add(g)}}
+/* 神域 (age 9): chasing the spiked fleet — the light-printed moon, the fleet's tube, then three airless tumbler worlds in a triangle
+   round a small glowing ball, each with a ten-km star-reaching tower; the grey umbrella world, hammer-headed warships, the drifting
+   ghost fleet, the skull-shaped station, and at the end a pale blue point swelling into ten million km of light */
+ROAD.shanguang=t=>V3(Math.sin(t*Math.PI*1.8)*800,Math.sin(t*Math.PI*2.6)*180,3000-t*6000);
+BUILDERS.shanguang=()=>buildPath('shanguang');
+function shanguangMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(857);const o=new THREE.Object3D();
+ {const p=road(.04);const m=new THREE.Mesh(new THREE.SphereGeometry(180,40,28),new THREE.MeshStandardMaterial({color:'#9a9aa0',roughness:.9,emissive:'#4a6a8a',emissiveIntensity:.2}));m.position.set(p.x-500,p.y+100,p.z);sc.add(m)}
+ {const p=road(.24),c=V3(p.x+1300,p.y,p.z);sc.add(at(glowSprite('#fff0c0',900,.7),c.x,c.y,c.z));sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(60,24,16),new THREE.MeshBasicMaterial({color:'#fff6e0'})),c.x,c.y,c.z));
+  const wc=['#5a6a4a','#7a7a7a','#6a5a48'],tm=new THREE.MeshStandardMaterial({color:'#9aa0a8',metalness:.8,roughness:.3});
+  for(let k=0;k<3;k++){const a=k/3*6.28+.3,wc2=V3(c.x+Math.cos(a)*700,c.y+Math.sin(a)*300,c.z+Math.sin(a)*600);const w=new THREE.Mesh(new THREE.SphereGeometry(200,40,28),new THREE.MeshStandardMaterial({color:wc[k],roughness:.95,flatShading:true}));w.position.copy(wc2);sc.add(w);
+   const d=c.clone().sub(wc2).normalize();const tw=new THREE.Mesh(new THREE.CylinderGeometry(10,16,500,8),tm);tw.position.copy(wc2).addScaledVector(d,440);tw.quaternion.setFromUnitVectors(V3(0,1,0),d);sc.add(tw);
+   if(k==1){const um=new THREE.MeshStandardMaterial({color:'#8a8a8a',roughness:.7});const ui=new THREE.InstancedMesh(new THREE.ConeGeometry(1,.3,10),um,40);for(let i=0;i<40;i++){const n=V3(Rn()-.5,Rn()-.5,Rn()-.5).normalize();o.position.copy(wc2).addScaledVector(n,214);o.quaternion.setFromUnitVectors(V3(0,1,0),n);o.scale.set(14,14,14);o.updateMatrix();ui.setMatrixAt(i,o.matrix)}sc.add(ui)}}}
+ {const hm=new THREE.MeshStandardMaterial({color:'#5a5e66',metalness:.7,roughness:.4});const hi=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),hm,120);
+  for(let i=0;i<120;i++){const p=road(.5+Rn()*.1);o.position.set(p.x-400-Rn()*900,p.y+(Rn()-.5)*400,p.z+(Rn()-.5)*600);o.rotation.set(0,0,0);o.scale.set(8,8,40);o.updateMatrix();hi.setMatrixAt(i,o.matrix)}hi.frustumCulled=false;sc.add(hi);
+  const hh=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),hm,120);for(let i=0;i<120;i++){hi.getMatrixAt(i,o.matrix);o.matrix.decompose(o.position,o.quaternion,o.scale);o.position.z-=22;o.scale.set(26,14,6);o.updateMatrix();hh.setMatrixAt(i,o.matrix)}hh.frustumCulled=false;sc.add(hh)}
+ {const gm=new THREE.MeshStandardMaterial({color:'#4a5048',roughness:.8,transparent:true,opacity:.6,flatShading:true});const gi=new THREE.InstancedMesh(lumpRock(1,2),gm,30);
+  for(let i=0;i<30;i++){const p=road(.66+Rn()*.08);o.position.set(p.x+400+Rn()*900,p.y+(Rn()-.5)*400,p.z+(Rn()-.5)*500);o.rotation.set(Rn()*3,Rn()*3,0);o.scale.set(20,16,90+Rn()*80);o.updateMatrix();gi.setMatrixAt(i,o.matrix)}gi.frustumCulled=false;sc.add(gi)}
+ {const p=road(.8),c=V3(p.x-600,p.y+50,p.z);const sk=new THREE.Mesh(new THREE.SphereGeometry(180,40,28),new THREE.MeshStandardMaterial({color:'#d8d0c0',roughness:.6}));sk.position.copy(c);sk.scale.set(1,1.15,1);sc.add(sk);
+  const em=new THREE.MeshBasicMaterial({color:'#050505'});for(const dx of [-60,60]){const e=new THREE.Mesh(new THREE.SphereGeometry(40,16,12),em);e.position.set(c.x+150,c.y+30,c.z+dx);sc.add(e)}}
+ {const p=road(1);sc.add(at(glowSprite('#9ad0ff',5000,.6),p.x,p.y,p.z-1500));sc.add(at(new THREE.Mesh(new THREE.SphereGeometry(300,32,24),new THREE.MeshBasicMaterial({color:'#d8f0ff'})),p.x,p.y,p.z-1500))}}
 // a road world with no entries yet starts at the head of its road
-for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing','bridge','benglie','jiqimin','fengxi','shenyan'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
+for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing','bridge','benglie','jiqimin','fengxi','shenyan','hunhe','qijidu','shanguang'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
