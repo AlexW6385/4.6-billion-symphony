@@ -186,15 +186,50 @@ W3.fhgas={home:{a:12,b:0,alt:3000},sunLon:20,
  props:[{geo:'sphere',n:260,col:'#d8ffe8',em:'#6aff9a',ei:1.2,pulse:1.4,scale:[.4,1.2],alt:[4,40]}],
  belt:{n:300,r:[1.8,2.2],s:[4,16],col:'#8a9a90',thick:.02,tilt:.15},
  fog:{n:12,col:'#3aa86a'}};
+/* 球神的世界 (age 10): a dim 3,000 km ember ball of grey ruins, rare lakes and a pure-gold canyon; tier on tier of floating overpass
+   bridges, crusted with dead cities, shade it from the stars; a pitch-black pillar-god climbs from the ground into the void */
+const QS_GOLD=[-14,38];
+W3.qiushen={home:{a:6,b:14,alt:2600},sunLon:60,sunI:.7,
+ height:p=>{const n=fbm(p.x*3+1,p.y*3,p.z*3,5),g=angDeg(p,dirLL(...QS_GOLD));let h=4+(n-.5)*18;if(g<4)h-=(4-g)*4;return Math.max(.5,h)},
+ col:(p,h,lat,o)=>{o.set('#5a5450').lerp(C('#3a3634'),n3(p.x*9,p.y*9,p.z*9)*.8);if(angDeg(p,dirLL(...QS_GOLD))<4)o.set('#e8c050');o.lerp(C('#8a3a20'),sm(.7,.85,n3(p.x*30,p.y*30,p.z*30))*.4);if(h<1.5)o.lerp(C('#2a3034'),.6)},
+ ocean:{deep:'#1a2024',shal:'#2a3034'},atm:'#8a7a70',atmK:.4,clouds:false,rough:.95,
+ sky:{zen:'#0c0a0a',hor:'#3a302a',set:'#6a3a2a',nightZ:'#040404',nightH:'#100c0a'},envTop:'#3a3430',envMid:'#5a5048',envBot:'#1a1614',
+ junk:{n:2400},belt:{n:500,r:[1.6,2.1],s:[6,30],col:'#5a5450',thick:.05,tilt:.2},
+ more:(sp,Rn)=>{const o=new THREE.Object3D(),bm=new THREE.MeshStandardMaterial({color:'#6a645c',roughness:.85,metalness:.2}),im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),bm,420);
+  for(let i=0;i<420;i++){const la=(Rn()-.5)*150,lo=Rn()*360-180;frameLL(sp,la,lo,40+Math.floor(Rn()*4)*30,Rn()*6.28,o);o.scale.set(6+Rn()*8,1.2,60+Rn()*140);o.updateMatrix();im.setMatrixAt(i,o.matrix)}
+  im.frustumCulled=false;im.userData.noShadow=1;sp.scene.add(im);
+  const pg=new THREE.Mesh(new THREE.CylinderGeometry(14,18,9000,12),new THREE.MeshStandardMaterial({color:'#060608',roughness:.3,metalness:.4}));frameLL(sp,48,-70,4500,0,pg);pg.userData.noShadow=1;sp.scene.add(pg)}};
+/* 先祖之地 (age 10): an irregular boulder over 100,000 km across — a white snowfield with a 3,000 m peak where the phoenixes landed,
+   the blood-red torch-brain mountain, the 30 km collecting pit, the 绒球 spring pit, and far off a black swamp */
+const XZ_SNOW=[10,0],XZ_RED=[3,-12],XZ_PIT=[17,-9],XZ_SPRING=[22,-14],XZ_SWAMP=[-35,120];
+W3.xianzu={home:{a:10,b:0,alt:2600},sunLon:10,
+ height:p=>{const n=fbm(p.x*1.2+4,p.y*1.6,p.z*1.1,5),d=fbm(p.x*6,p.y*6,p.z*6,3),b=fbm(p.x*.6+9,p.y*.6,p.z*.6,2);let h=8+(n-.5)*90+(b-.5)*160+(d-.5)*10;
+  const r=angDeg(p,dirLL(...XZ_RED));if(r<3)h+=(3-r)*8;const k=angDeg(p,dirLL(...XZ_PIT));if(k<2.5)h-=(2.5-k)*10;
+  const sw=angDeg(p,dirLL(...XZ_SWAMP));if(sw<14)h=Math.min(h,1.2+(sw/14)*4);return Math.max(.6,h)},
+ col:(p,h,lat,o)=>{o.set('#6a6460').lerp(C('#4a4440'),n3(p.x*8,p.y*8,p.z*8)*.8);{const a=angDeg(p,dirLL(...XZ_SNOW))+(n3(p.x*14,p.y*14,p.z*14)-.5)*8;o.lerp(C('#f4f4f8'),(1-sm(18,24,a))*.9)}if(angDeg(p,dirLL(...XZ_RED))<3.5)o.set('#a01818');if(angDeg(p,dirLL(...XZ_SWAMP))<14)o.set('#141412')},
+ ocean:{deep:'#0c0c0a',shal:'#1a1a14'},atm:'#a8b0c0',atmK:.35,clouds:false,rough:.9,
+ sky:{zen:'#101418',hor:'#5a6470',set:'#a08060'},
+ props:[{geo:'cyl',n:200,col:'#ffb040',em:'#ff8020',ei:1,pulse:.8,scale:[.4,.8],stretch:[1,4,1],test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(...XZ_SNOW))<24},
+  {geo:'cyl',n:300,col:'#3a3028',rough:.9,scale:[.3,.6],stretch:[1,8,1],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...XZ_SNOW));return a>20&&a<30}}],
+ fog:{n:6,col:'#2a2a24',test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(...XZ_SWAMP))<12}};
+/* 巴士会议 (age 9): a cloud-choked green world, layer on layer of dry moss crust, thousands of 300 m tower-peaks whose mouths fire green
+   disintegrating spheres; the council's other buses hang round it, with the cyan fog and the small built star */
+W3.bashihui={home:{a:5,b:0,alt:2600},sunLon:30,
+ height:p=>{const n=fbm(p.x*3+6,p.y*3,p.z*3,5),d=fbm(p.x*16,p.y*16,p.z*16,3);return Math.max(2.5,8+(n-.5)*12+(d-.5)*3)},
+ col:(p,h,lat,o)=>{o.set('#5a7a3a').lerp(C('#3a5a2a'),n3(p.x*10,p.y*10,p.z*10)*.8);o.lerp(C('#a8a060'),sm(.6,.8,n3(p.x*34,p.y*34,p.z*34))*.35)},
+ ocean:{deep:'#1a3a2a',shal:'#3a6a4a'},atm:'#8ad8a0',atmK:.7,clouds:true,rough:.9,
+ sky:{zen:'#3a5a48',hor:'#a8c8a0',set:'#d8c080'},
+ props:[{geo:'cyl',n:5000,col:'#4a5a38',rough:.8,scale:[.7,1.3],stretch:[1,14,1],flat:1,far:6000,test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(5,0))<40},{geo:'sphere',n:220,col:'#8aff9a',em:'#4aff6a',ei:1.4,pulse:1.2,scale:[.6,1.4],alt:[20,140]}],
+ belt:{n:400,r:[1.7,2.3],s:[4,14],col:'#7a8a70',thick:.03,tilt:.2}};
 const MR_C=[12,30];
 W3.maers={home:{a:12,b:30,alt:2400},sunLon:30,
  height:p=>{const n=fbm(p.x*3+5,p.y*3,p.z*3,5),d=fbm(p.x*14,p.y*14+2,p.z*14,3),r=Math.abs(fbm(p.x*5+7,p.y*5,p.z*5,4)-.5);let h=6+(n-.5)*22+Math.sin(d*40)*1.4;if(r<.03)h-=(.03-r)*160;const a=angDeg(p,dirLL(...MR_C));if(a<3)h-=(3-a)*3;return Math.max(1,h)},
  col:(p,h,lat,o)=>{o.set('#a86a50').lerp(C('#7a5a50'),n3(p.x*8,p.y*8,p.z*8)*.8);o.lerp(C('#c89070'),sm(.55,.8,n3(p.x*40,p.y*40,p.z*40))*.4);if(h<4)o.lerp(C('#6a3a2a'),.5)},
  ocean:{deep:'#3a2a24',shal:'#4a3a30'},atm:'#d8a888',atmK:.5,clouds:false,rough:.95,
  sky:{zen:'#6a5a58',hor:'#d8b8a0',set:'#c87858',nightZ:'#0a0808',nightH:'#1a1210'},envTop:'#8a7468',envMid:'#c8a088',envBot:'#3a2a24',
- props:[{geo:'cyl',n:120,col:'#f0eee8',rough:.5,scale:[.6,1.4],stretch:[1,1.6],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...MR_C));return a>2&&a<26}},
-  {geo:'cyl',n:220,col:'#5a4038',rough:.9,scale:[.4,.9],stretch:[6,14],flat:1},
-  {geo:'box',n:24,col:'#7a7470',metal:.6,rough:.5,scale:[2,4],stretch:[.4,.4],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...MR_C));return a<40}}],
+ props:[{geo:'cyl',n:1200,col:'#f0eee8',rough:.5,scale:[1,2],minH:0,stretch:[1,1.6,1],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...MR_C));return a>2&&a<26}},
+  {geo:'cyl',n:220,col:'#5a4038',rough:.9,scale:[.4,.9],stretch:[1,10,1],flat:1,minH:0},
+  {geo:'box',n:24,col:'#7a7470',metal:.6,rough:.5,scale:[2,4],stretch:[4,.5,1],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...MR_C));return a<40}}],
  fog:{n:8,col:'#c89070'}};
 const HW_C=dirLL(30,0);
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
@@ -232,6 +267,7 @@ function buildW3(id){const c=W3[id];
  // a dream may hang more than one sun in its sky
  (c.suns||[]).forEach((col,k)=>{const g=glowSprite(col,1800,.9);g.material.fog=false;g.position.copy(dirLL(30-k*40,140+k*70)).multiplyScalar(24000);sp.scene.add(g)});
  // a world seen hanging in the sky (the ball of water over 废墟)
+ if(c.more)c.more(sp,Rn);
  if(c.ball){const q=c.ball,b=new THREE.Mesh(new THREE.SphereGeometry(q.r,48,32),new THREE.MeshStandardMaterial({color:q.col,roughness:.15,metalness:.2,emissive:q.col,emissiveIntensity:.15}));b.position.set(...q.at).normalize().multiplyScalar(q.d);sp.scene.add(b)}
  // a dark mass far off in the sky (the micro-machine fog at the centre of the rock field)
  if(c.swarmFar){const q=c.swarmFar,g=new THREE.Group();g.position.set(...q.at).normalize().multiplyScalar(q.d);g.add(evPoints(2600,hashStr(id)+95,evSwarmMat({dark:1,soft:1,col:q.col,rx:q.r,ry:q.r*.8,rz:q.r,speed:.01,size:q.r*.5,op:.6,max:120})));sp.scene.add(g)}
