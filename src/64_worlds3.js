@@ -345,5 +345,22 @@ function ranxingMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(777);const o=new 
  isl.frustumCulled=tw.frustumCulled=false;sc.add(isl,tw);
  {const p=road(.9),c=V3(p.x+900,p.y+100,p.z);const b=new THREE.Mesh(new THREE.SphereGeometry(500,48,32),new THREE.MeshStandardMaterial({color:'#e0e8ff',transparent:true,opacity:.18,roughness:.1,metalness:.4,depthWrite:false}));b.position.copy(c);sc.add(b);
   const g=new THREE.Group();g.position.set(c.x,c.y-300,c.z);g.add(evPoints(1500,7771,evSwarmMat({col:'#7a6a60',rx:900,ry:80,rz:600,speed:.02,size:14,op:.6})));sc.add(g)}}
+/* 唯一之桥 (age 10): the ten-thousand-kilometre bridge-city — the road runs along its deck, with towns on top, street layers
+   stacked underneath, the bone kingdoms' dump to one side, the twisted manager's core near the end and the war bus beyond */
+ROAD.bridge=t=>V3(Math.sin(t*Math.PI*.8)*400,Math.sin(t*Math.PI*2)*40,-3200+t*6400);
+BUILDERS.bridge=()=>buildPath('bridge');
+function bridgeMore(sp){const sc=sp.scene,road=sp.road,Rn=rnd(787);const o=new THREE.Object3D();
+ const dm=new THREE.MeshStandardMaterial({color:'#7a7468',roughness:.85,metalness:.15}),N=160;
+ const deck=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),dm,N*4),bld=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:'#9a907c',roughness:.8}),N*3);let k=0,b=0;
+ for(let i=0;i<N;i++){const t=i/N,p=road(t),q=road(Math.min(1,t+.004)).sub(p).normalize();const L=6400/N+4;
+  for(const [dy,w,h] of [[-70,700,40],[-170,640,30],[-270,580,30],[-370,520,30]]){o.position.set(p.x,p.y+dy,p.z);o.lookAt(o.position.clone().add(q));o.scale.set(w,h,L);o.updateMatrix();deck.setMatrixAt(k++,o.matrix)}
+  for(let j=0;j<3;j++){const sd=Rn()<.5?-1:1,x=sd*(170+Rn()*160),h=30+Rn()*130;o.position.set(p.x+x*q.z,p.y-50+h/2,p.z-x*q.x);o.rotation.set(0,Math.atan2(q.x,q.z),0);o.scale.set(20+Rn()*40,h,20+Rn()*40);o.updateMatrix();bld.setMatrixAt(b++,o.matrix)}}
+ deck.frustumCulled=bld.frustumCulled=false;sc.add(deck,bld);
+ const lm=new THREE.MeshBasicMaterial({color:'#ffcf88'});const lt=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),lm,N*2);
+ for(let i=0;i<N*2;i++){const p=road(i/N/2);o.position.set(p.x+(i%2?1:-1)*(250+(i%3)*30),p.y-120-(i%3)*100,p.z);o.rotation.set(0,0,0);o.scale.set(6,6,6);o.updateMatrix();lt.setMatrixAt(i,o.matrix)}lt.frustumCulled=false;sc.add(lt);
+ {const p=road(.15),c=V3(p.x-1400,p.y-300,p.z+200);const bm=new THREE.MeshStandardMaterial({color:'#e8e0cc',roughness:.7,flatShading:true});const im=new THREE.InstancedMesh(new THREE.CylinderGeometry(.3,.5,1,5),bm,260);
+  for(let i=0;i<260;i++){const a=Rn()*6.28,r=Math.sqrt(Rn())*600,h=(1-r/600)*300;o.position.set(c.x+Math.cos(a)*r,c.y+Rn()*h,c.z+Math.sin(a)*r*.7);o.rotation.set(Rn()*3,Rn()*3,Rn()*3);const s=20+Rn()*50;o.scale.set(s*.3,s*2,s*.3);o.updateMatrix();im.setMatrixAt(i,o.matrix)}im.frustumCulled=false;sc.add(im)}
+ {const p=road(.86),c=V3(p.x+900,p.y-200,p.z);const kn=new THREE.Mesh(new THREE.TorusKnotGeometry(220,50,160,16,3,5),new THREE.MeshStandardMaterial({color:'#3a2a4a',metalness:.6,roughness:.3,emissive:'#8a4aff',emissiveIntensity:.5}));kn.position.copy(c);sc.add(kn);sc.add(at(glowSprite('#a070ff',1600,.4),c.x,c.y,c.z))}
+ {const p=road(1),c=V3(p.x-600,p.y+200,p.z+900);const bus=new THREE.Mesh(new THREE.BoxGeometry(260,240,900),new THREE.MeshStandardMaterial({color:'#5a5248',metalness:.5,roughness:.5}));bus.position.copy(c);sc.add(bus)}}
 // a road world with no entries yet starts at the head of its road
-for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
+for(const id of ['order','lianjie','hope','deathship','xuying','tunshi','anmian','ranxing','bridge'])if(!WIKI.some(w=>w.m===id)){const p=ROAD[id](.02);HOME[id]={a:-p.z,b:p.x,alt:1400,head:0,y:p.y}}
