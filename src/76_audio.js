@@ -43,7 +43,7 @@ const MOODS={
 };
 function moodKey(){if(!CUR)return'';const id=CUR.id;
  if(id==='rongqiu'){if(rig.alt>3600)return'orbit';return ERA===1?'ocean':ERA===2?'north':ERA===3?'dino':ERA===4?'snow':'sky'}
- return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave',jing:'jing',biao:'biao',qishi:'qishi',rongui:'rongui',painbus:'painbus',amber:'amber',doom:'doom',rqdream:'dream',mudsea:'mudsea',piaofu:'void',phoenix:'jing',starbus:'qishi',order:'cave',zhimeng:'painbus',huhe:'biao',lianjie:'buke',hope:'dream',feixu:'qishi',huangwo:'jing',deathship:'tube',xuying:'void',tunshi:'void',anmian:'dream',ranxing:'white',bridge:'tube',benglie:'void',jiqimin:'tube'}[id]||'void'}
+ return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave',jing:'jing',biao:'biao',qishi:'qishi',rongui:'rongui',painbus:'painbus',amber:'amber',doom:'doom',rqdream:'dream',mudsea:'mudsea',piaofu:'void',phoenix:'jing',starbus:'qishi',order:'cave',zhimeng:'painbus',huhe:'biao',lianjie:'buke',hope:'dream',feixu:'qishi',huangwo:'jing',deathship:'tube',xuying:'void',tunshi:'void',anmian:'dream',ranxing:'white',bridge:'tube',benglie:'void',jiqimin:'tube',fengxi:'void',maers:'qishi',shenyan:'cave'}[id]||'void'}
 function sndInit(){if(SND.ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;let c;try{c=new AC()}catch(e){return false}SND.ctx=c;
  const comp=c.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=3;comp.connect(c.destination);
  SND.master=c.createGain();SND.master.gain.value=0;SND.master.connect(comp);
