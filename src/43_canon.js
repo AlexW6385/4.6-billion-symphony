@@ -91,12 +91,6 @@ function rqCanon2(sp){const gh=sp.gh,Rn=rnd(6262);
  // the silver city's avenue: land-ships, ten metres tall, that crawl on dry ground; black finned walkers cling to the hulls and drive them
  {const pts=[];for(let i=0;i<9;i++){const t=(i+.5)/9;pts.push([-4+t*2.2+(i%2?.2:-.2),54+t*2.8,0,Rn()])}
   inst(landShipGeo(),VC({metalness:.6,roughness:.25}),pts,(o,p)=>{frameLL(sp,p[0],p[1],0,Math.atan2(2.8,2.2)+(p[3]-.5)*.3,o);o.scale.setScalar(1.3)},[5,6,7,8,9,10,11,12],{far:1400})}
- // the sea of clouds: crystal ships that float on it, six rhombus crystals blazing at their sterns; crystal discs ten metres across spinning in guard
- {const cship=G([[tg(new THREE.SphereGeometry(1,14,7),{s:[5,1.1,1.5]}),'#d8f4ff',{p:[0,0,0]}],[kb(7,.2,2.4),'#a8c8d8',{p:[0,.9,0]}],...Array.from({length:6},(_,i)=>[ko(.4),'#ffffff',{p:[-5.2,-.4+(i%3)*.5,(i<3?-.5:.5)],s:[.7,1.4,.7]}])]);
-  inst(cship,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.08,metalness:.2,emissive:'#5ac8ff',emissiveIntensity:.35,transparent:true,opacity:.9}),scatter(10,-9,69,6,1961),(o,p)=>{frameLL(sp,p[0],p[1],147,p[3]*6,o,false);o.scale.setScalar(1.6)},[5],{far:3000});
-  const disc=new THREE.CylinderGeometry(4,4,.5,20);const dm=new THREE.MeshStandardMaterial({color:'#e8f8ff',roughness:.05,metalness:.3,emissive:'#7fd8ff',emissiveIntensity:.4,flatShading:true});const D=[];const g=new THREE.Group();
-  for(let i=0;i<16;i++){const m=new THREE.Mesh(disc,dm);m.userData={a:i/16*6.283,r:40+Rn()*50,y:Rn()*30,w:(Rn()<.5?-1:1)*(.15+Rn()*.2)};g.add(m);D.push(m)}fr(-10,88,140,0,g,false);addE(g,[5],true);cull(g,null,140,3000);
-  anim(sp,g,t=>D.forEach(m=>{const u=m.userData,a=u.a+t*u.w;m.position.set(Math.cos(a)*u.r,u.y+Math.sin(t+u.a)*4,Math.sin(a)*u.r);m.rotation.y=t*6;m.rotation.x=.3}))}
  // smoke from the peak beyond the great rift
  {const g=new THREE.Group();g.add(emitter({n:120,life:10,speed:4,spread:.3,size:22,dir:[.3,1,0],col:'#3a3632',col2:'#6a625a',op:.4,add:false,tex:smokeTex,area:[10,3,10],wander:2}));frameLL(sp,22,-94,72,0,g,false);g.position.setLength(R+gh(22,-94)+4);addE(g,[3,4]);cull(g,null,200,2600)}}
 

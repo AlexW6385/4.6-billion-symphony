@@ -37,10 +37,6 @@ function evFlashes(sp,g,n,sz,box,col,seed){const Rn=rnd(seed),F=[];for(let i=0;i
  anim(sp,g,(t,dt)=>{for(const f of F){f.t-=dt;if(f.t<-.5){f.t=2+Math.random()*7;f.s.position.set((Math.random()-.5)*box[0],(Math.random()-.3)*box[1],(Math.random()-.5)*box[2])}
   const k=f.t<0?-f.t:0;f.s.material.opacity=k>0?(k<.08||(k>.16&&k<.26)?.85:.12*(1-k*2)):0}})}
 function rqEvents(sp){
- // the war of the cloud kingdoms (age 5): the swarm darkens the cloud sea, thunder out of a clear sky
- {const g=new THREE.Group();frameLL(sp,-10,79,175,0,g,false);
-  g.add(evPoints(7000,811,evSwarmMat({dark:1,col:'#17121a',rx:240,ry:34,rz:170,speed:.04,size:9,op:.7})));
-  evFlashes(sp,g,6,90,[360,50,260],'#d8e6ff',812);addE(g,[5]);cull(g,g.position.clone(),300,7000)}
  // the plague locusts (age 3): a purple cloud low over the sea that hides the sun
  {const g=new THREE.Group();frameLL(sp,20,-48,55,0,g,false);
   g.add(evPoints(6000,821,evSwarmMat({dark:1,col:'#3c2148',rx:200,ry:26,rz:150,speed:.06,size:8,op:.7})));addE(g,[3]);cull(g,g.position.clone(),260,6000)}

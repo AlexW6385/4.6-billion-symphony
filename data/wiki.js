@@ -913,7 +913,6 @@ window.FAUNA = [
  {w:'lianyu', kind:'worm', at:[22,-10], n:1, col:'#8a3a22', s:6, alt:0, rad:2, e:[2]},
  {w:'aztec', kind:'swarm', at:[16,-2], n:1, col:'#161616', s:1, alt:0, rad:2, e:[2]},
  {w:'inca', kind:'swarm', at:[20,-13], n:1, col:'#2a2a2a', s:1, alt:0, rad:1.5, e:[2]},
- {w:'inca', kind:'swarm', at:[-6,72], n:1, col:'#7ecbe0', s:1, alt:18, rad:3, e:[5]},
  {w:'jumai', kind:'flyer', at:[22,-8], n:4, col:'#7fb8c8', s:1.2, alt:8, rad:3, e:[2]},
  {w:'shaxie', kind:'arthro', at:[18,-4], n:2, col:'#a0703e', s:1.6, alt:0, rad:2, e:[2]},
  {w:'shenshabus', kind:'arthro', at:[26,-2], n:1, col:'#8f6b45', s:4, alt:0, rad:3, e:[2,3]},
