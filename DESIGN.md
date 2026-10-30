@@ -146,6 +146,7 @@ Append-only: date, decision, reason.
 - 2026-10-27 — When two entries turn out to be one subject, the one with the better model is kept and the other's true content is merged into it; relations and side stories are redirected, and the old id keeps working in shared links (`hashEntry`).
 - 2026-10-28 — Rich blocks on 绒球 itself (the cloud sea, the plague islands, the creator's underground tree, the moon) become their own worlds too (the author's call): their entries move out, the door entry and the globe's own scenery of the place stay on 绒球. Road worlds keep a gentle slope (under about 0.25 rise per unit along): a steeper road leaves the entry framing pointed past the entry.
 - 2026-10-28 — A real place (on or under 绒球) is never drawn as a dream road in a purple sky: the cloud sea and the plague islands are terrain worlds (the planet template: the mountain with three cloud layers round it, the sea with its islands); a road world that is a real place uses a daylight or cave look (`look` in its MAPS row). The author's correction after the first version showed them as glowing roads.
+- 2026-10-30 — Side-story titles are checked by `tools/check_sides.mjs` (Chinese, 2–8 characters, never the entry or story id), and that check runs at the start of `npm test`. Reason: the v1.9 fact-check wrote 186 corrected stories back with the entry id as the title (`glow`, `v_lost` …), and one story had a bare number; nothing caught it. The original titles were restored from the commit before each fact-check part.
 
 ## 11. Roadmap and status
 
@@ -202,6 +203,8 @@ The implementing agent updates this section at the end of every session. Phases 
 - 🔶 (2026-10-27) A second survey ranked the book's remaining rich blocks (`worlds3.json` in the session scratchpad, by chapters and entries per place); from it 古代泥浆, 球神的世界, 先祖之地, 巴士会议 and 漂泊者之家 became worlds, and 寒地 too once three more entries filled it — 49 spaces. Planet worlds gained a `more(sp, Rn)` hook for their own landmarks (bridges, the pillar-god, the dome, moons). A bug that kept every two-number `stretch` prop from drawing was fixed. Next: 米德加尔特's journey (perhaps as a longer midgard tube), 抛弃之地 and the 异界 device split off the buke road, then Space L3 for the new worlds.
 
 - 🔶 (2026-10-28) With the author's go-ahead, four rich blocks of 绒球 became worlds — 云海 (a road up through the layers to 天国), 瘟疫群岛 (a voyage), 地下巨树 (a road down into the creator's body) and 月 (a planet) — and 米德加尔特的旅途, 抛弃之地 and 星空模拟装置 (the latter two split off the buke road): 58 spaces. A third survey (`worlds4.json`) ranks what is left: 痛苦之地 (shares chapters with the painbus and amber worlds), the 创造之海's 无 once filled, 南之大陆, 天宫学院的漂流.
+
+- ✅ (2026-10-30) 187 side stories had an id or a number for a title (186 since the v1.9 fact-check, 1 since 10-24); titles restored or rewritten, and the checker now guards them.
 
 **Phase 5 onward — Keep going**
 - No final state. Loop: find what the book describes that is still missing, thin or shallower than its text (new entries, places, details, side stories, motion), add it, test it, release it. Prefer the item adding the most faithfulness and richness per unit of work; keep §6 green at all times. Stop only when the author says so.

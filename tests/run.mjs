@@ -27,6 +27,7 @@ const check = (name, r, needPass) => {
   if (!ok) { bad++; console.log((fails.length ? fails : lines.slice(-30)).join('\n')); }
 };
 
+{ const s = run(['tools/check_sides.mjs']); const last = (s.stdout || '').trim().split('\n').pop(); console.log(`${s.status ? 'FAIL' : 'ok  '} side stories: ${last}`); if (s.status) { bad++; console.log(s.stdout.trim().split('\n').slice(0, 20).join('\n')); } }
 console.log('build'); const b = run(['scripts/build.mjs', '--min']); if (b.status) { console.log(b.stdout, b.stderr); process.exit(1); }
 if (!process.env.NOVEL_TXT && !fs.existsSync(T('fixtures/novel_sample.txt'))) run([T('make_fixture.cjs')]);
 

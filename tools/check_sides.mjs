@@ -1,4 +1,4 @@
-// Every side story hangs at an existing entry, in eras that entry has.   node tools/check_sides.mjs
+// Every side story hangs at an existing entry, in eras that entry has, and has a real title.   node tools/check_sides.mjs
 import fs from 'node:fs'; import path from 'node:path'; import { createRequire } from 'node:module';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const require = createRequire(import.meta.url); globalThis.window = {};
@@ -12,5 +12,7 @@ for (const s of S) {
   const w = W[s.at]; if (!w) { console.log('no entry', s.id, s.at); bad++; continue }
   if (!s.e.every(e => w.e.includes(e))) { console.log('era outside entry', s.id, s.e, w.e); bad++ }
   if (s.d.length < 2) { console.log('too short', s.id); bad++ }
+  // the title is shown to readers: Chinese, 2–8 characters, never an id (docs/番外写作指南.md)
+  if (typeof s.t !== 'string' || !/[一-鿿]/.test(s.t) || [...s.t].length < 2 || [...s.t].length > 8 || s.t === s.at || s.t === s.id) { console.log('bad title', s.id, JSON.stringify(s.t)); bad++ }
 }
 console.log(S.length, 'side stories,', bad, 'problems'); process.exit(bad ? 1 : 0);
