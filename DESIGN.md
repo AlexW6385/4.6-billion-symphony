@@ -9,11 +9,11 @@ A fan-made, non-commercial, interactive 3D **exhibition hall** (展览馆) of th
 It covers the **whole novel**, breadth first, and it keeps growing: the more of the book is in it, the better. There is no "complete".
 
 **Live site:** https://alexw6385.github.io/4.6-billion-symphony/
-**Source of truth for content:** the private repo **https://github.com/AlexW6385/rongqiu-source** (`novel.txt`, UTF-8, ~34 MB) — see §4.
+**Source of truth for content:** the private repo **`rongqiu-source`** (`novel.txt`, UTF-8, ~34 MB) — see §4.
 
 ## 2. What this is NOT
 
-- **Not connected to 绒球世界.** [rongqiu-world](https://github.com/AlexW6385/rongqiu-world) is a separate project with different goals (realism, ground-level, 绒球 only). The two share no code, no data, no links, and no obligations to agree with each other. Do not build bridges between them.
+- **Not connected to 绒球世界.** `rongqiu-world` (private) is a separate project with different goals (realism, ground-level, 绒球 only). The two share no code, no data, no links, and no obligations to agree with each other. Do not build bridges between them.
 - **Not a host for the original text.** The repo and the page never contain the novel's prose. Entries and descriptions are paraphrased; `chapters.js` holds only volume names, chapter numbers and titles. `tools/check_overlap.py` enforces a 12-character overlap limit and is run before every content commit.
 - **Not official.** Independent of the author and 起点中文网; copyright of the novel stays with them.
 - **Not a game.** No objectives or progression. Flying, looking, reading and browsing are the whole interaction.
@@ -147,6 +147,7 @@ Append-only: date, decision, reason.
 - 2026-10-28 — Rich blocks on 绒球 itself (the cloud sea, the plague islands, the creator's underground tree, the moon) become their own worlds too (the author's call): their entries move out, the door entry and the globe's own scenery of the place stay on 绒球. Road worlds keep a gentle slope (under about 0.25 rise per unit along): a steeper road leaves the entry framing pointed past the entry.
 - 2026-10-28 — A real place (on or under 绒球) is never drawn as a dream road in a purple sky: the cloud sea and the plague islands are terrain worlds (the planet template: the mountain with three cloud layers round it, the sea with its islands); a road world that is a real place uses a daylight or cave look (`look` in its MAPS row). The author's correction after the first version showed them as glowing roads.
 - 2026-10-30 — Side-story titles are checked by `tools/check_sides.mjs` (Chinese, 2–8 characters, never the entry or story id), and that check runs at the start of `npm test`. Reason: the v1.9 fact-check wrote 186 corrected stories back with the entry id as the title (`glow`, `v_lost` …), and one story had a bare number; nothing caught it. The original titles were restored from the commit before each fact-check part.
+- 2026-11-03 — Private repos (`rongqiu-source`, `rongqiu-world`) are named in plain text, not linked. Reason: links to private repos 404 for visitors to this public repo.
 
 ## 11. Roadmap and status
 
