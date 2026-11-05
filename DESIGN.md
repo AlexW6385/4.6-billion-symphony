@@ -8,7 +8,7 @@ A fan-made, non-commercial, interactive 3D **exhibition hall** (展览馆) of th
 
 It covers the **whole novel**, breadth first, and it keeps growing: the more of the book is in it, the better. There is no "complete".
 
-**Live site:** https://alexw6385.github.io/4.6-billion-symphony/
+**Live site:** https://alexw6385.github.io/4.6-billion-year-symphony-of-evolution/
 **Source of truth for content:** the private repo **`rongqiu-source`** (`novel.txt`, UTF-8, ~34 MB) — see §4.
 
 ## 2. What this is NOT
@@ -153,6 +153,7 @@ Append-only: date, decision, reason.
 - 2026-11-05 — Card swipes on a trackpad: one page per swipe as soon as the swipe has gone ~36 px; its inertia tail is swallowed, and a new swipe is told from the tail by its deltas growing again (once the tail has started to slow) or changing direction, so quick swipes in a row each turn a page without waiting for a pause. Reason: the old "wait for a 170 ms pause" rule swallowed fast repeated swipes.
 - 2026-11-05 — Worm herds: segments ride the ground smoothed along the chain, with a low swell (0.3 × size) fixed to the path rather than a steep bob in time, and each segment points along the chain. Reason: the author found the worms' up-and-down too steep.
 - 2026-11-05 — 绒球's canyon follows `canBend(lat)` (about ±1.3° of longitude) and everything laid along it uses the same line. Reason: a ruler-straight channel across the continent was the most artificial thing in the orbit view.
+- 2026-11-05 — The repository is renamed `4.6-billion-year-symphony-of-evolution` (was `4.6-billion-symphony`), after the English title the novel goes by, *4.6 Billion Year Symphony of Evolution*; the live site moves to `alexw6385.github.io/4.6-billion-year-symphony-of-evolution/`. The author's call.
 
 ## 11. Roadmap and status
 
@@ -163,6 +164,7 @@ The implementing agent updates this section at the end of every session. Phases 
 - Reader for the user's own txt; side stories; per-space audio; desktop and phone UI.
 - Playwright suite; audit and perf tools; content-check tools; Pages deployment.
 - `DESIGN.md` (this brief), 2026-10-26.
+- Repository renamed to `4.6-billion-year-symphony-of-evolution`, 2026-11-05.
 
 **Phase 0 — Debt and smoothness baseline**
 - ✅ Fold the patch layers (2026-10-26): no `fix*` layer remains, no function is reassigned across files; `docs/架构.md` updated. Fingerprint and screenshots identical before/after.
