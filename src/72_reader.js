@@ -60,11 +60,18 @@ function swipeable(el,fn){let s=null;el.addEventListener('pointerdown',e=>{if(e.
  const end=e=>{if(!s||e.pointerId!==s.id)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;s=null;el.style.transform='';el.style.opacity='';if(Math.abs(dx)>56&&Math.abs(dx)>Math.abs(dy)*1.4)fn(dx<0?1:-1)};
  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',e=>{s=null;el.style.transform='';el.style.opacity=''})
  /* laptop trackpads: a two-finger sideways swipe arrives as a stream of horizontal wheel deltas, then its inertia tail.
-    one swipe turns exactly one page: once a page has turned, the rest of that stream is swallowed until the deltas stop
-    for a moment (a new swipe always starts after a short pause). nothing moves while the deltas come in, so it cannot shake */
- let wx=0,wl=false,wt=0;
- el.addEventListener('wheel',e=>{const ax=Math.abs(e.deltaX);if(ax<=Math.abs(e.deltaY)*1.2&&!wx&&!wl)return;e.preventDefault();clearTimeout(wt);wt=setTimeout(()=>{wx=0;wl=false},170);if(wl)return;
-  wx+=e.deltaX*(e.deltaMode===1?33:1);if(Math.abs(wx)>90){const d=wx>0?1:-1;wl=true;wx=0;fn(d)}},{passive:false})}
+    one swipe turns exactly one page, at once: the page turns as soon as the swipe has gone a little way, and the rest of
+    that stream (its inertia tail) is swallowed. a new swipe is told from the tail without waiting for a pause, so quick
+    swipes in a row each turn a page: the tail only ever slows down, so deltas that grow again, or turn the other way,
+    are a new swipe. a short pause also ends the stream. nothing moves while the deltas come in, so it cannot shake */
+ let wx=0,wl=0,wt=0,wh=[],pk=0,dn=false;
+ el.addEventListener('wheel',e=>{const dx=e.deltaX*(e.deltaMode===1?33:1),ax=Math.abs(dx);if(ax<=Math.abs(e.deltaY)*1.2&&!wx&&!wl)return;e.preventDefault();
+  clearTimeout(wt);wt=setTimeout(()=>{wx=0;wl=0;wh=[]},120);
+  if(wl){// a swipe still speeding up when its page turned is the same swipe: growth only counts once it has started to slow
+   const sg=dx>0?1:-1,n=wh.length;if(ax>pk)pk=ax;else if(ax<pk*.75)dn=true;
+   const fresh=(sg!==wl&&ax>3)||(dn&&n>=2&&ax>6&&ax>Math.max(wh[n-1],wh[n-2])*1.3+2);
+   wh.push(ax);if(wh.length>4)wh.shift();if(!fresh)return;wl=0;wx=0}
+  wx+=dx;if(Math.abs(wx)>36){const d=wx>0?1:-1;wl=d;wx=0;wh=[ax];pk=ax;dn=false;fn(d)}},{passive:false})}
 swipeable(cap,d=>{if(cap.dataset.side){const i=SIDES.findIndex(s=>s.id===cap.dataset.side);goSide(SIDES[(i+d+SIDES.length)%SIDES.length].id);return}cardStep(d)});
 
 /* ---------- your own copy of the book: read from a file on this device, kept only in this browser ---------- */
