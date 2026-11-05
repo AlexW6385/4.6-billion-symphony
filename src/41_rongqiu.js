@@ -72,7 +72,11 @@ function riverAt(p){const H=RIVERS.H;const cx=Math.round(p.x*22),cy=Math.round(p
  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)for(let k=-1;k<=1;k++){const L=H[(cx+i)+','+(cy+j)+','+(cz+k)];if(!L)continue;for(const s of L){let u=((p.x-s.a.x)*s.ab.x+(p.y-s.a.y)*s.ab.y+(p.z-s.a.z)*s.ab.z)/s.l2;u=u<0?0:u>1?1:u;const dx=p.x-s.a.x-s.ab.x*u,dy=p.y-s.a.y-s.ab.y*u,dz=p.z-s.a.z-s.ab.z*u;const a=Math.sqrt(dx*dx+dy*dy+dz*dz)/D2R;if(a<bd){bd=a;best=s}}}
  if(!best)return null;const w=.1+best.t*.32;if(bd>w*3.2)return null;return{d:bd,w,t:best.t,k:1-sm(w*.55,w*1.15,bd),bank:1-sm(w,w*3.2,bd)}}
 function rqHeight(p){let h=rqH0(p,1);if(h<-4)return fxG_post(p,h);const r=riverAt(p);if(r){const depth=2.2+r.t*3.2;h-=depth*r.k+r.bank*Math.min(4,Math.max(0,h-2))*.35}return fxG_post(p,h)}
-function rqCanyon(p,h){const a=segAng(p,F.canA,F.canB);const k=1-sm(.4,1.3,a);return k>0?Math.max(0,(h+16))*k:0}
+/* the canyon meanders: its line runs at longitude 6 + canBend(lat), a slow bend of a degree or so either side; everything laid along
+   it (the chitin roof, the frozen trees, the lights) follows the same line */
+function canBend(la){return 1.1*Math.sin(la*.19+.7)+.4*Math.sin(la*.53+2)}
+const _cw=V3();function canWig(p){const la=Math.asin(clamp(p.y,-1,1))/D2R,lo=Math.atan2(p.x,p.z)/D2R;return wig(dirLL(la,lo-canBend(la),_cw))}
+function rqCanyon(p,h){const a=segAng(canWig(p),F.canA,F.canB);const k=1-sm(.4,1.3,a);return k>0?Math.max(0,(h+16))*k:0}
 
 /* ---------- colours ---------- */
 const PC={deep:C('#0a2233'),shelf:C('#1e4d5a'),sand:C('#d8c08a'),dune:C('#d49b5e'),rock:C('#6a5f55'),ash:C('#4a4440'),barren:C('#7d7466'),barren2:C('#5f574c'),
@@ -325,12 +329,13 @@ function buildRongqiu(){
  const iceMat=detailMat(new THREE.MeshStandardMaterial({color:'#dfeef5',roughness:.42,metalness:.05,transparent:true,opacity:.95,vertexColors:true}),{bump:.7,mott:1.4,freq:.6});
  // the ice turns blue-green where the crystal mountain's light comes up through it
  const JZ=dirLL(71,34),ICEC=C('#ffffff'),ICET=C('#8fdcef'),ICED=C('#c8e4ec');
- const cap=(maxLat,eras,south)=>{const g=new THREE.SphereGeometry(R+1.4,320,72,0,Math.PI*2,0,(90-maxLat)*D2R);{const P=g.attributes.position,n=P.count,cl=new Float32Array(n*3),d=V3(),c=new THREE.Color();const rag=(90-maxLat)*D2R;for(let i=0;i<n;i++){d.set(P.getX(i),P.getY(i),P.getZ(i)).normalize();{const ph=Math.acos(Math.max(-1,Math.min(1,d.y)));const k=ph/rag;if(k>.72){const lon=Math.atan2(d.x,d.z);const nz=(fbm(Math.cos(lon)*5.3+7,Math.sin(lon)*5.3+2,maxLat*.01,4)-.5)*2+(fbm(Math.cos(lon)*11+3,Math.sin(lon)*11+9,1.7,3)-.5)*.42+(fbm(Math.cos(lon)*29+5,Math.sin(lon)*29+1,2.3,2)-.5)*.1;const ph2=ph*(1+(k-.72)/.28*nz*.22*(maxLat<50?1.6:1));const sn=Math.sin(ph2)/Math.max(1e-6,Math.sin(ph));P.setXYZ(i,P.getX(i)*sn,Math.cos(ph2)*(R+1.4),P.getZ(i)*sn);d.set(P.getX(i),P.getY(i),P.getZ(i)).normalize()}}if(south)d.y=-d.y,d.z=-d.z;const a=angDeg(d,JZ);const nz=n3(d.x*40,d.y*40,d.z*40);c.copy(ICEC).lerp(ICED,sm(.45,.75,nz)*.5);if(!south)c.lerp(ICET,(1-sm(1.5,9,a+(nz-.5)*3))*.85);cl[i*3]=c.r;cl[i*3+1]=c.g;cl[i*3+2]=c.b}g.setAttribute('color',new THREE.BufferAttribute(cl,3))}const m=new THREE.Mesh(g,iceMat);if(south)m.rotation.x=Math.PI;m.renderOrder=1;addE(m,eras,true);return m};
+ // the edge of an ice cap wanders in long bays and tongues (noise slow enough for its 320 segments, or the edge turns to saw teeth)
+ const cap=(maxLat,eras,south)=>{const g=new THREE.SphereGeometry(R+1.4,320,72,0,Math.PI*2,0,(90-maxLat)*D2R);{const P=g.attributes.position,n=P.count,cl=new Float32Array(n*3),d=V3(),c=new THREE.Color();const rag=(90-maxLat)*D2R;for(let i=0;i<n;i++){d.set(P.getX(i),P.getY(i),P.getZ(i)).normalize();{const ph=Math.acos(Math.max(-1,Math.min(1,d.y)));const k=ph/rag;if(k>.72){const lon=Math.atan2(d.x,d.z);const nz=(fbm(Math.cos(lon)*5.3+7,Math.sin(lon)*5.3+2,maxLat*.01,4)-.5)*2+(fbm(Math.cos(lon)*9+3,Math.sin(lon)*9+9,1.7,2)-.5)*.3;const e2=Math.max(-.22,nz*.22*(maxLat<50?1.3:1)),k0=.72*rag,ph2=k0+(ph-k0)*(rag*(1+e2)-k0)/(rag-k0);const sn=Math.sin(ph2)/Math.max(1e-6,Math.sin(ph));P.setXYZ(i,P.getX(i)*sn,Math.cos(ph2)*(R+1.4),P.getZ(i)*sn);d.set(P.getX(i),P.getY(i),P.getZ(i)).normalize()}}if(south)d.y=-d.y,d.z=-d.z;const a=angDeg(d,JZ);const nz=n3(d.x*40,d.y*40,d.z*40);c.copy(ICEC).lerp(ICED,sm(.45,.75,nz)*.5);if(!south)c.lerp(ICET,(1-sm(1.5,9,a+(nz-.5)*3))*.85);cl[i*3]=c.r;cl[i*3+1]=c.g;cl[i*3+2]=c.b}g.setAttribute('color',new THREE.BufferAttribute(cl,3))}const m=new THREE.Mesh(g,iceMat);if(south)m.rotation.x=Math.PI;m.renderOrder=1;addE(m,eras,true);return m};
  cap(66,[1,2,3,5,6,7,8,9,10,11,12]);cap(36,[4]);cap(70,[1,2,3,4,5,6,7,8,9,10,11,12],true);
  // ---------- era 1: the sea of origins ----------
  {const g=new THREE.Group();const beam=new THREE.Mesh(new THREE.CylinderGeometry(3,14,520,24,1,true),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,uniforms:{uT:GT},
    vertexShader:'varying vec2 vU;varying float vF,vD;void main(){vU=uv;vec4 mv=modelViewMatrix*vec4(position,1.);vF=abs(dot(normalize(normalMatrix*normal),normalize(-mv.xyz)));vD=-mv.z;gl_Position=projectionMatrix*mv;}',
-   fragmentShader:'uniform float uT;varying vec2 vU;varying float vF,vD;void main(){float a=smoothstep(0.,.25,vU.y)*(1.-smoothstep(.6,1.,vU.y))*(.55+.45*sin(vU.x*40.+uT*2.))*(.6+.4*sin(vU.y*30.-uT*4.));a*=(.35+.65*vF)*smoothstep(20.,90.,vD);gl_FragColor=vec4(vec3(1.,.86,.48)*a*.55,1.);}'}));
+   fragmentShader:'uniform float uT;varying vec2 vU;varying float vF,vD;void main(){float a=smoothstep(0.,.25,vU.y)*(1.-smoothstep(.6,1.,vU.y))*(.55+.45*sin(vU.x*40.+uT*2.))*(.6+.4*sin(vU.y*30.-uT*4.));a*=(.35+.65*vF)*smoothstep(20.,90.,vD)*(1.-smoothstep(1000.,2000.,vD));gl_FragColor=vec4(vec3(1.,.86,.48)*a*.55,1.);}'}));
   beam.position.y=260;g.add(beam);g.add(at(glowSprite('#ffe6a0',90,.9),0,8,0));g.add(at(glowSprite('#fff4d0',26,1),0,4,0));
   g.add(emitter({n:260,life:6,speed:-14,spread:.25,size:2.4,dir:[0,1,0],col:'#ffe9a8',col2:'#fff8e8',op:.9,area:[30,10,30],fadeIn:.05}));at(g.children[g.children.length-1],0,90,0);
   const rip=new THREE.Mesh(new THREE.RingGeometry(10,13,48),GL('#fff0c0',.5));rip.rotation.x=-Math.PI/2;rip.position.y=.6;g.add(rip);
@@ -446,10 +451,10 @@ function buildRongqiu(){
   sp.scene.add(airship);px('mingshikt',()=>airship.position,16,{hide:()=>!airship.visible})}
  // canyon sea: in the snow, Lin roofs it over with clear chitin and the dragons winter inside
  {const g=new THREE.Group();const A=dirLL(3.4,6),B=dirLL(35.4,6);const n=26;const rm=new THREE.MeshStandardMaterial({color:'#dff4ff',transparent:true,opacity:.32,roughness:.05,metalness:.2,side:THREE.DoubleSide,depthWrite:false});
-  for(let i=0;i<n;i++){const t=(i+.5)/n;const p=A.clone().lerp(B,t).normalize();const ll=llDir(p);const s=new THREE.Mesh(new THREE.CylinderGeometry(16,16,R*D2R*32/n*1.08,16,1,true,0,Math.PI),rm);const o=new THREE.Group();o.add(s);s.rotation.z=Math.PI/2;
+  for(let i=0;i<n;i++){const t=(i+.5)/n;const p=A.clone().lerp(B,t).normalize();const ll=llDir(p);ll[1]+=canBend(ll[0]);const s=new THREE.Mesh(new THREE.CylinderGeometry(16,16,R*D2R*32/n*1.08,16,1,true,0,Math.PI),rm);const o=new THREE.Group();o.add(s);s.rotation.z=Math.PI/2;
    frameLL(sp,ll[0],ll[1],2,0,o,false);o.position.setLength(R+2);g.add(o)}
-  const lp=scatter(80,30,6,14,51,(la,lo,h)=>Math.abs(lo-6)<.6).map(p=>dirLL(p[0],p[1]).multiplyScalar(R+1.5));g.add(sparkles(lp,'#ffd090',1.6,1,.5));
-  addE(g,[4,5]);cull(g,dirLL(30,6).multiplyScalar(R),300,3000);px('canyon',dirLL(30,6).multiplyScalar(R+4),30,{maxD:2600})}
+  const lp=scatter(80,30,6+canBend(30),16,51,(la,lo,h)=>Math.abs(lo-6-canBend(la))<.6).map(p=>dirLL(p[0],p[1]).multiplyScalar(R+1.5));g.add(sparkles(lp,'#ffd090',1.6,1,.5));
+  addE(g,[4,5]);cull(g,dirLL(30,6).multiplyScalar(R),300,3000);px('canyon',dirLL(30,6+canBend(30)).multiplyScalar(R+4),30,{maxD:2600})}
  // the giant frozen dead on the ice river: built in 43_wilds
  rqFrozenTree(sp);
  // jade harbour: houses, a pier, the ocean research tower with its telescope-wood
@@ -707,7 +712,7 @@ function buildRongqiu(){
  sp.boom=(p,col)=>boom(sp,p,col);
  // labels for the continents, only when far away
  REGIONS.filter(r=>(r.rad||r.id==='south6')&&(r.m||'rongqiu')==='rongqiu').forEach(r=>sp.labels.push({n:r.n,id:W[r.id]?r.id:(r.id==='south6'&&W.rq_south?'rq_south':null),pos:dirLL(...r.ll).multiplyScalar(R+70),minAlt:1500,e:r.id==='east'?[5,6,7,8,9,10,11,12]:r.id==='west'?[3,4,5,6,7,8,9,10,11,12]:r.id==='south'?[1,2,3,4,5]:r.id==='south6'?[6,7,8,9,10,11,12]:null}));
- entryModels(sp);placeMotes(sp);
+ entryKits(sp);entryModels(sp);placeMotes(sp);
  return sp}
 
 /* creature hit-spheres: every member of every herd can be hovered and touched */

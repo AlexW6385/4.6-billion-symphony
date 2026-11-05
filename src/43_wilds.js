@@ -93,7 +93,7 @@ function rqFrozenTree(sp){const wm=detailMat(VC({roughness:.55,metalness:.05,sid
  const K=[fxG_frozenHomeGeo(4040),fxG_frozenHomeGeo(4141)];const Rn=rnd(4040);
  // the canyon is the ice river; the trees stand on its frozen surface (the ice sheet lies at about 1.4 over the sea)
  [[40,6.05,1,0],[38.3,5.9,.85,1],[42.4,6.1,.95,1],[44.9,5.95,.8,0],[36.9,6.2,.7,0]].forEach(([la,lo,s,k],i)=>{const g=new THREE.Group();g.add(new THREE.Mesh(K[k].wood,wm));g.add(new THREE.Mesh(K[k].ice,im));g.scale.setScalar(s);
-  frameLL(sp,la,lo,0,i*1.3,g,false);g.position.setLength(R+.6);addE(g,[4]);cull(g,null,200*s,3200);if(i===0)sp.frozenT=g});
+  frameLL(sp,la,lo+canBend(la),0,i*1.3,g,false);g.position.setLength(R+.6);addE(g,[4]);cull(g,null,200*s,3200);if(i===0)sp.frozenT=g});
  const g=sp.frozenT;
  // frost cracks running out over the ice from the first tree's roots
  const cr=[];for(let k=0;k<26;k++){let a=Rn()*6.28,r=18,p=V3(Math.cos(a)*r,.9,Math.sin(a)*r);for(let s=0;s<14;s++){a+=(Rn()-.5)*.5;r+=6+Rn()*8;const q=V3(Math.cos(a)*r,.9,Math.sin(a)*r);cr.push(p,q);if(Rn()<.25){const b=a+(Rn()-.5)*2;cr.push(q,q.clone().add(V3(Math.cos(b)*8,0,Math.sin(b)*8)))}p=q}}

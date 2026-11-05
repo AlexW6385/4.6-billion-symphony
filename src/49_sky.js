@@ -133,8 +133,8 @@ function rqSky(sp){const Rn=rnd(4949);const U={uT:GT,uSun:{value:sp.sunDir}};
     const tv=tmp.copy(B.m.position).sub(cp).normalize();const behind=-tv.dot(sp.sunDir);const sunUp=B.up.dot(sp.sunDir);
     const k=sm(.2,.6,behind)*sm(.05,.3,sunUp)*(1-sm(500,900,dc));B.m.material.opacity=.7*k;B.m.visible=k>.01}}
   const cl=camera.position.length(),alt=cl-R;cd.copy(camera.position).normalize();
-  // aurora only matters near the poles from not too far away; it fades in from space too
-  aur.visible=Math.abs(cd.y)>.55||alt>1800;
+  // aurora only matters near the poles from not too far away; seen from orbit its curtains stand off the limb like green hair, so it is not drawn there
+  aur.visible=Math.abs(cd.y)>.55&&alt<1800;
   {const low=1-sm(500,1500,alt);for(const m of MIST){if(low<=0){m.visible=false;continue}const sd=m.userData.d.dot(sp.sunDir);const k=Math.max(0,1-Math.abs(sd+.02)/.2)*low;
     const dc=m.position.distanceTo(camera.position);const f=k*(1-sm(900,1500,dc))*sm(15,60,dc);m.material.opacity=.4*f;m.visible=f>.01;if(m.visible)m.material.color.setRGB(1,.9+.1*Math.max(0,sd*5),.82+.18*Math.max(0,sd*5))}}
   // drift: under the camera, in daylight over land (snow in the great cold, at any hour)

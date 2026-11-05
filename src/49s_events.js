@@ -37,9 +37,10 @@ function evFlashes(sp,g,n,sz,box,col,seed){const Rn=rnd(seed),F=[];for(let i=0;i
  anim(sp,g,(t,dt)=>{for(const f of F){f.t-=dt;if(f.t<-.5){f.t=2+Math.random()*7;f.s.position.set((Math.random()-.5)*box[0],(Math.random()-.3)*box[1],(Math.random()-.5)*box[2])}
   const k=f.t<0?-f.t:0;f.s.material.opacity=k>0?(k<.08||(k>.16&&k<.26)?.85:.12*(1-k*2)):0}})}
 function rqEvents(sp){
+ // the low flat clouds (locusts, storms, sand) are not drawn from orbit: seen from that far they are flat dotted discs and slabs on the limb
  // the plague locusts (age 3): a purple cloud low over the sea that hides the sun
  {const g=new THREE.Group();frameLL(sp,20,-48,55,0,g,false);
-  g.add(evPoints(6000,821,evSwarmMat({dark:1,col:'#3c2148',rx:200,ry:26,rz:150,speed:.06,size:8,op:.7})));addE(g,[3]);cull(g,g.position.clone(),260,6000)}
+  g.add(evPoints(6000,821,evSwarmMat({dark:1,col:'#3c2148',rx:200,ry:26,rz:150,speed:.06,size:8,op:.7})));addE(g,[3]);cull(g,g.position.clone(),260,2000)}
  // the crystal invasion (age 8): seventeen crystal volcanoes hang high over the north and fire beams down at the cities
  {const g=new THREE.Group();frameLL(sp,30,-6,0,0,g);const Rn=rnd(831);
   const cm=new THREE.MeshStandardMaterial({color:'#c0283a',emissive:'#701020',emissiveIntensity:.8,roughness:.25,metalness:.2,flatShading:true});
@@ -66,10 +67,10 @@ function rqEvents(sp){
  // the waking creator's storm (age 3): a made storm turns over its roots, lightning striking again and again
  {const g=new THREE.Group();frameLL(sp,6,-84,120,0,g,false);
   g.add(evPoints(1000,901,evSwarmMat({dark:1,soft:1,col:'#4a4e5a',rx:150,ry:22,rz:150,speed:.09,size:52,op:.55,max:70})));
-  evFlashes(sp,g,7,80,[240,40,240],'#e0eaff',902);addE(g,[3]);cull(g,g.position.clone(),200,6000)}
+  evFlashes(sp,g,7,80,[240,40,240],'#e0eaff',902);addE(g,[3]);cull(g,g.position.clone(),200,2000)}
  // the eastern desert (age 5): a sandstorm that hides the sun, the dust-demons hunting inside it
  {const g=new THREE.Group();frameLL(sp,-18,76,30,0,g,false);
-  g.add(evPoints(900,911,evSwarmMat({dark:1,soft:1,col:'#b89868',rx:200,ry:30,rz:160,speed:.05,size:60,op:.36,max:80})));addE(g,[5]);cull(g,g.position.clone(),260,6000)}
+  g.add(evPoints(900,911,evSwarmMat({dark:1,soft:1,col:'#b89868',rx:200,ry:30,rz:160,speed:.05,size:60,op:.36,max:80})));addE(g,[5]);cull(g,g.position.clone(),260,2000)}
  // the scorpion city's breeding season (age 3): red butterflies giving light over the city
  {const g=new THREE.Group();frameLL(sp,-12.6,-78.4,40,0,g,false);
   g.add(evPoints(700,921,evSwarmMat({col:'#ff5848',rx:60,ry:18,rz:60,speed:.12,size:2.5,op:.9})));addE(g,[3]);cull(g,g.position.clone(),100,3000)}

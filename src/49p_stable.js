@@ -72,9 +72,9 @@ q5s_anims=function(sp,T,dt){const AN=sp.anims,cp=camera.position,fr=q5s_P.frame;
 /* ---- off the planets nothing was ever hidden by distance: every creature of the void (8000 objects) had its matrices and
    animations run from anywhere. small living things now sleep when the camera is far beyond their marker's reach ---- */
 function q5s_farCull(sp){if(sp.cover&&!sp.cover.__q5w){sp.cover.__q5w=1;const u=sp.cover.update;sp.cover.update=()=>q5s_span('cover',u)}q5s_warm(sp);if(sp.type==='planet'||!sp.scene||window.__q5noFar)return;const sc=sp.scene;if(!sc.__q5fc||sc.__q5fcA!==q5s_adds(sc)){sc.__q5fcA=q5s_adds(sc);const L=[];for(const c of sc.children){const id=c.userData&&c.userData.pick;const w=id&&W[id];if(!w||c.isInstancedMesh||c.isPoints)continue;const s=sizeOf(w),ep=sp.entPos&&sp.entPos[id];const live=LIVING[w.c]&&s<60;L.push({o:c,r:ep?ep.r:s*.6,far:live?Math.max(3600,s*80)*1.15:1e9,near:live?Math.max(3600,s*80):1e9})}sc.__q5fc=L}
- // besides the distance rule for small living things, anything whose radius would be under a pixel and a half on screen
+ // besides the distance rule for small living things, anything whose radius would be under three pixels on screen
  // is a speck and not drawn (a far entry is still shown by its mote); a tenth closer and it is back
- const pxk=innerHeight/(2*Math.tan(camera.fov*Math.PI/360))/1.5;
+ const pxk=innerHeight/(2*Math.tan(camera.fov*Math.PI/360))/3;
  const cp=camera.position,F=sp.follow,fid=F&&F.id,sid=sel;for(const x of sc.__q5fc){const o=x.o,e=o.matrixWorld.elements;const dx=e[12]-cp.x,dy=e[13]-cp.y,dz=e[14]-cp.z,d2=dx*dx+dy*dy+dz*dz;const id=o.userData.pick;
   const tf=x.r*pxk,far=Math.min(x.far,tf*1.1),near=Math.min(x.near,tf);
   if(o.userData.q5far){if(d2<near*near||id===fid||id===sid){o.userData.q5far=0;o.visible=o.userData.q5vis!==false}}

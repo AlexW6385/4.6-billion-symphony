@@ -2,6 +2,13 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v2.4 — 2026-11-05 · Fewer, better worlds
+
+- **Sixteen worlds to enter instead of fifty-eight**: 绒球, 虚空 (with 凝固虚空), 梦境, 不可预见之地, 尔什, 虚民母球, 米德加尔特, 地下世界, 白色通道, and the richest of the newer ones — 云海, 飘浮岩地, 凤凰的恒星, 熔毁地带, 末日空间, 唯一之桥. The other worlds were thin or roughly made; their entries (about 480) are back in the big world their door stood in — the void, the frozen void, the dream road, the unforeseeable land, or 绒球 and its moon — at the places they had before they were split off, or beside their old door. Nothing was deleted: every entry, side story and chapter link is still there.
+- **Smoother worms**: the desert and lava worms glide over the ground in a long low swell instead of bobbing steeply up and down.
+- **Trackpad swipes on a card** turn exactly one card per swipe, at once, with no coasting; quick swipes in a row each turn one.
+- **绒球 looks calmer from orbit**: the great canyon bends instead of running ruler-straight, the ice caps end in bays instead of saw teeth, and the aurora, the low storm clouds and the light pillar no longer stick out of the globe as streaks and slabs when seen from space.
+
 ## v2.3 — 2026-10-27 · Fourteen more worlds
 
 - **New planets**: 玛尔斯 (the emigrants' red desert), the phoenix system's green gas giant with its moons, 球神的世界 (an ember ball under floating bridges and a black pillar-god), 先祖之地 (the snowfield rock), 巴士会议 (the moss world of firing peaks, the council's buses in its sky), 寒地 (the starlit corpse world).
