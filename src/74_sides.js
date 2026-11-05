@@ -5147,7 +5147,7 @@ function placeSides(sp){if(sp._sides)return;sp._sides=[];spaceLin(sp);if(!placeS
   const sc=sp.type==='planet'?1:2.4;g.scale.setScalar(sc);sp.scene.add(g);if(sp.eraObjs)sp.eraObjs.push({o:g,e:s.e,noCarry:true});
   const ph=Math.random()*6;anim(sp,g,t=>{const nr=camera.position.distanceTo(g.position)<farD;g.children.forEach(c=>{if(c!==gl){c.visible=nr;if(nr)c.position.y=Math.sin(t*1.4+ph)*.8}});if(nr)roll.rotation.x=t*.8;gl.material.opacity=(sideFound.has(s.id)?.3:.6)+Math.sin(t*2+ph)*.15});
   prox(sp,s.at,p,sp.type==='planet'?9:24,{e:s.e,side:s.id,click:()=>openSide(s.id),only:1});sp._sides.push(g)}
- if(sp.type==='planet')for(const s2 of sp._sides)s2.visible=true;if(sp.type==='planet')sp._sides.forEach(g=>{const s=g.userData.side;if(s)g.visible=s.e.includes(ERA)})}
+ if(sp.type==='planet')for(const s2 of sp._sides)s2.visible=true;if(sp.type==='planet')sp._sides.forEach(g=>{const s=g.userData.side;if(s)g.visible=eraHas(s.e,ERA)})}
 function openSideBase(id){const s=SB[id];if(!s)return;const w=W[s.at];const n=!sideFound.has(id);sideFound.add(id);store.set('rq_sides',[...sideFound]);if(n){$('#book').classList.add('new')}
  sel=null;const i=SIDES.indexOf(s);
  cap.innerHTML=`<button class="x" aria-label="关闭">×</button><div class="eb side">番外 · ${esc(shortN(w.n))} · ${s.e.map(e=>ERAN[e]).slice(0,2).join(' · ')}</div><h2>${esc(s.t)}</h2>${s.d.map(p=>`<p class="d">${esc(p)}</p>`).join('')}
@@ -5157,7 +5157,7 @@ function openSideBase(id){const s=SB[id];if(!s)return;const w=W[s.at];const n=!s
 /* on an entry's card: a quiet line about the story hanging nearby — its title once read, only a hint before */
 function sideHintHTML(id){const L=SIDES.filter(s=>s.at===id);if(!L.length)return'';
  return`<div class="rel sidehint">${L.map(s=>`<a data-sidehint="${s.id}">番外《${esc(s.t)}》</a>`).join('')}</div>`}
-function goSide(id){if(id==='__rand'){const L=SIDES.filter(x=>!sideFound.has(x.id));const P=L.length?L:SIDES;id=P[(Math.random()*P.length)|0].id}const s=SB[id];if(!s)return;const w=W[s.at];const m=mapOf(w);const e=s.e.includes(ERA)?ERA:s.e[0];
+function goSide(id){if(id==='__rand'){const L=SIDES.filter(x=>!sideFound.has(x.id));const P=L.length?L:SIDES;id=P[(Math.random()*P.length)|0].id}const s=SB[id];if(!s)return;const w=W[s.at];const m=mapOf(w);const e=eraRep(eraHas(s.e,ERA,m)?ERA:s.e[0],m);
  const clr=()=>{const P=sidePos(s,CUR);if(P)ensureClear(null,{P,r:10})};
  const after=()=>{if(CUR.type==='planet'&&ERA!==e)setEra(e);flyEntry(w);clr();setTimeout(()=>openSide(id),300)};
  if(m!==CUR.id){enterSpace(m,{era:e,rig:entryRig(w,SP[m]),after:()=>{openSide(id);clr()}});return}after()}

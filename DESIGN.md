@@ -154,6 +154,10 @@ Append-only: date, decision, reason.
 - 2026-11-05 — Worm herds: segments ride the ground smoothed along the chain, with a low swell (0.3 × size) fixed to the path rather than a steep bob in time, and each segment points along the chain. Reason: the author found the worms' up-and-down too steep.
 - 2026-11-05 — 绒球's canyon follows `canBend(lat)` (about ±1.3° of longitude) and everything laid along it uses the same line. Reason: a ruler-straight channel across the continent was the most artificial thing in the orbit view.
 - 2026-11-05 — The repository is renamed `4.6-billion-year-symphony-of-evolution` (was `4.6-billion-symphony`), after the English title the novel goes by, *4.6 Billion Year Symphony of Evolution*; the live site moves to `alexw6385.github.io/4.6-billion-year-symphony-of-evolution/`. The author's call.
+- 2026-11-05 — 云海 and 飘浮岩地 folded back as well (14 worlds): the cloud sea's layers were flat white and black discs that hid its entries, and the floating rock land was dark with most entries unseen. Their entries went back to 绒球 and the void by the same rule.
+- 2026-11-05 — Ages per world: the 13 ages of the book stay as they are in the data, but a world's timeline keeps only the stops where it looks different. `MAPS` rows carry `eg:{kept:[merged…]}`; anything tagged with a merged age shows at the kept stop (`eraHas`), the stop reads as its first and last age (`eraName`, `eraCh`). 绒球 13 → 8 (6+7, 9–13 merged), 尔什 6 → 4 (10–12), 熔毁地带 → 1; empty ages dropped. Void-like spaces keep one stop per age (each flies to its own region).
+- 2026-11-05 — Kit shapes standing on a planet are sized by their solid meshes (not their halos) and their self-glow is turned down there (`kitBox`, `kitTame`); bodies on the template worlds are a little bigger. A jump to a place on a world's night side turns its day round to it (`dayFor`, which existed but was never called). The phoenixes on their star use the book's phoenix model and fly above the platforms; the bridge's six identical lumps got shapes of their own. The phoenix star's platforms step a few metres apart instead of storeys, on a denser ground.
+- 2026-11-05 — The left and right arrow keys turn the open card or chapter; they no longer move the camera (mouse or WASD). Trackpad swipes: nothing turns for 250 ms after a turn, and a new swipe needs two deltas in a row climbing well clear of the tail's low point (or a change of direction, or a pause). Reason: the author still saw one hard swipe turn several cards.
 
 ## 11. Roadmap and status
 
@@ -215,6 +219,7 @@ The implementing agent updates this section at the end of every session. Phases 
 - ✅ (2026-10-30) 187 side stories had an id or a number for a title (186 since the v1.9 fact-check, 1 since 10-24); titles restored or rewritten, and the checker now guards them.
 
 - ✅ (2026-11-05) Worlds pruned to 16 by the author's brief (§10); ~480 entries folded back into their containers, all audited (6 flagged, none hidden). 绒球 orbit view cleaned (canyon, ice-cap edges, aurora and low clouds from orbit, the light pillar); worm motion and trackpad card swipes fixed. CHANGELOG v2.4.
+- ✅ (2026-11-05) Ages per world merged (`eg`), 云海 and 飘浮岩地 folded back (14 worlds), entry framing and kit models fixed where the audit and screenshots showed them hidden or blown out, arrow keys for cards. CHANGELOG v2.5.
 
 **Phase 5 onward — Keep going**
 - No final state. Loop: find what the book describes that is still missing, thin or shallower than its text (new entries, places, details, side stories, motion), add it, test it, release it. Prefer the item adding the most faithfulness and richness per unit of work; keep §6 green at all times. Stop only when the author says so.

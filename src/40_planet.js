@@ -355,7 +355,7 @@ function makePlanetBase(id,cfg){const sc=new THREE.Scene();const sp=newSpace(id,
 const LOD_K=110;const _dd=V3(),UP_Y=V3(0,1,0),_warmH=new THREE.Color('#ffb070');
 
 /* era → which objects show (planet rule: things that lasted to the end of book two carry on into book three) */
-function applyPlanetEraBase(sp,e){for(const x of sp.eraObjs){const v=x.e.includes(e)||(e===13&&x.e.includes(12))||(sp.id==='rongqiu'&&e>=6&&!x.noCarry&&x.e.includes(5)&&!x.e.some(z=>z>=6));x.o.userData.eraHide=!v;x.o.visible=v}
+function applyPlanetEraBase(sp,e){for(const x of sp.eraObjs){const v=eraHas(x.e,e,sp.id)||(e===13&&x.e.includes(12))||(sp.id==='rongqiu'&&e>=6&&!x.noCarry&&x.e.includes(5)&&!x.e.some(z=>z>=6));x.o.userData.eraHide=!v;x.o.visible=v}
  for(const h of sp.herds){const v=herdVisible(sp,h,e);h.eraVis=v;h.near=undefined;h.list.forEach(x=>x.o.visible=false)}
  if(sp.cfg.colorKey)sp.setColors(sp.cfg.colorKey(e));if(sp.cfg.canyonOf)sp.setCanyon(sp.cfg.canyonOf(e));if(sp.onEra)sp.onEra(e)}
 
@@ -386,7 +386,7 @@ function makeCoverBase(sp,biomeFn){COVERG=COVERG||coverGeos();
   // a new patch of ground cover is worked out a few rows per frame (the old one stays up meanwhile), then swapped in at once
   if(!job){last={d:tg.clone(),rd:rdD};lastEra=ERA;
    const cells=86,cs=rdD*2/cells;const la0=Math.floor((rig.a-rdD)/cs),lo0s=rdD/Math.max(.2,Math.cos(rig.a*D2R));const lcs=cs/Math.max(.2,Math.cos(rig.a*D2R));const lo0=Math.floor((rig.b-lo0s)/lcs);
-   const clr=(sp.entClr||[]).filter(e=>(!e.eras||e.eras.includes(ERA))&&angDeg(e.d,tg)<rdD+e.deg*1.5);
+   const clr=(sp.entClr||[]).filter(e=>(!e.eras||eraHas(e.eras,ERA))&&angDeg(e.d,tg)<rdD+e.deg*1.5);
    job={j:0,cells,cs,la0,lo0,lcs,rdD,tg:tg.clone(),clr,era:ERA,acc:groups.map(()=>[]),lines:sp.q2Lines?q2_lines(sp,tg,rdD):null}}
   const J=job;const tg2=J.tg,rd2=J.rdD,cs=J.cs,lcs=J.lcs,clr=J.clr,acc=J.acc,cells=J.cells;const t0=q5s_now(),lim=q5s_slice();// (49p_stable: rows until the slice's time is used, then one kind of plant a frame)
   while(J.j<cells){const j=J.j++;for(let i=0;i<cells;i++){const ci=J.la0+j,cj=J.lo0+i;const hx=h3(ci*.37,cj*.61,7.1),hy=h3(ci*.71,cj*.19,3.3);

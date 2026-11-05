@@ -15,9 +15,9 @@ const hintEl=document.createElement('div');hintEl.id='hint';document.body.append
 
 /* ---------- small helpers ---------- */
 function placeName(w){const m=mapOf(w);const mn=MB[m].n;let r='';if(w.ng)r='凝固虚空';else if(m==='void'&&w.sec)r=SECTORS[w.sec].n.split(' · ')[0];else if(RN[w.r])r=RN[w.r];return r&&r!==mn?`${mn} · ${r}`:mn}
-function bestEra(w,mapId){const me=MB[mapId].e;let L=(w.e||[]).filter(e=>me.includes(e));if(!L.length)return null;
+function bestEra(w,mapId){const me=MB[mapId].e;let L=[...new Set((w.e||[]).map(e=>eraRep(e,mapId)))].filter(e=>me.includes(e));if(!L.length)return null;
  // a creature that lives as a herd: arrive in an age when the herd is actually there
- {const F=(window.FAUNA||[]).filter(f=>f.w===w.id&&(f.m||'rongqiu')===mapId);if(F.length){const L2=L.filter(e=>F.some(f=>!f.e||f.e.includes(e)));if(L2.length)L=L2}}if(L.includes(ERA))return ERA;return L.reduce((a,b)=>Math.abs(b-ERA)<Math.abs(a-ERA)?b:a)}
+ {const F=(window.FAUNA||[]).filter(f=>f.w===w.id&&(f.m||'rongqiu')===mapId);if(F.length){const L2=L.filter(e=>F.some(f=>!f.e||eraHas(f.e,e,mapId)));if(L2.length)L=L2}}if(L.includes(ERA))return ERA;return L.reduce((a,b)=>Math.abs(b-ERA)<Math.abs(a-ERA)?b:a)}
 function isVis(o){let p=o;while(p){if(p.visible===false)return false;p=p.parent}return true}
 let tT=0;function toast(t,s){const el=$('#toast');el.innerHTML=(t?`<b>${t}</b>`:'')+(s||'');el.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('on'),5200)}
 function eggBase(id,silent){const g=EGGS.find(e=>e.id===id);if(!g)return;const n=!found.has(id);if(n){found.add(id);store.set('rq_eggs',[...found]);$('#book').classList.add('new');if(libTab==='egg'&&$('#lib').classList.contains('on'))renderLib()}if(!silent&&(n||g.t))toast((n?'彩蛋 · ':'')+g.n,g.t)}
@@ -37,7 +37,7 @@ function enterSpaceBase(id,opt){opt=opt||{};if(busy){pendEnter=[id,opt];pendGo=n
    const want=opt.era&&eraListFor(sp).includes(opt.era)?opt.era:null;
    // a remembered spot is only reused when it belongs to the era we are arriving in
    let s=opt.rig||(sp.saved&&!opt.home&&(sp.type==='planet'||!want||sp.saved.era===want)?sp.saved:(sp.type!=='planet'&&want?eraSpot(sp,want):homeFor(sp,want||ERA)));Object.assign(rig,{a:s.a,b:s.b,alt:s.alt,head:s.head||0,y:s.y||0});
-   if(sp.type==='planet'){if(opt.portal&&sp.saved&&sp.saved.era)opt.era=sp.saved.era;ERA=opt.era&&MB[id].e.includes(opt.era)?opt.era:clampEra(sp,ERA);store.set('rq_era',ERA);applyPlanetEra(sp,ERA)}else if(opt.era&&eraListFor(sp).includes(opt.era)){ERA=opt.era}
+   if(sp.type==='planet'){if(opt.portal&&sp.saved&&sp.saved.era)opt.era=sp.saved.era;if(opt.era)opt.era=eraRep(opt.era,id);ERA=opt.era&&MB[id].e.includes(opt.era)?opt.era:clampEra(sp,ERA);store.set('rq_era',ERA);applyPlanetEra(sp,ERA)}else if(opt.era&&eraListFor(sp).includes(opt.era)){ERA=opt.era}
    // arriving for an entry: its exact framing can only be worked out once the world is built
    if(opt.rigFn){let s2=null;try{s2=opt.rigFn()}catch(e){console.warn('rigFn',e)}if(s2)Object.assign(rig,{a:s2.a,b:s2.b,alt:s2.alt,head:s2.head||0,y:s2.y||0})}
    if(sp.type!=='planet'){rigPose();const e=sp.eraAt?sp.eraAt(S_):null;if(e&&!(opt.era&&eraListFor(sp).includes(opt.era)))ERA=e}
@@ -63,24 +63,28 @@ function buildLabels(sp){labRoot.innerHTML='';labs=[];sp.labels.forEach(L=>{if(!
 const _pj=V3();
 const _labCam=new THREE.Vector3();
 /* labels follow their spot on screen; the page is only touched when a label moves by a pixel or turns on or off */
-function updateLabels(){const Wd=innerWidth,Hd=innerHeight;const camR=camera.position.length();_labCam.copy(camera.position).normalize();for(const x of labs){const L=x.L;let on=rig.alt>L.minAlt&&(!L.e||L.e.includes(ERA));
+function updateLabels(){const Wd=innerWidth,Hd=innerHeight;const camR=camera.position.length();_labCam.copy(camera.position).normalize();for(const x of labs){const L=x.L;let on=rig.alt>L.minAlt&&(!L.e||eraHas(L.e,ERA));
  if(on&&CUR.type==='planet'){_pj.copy(L.pos).normalize();if(_pj.dot(_labCam)<R/camR+.05)on=false}
  if(on){_pj.copy(L.pos).project(camera);if(_pj.z>1||Math.abs(_pj.x)>1.1||Math.abs(_pj.y)>1.1)on=false;else{const tx=Math.round((_pj.x*.5+.5)*Wd),ty=Math.round((-_pj.y*.5+.5)*Hd);if(tx!==x.tx||ty!==x.ty){x.tx=tx;x.ty=ty;x.el.style.transform=`translate(${tx}px,${ty}px) translate(-50%,-50%)`}}}
  if(on!==x.on){x.on=on;x.el.classList.toggle('on',on);x.el.style.pointerEvents=on?'auto':'none'}}}
 
 /* ---------- the hairline of time ---------- */
 function eraListFor(sp){return MB[sp.id].e}
+/* the name and chapters of a timeline stop: a merged group reads as its first and last age */
+function eraName(e,id){const g=eraGroup(e,id);if(g.length<2)return ERAN[e]||'';return g.length===2?`${ERAN[g[0]]} · ${ERAN[g[1]]}`:`${ERAN[g[0]]} — ${ERAN[g[g.length-1]]}`}
+function eraCh(e,id){const g=eraGroup(e,id);if(g.length<2)return EB[e]?EB[e].ch:'';const a=EB[g[0]].ch,b=EB[g[g.length-1]].ch;
+ const head=a.split('–')[0].trim().replace(/章$/,'')+'章';const vols=b.match(/卷./g)||[''],nums=b.match(/\d+/g)||[''];return `${head} – ${vols[vols.length-1]} 第${nums[nums.length-1]}章`}
 function buildTime(){const L=eraListFor(CUR);const tr=$('#time .track');tr.innerHTML='';$('#time').classList.toggle('off',L.length<2);
- L.forEach((e,i)=>{const b=document.createElement('button');b.className='tk'+(e===6&&i>0?' vol':'');b.dataset.e=e;b.style.left=(L.length===1?50:i/(L.length-1)*100)+'%';b.innerHTML=`<span>${ERAN[e]}</span>`;b.setAttribute('aria-label',ERAN[e]);b.title=EB[e].ch;tr.appendChild(b)});
+ L.forEach((e,i)=>{const b=document.createElement('button');b.className='tk'+(e===6&&i>0?' vol':'');b.dataset.e=e;b.style.left=(L.length===1?50:i/(L.length-1)*100)+'%';b.innerHTML=`<span>${eraName(e,CUR.id)}</span>`;b.setAttribute('aria-label',eraName(e,CUR.id));b.title=eraCh(e,CUR.id);tr.appendChild(b)});
  syncTime()}
-function syncTime(){$('#time .cur').textContent=ERAN[ERA]||'';[...$('#time .track').children].forEach(b=>b.classList.toggle('on',+b.dataset.e===ERA))}
+function syncTime(){$('#time .cur').textContent=CUR?eraName(ERA,CUR.id):ERAN[ERA]||'';[...$('#time .track').children].forEach(b=>b.classList.toggle('on',+b.dataset.e===ERA))}
 $('#time .track').addEventListener('click',e=>{const b=e.target.closest('.tk');if(!b)return;timeTo(+b.dataset.e)});
-function timeToBase(e){const ok=MB[CUR.id]&&MB[CUR.id].e;if(ok&&ok.length&&!ok.includes(e))e=ok.reduce((b,x)=>Math.abs(x-e)<Math.abs(b-e)?x:b,ok[0]);if(CUR.type==='planet'){if(e===ERA)return;setEra(e)}else{ERA=e;syncTime();const tgt=eraSpot(CUR,e);if(tgt)flyTo(tgt.a,tgt.b,tgt.alt,2.4,tgt.y)}}
+function timeToBase(e){e=eraRep(e,CUR.id);const ok=MB[CUR.id]&&MB[CUR.id].e;if(ok&&ok.length&&!ok.includes(e))e=ok.reduce((b,x)=>Math.abs(x-e)<Math.abs(b-e)?x:b,ok[0]);if(CUR.type==='planet'){if(e===ERA)return;setEra(e)}else{ERA=e;syncTime();const tgt=eraSpot(CUR,e);if(tgt)flyTo(tgt.a,tgt.b,tgt.alt,2.4,tgt.y)}}
 function eraSpot(sp,e){if(sp.id==='void'){const c=e===10&&false?NG_C:SECTORS[e].c;return{a:-c[2],b:c[0],alt:2200,y:0}}const h=homeFor(sp,e);
  // in a tube, stand at the middle of that era's stretch so the era indicator agrees with where you are
  if(sp.type==='tube'){const ok=MB[sp.id].e;const L=WIKI.filter(w=>mapOf(w)===sp.id&&(w.e.find(x=>ok.includes(x))||w.e[0])===e);if(L.length)h.a=L.reduce((s,w)=>s+(w.z||0),0)/L.length}
  return h}
-function setEraBase(e){cutNow();if(CUR.type!=='planet'){ERA=e;syncTime();return}ERA=e;store.set('rq_era',e);applyPlanetEra(CUR,e);syncTime();showTitle(MB[CUR.id].n,`${EB[e].n} · ${EB[e].ch}`,3600);if(sel&&!eraOk(W[sel].e))closeCap()}
+function setEraBase(e){cutNow();if(CUR.type!=='planet'){ERA=e;syncTime();return}ERA=e;store.set('rq_era',e);applyPlanetEra(CUR,e);syncTime();showTitle(MB[CUR.id].n,`${eraName(e,CUR.id)} · ${eraCh(e,CUR.id)}`,3600);if(sel&&!eraOk(W[sel].e))closeCap()}
 
 /* ---------- the story card ---------- */
 let sel=null,selP=null;const cap=$('#cap');
@@ -203,7 +207,7 @@ $('#libbody').addEventListener('click',e=>{const tb=e.target.closest('[data-tour
  const sg=e.target.closest('[data-sg]');if(sg){const m=sg.dataset.sg;sideOpen.has(m)?sideOpen.delete(m):sideOpen.add(m);renderLib();return}
  const sd=e.target.closest('[data-side]');if(sd){if(innerWidth<760)$('#lib').classList.remove('on');goSide(sd.dataset.side);return}
  const a=e.target.closest('[data-i]');if(a){const A=ARCS[+a.dataset.i];const id=A.go||ARCGO[+a.dataset.i];const w=W[id];if(!w)return;if(innerWidth<760)$('#lib').classList.remove('on');
-  const m=mapOf(w);if(m!==CUR.id){enterSpace(m,{era:MB[m].e.includes(A.e)?A.e:undefined,rig:entryRig(w),rigFn:()=>q4c_entryRig(id),after:()=>{open(id);q4c_goto(id,null)}})}else{if(CUR.type==='planet'&&A.e!==ERA&&MB[m].e.includes(A.e))setEra(A.e);open(id);q4c_goto(id,null)}}});
+  const m=mapOf(w),ae=eraRep(A.e,m);if(m!==CUR.id){enterSpace(m,{era:MB[m].e.includes(ae)?ae:undefined,rig:entryRig(w),rigFn:()=>q4c_entryRig(id),after:()=>{open(id);q4c_goto(id,null)}})}else{if(CUR.type==='planet'&&ae!==ERA&&MB[m].e.includes(ae))setEra(ae);open(id);q4c_goto(id,null)}}});
 
 /* ---------- pointer: hover, touch, drag, wheel ---------- */
 const mouse={x:-1,y:-1,in:false};let hov=null,hovPlace=null,drag=null,pinch=null,pushOut=0,spins=0;const ptrs=new Map();
@@ -344,7 +348,7 @@ function loop(now){if(q5s_halt)return;const fc=frameCap(now);
   rig.a=lerp(tw.from.a,tw.to.a,e);rig.b=lerp(tw.from.b,tw.to.b,e);rig.y=lerp(tw.from.y,tw.to.y,e);rig.head=lerp(tw.from.head,tw.to.head,e);rig.alt=Math.min(altMax(),Math.exp(lerp(Math.log(tw.from.alt),Math.log(tw.to.alt),e))+hop);if(k>=1){const tr=tw.track;tw=null;q4c_arrive(tr)}}
  else if(!drag&&!pinch){if(Math.abs(vel.a)+Math.abs(vel.b)>1e-5){rig.a+=vel.a*dt*60;rig.b+=vel.b*dt*60;if(CUR.type==='planet')rig.a=clamp(rig.a,-86,86);else if(CUR.type==='tube')rig.a=clamp(rig.a,CUR.zr[0],CUR.zr[1]);else{const L=CUR.bound||7000;rig.a=clamp(rig.a,-L,L);rig.b=clamp(rig.b,-L,L)}const dk=Math.exp(-dt*5.5);vel.a*=dk;vel.b*=dk}}
  if(!busy){pinchStep();drainZoom(dt)}
- if(!busy){const kk=dragK()*5*dt*60,ch=Math.cos(rig.head),sh=Math.sin(rig.head);if(keys.KeyW||keys.ArrowUp)moveBy(kk*ch,-kk*sh);if(keys.KeyS||keys.ArrowDown)moveBy(-kk*ch,kk*sh);if(keys.KeyD||keys.ArrowRight)moveBy(kk*sh,kk*ch);if(keys.KeyA||keys.ArrowLeft)moveBy(-kk*sh,-kk*ch);
+ if(!busy){const kk=dragK()*5*dt*60,ch=Math.cos(rig.head),sh=Math.sin(rig.head);if(keys.KeyW)moveBy(kk*ch,-kk*sh);if(keys.KeyS)moveBy(-kk*ch,kk*sh);if(keys.KeyD)moveBy(kk*sh,kk*ch);if(keys.KeyA)moveBy(-kk*sh,-kk*ch);
   if(keys.KeyQ)rig.head-=dt*1.2;if(keys.KeyE)rig.head+=dt*1.2;if(keys.KeyR){zq.v-=dt*1.6;zq.cx=innerWidth/2;zq.cy=innerHeight/2}if(keys.KeyF){zq.v+=dt*1.6;zq.cx=innerWidth/2;zq.cy=innerHeight/2}}
  followStep(dt);rigPose();q5s_mark('cut');cutStep(dt);q5s_mark('update');
  if(CUR._sunTw){const o=CUR._sunTw,k=Math.min(1,(T-o.t0)/2.4),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;CUR.sunLon=o.a+(o.b-o.a)*e;if(k>=1)CUR._sunTw=null}

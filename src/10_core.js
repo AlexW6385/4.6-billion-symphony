@@ -86,6 +86,12 @@ const EB=Object.fromEntries(ERAS.map(e=>[e.id,e]));
 const MAPL=MAPS.filter(m=>m.id!=='ningu');
 const MB=Object.fromEntries(MAPL.map(m=>[m.id,m]));
 MB.void.e=[6,7,8,9,10,11,12,13];
+/* ages a world merges: on its timeline a kept age (the first of the group) stands for the ages after it that look nearly the
+   same there (MAPS eg:{kept:[merged…]}); anything tagged with a merged age shows in the kept one */
+const EGX={},EGR={};MAPS.forEach(m=>{if(!m.eg)return;const g={},r={};for(const k in m.eg){g[k]=[+k,...m.eg[k]];for(const z of g[k])r[z]=+k}EGX[m.id]=g;EGR[m.id]=r});
+function eraHas(L,e,id){if(!L)return false;if(L.includes(e))return true;const g=EGX[id===undefined?(CUR&&CUR.id):id],m=g&&g[e];return !!m&&m.some(z=>L.includes(z))}
+function eraRep(e,id){const r=EGR[id];return r&&r[e]!==undefined?r[e]:e}
+function eraGroup(e,id){const g=EGX[id];return g&&g[e]||[e]}
 const mapOf=w=>w.m||'rongqiu';
 const PORTAL={};WIKI.forEach(w=>{if(w.go&&MB[w.go]&&mapOf(w)==='void')PORTAL[w.go]=w.id});
 FAUNA.forEach(f=>{if(f.w==='xm_train')f.track=1});
@@ -200,7 +206,7 @@ function anim(sp,o,f){sp.anims.push({o,f});}
 
 /* ---- era state ---- */
 let ERA=store.get('rq_era',2);if(!EB[ERA])ERA=2;
-function eraOk(e){if(!CUR||CUR.type!=='planet')return true;return !e||e.includes(ERA)||(ERA===13&&e.includes(12))}
+function eraOk(e){if(!CUR||CUR.type!=='planet')return true;return !e||eraHas(e,ERA)||(ERA===13&&e.includes(12))}
 
 /* ---- the camera rig: one rig over three kinds of surface ---- */
 const rig={a:18,b:-25,alt:2600,head:0,y:0};

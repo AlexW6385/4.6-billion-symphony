@@ -2,6 +2,13 @@
 
 What changed for visitors of the exhibition, newest first.
 
+## v2.5 — 2026-11-05 · Simpler timelines
+
+- **Each world's timeline only has the ages where it changes**: 绒球 goes from 13 stops to 8 (the late ages that look the same there are one stop now), 尔什 from 6 to 4, 熔毁地带 has one. The book's ages are unchanged on every entry.
+- **14 worlds**: 云海 and 飘浮岩地 are back in 绒球 and the void; they were too roughly made to keep.
+- **Entries you jump to are easier to see**: small models on planets are no longer lost in their own glow, the phoenixes fly above their star's platforms, the bridge's creatures have their own shapes, the phoenix star's platforms are flatter, and a jump to the night side of a world brings the day round to it.
+- **Keys and trackpad**: the left and right arrow keys turn the open card or chapter; a trackpad swipe turns exactly one.
+
 ## v2.4 — 2026-11-05 · Fewer, better worlds
 
 - **Sixteen worlds to enter instead of fifty-eight**: 绒球, 虚空 (with 凝固虚空), 梦境, 不可预见之地, 尔什, 虚民母球, 米德加尔特, 地下世界, 白色通道, and the richest of the newer ones — 云海, 飘浮岩地, 凤凰的恒星, 熔毁地带, 末日空间, 唯一之桥. The other worlds were thin or roughly made; their entries (about 480) are back in the big world their door stood in — the void, the frozen void, the dream road, the unforeseeable land, or 绒球 and its moon — at the places they had before they were split off, or beside their old door. Nothing was deleted: every entry, side story and chapter link is still there.

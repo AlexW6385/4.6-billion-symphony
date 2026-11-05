@@ -1,7 +1,7 @@
 /* ================================================================
    planet worlds built from one template: a config gives the ground's shape and colours, the sea, the air, the sky and a few
-   set pieces; the entries that live there carry m:<world> and ll, and are placed like on any planet. 熔毁地带, 末日空间,
-   飘浮岩地, 凤凰的恒星 and 云海; after them, the one road world built here, 唯一之桥.
+   set pieces; the entries that live there carry m:<world> and ll, and are placed like on any planet. 熔毁地带, 末日空间
+   and 凤凰的恒星; after them, the one road world built here, 唯一之桥.
    ================================================================ */
 const W3={
  rongui:{home:{a:10,b:30,alt:2600},
@@ -33,20 +33,12 @@ const W3={
    {geo:'cyl',n:360,col:'#2a6a2a',scale:[.6,1.4],stretch:[1,7,1],test:(la,lo)=>doomSecLL(la,lo)===5},
    {geo:'sphere',n:70,col:'#7a6aa0',em:'#4a2a8a',ei:.4,metal:.5,rough:.3,flat:1,scale:[2,6],test:(la,lo)=>{const k=doomSecLL(la,lo);return k===8||k===9}}],
   fog:{n:5,col:'#3a3634',test:(la,lo)=>doomSecLL(la,lo)===4}}};
-/* 飘浮岩地 · 神民之国 (ages 7–8): the visitor stands on the floating continent that holds the city of the god-folk; all round, in a
-   black sky, the field of floating rocks (the remains of star buses that fell apart) and, far off, the black fog at its centre */
-W3.piaofu={home:{a:20,b:10,alt:2600},sunLon:40,dayLen:1e12,
- height:p=>{const n=fbm(p.x*3.5+8,p.y*3.5,p.z*3.5,5),r=1-Math.abs(fbm(p.x*6,p.y*6+3,p.z*6,4)*2-1);return 3+(n-.5)*30+Math.pow(r,4)*40},
- col:(p,h,lat,o)=>{o.set('#6a625a').lerp(C('#4a4440'),n3(p.x*10,p.y*10,p.z*10)*.8);o.lerp(C('#5a6a4a'),sm(.55,.75,n3(p.x*4,p.y*4,p.z*4))*.5);if(h>30)o.lerp(C('#8a8278'),sm(30,60,h)*.6)},
- ocean:{deep:'#101014',shal:'#202028'},atm:'#4a4a60',atmK:.25,clouds:false,rough:.9,
- sky:{zen:'#05050c',hor:'#141420',set:'#3a3040',nightZ:'#020205',nightH:'#08080e'},envTop:'#3a3a50',envMid:'#5a5660',envBot:'#1a1816',sunI:1,
- props:[{geo:'lump',n:420,col:'#5a544e',alt:[80,700],scale:[3,40],minH:-99,far:6000},{geo:'lump',n:160,col:'#4a4842',alt:[700,1600],scale:[30,120],minH:-99,far:9000}],
- cities:[[22,12,3.2]],cityCol:'#b8aa98',belt:{n:700,r:[1.5,2.6],s:[20,110],col:'#5a544e',thick:.5,tilt:.5},
- swarmFar:{col:'#08080a',at:[-1,.2,.3],d:7000,r:1600}};
 /* 凤凰的恒星 (age 10): a star almost wholly covered by a shell of kilometre platforms, each with its own gravity; the star's light
    leaks up through the gaps between them. Square cells on the globe give the platforms, a level each; the gaps are the star */
-W3.phoenix={home:{a:16,b:20,alt:2600},sunLon:0,dayLen:1e12,sunI:.5,
- height:p=>{const c=phCell(p);if(c.gap)return -6;return 4+c.lv*5},
+W3.phoenix={home:{a:16,b:20,alt:2600},sunLon:0,dayLen:1e12,sunI:.5,N:300,
+ // the platforms stand a little apart in level (a few metres, not storeys: taller steps melted into pillows at the ground's
+ // resolution and hid what stands on them); the denser ground keeps the gaps between them crisp
+ height:p=>{const c=phCell(p);if(c.gap)return -6;return 4+c.lv*1.6},
  col:(p,h,lat,o)=>{if(h<0){o.set('#ffb030');return}const c=phCell(p);o.set(['#c8c0b8','#a8b0c0','#d8c8a8','#b8c8d0','#e0d0c0','#9aa0a8'][c.t]);o.offsetHSL(0,0,(n3(p.x*40,p.y*40,p.z*40)-.5)*.08)},
  ocean:{deep:'#ffd060',shal:'#fff0b0'},atm:'#ffb040',atmK:.9,clouds:false,rough:.5,metal:.4,bump:.3,rock:'#a8a098',
  sky:{zen:'#120806',hor:'#5a2a10',set:'#ff9030',nightZ:'#120806',nightH:'#5a2a10'},envTop:'#ffb060',envMid:'#806050',envBot:'#ffd080',hemiSky:0xffc070,hemiGnd:0xffa030,
@@ -56,33 +48,13 @@ W3.phoenix={home:{a:16,b:20,alt:2600},sunLon:0,dayLen:1e12,sunI:.5,
 function phCell(p){const k=12,x=p.x*k,y=p.y*k,z=p.z*k,ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),fx=x-ix,fy=y-iy,fz=z-iz;
  const q=Math.sin(ix*127.1+iy*311.7+iz*74.7)*43758.5,h=q-Math.floor(q);const e=.11;const ax=Math.abs(p.x),ay=Math.abs(p.y),az=Math.abs(p.z);
  const gap=(ax<ay||ax<az?(fx<e||fx>1-e):0)||(ay<ax||ay<az?(fy<e||fy>1-e):0)||(az<ax||az<ay?(fz<e||fz>1-e):0);return{gap,lv:Math.floor(h*4),t:Math.floor(h*97)%6}}
-/* 云海 (ages 5–12): the peak in the east and the cloud sea round it. Jungle below, the desert to the east; the mountain rises through
-   three cloud layers (the first two soft and white, the third the brightest) with the alloy academy on its summit; over the desert the
-   dark cloud sea drifts as grey islands; far out, the creators' white hexagon island and black-piped castle hang in the sky (天国) */
-const YH_PK=[0,0],YH_DES=[0,14];
-W3.yunhai={home:{a:-6,b:-8,alt:240},sunLon:-30,
- height:p=>{const a=angDeg(p,dirLL(...YH_PK)),n=fbm(p.x*4+2,p.y*4,p.z*4,5),d=fbm(p.x*18,p.y*18,p.z*18,3);let h=4+(n-.5)*10+(d-.5)*2;h+=78*Math.exp(-Math.pow(a/2.6,1.6))*(.85+.3*d);return Math.max(1.2,h)},
- col:(p,h,lat,o)=>{const a=angDeg(p,dirLL(...YH_PK));o.set('#3a6a2a').lerp(C('#2a5a22'),n3(p.x*12,p.y*12,p.z*12)*.8);const ds=angDeg(p,dirLL(...YH_DES));if(ds<11)o.lerp(C('#d8b878'),1-sm(8,11,ds));if(a<3.2)o.lerp(C('#7a746a'),1-sm(1.8,3.2,a));if(a<.9)o.set('#c8ccd4')},
- ocean:{deep:'#1a4a6a',shal:'#3a7a8a'},atm:'#a8d0f0',atmK:.6,clouds:false,rough:.95,
- sky:{zen:'#3a78c8',hor:'#c8e0f4',set:'#e8b080'},
- props:[{geo:'cone',n:9000,col:'#2a5a22',rough:.9,scale:[.5,1],stretch:[1,2.4,1],test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>2.6&&a<20&&angDeg(dirLL(la,lo),dirLL(...YH_DES))>10}},
-  {geo:'sphere',n:2600,col:'#f4f6f8',rough:1,op:.9,scale:[5,9],stretch:[1,.14,1],alt:[16,19],minH:-99,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>1.6&&a<14&&lo<7}},
-  {geo:'sphere',n:2200,col:'#f8f8fa',rough:1,op:.9,scale:[5,9],stretch:[1,.14,1],alt:[30,33],minH:-99,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>1.3&&a<13&&lo<7}},
-  {geo:'sphere',n:2400,col:'#ffffff',em:'#fff6e0',ei:.3,rough:1,op:.92,scale:[5,9],stretch:[1,.14,1],alt:[58,61],minH:-99,test:(la,lo)=>{const a=angDeg(dirLL(la,lo),dirLL(...YH_PK));return a>.8&&a<14&&lo<7}},
-  {geo:'sphere',n:1400,col:'#6a6c72',rough:1,scale:[3,8],stretch:[1,.3,1],alt:[34,44],minH:-99,test:(la,lo)=>angDeg(dirLL(la,lo),dirLL(...YH_DES))<9}],
- more:(sp,Rn)=>{const o=new THREE.Object3D(),am=new THREE.MeshStandardMaterial({color:'#d8dce4',metalness:.8,roughness:.25});
-  for(let k=0;k<9;k++){const g=new THREE.Mesh(k%3?new THREE.BoxGeometry(1.2,1,1.2):new THREE.CylinderGeometry(.6,.7,1,12),am);const a=k/9*6.28,r=.25+(k%3)*.12;frameLL(sp,YH_PK[0]+Math.cos(a)*r,YH_PK[1]+Math.sin(a)*r,0,a,g);const h=1.4+Rn()*2.2;g.scale.set(1.4,h,1.4);g.translateY(h/2);sp.scene.add(g)}
-  {const g=new THREE.Mesh(new THREE.SphereGeometry(1.6,20,10,0,6.28,0,Math.PI/2),am);frameLL(sp,YH_PK[0],YH_PK[1],0,0,g);sp.scene.add(g)}
-  {const g=new THREE.Mesh(new THREE.CylinderGeometry(6,6,30,24,1,true),new THREE.MeshBasicMaterial({color:'#e8ecec',transparent:true,opacity:.25,side:THREE.DoubleSide,depthWrite:false}));frameLL(sp,-6,-10,15,0,g);sp.scene.add(g)}
-  {const g=new THREE.Group();const isl=new THREE.Mesh(new THREE.CylinderGeometry(6,3,2,6),new THREE.MeshStandardMaterial({color:'#f4f4f0',roughness:.5}));g.add(isl);const bm=new THREE.MeshStandardMaterial({color:'#1a1a1e',metalness:.6,roughness:.4});const ca=new THREE.Mesh(new THREE.BoxGeometry(3.4,2.4,3.4),bm);ca.position.y=2.2;g.add(ca);
-   for(let k=0;k<3;k++){const tw=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,3,8),bm);tw.position.set(-2+k*2,-2.4,0);g.add(tw)}frameLL(sp,2,21,62,0,g);sp.scene.add(g)}}};
 /* which end-world of the moon a ground point is in: the core round the north pole, then ten wedges by longitude, walls between */
 const DOOM_CORE=64;
 function doomSec(p){const la=Math.asin(clamp(p.y,-1,1))/D2R;if(la>DOOM_CORE+2)return{core:1,k:-1};const lo=Math.atan2(p.x,p.z)/D2R+180,k=Math.min(9,Math.floor(lo/36)),e=lo-k*36;
  return{k,wall:la<DOOM_CORE+2&&(e<.7||e>35.3||Math.abs(la-DOOM_CORE)<.7)}}
 function doomSecLL(la,lo){if(la>DOOM_CORE+2)return -1;const L=((lo+180)%360+360)%360;return Math.min(9,Math.floor(L/36))}
 function buildW3(id){const c=W3[id];
- const sp=makePlanet(id,{height:c.height,colors:oneSet(c.col),ocean:c.ocean,atm:c.atm,atmK:c.atmK,clouds:c.clouds,rough:c.rough,metal:c.metal,bump:c.bump,rock:c.rock,sky:c.sky,
+ const sp=makePlanet(id,{N:c.N,height:c.height,colors:oneSet(c.col),ocean:c.ocean,atm:c.atm,atmK:c.atmK,clouds:c.clouds,rough:c.rough,metal:c.metal,bump:c.bump,rock:c.rock,sky:c.sky,
   envTop:c.envTop,envMid:c.envMid,envBot:c.envBot,hemiSky:c.hemiSky,sunI:c.sunI,sunLon:c.sunLon,dayLen:c.dayLen});BSP=sp;const gh=sp.gh,Rn=rnd(hashStr(id));
  // crystal outcrops over the land: one instanced draw
  if(c.crystals){const geo=new THREE.OctahedronGeometry(1,0);geo.translate(0,.7,0);
@@ -127,9 +99,15 @@ function w3Orbiters(sp){const g=sp.ring;
  WIKI.filter(w=>w.m===sp.id&&w.orb!==undefined).forEach(w=>{const a=w.orb*D2R,r=sp.ringR,p=V3(Math.cos(a)*r,30,Math.sin(a)*r);const s=makeShape(w,sp,false);s.position.copy(p);g.add(s);
   g.updateMatrixWorld(true);const wp=s.getWorldPosition(V3());s.userData.pick=w.id;px(w.id,()=>s.getWorldPosition(wp),Math.max(30,(w.kp&&(w.kp.r||w.kp.s))||30))})}
 /* entries on a planet that only have a void-style kit shape get a planet body made from it, scaled to stand on the ground */
+/* the solid part of a kit shape: its opaque meshes, not the glow sprites and point clouds round it (sized by those, a bird or
+   a spark came out as a speck inside a huge glow, and the camera framed the speck from inside the glow) */
+function kitBox(g){g.updateMatrixWorld(true);const b=new THREE.Box3(),t=new THREE.Box3();g.traverse(c=>{if(!c.isMesh||!c.geometry||c.isInstancedMesh)return;const m=c.material;if(m&&(m.blending===THREE.AdditiveBlending||m.depthWrite===false))return;if(!c.geometry.boundingBox)c.geometry.computeBoundingBox();t.copy(c.geometry.boundingBox).applyMatrix4(c.matrixWorld);b.union(t)});if(b.isEmpty())b.setFromObject(g);return b}
+/* kit shapes were made for the dark void: on a lit planet their self-glow and halos bloomed into white blobs that hid the shape */
+function kitTame(g){const seen=new Set();g.traverse(c=>{const m=c.material;if(!m||seen.has(m))return;seen.add(m);if(m.blending===THREE.AdditiveBlending||c.isPoints||c.isSprite){m.opacity=(m.opacity===undefined?1:m.opacity)*.35;m.transparent=true;return}
+ if(m.emissive&&m.emissiveIntensity)m.emissiveIntensity*=.3;else if(m.isMeshBasicMaterial&&m.color)m.color.multiplyScalar(.55)})}
 function entryKits(sp){WIKI.filter(w=>mapOf(w)===sp.id&&w.ll&&!ENT[w.id]&&w.k&&w.k!=='none'&&w.k!=='planet').forEach(w=>{
- ENT[w.id]=[()=>{const g=makeShape(w,sp,false);const b=new THREE.Box3().setFromObject(g),sz=b.getSize(V3());const k=1/Math.max(1e-3,Math.max(sz.x,sz.y,sz.z));g.scale.multiplyScalar(k);
-  const w0=new THREE.Group();g.position.y=-b.min.y*k;w0.add(g);return w0},(w.kp&&w.kp.big)||4,{alt:w.alt||0}]})}
+ ENT[w.id]=[()=>{const g=makeShape(w,sp,false);kitTame(g);const b=kitBox(g),sz=b.getSize(V3());const k=1/Math.max(1e-3,Math.max(sz.x,sz.y,sz.z));g.scale.multiplyScalar(k);
+  const w0=new THREE.Group();g.position.y=-b.min.y*k;w0.add(g);return w0},(w.kp&&w.kp.big)||(sp.id==='rongqiu'?4:6),{alt:w.alt||0}]})}
 for(const id in W3){BUILDERS[id]=()=>buildW3(id);HOME[id]=W3[id].home}
 /* 唯一之桥 (age 10): the ten-thousand-kilometre bridge-city — the road runs along its deck, with towns on top, street layers
    stacked underneath, the bone kingdoms' dump to one side, the twisted manager's core near the end and the war bus beyond */

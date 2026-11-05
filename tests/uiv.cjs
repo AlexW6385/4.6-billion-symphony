@@ -69,7 +69,7 @@ const log=(...a)=>console.log(...a);let nShot=0;
   await p.mouse.dblclick(550,330);await idle(800);let r6=await rig();ok('dblclick flies in',r6.alt<r5.alt,[r5.alt,r6.alt]);
  }
  // ---------- time axis ----------
- const ticks=await ev(()=>[...document.querySelectorAll('#time .tk')].map(b=>b.dataset.e));ok('timeline ticks',ticks.length>=10,ticks);
+ const ticks=await ev(()=>[...document.querySelectorAll('#time .tk')].map(b=>b.dataset.e));ok('timeline ticks',ticks.length===8&&ticks.join()==='1,2,3,4,5,6,8,9',ticks);
 
  await click('#time .tk[data-e="3"]');await wait(2500);ok('tick sets era 3',(await rig()).era===3);await shot('era3');
  await click('#time .tk[data-e="5"]');await wait(2500);ok('tick sets era 5',(await rig()).era===5);await shot('era5');

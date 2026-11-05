@@ -254,8 +254,8 @@ function q2_jobStartBase(P,c,T,ti){const sp=P.sp,Gd=sp.G;const back=P.act===0?1:
  const Nn=V3(0,1,0).addScaledVector(c,-c.y);if(Nn.lengthSq()<1e-6)Nn.set(1,0,0);Nn.normalize();const E=Nn.clone().cross(c).negate();
  const rin=Rp*.955-2,alt=Math.max(rig.alt,14);const rg=clamp(26+alt*1.05,36,Rp*.86)*T.rg;
  const degR=(Rp*1.5)/(R*D2R);
- const clr=(sp.entClr||[]).filter(e=>(!e.eras||e.eras.includes(ERA))&&angDeg(e.d,c)<degR+e.deg*2);const towns=clr.filter(e=>e.town);
- const lines=(sp.q2Lines||[]).filter(l=>(!l.eras||l.eras.includes(ERA))&&(angDeg(l.a,c)<degR+1||angDeg(l.b,c)<degR+1)).map(l=>{const ab=l.b.clone().sub(l.a);const m=l.a.clone().add(l.b).multiplyScalar(.5);
+ const clr=(sp.entClr||[]).filter(e=>(!e.eras||eraHas(e.eras,ERA))&&angDeg(e.d,c)<degR+e.deg*2);const towns=clr.filter(e=>e.town);
+ const lines=(sp.q2Lines||[]).filter(l=>(!l.eras||eraHas(l.eras,ERA))&&(angDeg(l.a,c)<degR+1||angDeg(l.b,c)<degR+1)).map(l=>{const ab=l.b.clone().sub(l.a);const m=l.a.clone().add(l.b).multiplyScalar(.5);
   return{a:l.a,ab,l2:ab.lengthSq()||1e-12,m,rr:(Math.sqrt(ab.lengthSq())*.5+(l.w*2.4+.06)*D2R),w:l.w,lv:l.lv}});
  const lakes=(typeof LAKEZ!=='undefined'?LAKEZ:[]).filter(z=>angDeg(z[0],c)<degR+z[1]*2);
  const J={P,B,n,Rp,r:Rp,rin,rg,C:c.clone(),E,N:Nn,ti,T,alt,clr,towns,lines,lakes,cy:sp.TU.uCanyon.value,era:ERA,row:0,stage:0,gi:0,
@@ -345,7 +345,7 @@ function q2_at(cu,d){const cd=d.dot(cu.C);if(cd<.5)return -1;const x=d.dot(cu.E)
  const inv=s=>{const p=Q2GA/(1-Q2GA),q=-s/(cu.r*(1-Q2GA)),D=Math.sqrt(q*q/4+p*p*p/27);return Math.cbrt(-q/2+D)+Math.cbrt(-q/2-D)};
  const n=cu.n,fx=(inv(x)+1)*.5*n,fy=(inv(y)+1)*.5*n;const i=clamp(fx|0,0,n-1),j=clamp(fy|0,0,n-1);cu._fx=fx-i;cu._fy=fy-j;return j*(n+1)+i}
 /* the river and road segments near a spot, and whether a point lies on one (for the ground cover) */
-function q2_linesBase(sp,c,deg){if(!sp.q2Lines||!sp.q2Lines.length)return null;const L=sp.q2Lines.filter(l=>(!l.eras||l.eras.includes(ERA))&&(angDeg(l.a,c)<deg+1||angDeg(l.b,c)<deg+1)).map(l=>{const ab=l.b.clone().sub(l.a);
+function q2_linesBase(sp,c,deg){if(!sp.q2Lines||!sp.q2Lines.length)return null;const L=sp.q2Lines.filter(l=>(!l.eras||eraHas(l.eras,ERA))&&(angDeg(l.a,c)<deg+1||angDeg(l.b,c)<deg+1)).map(l=>{const ab=l.b.clone().sub(l.a);
   const w=l.w*(l.lv!==undefined?.8:1.3)*D2R;return{a:l.a,ab,l2:ab.lengthSq()||1e-12,m:l.a.clone().add(l.b).multiplyScalar(.5),rr:Math.sqrt(ab.lengthSq())*.5+w,w2:w*w}});return L.length?L:null}
 function q2_onLine(L,d){for(const l of L){const mx=d.x-l.m.x,my=d.y-l.m.y,mz=d.z-l.m.z;if(mx*mx+my*my+mz*mz>l.rr*l.rr)continue;
   let t=((d.x-l.a.x)*l.ab.x+(d.y-l.a.y)*l.ab.y+(d.z-l.a.z)*l.ab.z)/l.l2;t=t<0?0:t>1?1:t;const ex=d.x-l.a.x-l.ab.x*t,ey=d.y-l.a.y-l.ab.y*t,ez=d.z-l.a.z-l.ab.z*t;if(ex*ex+ey*ey+ez*ez<l.w2)return true}return false}

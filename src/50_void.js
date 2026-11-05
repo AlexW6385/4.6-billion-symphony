@@ -427,7 +427,7 @@ function fxH_phoenixShape(g,x){const {S,kp}=x;const star=!!kp.starry;const col=s
   const holo=fxH_faceless(S*.34,mt('#9fe8ff',{emissive:'#5ad0ff',emissiveIntensity:.9,transparent:true,opacity:.7,depthWrite:false}));holo.position.y=S*.03;bk.add(holo);bk.add(at(glowSprite('#9fe8ff',S*.6,.5),0,S*.2,0));
   bk.position.set(S*.05,S*.08,S*.75);g.add(bk)}
  return t=>{p.userData.anim(t);g.position.y=Math.sin(t*.6)*S*.15}}
-fxH_SH.v_guanxing=fxH_phoenixShape;fxH_SH.ng_phoenixhero=fxH_phoenixShape;
+fxH_SH.v_guanxing=fxH_phoenixShape;fxH_SH.ng_phoenixhero=fxH_phoenixShape;fxH_SH.v_feng=fxH_phoenixShape;fxH_SH.ph_mentor=fxH_phoenixShape;fxH_SH.ph_legend=fxH_phoenixShape;
 
 /* ---------- the void bus: a ball of ice tens of kilometres across, a crack across it for a mouth, three jointed limbs on each side of the crack ---------- */
 function fxH_iceBus(g,x,station){const {S,Rn,seed}=x;

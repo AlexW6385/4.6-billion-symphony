@@ -247,7 +247,7 @@ const LPOOL_K=2,_lw=V3();
    it seemed to shrink and vanish: the camera stops just outside any solid body instead */
 const _sv=V3();
 window.__solidPush=sp=>{let L=sp._solids;if(L===undefined){L=sp._solids=[];for(const w of WIKI){if(mapOf(w)!==sp.id||!w.k||!SOLID[w.k])continue;const r=(w.kp&&w.kp.r)||sizeOf(w);if(r>4)L.push({w,r})}}
- if(!L.length)return;let moved=false;for(const s of L){if(s.w.e&&!s.w.e.includes(ERA))continue;const c=s.c||(s.c=posOf(s.w));_sv.copy(camera.position).sub(c);const d=_sv.length(),m=s.r*1.12;if(d<m){camera.position.copy(c).addScaledVector(d>1e-3?_sv.divideScalar(d):V3(0,1,0),m);moved=true}}
+ if(!L.length)return;let moved=false;for(const s of L){if(s.w.e&&!eraHas(s.w.e,ERA))continue;const c=s.c||(s.c=posOf(s.w));_sv.copy(camera.position).sub(c);const d=_sv.length(),m=s.r*1.12;if(d<m){camera.position.copy(c).addScaledVector(d>1e-3?_sv.divideScalar(d):V3(0,1,0),m);moved=true}}
  if(moved)camera.lookAt(TG)};
 /* one light layout for every world, so the shader programs made for one world serve the next: two directional lights,
    one hemisphere light, the two pooled point lights, and the same kind of fog (linear on the planets, exponential
@@ -287,10 +287,10 @@ function getSpace(id){if(SP[id])return SP[id];
  sp.scene.__q5id=id;sp.__q5t=q5s_now();if(q5s_saved[id]&&!sp.saved)sp.saved=q5s_saved[id];
  try{egz_built(sp)}catch(e){console.warn('eggs',id,e)}
  return sp}
-function clampEra(sp,e){const L=MB[sp.id].e;if(L.includes(e))return e;return L.reduce((a,b)=>Math.abs(b-e)<Math.abs(a-e)?b:a)}
+function clampEra(sp,e){const L=MB[sp.id].e;e=eraRep(e,sp.id);if(L.includes(e))return e;return L.reduce((a,b)=>Math.abs(b-e)<Math.abs(a-e)?b:a)}
 /* where to stand when arriving in a space */
 const HOME={rongqiu:{a:18,b:-25,alt:2600},ximin:{a:22,b:0,alt:2600},erxi:{a:34,b:-10,alt:2600},under:{a:820,b:0,alt:400,y:0}};
-function homeFor(sp,e){const asp=innerWidth/innerHeight;{const EL=eraListFor(sp);if(EL&&EL.length&&!EL.includes(e))e=EL[0]}if(HOME[sp.id]){const h=Object.assign({head:0,y:0},HOME[sp.id]);if(asp<1)h.alt=Math.min(4800,h.alt*Math.min(1.75,1.1/asp));return h}
+function homeFor(sp,e){const asp=innerWidth/innerHeight;e=eraRep(e,sp.id);{const EL=eraListFor(sp);if(EL&&EL.length&&!EL.includes(e))e=EL[0]}if(HOME[sp.id]){const h=Object.assign({head:0,y:0},HOME[sp.id]);if(asp<1)h.alt=Math.min(4800,h.alt*Math.min(1.75,1.1/asp));return h}
  if(sp.id==='void'){const c=e===10&&false?NG_C:(SECTORS[e]||SECTORS[6]).c;return{a:-c[2],b:c[0],alt:2400,head:0,y:0}}
  const L0=WIKI.filter(w=>mapOf(w)===sp.id&&w.e.includes(e)),L1=L0.filter(w=>w.e[0]===e);const L=L1.length?L1:L0;const src=L.length?L:WIKI.filter(w=>mapOf(w)===sp.id);
  if(sp.type==='tube'){const z=Math.min(...src.map(w=>w.z));return{a:Math.max(sp.zr[0],z-200),b:0,alt:420,head:0,y:0}}

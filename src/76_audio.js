@@ -38,7 +38,7 @@ const MOODS={
 };
 function moodKey(){if(!CUR)return'';const id=CUR.id;
  if(id==='rongqiu'){if(rig.alt>3600)return'orbit';return ERA===1?'ocean':ERA===2?'north':ERA===3?'dino':ERA===4?'snow':'sky'}
- return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave',rongui:'rongui',doom:'doom',piaofu:'void',phoenix:'jing',bridge:'tube',yunhai:'dream'}[id]||'void'}
+ return{void:'void',dream:'dream',buke:'buke',midgard:'tube',tunnel:'white',erxi:'erxi',ximin:'ximin',under:'cave',rongui:'rongui',doom:'doom',phoenix:'jing',bridge:'tube'}[id]||'void'}
 function sndInit(){if(SND.ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;let c;try{c=new AC()}catch(e){return false}SND.ctx=c;
  const comp=c.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=3;comp.connect(c.destination);
  SND.master=c.createGain();SND.master.gain.value=0;SND.master.connect(comp);
@@ -218,7 +218,7 @@ function ambInit(){const c=SND.ctx;const A=SND.amb={g:c.createGain(),b:{},nx:0,b
  // the hum: a few slow-beating low tones
  {const out=c.createGain();out.gain.value=0;out.connect(A.g);const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=260;lp.connect(out);
   for(const [f,v] of [[55,.5],[55.35,.4],[82.4,.28],[110.2,.12]]){const o=c.createOscillator();o.type='sine';o.frequency.value=f;const g=c.createGain();g.gain.value=v;lfo(.03+Math.random()*.05,v*.5,g.gain);o.connect(g);g.connect(lp);o.start()}A.b.hum=out}}
-function ambNear(sp){const P=sp.townPts;if(!P||!P.length)return 0;const d=dirLL(rig.a,rig.b);let k=0;for(const t of P){if(t.eras&&!t.eras.includes(ERA))continue;const deg=Math.acos(clamp(d.dot(t.d),-1,1))/D2R;k=Math.max(k,sm(t.r*3.2,t.r*.7,deg))}return k}
+function ambNear(sp){const P=sp.townPts;if(!P||!P.length)return 0;const d=dirLL(rig.a,rig.b);let k=0;for(const t of P){if(t.eras&&!eraHas(t.eras,ERA))continue;const deg=Math.acos(clamp(d.dot(t.d),-1,1))/D2R;k=Math.max(k,sm(t.r*3.2,t.r*.7,deg))}return k}
 function ambTargets(){const T={wind:0,wave:0,city:0,rumble:0,hum:0},sp=CUR;let life=0,day=1,land=0;if(!sp)return [T,0,1,0];const alt=rig.alt;
  if(sp.type==='planet'){const orbit=sm(5200,3000,alt);T.wind=(.12+.26*sm(250,2600,alt))*orbit;T.hum=.06*(1-orbit);
   let sea=0;const la=rig.a,lo=rig.b,cs=Math.max(.2,Math.cos(la*D2R));for(const [x,y] of [[0,0],[1.2,0],[-1.2,0],[0,1.2],[0,-1.2]])if(sp.ghRaw(la+x,lo+y/cs)<0)sea+=.2;
